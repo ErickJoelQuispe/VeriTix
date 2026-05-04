@@ -1,14 +1,30 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { createCipheriv, randomBytes } from 'node:crypto';
 import { JwtPayload } from '@common/interfaces';
 import { Role, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TicketsRepository } from './tickets.repository';
 import { TicketsService } from './tickets.service';
+
+// ── Crypto helpers for tests ──────────────────────────────────────────────────
+
+const TEST_SECRET = 'test-secret-key-32-chars-exactly'; // exactly 32 bytes
+
+function encryptForTest(hash: string, secret: string = TEST_SECRET): string {
+  const key = Buffer.from(secret, 'utf8');
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const encrypted = Buffer.concat([cipher.update(hash, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return [iv.toString('hex'), authTag.toString('hex'), encrypted.toString('hex')].join(':');
+}
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 
@@ -87,6 +103,10 @@ const mockPrismaService = {
   user: { findUniqueOrThrow: jest.fn() },
 };
 
+const mockConfigService = {
+  getOrThrow: jest.fn().mockReturnValue(TEST_SECRET), // exactly 32 bytes for AES-256
+};
+
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
 describe('TicketsService', () => {
@@ -100,6 +120,7 @@ describe('TicketsService', () => {
         TicketsService,
         { provide: TicketsRepository, useValue: mockTicketsRepository },
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
@@ -241,6 +262,7 @@ describe('TicketsService', () => {
 
   describe('validateTicket()', () => {
     const mockBuyerUser = { name: 'Ana', lastName: 'García' };
+    const HASH = 'a'.repeat(64);
 
     beforeEach(() => {
       repo.findByHash.mockResolvedValue(mockTicketDetail);
@@ -252,9 +274,11 @@ describe('TicketsService', () => {
       prisma.user.findUniqueOrThrow.mockResolvedValue(mockBuyerUser);
     });
 
-    it('should validate an ACTIVE ticket and return confirmation data', async () => {
-      const result = await service.validateTicket('a'.repeat(64), 'uuid-validator-1');
+    it('should decrypt the payload and validate an ACTIVE ticket', async () => {
+      const payload = encryptForTest(HASH);
+      const result = await service.validateTicket(payload, 'uuid-validator-1');
 
+      expect(repo.findByHash).toHaveBeenCalledWith(HASH);
       expect(repo.updateStatus).toHaveBeenCalledWith(
         'uuid-ticket-1',
         TicketStatus.USED,
@@ -267,14 +291,36 @@ describe('TicketsService', () => {
       expect(result.validatedAt).toBeInstanceOf(Date);
     });
 
-    it('should throw NotFoundException when hash does not exist', async () => {
+    it('should throw NotFoundException when decrypted hash does not exist', async () => {
       repo.findByHash.mockResolvedValue(null);
+      const payload = encryptForTest(HASH);
 
       await expect(
-        service.validateTicket('nonexistent_hash', 'uuid-validator-1'),
+        service.validateTicket(payload, 'uuid-validator-1'),
       ).rejects.toThrow(NotFoundException);
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when payload is malformed (no colons)', async () => {
+      await expect(
+        service.validateTicket('notavalidpayload', 'uuid-validator-1'),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(repo.findByHash).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when authTag is manipulated (GCM integrity check)', async () => {
+      const payload = encryptForTest(HASH);
+      const [iv, , ciphertext] = payload.split(':');
+      // Replace authTag with a fake one
+      const tampered = [iv, 'ff'.repeat(16), ciphertext].join(':');
+
+      await expect(
+        service.validateTicket(tampered, 'uuid-validator-1'),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(repo.findByHash).not.toHaveBeenCalled();
     });
 
     it('should throw ConflictException with specific message when ticket is USED', async () => {
@@ -284,7 +330,7 @@ describe('TicketsService', () => {
       });
 
       await expect(
-        service.validateTicket('a'.repeat(64), 'uuid-validator-1'),
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
       ).rejects.toThrow(new ConflictException('Este ticket ya fue utilizado'));
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
@@ -297,7 +343,7 @@ describe('TicketsService', () => {
       });
 
       await expect(
-        service.validateTicket('a'.repeat(64), 'uuid-validator-1'),
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
       ).rejects.toThrow(new ConflictException('Este ticket fue cancelado'));
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
@@ -310,14 +356,14 @@ describe('TicketsService', () => {
       });
 
       await expect(
-        service.validateTicket('a'.repeat(64), 'uuid-validator-1'),
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
       ).rejects.toThrow(new ConflictException('Este ticket fue reembolsado'));
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
     });
 
     it('should pass the validatorId to updateStatus', async () => {
-      await service.validateTicket('a'.repeat(64), 'uuid-validator-99');
+      await service.validateTicket(encryptForTest(HASH), 'uuid-validator-99');
 
       expect(repo.updateStatus).toHaveBeenCalledWith(
         'uuid-ticket-1',
@@ -332,7 +378,7 @@ describe('TicketsService', () => {
         lastName: 'Martínez',
       });
 
-      const result = await service.validateTicket('a'.repeat(64), 'uuid-validator-1');
+      const result = await service.validateTicket(encryptForTest(HASH), 'uuid-validator-1');
 
       expect(result.buyerName).toBe('Carlos Martínez');
     });

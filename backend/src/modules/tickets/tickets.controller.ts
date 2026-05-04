@@ -93,7 +93,7 @@ export class TicketsController {
     @Body() dto: ValidateTicketDto,
     @CurrentUser() user: JwtPayload,
   ): Promise<ValidateTicketResponseDto> {
-    return this.ticketsService.validateTicket(dto.hash, user.sub);
+    return this.ticketsService.validateTicket(dto.payload, user.sub);
   }
 
   @Get(':id')

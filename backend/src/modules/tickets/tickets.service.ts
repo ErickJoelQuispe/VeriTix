@@ -1,9 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { createDecipheriv } from 'node:crypto';
 import { PaginatedResponse } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import { Role, TicketStatus } from '../../generated/prisma/enums';
@@ -55,6 +58,33 @@ function toDetailResponse(ticket: TicketDetail): TicketDetailResponseDto {
   };
 }
 
+// ── Crypto ────────────────────────────────────────────────────────────────────
+
+function decryptPayload(payload: string, secret: string): string {
+  const [ivHex, authTagHex, encryptedHex] = payload.split(':');
+  if (!ivHex || !authTagHex || !encryptedHex) {
+    throw new BadRequestException('Payload de ticket inválido');
+  }
+
+  const key = Buffer.from(secret, 'utf8');
+  const iv = Buffer.from(ivHex, 'hex');
+  const authTag = Buffer.from(authTagHex, 'hex');
+  const encrypted = Buffer.from(encryptedHex, 'hex');
+
+  const decipher = createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(authTag);
+
+  try {
+    const decrypted = Buffer.concat([
+      decipher.update(encrypted),
+      decipher.final(),
+    ]);
+    return decrypted.toString('utf8');
+  } catch {
+    throw new BadRequestException('Payload de ticket inválido o manipulado');
+  }
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 @Injectable()
@@ -62,6 +92,7 @@ export class TicketsService {
   constructor(
     private readonly ticketsRepository: TicketsRepository,
     private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
   ) {}
 
   // ── getMyTickets ─────────────────────────────────────────────────────────
@@ -135,13 +166,15 @@ export class TicketsService {
   }
 
   // ── validateTicket ───────────────────────────────────────────────────────
-  // Valida un ticket por hash. Solo VALIDATOR y ADMIN.
-  // Devuelve info de confirmación para mostrar en pantalla.
+  // Valida un ticket por payload cifrado AES-256-GCM. Solo VALIDATOR y ADMIN.
+  // Descifra el payload para obtener el hash, luego valida.
 
   async validateTicket(
-    hash: string,
+    payload: string,
     validatorId: string,
   ): Promise<ValidateTicketResponseDto> {
+    const secret = this.config.getOrThrow<string>('AES_SECRET_KEY');
+    const hash = decryptPayload(payload, secret);
     const ticket = await this.ticketsRepository.findByHash(hash);
 
     if (!ticket) {
