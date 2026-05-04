@@ -94,4 +94,44 @@ export class AuthRepository {
       })
       .then(() => undefined);
   }
+
+  updatePassword(userId: string, hashed: string): Promise<void> {
+    return this.prisma.user
+      .update({ where: { id: userId }, data: { password: hashed } })
+      .then(() => undefined);
+  }
+
+  // ── Reset de contraseña ───────────────────────────────────────────────────
+
+  saveResetToken(userId: string, token: string, exp: Date): Promise<void> {
+    return this.prisma.user
+      .update({
+        where: { id: userId },
+        data: { resetToken: token, resetTokenExp: exp },
+      })
+      .then(() => undefined);
+  }
+
+  findUserByResetToken(token: string): Promise<User | null> {
+    return this.prisma.user.findFirst({ where: { resetToken: token } });
+  }
+
+  clearResetToken(userId: string): Promise<void> {
+    return this.prisma.user
+      .update({
+        where: { id: userId },
+        data: { resetToken: null, resetTokenExp: null },
+      })
+      .then(() => undefined);
+  }
+
+  async resetPasswordAtomic(userId: string, hashedPassword: string): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword, resetToken: null, resetTokenExp: null },
+      }),
+      this.prisma.refreshToken.deleteMany({ where: { userId } }),
+    ]);
+  }
 }

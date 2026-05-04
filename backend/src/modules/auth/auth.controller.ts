@@ -22,12 +22,15 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { Public } from '@common/decorators';
 import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtTokenService } from './jwt-token.service';
 
 const REFRESH_COOKIE = 'refresh_token';
@@ -167,6 +170,48 @@ export class AuthController {
     const token = req.cookies?.[REFRESH_COOKIE] as string | undefined;
     if (token) await this.authService.logout(token);
     this.clearRefreshCookie(res);
+  }
+
+  // ── Recuperación de contraseña ─────────────────────────────────────────────
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Solicitar restablecimiento de contraseña',
+    description:
+      'Envía un correo con un enlace de restablecimiento si el email existe. ' +
+      'La respuesta es siempre la misma para evitar enumeración de usuarios.',
+  })
+  @ApiOkResponse({
+    description: 'Respuesta genérica (anti-enumeración).',
+    schema: {
+      example: { message: "If that email exists, you'll receive a reset link shortly" },
+    },
+  })
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {
+    await this.authService.requestPasswordReset(dto.email);
+    return { message: "If that email exists, you'll receive a reset link shortly" };
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Restablecer contraseña',
+    description: 'Actualiza la contraseña usando el token recibido por email.',
+  })
+  @ApiOkResponse({
+    description: 'Contraseña actualizada correctamente.',
+    schema: { example: { message: 'Password updated successfully' } },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Token inválido o expirado.',
+  })
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
+    await this.authService.resetPassword(dto.token, dto.password);
+    return { message: 'Password updated successfully' };
   }
 
   // ── Cookie helpers ─────────────────────────────────────────────────────────

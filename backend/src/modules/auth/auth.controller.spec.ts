@@ -29,6 +29,8 @@ describe('AuthController', () => {
     login: jest.fn(),
     refresh: jest.fn(),
     logout: jest.fn(),
+    requestPasswordReset: jest.fn(),
+    resetPassword: jest.fn(),
   };
 
   const mockJwtTokenService = {
@@ -166,6 +168,52 @@ describe('AuthController', () => {
       expect(mockRes.clearCookie).toHaveBeenCalledWith('refresh_token', {
         path: '/auth',
       });
+    });
+  });
+
+  describe('forgotPassword()', () => {
+    it('returns generic message for valid email', async () => {
+      mockAuthService.requestPasswordReset.mockResolvedValue(undefined);
+
+      const result = await controller.forgotPassword({ email: 'test@test.com' } as any);
+
+      expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith('test@test.com');
+      expect(result).toEqual({
+        message: "If that email exists, you'll receive a reset link shortly",
+      });
+    });
+
+    it('returns generic message even when service resolves silently (anti-enumeration)', async () => {
+      mockAuthService.requestPasswordReset.mockResolvedValue(undefined);
+
+      const result = await controller.forgotPassword({ email: 'unknown@test.com' } as any);
+
+      expect(result).toHaveProperty('message');
+      expect(result.message).toBe("If that email exists, you'll receive a reset link shortly");
+    });
+  });
+
+  describe('resetPassword()', () => {
+    it('calls service.resetPassword and returns success message', async () => {
+      mockAuthService.resetPassword.mockResolvedValue(undefined);
+
+      const result = await controller.resetPassword({
+        token: 'valid-token',
+        password: 'NewPass123',
+      } as any);
+
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith('valid-token', 'NewPass123');
+      expect(result).toEqual({ message: 'Password updated successfully' });
+    });
+
+    it('propagates UnauthorizedException from service (invalid/expired token)', async () => {
+      mockAuthService.resetPassword.mockRejectedValue(
+        new (require('@nestjs/common').UnauthorizedException)(),
+      );
+
+      await expect(
+        controller.resetPassword({ token: 'bad', password: 'NewPass123' } as any),
+      ).rejects.toThrow();
     });
   });
 });
