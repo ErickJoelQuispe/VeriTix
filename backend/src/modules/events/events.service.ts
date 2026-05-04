@@ -171,6 +171,27 @@ export class EventsService {
 
     this.assertOwnerOrAdmin(event, userId, userRole);
 
+    if (userRole !== Role.ADMIN) {
+      if (event.status === EventStatus.CANCELLED) {
+        throw new ForbiddenException(
+          'No se puede editar el evento: el evento está cancelado',
+        );
+      }
+
+      const saleStarted = await this.prisma.ticketType.findFirst({
+        where: {
+          eventId: id,
+          saleStartDate: { lte: new Date() },
+        },
+        select: { id: true },
+      });
+      if (saleStarted) {
+        throw new ForbiddenException(
+          'No se puede editar el evento: la venta de tickets ya comenzó',
+        );
+      }
+    }
+
     if (dto.venueId) {
       await this.validateVenueExists(dto.venueId);
     }
