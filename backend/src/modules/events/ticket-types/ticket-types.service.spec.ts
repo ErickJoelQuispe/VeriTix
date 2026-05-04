@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,6 +15,7 @@ import { TicketTypesService } from './ticket-types.service';
 const mockEvent = {
   id: 'uuid-event-1',
   creatorId: 'uuid-creator-1',
+  maxCapacity: 1000,
 };
 
 const mockTicketType = {
@@ -45,6 +47,9 @@ const mockTicketTypesRepository = {
 const mockPrismaService = {
   event: {
     findUnique: jest.fn(),
+  },
+  ticketType: {
+    aggregate: jest.fn(),
   },
 };
 
@@ -84,13 +89,14 @@ describe('TicketTypesService', () => {
 
     it('should create a ticket type when user is the creator', async () => {
       prisma.event.findUnique.mockResolvedValue(mockEvent);
+      prisma.ticketType.aggregate.mockResolvedValue({ _sum: { totalQuantity: 400 } });
       repo.create.mockResolvedValue(mockTicketType);
 
       const result = await service.create('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto);
 
       expect(prisma.event.findUnique).toHaveBeenCalledWith({
         where: { id: 'uuid-event-1' },
-        select: { id: true, creatorId: true },
+        select: { id: true, creatorId: true, maxCapacity: true },
       });
       expect(repo.create).toHaveBeenCalledWith('uuid-event-1', dto);
       expect(result.price).toBe(Number(mockTicketType.price));
@@ -98,6 +104,7 @@ describe('TicketTypesService', () => {
 
     it('should create a ticket type when user is ADMIN', async () => {
       prisma.event.findUnique.mockResolvedValue(mockEvent);
+      prisma.ticketType.aggregate.mockResolvedValue({ _sum: { totalQuantity: 0 } });
       repo.create.mockResolvedValue(mockTicketType);
 
       await service.create('uuid-event-1', 'uuid-admin', Role.ADMIN, dto);
@@ -120,6 +127,29 @@ describe('TicketTypesService', () => {
       await expect(
         service.create('uuid-event-1', 'uuid-other', Role.CREATOR, dto),
       ).rejects.toThrow(ForbiddenException);
+      expect(repo.create).not.toHaveBeenCalled();
+    });
+
+    it('should create when existing sum + new totalQuantity equals maxCapacity', async () => {
+      // 500 existing + 500 new = 1000 === maxCapacity → OK
+      prisma.event.findUnique.mockResolvedValue(mockEvent); // maxCapacity: 1000
+      prisma.ticketType.aggregate.mockResolvedValue({ _sum: { totalQuantity: 500 } });
+      repo.create.mockResolvedValue(mockTicketType);
+
+      const result = await service.create('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto);
+
+      expect(repo.create).toHaveBeenCalledWith('uuid-event-1', dto);
+      expect(result.price).toBe(Number(mockTicketType.price));
+    });
+
+    it('should throw BadRequestException when capacity would be exceeded on create', async () => {
+      // 600 existing + 500 new = 1100 > 1000 maxCapacity → throws
+      prisma.event.findUnique.mockResolvedValue(mockEvent); // maxCapacity: 1000
+      prisma.ticketType.aggregate.mockResolvedValue({ _sum: { totalQuantity: 600 } });
+
+      await expect(
+        service.create('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto),
+      ).rejects.toThrow(BadRequestException);
       expect(repo.create).not.toHaveBeenCalled();
     });
   });
@@ -160,6 +190,49 @@ describe('TicketTypesService', () => {
 
       expect(result.name).toBe('VIP');
       expect(repo.update).toHaveBeenCalledWith('uuid-tt-1', dto);
+    });
+
+    it('should not validate capacity when totalQuantity is not in dto', async () => {
+      // dto = { name: 'VIP' } — no totalQuantity, so no aggregate call
+      prisma.event.findUnique.mockResolvedValue(mockEvent);
+      repo.findById.mockResolvedValue(mockTicketType);
+      repo.update.mockResolvedValue(updatedTicketType);
+
+      await service.update('uuid-event-1', 'uuid-tt-1', 'uuid-creator-1', Role.CREATOR, dto);
+
+      expect(prisma.ticketType.aggregate).not.toHaveBeenCalled();
+      expect(repo.update).toHaveBeenCalledWith('uuid-tt-1', dto);
+    });
+
+    it('should update when new sum (excluding self) does not exceed maxCapacity', async () => {
+      const dtoWithQuantity: UpdateTicketTypeDto = { totalQuantity: 300 };
+      const updatedWithQuantity = { ...mockTicketType, totalQuantity: 300 };
+      // sum of OTHER ticket types = 500; new value = 300 → 500 + 300 = 800 ≤ 1000 → OK
+      prisma.event.findUnique.mockResolvedValue(mockEvent); // maxCapacity: 1000
+      repo.findById.mockResolvedValue(mockTicketType);
+      prisma.ticketType.aggregate.mockResolvedValue({ _sum: { totalQuantity: 500 } });
+      repo.update.mockResolvedValue(updatedWithQuantity);
+
+      const result = await service.update('uuid-event-1', 'uuid-tt-1', 'uuid-creator-1', Role.CREATOR, dtoWithQuantity);
+
+      expect(prisma.ticketType.aggregate).toHaveBeenCalledWith({
+        where: { eventId: 'uuid-event-1', id: { not: 'uuid-tt-1' } },
+        _sum: { totalQuantity: true },
+      });
+      expect(result.totalQuantity).toBe(300);
+    });
+
+    it('should throw BadRequestException when capacity would be exceeded on update', async () => {
+      const dtoWithQuantity: UpdateTicketTypeDto = { totalQuantity: 600 };
+      // sum of OTHER ticket types = 500; new value = 600 → 500 + 600 = 1100 > 1000 → throws
+      prisma.event.findUnique.mockResolvedValue(mockEvent); // maxCapacity: 1000
+      repo.findById.mockResolvedValue(mockTicketType);
+      prisma.ticketType.aggregate.mockResolvedValue({ _sum: { totalQuantity: 500 } });
+
+      await expect(
+        service.update('uuid-event-1', 'uuid-tt-1', 'uuid-creator-1', Role.CREATOR, dtoWithQuantity),
+      ).rejects.toThrow(BadRequestException);
+      expect(repo.update).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when event does not exist', async () => {

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -19,13 +20,36 @@ export class TicketTypesService {
 
   private async validateEventExists(
     eventId: string,
-  ): Promise<{ id: string; creatorId: string }> {
+  ): Promise<{ id: string; creatorId: string; maxCapacity: number }> {
     const event = await this.prisma.event.findUnique({
       where: { id: eventId },
-      select: { id: true, creatorId: true },
+      select: { id: true, creatorId: true, maxCapacity: true },
     });
     if (!event) throw new NotFoundException('Evento no encontrado');
     return event;
+  }
+
+  private async validateCapacity(
+    eventId: string,
+    maxCapacity: number,
+    incomingQuantity: number,
+    excludeTicketTypeId?: string,
+  ): Promise<void> {
+    const where = excludeTicketTypeId
+      ? { eventId, id: { not: excludeTicketTypeId } }
+      : { eventId };
+
+    const agg = await this.prisma.ticketType.aggregate({
+      where,
+      _sum: { totalQuantity: true },
+    });
+
+    const existingSum = agg._sum.totalQuantity ?? 0;
+    if (existingSum + incomingQuantity > maxCapacity) {
+      throw new BadRequestException(
+        'La capacidad total de los tipos de ticket supera la capacidad máxima del evento',
+      );
+    }
   }
 
   private assertOwnerOrAdmin(
@@ -58,6 +82,8 @@ export class TicketTypesService {
     const event = await this.validateEventExists(eventId);
     this.assertOwnerOrAdmin(event, userId, userRole);
 
+    await this.validateCapacity(eventId, event.maxCapacity, dto.totalQuantity);
+
     const created = await this.ticketTypesRepository.create(eventId, dto);
     return this.toResponse(created);
   }
@@ -81,6 +107,10 @@ export class TicketTypesService {
     const ticketType = await this.ticketTypesRepository.findById(id);
     if (!ticketType || ticketType.eventId !== eventId) {
       throw new NotFoundException('Tipo de boleto no encontrado');
+    }
+
+    if (dto.totalQuantity !== undefined) {
+      await this.validateCapacity(eventId, event.maxCapacity, dto.totalQuantity, id);
     }
 
     const updated = await this.ticketTypesRepository.update(id, dto);
