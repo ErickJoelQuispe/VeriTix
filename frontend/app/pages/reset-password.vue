@@ -1,31 +1,62 @@
 <script setup lang="ts">
 import { z } from 'zod'
 
-const schema = z.object({
-  email: z.string().email('Ingresá un email válido').min(1, 'El email es obligatorio'),
+definePageMeta({
+  middleware: 'guest',
 })
 
+useSeoMeta({
+  title: 'Restablecer contraseña | VeriTix',
+  description: 'Establecé una nueva contraseña para tu cuenta de VeriTix.',
+})
+
+const route = useRoute()
+const token = computed(() => (route.query.token as string) ?? '')
+
+const schema = z
+  .object({
+    password: z
+      .string()
+      .min(8, 'La contraseña debe tener al menos 8 caracteres')
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Debe contener mayúscula, minúscula y número'),
+    confirmPassword: z.string().min(1, 'Confirmá tu contraseña'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
+
 const state = reactive({
-  email: '',
+  password: '',
+  confirmPassword: '',
 })
 
 const form = useTemplateRef('form')
-const { forgotPassword } = useAuth()
+const { resetPassword } = useAuth()
 const { notifyApiError } = useAppNotifications()
 
-const submitted = ref(false)
 const pending = ref(false)
+const success = ref(false)
 
 async function onSubmit() {
   if (!form.value) return
+  if (!token.value) {
+    notifyApiError(null, 'Token de recuperación no encontrado. Solicitá un nuevo enlace.', {
+      id: 'auth-reset-no-token',
+    })
+    return
+  }
 
   pending.value = true
   try {
-    await forgotPassword(state.email.trim().toLowerCase())
-    submitted.value = true
+    await resetPassword(token.value, state.password)
+    success.value = true
+    setTimeout(() => navigateTo('/login'), 3000)
   }
   catch (error) {
-    notifyApiError(error, 'Ocurrió un error. Por favor, intentá de nuevo.', { id: 'auth-forgot-error' })
+    notifyApiError(error, 'El enlace de recuperación es inválido o expiró. Solicitá uno nuevo.', {
+      id: 'auth-reset-error',
+    })
   }
   finally {
     pending.value = false
@@ -44,26 +75,26 @@ async function onSubmit() {
             </UiMetaLabel>
 
             <h1 class="font-display text-3xl text-highlighted md:text-4xl">
-              Recuperá tu acceso
+              Nueva contraseña
             </h1>
 
             <p class="mx-auto mt-3 max-w-md text-sm text-toned">
-              Ingresá tu email y si está registrado te enviaremos un enlace para restablecer tu contraseña.
+              Elegí una contraseña segura para tu cuenta.
             </p>
           </header>
 
           <div class="mb-7 flex items-center justify-center">
             <span class="inline-flex items-center gap-2 rounded-full border border-auric-300/30 bg-auric-400/10 px-3 py-1 text-xs font-semibold tracking-wide text-auric-200 uppercase">
-              <UIcon name="i-lucide-key-round" class="size-3.5" />
-              Recuperación de contraseña
+              <UIcon name="i-lucide-shield-check" class="size-3.5" />
+              Restablecimiento seguro
             </span>
           </div>
 
           <!-- Success state -->
-          <div v-if="submitted" class="vtx-recovery-note">
-            <UIcon name="i-lucide-mail-check" class="size-4 shrink-0 text-auric-300" />
+          <div v-if="success" class="vtx-recovery-note">
+            <UIcon name="i-lucide-check-circle" class="size-4 shrink-0 text-auric-300" />
             <p>
-              Si ese email existe en nuestro sistema, vas a recibir un enlace de recuperación en los próximos minutos.
+              ¡Contraseña actualizada! Redirigiendo a inicio de sesión...
             </p>
           </div>
 
@@ -77,13 +108,23 @@ async function onSubmit() {
             class="flex flex-col gap-4"
             @submit="onSubmit"
           >
-            <BaseFormField
-              v-model="state.email"
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="tu@email.com"
-              icon="i-lucide-mail"
+            <BasePasswordField
+              v-model="state.password"
+              name="password"
+              label="Nueva contraseña"
+              placeholder="Mínimo 8 caracteres"
+              icon="i-lucide-lock"
+              :disabled="pending"
+              required
+              class="w-full"
+            />
+
+            <BasePasswordField
+              v-model="state.confirmPassword"
+              name="confirmPassword"
+              label="Confirmá tu contraseña"
+              placeholder="Repetí tu contraseña"
+              icon="i-lucide-lock-keyhole"
               :disabled="pending"
               required
               class="w-full"
@@ -97,17 +138,17 @@ async function onSubmit() {
               :loading="pending"
               class="mt-2"
             >
-              Enviar enlace de recuperación
+              Actualizar contraseña
             </BaseButton>
           </UForm>
 
           <footer class="pt-1">
             <p class="text-center text-sm text-muted">
               <NuxtLink
-                to="/login"
+                to="/forgot-password"
                 class="rounded-sm font-medium text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
               >
-                ← Volvé a iniciar sesión
+                ← Solicitá un nuevo enlace
               </NuxtLink>
             </p>
           </footer>
