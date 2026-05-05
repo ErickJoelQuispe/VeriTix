@@ -17,6 +17,7 @@ import {
   TicketListResponseDto,
   ValidateTicketResponseDto,
 } from './dto';
+import { AccessStatsService } from './access-stats.service';
 import { TicketDetail, TicketListItem, TicketsRepository } from './tickets.repository';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -95,6 +96,7 @@ export class TicketsService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly ticketPdfService: TicketPdfService,
+    private readonly accessStatsService: AccessStatsService,
   ) {}
 
   // ── getMyTickets ─────────────────────────────────────────────────────────
@@ -256,6 +258,9 @@ export class TicketsService {
       where: { id: ticket.buyerId ?? '' },
       select: { name: true, lastName: true },
     });
+
+    // Notificar el cambio de estadísticas de acceso en tiempo real (RF-20)
+    await this.accessStatsService.emit(ticket.event.id, this.prisma);
 
     return {
       ticketId: updated.id,

@@ -11,6 +11,7 @@ import { JwtPayload } from '@common/interfaces';
 import { Role, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TicketPdfService } from '../queues/ticket-pdf.service';
+import { AccessStatsService } from './access-stats.service';
 import { TicketsRepository } from './tickets.repository';
 import { TicketsService } from './tickets.service';
 
@@ -109,6 +110,10 @@ const mockTicketPdfService = {
   generatePdf: jest.fn(),
 };
 
+const mockAccessStatsService = {
+  emit: jest.fn().mockResolvedValue(undefined),
+};
+
 const mockConfigService = {
   getOrThrow: jest.fn().mockReturnValue(TEST_SECRET), // exactly 32 bytes for AES-256
 };
@@ -128,6 +133,7 @@ describe('TicketsService', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: TicketPdfService, useValue: mockTicketPdfService },
+        { provide: AccessStatsService, useValue: mockAccessStatsService },
       ],
     }).compile();
 
@@ -388,6 +394,29 @@ describe('TicketsService', () => {
       const result = await service.validateTicket(encryptForTest(HASH), 'uuid-validator-1');
 
       expect(result.buyerName).toBe('Carlos Martínez');
+    });
+
+    it('should call accessStatsService.emit() with the ticket eventId after validation', async () => {
+      const payload = encryptForTest(HASH);
+      await service.validateTicket(payload, 'uuid-validator-1');
+
+      expect(mockAccessStatsService.emit).toHaveBeenCalledWith(
+        'uuid-event-1',
+        expect.anything(), // PrismaService instance
+      );
+    });
+
+    it('should NOT call accessStatsService.emit() when ticket is not ACTIVE', async () => {
+      repo.findByHash.mockResolvedValue({
+        ...mockTicketDetail,
+        status: TicketStatus.USED,
+      });
+
+      await expect(
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
+      ).rejects.toThrow(ConflictException);
+
+      expect(mockAccessStatsService.emit).not.toHaveBeenCalled();
     });
   });
 
