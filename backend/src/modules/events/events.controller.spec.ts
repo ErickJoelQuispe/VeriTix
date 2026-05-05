@@ -1,7 +1,10 @@
+import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { of } from 'rxjs';
 import { JwtPayload } from '@common/interfaces';
 import { PaginationQueryDto } from '@common/dto';
 import { EventStatus, Role } from '../../generated/prisma/enums';
+import { AccessStatsService } from '../tickets/access-stats.service';
 import {
   CreateEventDto,
   EventQueryDto,
@@ -81,6 +84,25 @@ const mockEventsService = {
   publish: jest.fn(),
 };
 
+const mockAccessStatsService = {
+  getStream: jest.fn(),
+};
+
+const mockSnapshot = {
+  eventId: 'uuid-event-1',
+  total: 100,
+  validated: 25,
+  pending: 75,
+  percentage: 25,
+  lastUpdated: new Date(),
+};
+
+const mockBuyerUser: JwtPayload = {
+  sub: 'uuid-buyer-1',
+  email: 'buyer@test.com',
+  role: Role.BUYER,
+};
+
 // ── Suite ────────────────────────────────────────────────────────────────────
 
 describe('EventsController', () => {
@@ -94,6 +116,10 @@ describe('EventsController', () => {
         {
           provide: EventsService,
           useValue: mockEventsService,
+        },
+        {
+          provide: AccessStatsService,
+          useValue: mockAccessStatsService,
         },
       ],
     }).compile();
@@ -218,6 +244,46 @@ describe('EventsController', () => {
         Role.ADMIN,
       );
       expect(result).toEqual(published);
+    });
+  });
+
+  // ── streamAccessStats ─────────────────────────────────────────────────────
+
+  describe('streamAccessStats', () => {
+    it('should return an Observable that emits MessageEvent for CREATOR', () => {
+      mockAccessStatsService.getStream.mockReturnValue(of(mockSnapshot));
+
+      const stream$ = controller.streamAccessStats('uuid-event-1', mockCreatorUser);
+
+      expect(mockAccessStatsService.getStream).toHaveBeenCalledWith('uuid-event-1');
+      expect(typeof stream$.subscribe).toBe('function');
+    });
+
+    it('should map snapshot to MessageEvent format { data: snapshot }', (done) => {
+      mockAccessStatsService.getStream.mockReturnValue(of(mockSnapshot));
+
+      const stream$ = controller.streamAccessStats('uuid-event-1', mockCreatorUser);
+
+      stream$.subscribe({
+        next: (event: { data: unknown }) => {
+          expect(event.data).toEqual(mockSnapshot);
+          done();
+        },
+      });
+    });
+
+    it('should allow ADMIN to access the stream', () => {
+      mockAccessStatsService.getStream.mockReturnValue(of(mockSnapshot));
+
+      expect(() =>
+        controller.streamAccessStats('uuid-event-1', mockAdminUser),
+      ).not.toThrow();
+    });
+
+    it('should throw ForbiddenException for BUYER role', () => {
+      expect(() =>
+        controller.streamAccessStats('uuid-event-1', mockBuyerUser),
+      ).toThrow(ForbiddenException);
     });
   });
 });
