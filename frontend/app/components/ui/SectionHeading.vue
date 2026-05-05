@@ -29,7 +29,7 @@ withDefaults(
         class="h-px w-[2.2rem] bg-linear-to-r from-primary/80 to-secondary/80"
       />
       <span
-        class="h-[0.62rem] w-[0.62rem] rounded-full border border-white/35 bg-radial-[at_30%_30%] from-white/92 to-crimson-400/74 shadow-[0_0_12px_rgb(240_100_127_/_0.4)]"
+        class="h-[0.62rem] w-[0.62rem] rounded-full border border-white/35 bg-radial-[at_30%_30%] from-white/92 to-error/74 shadow-[0_0_12px_rgb(240_100_127_/_0.4)]"
       />
       <span
         class="h-px w-[2.2rem] bg-linear-to-r from-primary/80 to-secondary/80"

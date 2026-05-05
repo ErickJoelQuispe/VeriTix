@@ -18,17 +18,17 @@ const props = withDefaults(
 
       <template v-if="props.variant === 'index'">
         <div class="absolute -left-12 top-24 h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
-        <div class="absolute right-0 top-10 h-64 w-64 rounded-full bg-auric-500/10 blur-3xl" />
+        <div class="absolute right-0 top-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
       </template>
 
       <template v-else>
         <div class="absolute -left-12 top-20 h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
-        <div class="absolute right-0 top-12 h-64 w-64 rounded-full bg-auric-500/10 blur-3xl" />
+        <div class="absolute right-0 top-12 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
       </template>
     </div>
 
-    <UContainer :class="props.containerClass">
+    <BaseContainer :class="props.containerClass">
       <slot />
-    </UContainer>
+    </BaseContainer>
   </section>
 </template>

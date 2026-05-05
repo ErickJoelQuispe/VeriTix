@@ -201,11 +201,11 @@ onMounted(() => {
   >
     <section class="space-y-6">
       <div v-if="!initialized" class="space-y-4">
-        <USkeleton class="h-11 rounded-2xl" />
-        <USkeleton class="h-11 rounded-2xl" />
-        <USkeleton class="h-11 rounded-2xl" />
-        <USkeleton class="h-11 rounded-2xl" />
-        <USkeleton class="h-11 rounded-2xl" />
+        <BaseSkeleton class="h-11 rounded-2xl" />
+        <BaseSkeleton class="h-11 rounded-2xl" />
+        <BaseSkeleton class="h-11 rounded-2xl" />
+        <BaseSkeleton class="h-11 rounded-2xl" />
+        <BaseSkeleton class="h-11 rounded-2xl" />
       </div>
 
       <div v-else class="space-y-6">
@@ -222,7 +222,7 @@ onMounted(() => {
             </p>
           </div>
 
-          <UForm
+          <FormRoot
             :state="profileState"
             :schema="profileSchema"
             :validate-on="[]"
@@ -238,7 +238,7 @@ onMounted(() => {
 
             <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
               <span class="text-sm text-toned">
-              Datos visibles y de contacto.
+                Datos visibles y de contacto.
               </span>
 
               <BaseButton
@@ -252,7 +252,7 @@ onMounted(() => {
                 Guardar perfil
               </BaseButton>
             </div>
-          </UForm>
+          </FormRoot>
         </article>
 
         <article id="seguridad" class="scroll-mt-28 rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
@@ -268,7 +268,7 @@ onMounted(() => {
             </p>
           </div>
 
-          <UForm
+          <FormRoot
             :state="passwordState"
             :schema="passwordSchema"
             :validate-on="[]"
@@ -310,7 +310,7 @@ onMounted(() => {
                 </BaseButton>
               </div>
             </div>
-          </UForm>
+          </FormRoot>
         </article>
       </div>
     </section>

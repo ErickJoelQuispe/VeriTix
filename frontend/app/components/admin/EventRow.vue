@@ -54,7 +54,7 @@ function formatDate(value: string | null | undefined) {
     <div class="flex min-w-0 items-center gap-4 sm:gap-5">
       <div class="flex size-16 shrink-0 self-center items-center justify-center overflow-hidden rounded-xl border border-default/60 bg-default/50">
         <img v-if="imageUrl" :src="imageUrl" :alt="title" class="size-full object-cover">
-        <UIcon v-else name="i-lucide-calendar-range" class="size-5 text-muted" />
+        <BaseIcon v-else name="i-lucide-calendar-range" class="size-5 text-muted" />
       </div>
 
       <div class="min-w-0 space-y-2.5">
@@ -75,12 +75,12 @@ function formatDate(value: string | null | undefined) {
 
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-toned">
           <div class="flex items-center gap-2.5">
-            <UIcon name="i-lucide-clock-3" class="size-4 shrink-0 text-muted" />
+            <BaseIcon name="i-lucide-clock-3" class="size-4 shrink-0 text-muted" />
             <span>{{ formatDate(eventDate) }}</span>
           </div>
 
           <div v-if="venueName || venueCity" class="flex min-w-0 items-center gap-2.5">
-            <UIcon name="i-lucide-map-pin" class="size-4 shrink-0 text-muted" />
+            <BaseIcon name="i-lucide-map-pin" class="size-4 shrink-0 text-muted" />
             <span class="truncate">{{ venueName }}<template v-if="venueName && venueCity"> · </template>{{ venueCity }}</span>
           </div>
         </div>

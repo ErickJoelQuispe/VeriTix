@@ -186,7 +186,7 @@ onMounted(() => {
           />
 
           <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <USkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
+            <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
           </div>
 
           <UiEmptyState
@@ -219,7 +219,7 @@ onMounted(() => {
                     v-else
                     class="flex h-full items-center justify-center bg-gradient-to-br from-toned/25 to-toned/10"
                   >
-                    <UAvatar
+                    <BaseAvatar
                       :text="artistInitials(artist)"
                       size="xl"
                       class="!size-16"

@@ -16,13 +16,13 @@ const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de e
   <div class="space-y-8">
     <section class="relative vtx-profile-presence space-y-5 border-b border-default/55 pb-8">
       <div class="flex items-center gap-4">
-        <UPopover :content="{ align: 'start', side: 'bottom', sideOffset: 12 }">
+        <BasePopover :content="{ align: 'start', side: 'bottom', sideOffset: 12 }">
           <button
             type="button"
             class="vtx-profile-avatar-trigger"
             :aria-label="`Abrir acciones de cuenta de ${fullName || email}`"
           >
-            <div class="vtx-profile-avatar flex size-16 shrink-0 items-center justify-center rounded-2xl text-lg font-semibold text-auric-100">
+            <div class="vtx-profile-avatar flex size-16 shrink-0 items-center justify-center rounded-2xl text-lg font-semibold text-highlighted">
               {{ initials }}
             </div>
           </button>
@@ -34,13 +34,13 @@ const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de e
               :items="accountMenuItems"
             >
               <template #avatar>
-                <div class="vtx-profile-avatar flex size-14 shrink-0 items-center justify-center rounded-2xl text-base font-semibold text-auric-100">
+                <div class="vtx-profile-avatar flex size-14 shrink-0 items-center justify-center rounded-2xl text-base font-semibold text-highlighted">
                   {{ initials }}
                 </div>
               </template>
             </AccountMenuPanel>
           </template>
-        </UPopover>
+        </BasePopover>
 
         <div>
           <UiMetaLabel>
@@ -93,7 +93,7 @@ const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de e
           class="flex items-start gap-3 text-sm leading-relaxed text-toned"
         >
           <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/14 text-primary">
-            <UIcon name="i-lucide-check" class="size-3.5" />
+            <BaseIcon name="i-lucide-check" class="size-3.5" />
           </span>
           <span>{{ capability }}</span>
         </li>

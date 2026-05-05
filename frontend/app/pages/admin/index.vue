@@ -166,9 +166,9 @@ onMounted(() => {
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <template v-if="pending">
           <UiGlassPanel v-for="index in 4" :key="index" tone="subtle" radius="md" padding="md">
-            <USkeleton class="mb-4 size-10 rounded-lg" />
-            <USkeleton class="mb-2 h-8 w-16" />
-            <USkeleton class="h-4 w-24" />
+            <BaseSkeleton class="mb-4 size-10 rounded-lg" />
+            <BaseSkeleton class="mb-2 h-8 w-16" />
+            <BaseSkeleton class="h-4 w-24" />
           </UiGlassPanel>
         </template>
 
@@ -198,7 +198,7 @@ onMounted(() => {
           </template>
 
           <div v-if="pending" class="space-y-3">
-            <USkeleton v-for="index in 4" :key="index" class="h-24 rounded-xl" />
+            <BaseSkeleton v-for="index in 4" :key="index" class="h-24 rounded-xl" />
           </div>
 
           <UiEmptyState
@@ -219,7 +219,7 @@ onMounted(() => {
             >
               <div class="flex min-w-0 items-start gap-4">
                 <div class="flex size-11 shrink-0 items-center justify-center rounded-xl border border-warning/20 bg-warning/10 text-warning">
-                  <UIcon name="i-lucide-calendar-range" class="size-5" />
+                  <BaseIcon name="i-lucide-calendar-range" class="size-5" />
                 </div>
 
                 <div class="min-w-0 space-y-2">
@@ -229,12 +229,12 @@ onMounted(() => {
 
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-toned">
                     <span class="inline-flex min-w-0 items-center gap-2">
-                      <UIcon name="i-lucide-map-pin" class="size-3.5 text-muted" />
+                      <BaseIcon name="i-lucide-map-pin" class="size-3.5 text-muted" />
                       <span class="truncate">{{ event.venue.name }} · {{ event.venue.city }}</span>
                     </span>
 
                     <span class="inline-flex items-center gap-2">
-                      <UIcon name="i-lucide-clock-3" class="size-3.5 text-muted" />
+                      <BaseIcon name="i-lucide-clock-3" class="size-3.5 text-muted" />
                       {{ formatDateTime(event.eventDate) }}
                     </span>
                   </div>
@@ -246,7 +246,7 @@ onMounted(() => {
                   {{ event.status }}
                 </BaseBadge>
 
-                <UIcon name="i-lucide-chevron-right" class="size-4 text-muted transition-colors group-hover:text-highlighted" />
+                <BaseIcon name="i-lucide-chevron-right" class="size-4 text-muted transition-colors group-hover:text-highlighted" />
               </div>
             </NuxtLink>
           </div>
@@ -274,7 +274,7 @@ onMounted(() => {
                     item.tone === 'default' && 'border-default bg-elevated text-muted',
                   ]"
                 >
-                  <UIcon :name="item.icon" class="size-4" />
+                  <BaseIcon :name="item.icon" class="size-4" />
                 </div>
 
                 <div class="space-y-1">

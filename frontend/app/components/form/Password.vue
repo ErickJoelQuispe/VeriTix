@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useFormContext } from './context'
+
 defineOptions({
   inheritAttrs: false,
 })
@@ -29,12 +31,17 @@ const emit = defineEmits<{
 const modelValue = defineModel<string | number | undefined>()
 const internalShow = ref(false)
 const attrs = useAttrs()
+const formContext = useFormContext()
 
 const fieldClass = computed(() => attrs.class)
 
 const forwardedInputAttrs = computed(() => {
   const { class: _class, ...rest } = attrs
   return rest
+})
+
+const errorMessage = computed(() => {
+  return formContext?.errors[props.name] ?? ''
 })
 
 const isVisible = computed({
@@ -61,37 +68,50 @@ const inputType = computed(() => {
 function toggleVisibility() {
   isVisible.value = !isVisible.value
 }
+
+watch(modelValue, () => {
+  formContext?.clearError(props.name)
+})
 </script>
 
 <template>
-  <UFormField
-    :name="props.name"
-    :label="props.label"
-    :help="props.help"
-    :required="props.required"
-    :class="fieldClass"
-  >
+  <label :class="['space-y-2', fieldClass]">
+    <div class="flex items-center gap-2 text-sm font-medium text-highlighted">
+      <span>{{ props.label }}</span>
+      <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
+    </div>
+
     <FormInput
       v-model="modelValue"
       v-bind="forwardedInputAttrs"
+      :name="props.name"
       :type="inputType"
       :placeholder="props.placeholder"
       :icon="props.icon"
+      :required="props.required"
     >
       <template #trailing>
         <button
           type="button"
           :aria-label="isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'"
           :aria-pressed="isVisible"
-          class="cursor-pointer rounded-md p-0.5 text-muted transition-colors duration-150 hover:bg-white/6 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+            class="cursor-pointer rounded-md p-0.5 text-muted transition-colors duration-150 hover:bg-white/6 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
           @click="toggleVisibility"
         >
-          <UIcon
+          <BaseIcon
             :name="isVisible ? 'i-lucide-eye-off' : 'i-lucide-eye'"
             class="size-5"
           />
         </button>
       </template>
     </FormInput>
-  </UFormField>
+
+    <p v-if="props.help && !errorMessage" class="text-xs text-toned">
+      {{ props.help }}
+    </p>
+
+    <p v-if="errorMessage" class="text-xs font-medium text-error" role="alert">
+      {{ errorMessage }}
+    </p>
+  </label>
 </template>

@@ -34,7 +34,7 @@ onMounted(async () => {
   >
     <div class="flex flex-col items-center justify-center py-20 text-center">
       <template v-if="loggingOut">
-        <UIcon name="i-lucide-loader-2" class="size-10 animate-spin text-auric-400" />
+        <BaseIcon name="i-lucide-loader-2" class="size-10 animate-spin text-primary" />
         <p class="mt-6 text-lg font-medium text-highlighted">
           Cerrando sesión...
         </p>
@@ -45,7 +45,7 @@ onMounted(async () => {
 
       <template v-else>
         <div class="mx-auto rounded-full bg-error/10 p-4 text-error w-fit">
-          <UIcon name="i-lucide-alert-circle" class="size-8" />
+          <BaseIcon name="i-lucide-alert-circle" class="size-8" />
         </div>
         <p class="mt-6 text-lg font-medium text-highlighted">
           Ha ocurrido un problema

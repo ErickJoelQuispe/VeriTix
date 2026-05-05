@@ -188,18 +188,18 @@ watch(() => state, () => {
 </script>
 
 <template>
-  <UForm :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
+  <FormRoot :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
     <div class="grid gap-5 lg:grid-cols-2">
       <FormField v-model="state.name" name="name" label="Nombre" placeholder="VeriTix Sunset Series" required />
       <FormField v-model="state.eventDate" name="eventDate" label="Fecha del evento" type="datetime-local" required />
     </div>
 
-    <UFormField name="description" label="Descripcion" class="w-full">
-      <FormTextarea
-        v-model="state.description"
-        placeholder="Describe la propuesta del evento"
-      />
-    </UFormField>
+    <FormTextarea
+      v-model="state.description"
+      name="description"
+      label="Descripcion"
+      placeholder="Describe la propuesta del evento"
+    />
 
     <div class="grid gap-5 lg:grid-cols-3">
       <FormField v-model="state.doorsOpenTime" name="doorsOpenTime" label="Apertura de puertas" type="datetime-local" />
@@ -213,35 +213,26 @@ watch(() => state, () => {
     </div>
 
     <div class="grid gap-5 lg:grid-cols-3">
-      <UFormField name="currency" label="Moneda" required>
-        <USelect v-model="state.currency" :items="currencyOptions" variant="subtle" size="lg" class="w-full" />
-      </UFormField>
+      <FormSelect v-model="state.currency" name="currency" label="Moneda" :items="currencyOptions.map(value => ({ label: value, value }))" required />
 
-      <UFormField name="venueId" label="Venue" required>
-        <USelect v-model="state.venueId" :items="venueOptions" placeholder="Selecciona un venue" variant="subtle" size="lg" class="w-full" />
-      </UFormField>
+      <FormSelect v-model="state.venueId" name="venueId" label="Venue" :items="venueOptions" placeholder="Selecciona un venue" required />
 
-      <UFormField name="formatId" label="Formato">
-        <USelect v-model="selectedFormatId" :items="formatOptions" variant="subtle" size="lg" class="w-full" />
-      </UFormField>
+      <FormSelect v-model="selectedFormatId" name="formatId" label="Formato" :items="formatOptions" />
     </div>
 
-    <UFormField name="genreIds" label="Generos" class="w-full">
-      <USelect
-        v-model="state.genreIds"
-        class="w-full"
-        :items="genreOptions"
-        variant="subtle"
-        size="lg"
-        multiple
-        placeholder="Selecciona generos"
-      />
-    </UFormField>
+    <FormSelect
+      v-model="state.genreIds"
+      name="genreIds"
+      label="Generos"
+      :items="genreOptions"
+      multiple
+      placeholder="Selecciona generos"
+    />
 
     <div class="flex justify-end border-t border-default/55 pt-6">
       <BaseButton kind="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting" data-testid="event-form-submit">
         {{ submitLabel }}
       </BaseButton>
     </div>
-  </UForm>
+  </FormRoot>
 </template>

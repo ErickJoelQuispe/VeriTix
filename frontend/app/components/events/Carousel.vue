@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <div v-if="events.length">
-    <UCarousel
+    <BaseCarousel
       :items="events"
       arrows
       dots
@@ -20,12 +20,12 @@ defineProps<{
       <template #default="{ item }">
         <EventsListingCard :event="item" />
       </template>
-    </UCarousel>
+    </BaseCarousel>
   </div>
 
   <p
     v-else
-    class="rounded-2xl border border-default/75 bg-muted/50 px-6 py-8 text-center text-sm text-muted"
+    class="rounded-2xl border border-default/75 bg-elevated/50 px-6 py-8 text-center text-sm text-muted"
   >
     No hay conciertos para esos filtros.
   </p>

@@ -33,7 +33,7 @@ function handleConfirm() {
 </script>
 
 <template>
-  <UPopover v-model:open="open" :content="{ align: 'end', side: 'top', sideOffset: 10 }">
+  <BasePopover v-model:open="open" :content="{ align: 'end', side: 'top', sideOffset: 10 }">
     <BaseButton
       :kind="triggerKind"
       size="sm"
@@ -69,7 +69,7 @@ function handleConfirm() {
         </div>
       </div>
     </template>
-  </UPopover>
+  </BasePopover>
 </template>
 
 <style scoped>

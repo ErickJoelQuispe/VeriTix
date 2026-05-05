@@ -39,13 +39,13 @@ const accountSubtitle = computed(() => {
 </script>
 
 <template>
-  <UPopover :content="{ align: 'end', side: 'bottom', sideOffset: 12 }">
+  <BasePopover :content="{ align: 'end', side: 'bottom', sideOffset: 12 }">
     <button
       type="button"
       class="vtx-account-trigger"
       :aria-label="`Abrir menú de ${accountAvatarAlt}`"
     >
-      <UAvatar
+      <BaseAvatar
         :src="user?.avatarUrl || undefined"
         :alt="accountAvatarAlt"
         :text="accountInitials"
@@ -61,7 +61,7 @@ const accountSubtitle = computed(() => {
         :items="accountMenuItems"
       >
         <template #avatar>
-          <UAvatar
+          <BaseAvatar
             :src="user?.avatarUrl || undefined"
             :alt="accountAvatarAlt"
             :text="accountInitials"
@@ -71,7 +71,7 @@ const accountSubtitle = computed(() => {
         </template>
       </AccountMenuPanel>
     </template>
-  </UPopover>
+  </BasePopover>
 </template>
 
 <style scoped>

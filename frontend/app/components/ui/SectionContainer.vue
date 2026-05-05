@@ -9,9 +9,9 @@ defineProps<{
     :id="id"
     class="vtx-section-fade relative scroll-mt-36 py-14 sm:scroll-mt-40 sm:py-16 lg:scroll-mt-44 lg:py-24"
   >
-    <UContainer>
+    <BaseContainer>
       <slot />
-    </UContainer>
+    </BaseContainer>
   </section>
 </template>
 

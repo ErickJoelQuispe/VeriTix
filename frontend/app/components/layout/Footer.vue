@@ -32,9 +32,9 @@ function handleSubscribe() {
 <template>
   <footer
     id="footer"
-    class="border-t border-default/75 bg-muted/40"
+    class="border-t border-default/75 bg-elevated/40"
   >
-    <UContainer class="py-12">
+    <BaseContainer class="py-12">
       <div class="flex flex-col items-start justify-between gap-10 lg:flex-row lg:items-center">
         <div class="max-w-md space-y-5">
           <div class="space-y-2">
@@ -58,7 +58,7 @@ function handleSubscribe() {
               Correo para newsletter
             </label>
 
-            <UInput
+            <FormInput
               id="newsletter-email"
               v-model="email"
               type="email"
@@ -100,6 +100,6 @@ function handleSubscribe() {
       <div class="mt-10 border-t border-default/75 pt-5 text-xs tracking-wide text-muted uppercase">
         © {{ currentYear }} Veritix. Todos los derechos reservados.
       </div>
-    </UContainer>
+    </BaseContainer>
   </footer>
 </template>

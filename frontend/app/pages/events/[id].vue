@@ -55,13 +55,13 @@ const eventErrorMessage = computed(() => {
 <template>
   <EventsPageShell variant="detail">
     <div v-if="status === 'pending'" class="space-y-6">
-      <USkeleton class="h-16 rounded-2xl" />
-      <USkeleton class="h-120 rounded-2xl" />
+      <BaseSkeleton class="h-16 rounded-2xl" />
+      <BaseSkeleton class="h-120 rounded-2xl" />
     </div>
 
     <div v-else-if="eventErrorMessage" class="rounded-2xl px-6 py-16 text-center" :class="eventErrorStatus === 404 ? 'border border-default/65 bg-default/8' : 'border border-error/30 bg-error/8'">
       <div class="mx-auto flex max-w-md flex-col items-center gap-4">
-        <UIcon :name="eventErrorStatus === 404 ? 'i-lucide-search-x' : 'i-lucide-cloud-off'" class="size-8" :class="eventErrorStatus === 404 ? 'text-dimmed' : 'text-error'" />
+        <BaseIcon :name="eventErrorStatus === 404 ? 'i-lucide-search-x' : 'i-lucide-cloud-off'" class="size-8" :class="eventErrorStatus === 404 ? 'text-dimmed' : 'text-error'" />
         <div class="space-y-2">
           <p class="text-lg font-semibold text-highlighted">
             {{ eventErrorStatus === 404 ? 'No encontramos este evento.' : 'No pudimos cargar el evento.' }}
@@ -75,7 +75,7 @@ const eventErrorMessage = computed(() => {
 
     <div v-else-if="event" class="relative mx-auto max-w-6xl space-y-8">
       <NuxtLink to="/events" class="inline-flex items-center gap-2 text-sm text-toned transition-colors hover:text-highlighted">
-        <UIcon name="i-lucide-arrow-left" class="size-4" />
+        <BaseIcon name="i-lucide-arrow-left" class="size-4" />
         Volver a eventos
       </NuxtLink>
 
@@ -179,7 +179,7 @@ const eventErrorMessage = computed(() => {
 
     <div v-else class="rounded-2xl border border-error/30 bg-error/8 px-6 py-16 text-center">
       <div class="mx-auto flex max-w-md flex-col items-center gap-4">
-        <UIcon name="i-lucide-cloud-off" class="size-8 text-error" />
+        <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
         <div class="space-y-2">
           <p class="text-lg font-semibold text-highlighted">
             No pudimos preparar esta vista.

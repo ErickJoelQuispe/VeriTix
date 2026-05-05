@@ -63,13 +63,13 @@ async function onSubmit() {
         </header>
 
         <div class="mb-7 flex items-center justify-center">
-          <span class="inline-flex items-center gap-2 rounded-full border border-auric-300/30 bg-auric-400/10 px-3 py-1 text-xs font-semibold tracking-wide text-auric-200 uppercase">
-            <UIcon name="i-lucide-shield-check" class="size-3.5" />
+          <span class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary/80 uppercase">
+            <BaseIcon name="i-lucide-shield-check" class="size-3.5" />
             Acceso seguro
           </span>
         </div>
 
-        <UForm
+        <FormRoot
           ref="form"
           :state="state"
           :schema="schema"
@@ -106,7 +106,7 @@ async function onSubmit() {
           <div class="-mt-2 flex justify-end">
             <NuxtLink
               to="/forgot-password"
-              class="cursor-pointer rounded-sm text-sm text-auric-300 transition-colors duration-150 hover:text-auric-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+              class="cursor-pointer rounded-sm text-sm text-primary transition-colors duration-150 hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
               :class="pending && 'pointer-events-none opacity-60'"
               :aria-disabled="pending"
               :tabindex="pending ? -1 : undefined"
@@ -130,14 +130,14 @@ async function onSubmit() {
           <p class="text-center text-xs text-toned">
             Protegido con sesión segura y renovación automática de credenciales.
           </p>
-        </UForm>
+        </FormRoot>
 
         <footer class="pt-1">
           <p class="text-center text-sm text-muted">
             ¿No tienes cuenta?
             <NuxtLink
               to="/register"
-              class="rounded-sm font-medium text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+              class="rounded-sm font-medium text-primary transition-colors duration-200 hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
             >
               Regístrate aquí
             </NuxtLink>

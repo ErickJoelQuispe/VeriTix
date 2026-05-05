@@ -7,9 +7,9 @@
     <div class="relative z-10 flex min-h-screen flex-col">
       <LayoutHeader />
 
-      <UMain class="flex flex-1 flex-col pb-6">
+      <BaseMain class="flex flex-1 flex-col pb-6">
         <slot />
-      </UMain>
+      </BaseMain>
 
       <LayoutFooter />
     </div>

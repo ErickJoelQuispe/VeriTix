@@ -66,7 +66,7 @@ const steps = [
             <UiMetaLabel as="span">
               {{ step.motif }}
             </UiMetaLabel>
-            <UIcon name="i-lucide-sparkles" class="h-3.5 w-3.5 text-primary" />
+            <BaseIcon name="i-lucide-sparkles" class="h-3.5 w-3.5 text-primary" />
           </div>
         </div>
       </article>

@@ -14,7 +14,7 @@ withDefaults(defineProps<{
 <template>
   <div class="flex flex-col items-center justify-center gap-4 py-10 text-center">
     <div class="flex size-12 items-center justify-center rounded-full border border-default bg-default/60 text-muted">
-      <UIcon :name="icon" class="size-5" />
+      <BaseIcon :name="icon" class="size-5" />
     </div>
 
     <div class="space-y-1.5">

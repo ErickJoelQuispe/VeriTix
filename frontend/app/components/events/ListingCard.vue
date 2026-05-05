@@ -31,12 +31,12 @@ const eventDate = computed(() => {
     <div class="flex flex-1 flex-col pt-3 sm:px-1">
       <div class="flex min-h-8 flex-wrap items-center gap-2">
         <span class="inline-flex items-center gap-1.5 rounded-full border border-default/60 bg-default/40 px-2 py-1 text-xs font-medium text-toned transition-colors duration-200 group-hover:border-default/80 group-hover:bg-default/60 group-focus-within:border-default/80 group-focus-within:bg-default/60">
-          <UIcon name="i-lucide-map-pin" class="size-3.5 text-primary/70" />
+          <BaseIcon name="i-lucide-map-pin" class="size-3.5 text-primary/70" />
           <span class="leading-none">{{ event.venue.city }}</span>
         </span>
 
         <span v-if="event.format" class="inline-flex items-center gap-1.5 rounded-full border border-default/60 bg-default/40 px-2 py-1 text-xs font-medium text-toned transition-colors duration-200 group-hover:border-default/80 group-hover:bg-default/60 group-focus-within:border-default/80 group-focus-within:bg-default/60">
-          <UIcon name="i-lucide-ticket" class="size-3.5 text-primary/70" />
+          <BaseIcon name="i-lucide-ticket" class="size-3.5 text-primary/70" />
           <span class="leading-none truncate">{{ event.format.name }}</span>
         </span>
       </div>
@@ -58,7 +58,7 @@ const eventDate = computed(() => {
               Fecha
             </UiMetaLabel>
             <p class="flex min-w-0 items-center gap-2 text-sm font-medium text-muted/90 transition-colors duration-200 group-hover:text-toned group-focus-within:text-toned">
-              <UIcon name="i-lucide-calendar-days" class="size-3.5 text-secondary/80 transition-colors duration-200 group-hover:text-primary/80 group-focus-within:text-primary/80" />
+              <BaseIcon name="i-lucide-calendar-days" class="size-3.5 text-secondary/80 transition-colors duration-200 group-hover:text-primary/80 group-focus-within:text-primary/80" />
               <span class="min-w-0 truncate">{{ eventDate }}</span>
             </p>
           </div>

@@ -30,7 +30,7 @@ defineProps<{
       class="vtx-account-panel-link"
     >
       <div class="vtx-account-panel-link-icon-wrap" aria-hidden="true">
-        <UIcon :name="item.icon" class="vtx-account-panel-link-icon" />
+        <BaseIcon :name="item.icon" class="vtx-account-panel-link-icon" />
       </div>
 
       <div class="min-w-0 flex-1">
@@ -42,7 +42,7 @@ defineProps<{
         </p>
       </div>
 
-      <UIcon name="i-lucide-arrow-up-right" class="vtx-account-panel-link-arrow" aria-hidden="true" />
+      <BaseIcon name="i-lucide-arrow-up-right" class="vtx-account-panel-link-arrow" aria-hidden="true" />
     </NuxtLink>
   </div>
 </template>

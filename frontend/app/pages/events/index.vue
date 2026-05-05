@@ -311,12 +311,12 @@ async function handlePageChange(page: number) {
           </div>
 
           <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <USkeleton v-for="index in 6" :key="index" class="h-104 rounded-2xl" />
+            <BaseSkeleton v-for="index in 6" :key="index" class="h-104 rounded-2xl" />
           </div>
 
           <div v-else-if="eventsErrorMessage" class="rounded-2xl border border-error/30 bg-error/8 px-6 py-14 text-center">
             <div class="mx-auto flex max-w-md flex-col items-center gap-4">
-              <UIcon name="i-lucide-cloud-off" class="size-8 text-error" />
+              <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
               <div class="space-y-2">
                 <p class="text-lg font-semibold text-highlighted">
                   No pudimos cargar la cartelera.
@@ -343,7 +343,7 @@ async function handlePageChange(page: number) {
           </div>
 
           <div v-if="meta.totalPages > 1" class="mt-2 flex justify-center border-t border-default/55 pt-8">
-            <UPagination
+            <BasePagination
               :page="filters.page"
               :total="meta.total"
               :items-per-page="meta.limit"

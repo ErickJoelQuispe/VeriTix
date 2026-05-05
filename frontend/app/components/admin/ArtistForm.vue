@@ -114,7 +114,7 @@ watch(() => state, () => {
 </script>
 
 <template>
-  <UForm :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
+  <FormRoot :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
     <div class="grid gap-5 lg:grid-cols-2">
       <FormField v-model="state.name" name="name" label="Nombre" required />
       <FormField
@@ -126,9 +126,7 @@ watch(() => state, () => {
       />
     </div>
 
-    <UFormField name="bio" label="Biografía">
-      <FormTextarea v-model="state.bio" placeholder="Describí al artista" />
-    </UFormField>
+    <FormTextarea v-model="state.bio" name="bio" label="Biografía" placeholder="Describí al artista" />
 
     <div class="grid gap-5 lg:grid-cols-3">
       <FormField
@@ -153,19 +151,19 @@ watch(() => state, () => {
       />
     </div>
 
-    <UFormField name="genreIds" label="Géneros">
-      <USelect
-        v-model="state.genreIds"
-        :items="genreOptions"
-        multiple
-        placeholder="Seleccioná géneros"
-      />
-    </UFormField>
+    <FormSelect
+      v-model="state.genreIds"
+      name="genreIds"
+      label="Géneros"
+      :items="genreOptions"
+      multiple
+      placeholder="Seleccioná géneros"
+    />
 
     <div class="flex justify-end">
       <BaseButton kind="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting">
         {{ submitLabel }}
       </BaseButton>
     </div>
-  </UForm>
+  </FormRoot>
 </template>

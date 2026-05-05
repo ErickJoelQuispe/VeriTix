@@ -79,12 +79,12 @@ async function onSubmit() {
 
         <div class="mb-7 flex items-center justify-center">
           <span class="inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1 text-xs font-semibold tracking-wide text-secondary uppercase">
-            <UIcon name="i-lucide-sparkles" class="size-3.5" />
+            <BaseIcon name="i-lucide-sparkles" class="size-3.5" />
             Alta de cuenta
           </span>
         </div>
 
-        <UForm
+        <FormRoot
           ref="form"
           :state="state"
           :schema="schema"
@@ -169,14 +169,14 @@ async function onSubmit() {
             Al registrarte, aceptas nuestros
             <NuxtLink
               to="/terminos"
-              class="rounded-sm text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+              class="rounded-sm text-primary transition-colors duration-200 hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
             >
               Términos de Servicio
             </NuxtLink>
             y
             <NuxtLink
               to="/privacidad"
-              class="rounded-sm text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+              class="rounded-sm text-primary transition-colors duration-200 hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
             >
               Política de Privacidad
             </NuxtLink>.
@@ -197,14 +197,14 @@ async function onSubmit() {
           <p class="text-center text-xs text-toned">
             Tu cuenta se crea en segundos y podrás gestionar eventos de inmediato.
           </p>
-        </UForm>
+        </FormRoot>
 
         <footer class="pt-1">
           <p class="text-center text-sm text-muted">
             ¿Ya tenés cuenta?
             <NuxtLink
               to="/login"
-              class="rounded-sm font-medium text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+              class="rounded-sm font-medium text-primary transition-colors duration-200 hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
             >
               Iniciá sesión
             </NuxtLink>

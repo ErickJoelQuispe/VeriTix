@@ -319,7 +319,7 @@ onMounted(() => {
 
           <div class="space-y-4">
             <template v-if="catalogMode === 'published' && catalogPending">
-              <USkeleton v-for="i in 4" :key="`catalog-${i}`" class="h-32 rounded-2xl" />
+              <BaseSkeleton v-for="i in 4" :key="`catalog-${i}`" class="h-32 rounded-2xl" />
             </template>
 
             <UiEmptyState
@@ -365,7 +365,7 @@ onMounted(() => {
 
               <template #details>
                 <p v-if="event.isReview && event.issues.length > 0" class="flex items-start gap-2 text-sm text-toned">
-                  <UIcon name="i-lucide-alert-triangle" class="mt-0.5 size-4 shrink-0 text-warning" />
+                  <BaseIcon name="i-lucide-alert-triangle" class="mt-0.5 size-4 shrink-0 text-warning" />
                   <span>
                     {{ event.issues.join(' · ') }}
                   </span>

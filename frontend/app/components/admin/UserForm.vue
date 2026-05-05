@@ -189,7 +189,7 @@ watch(() => state, () => {
 </script>
 
 <template>
-  <UForm :state="state" :schema="formSchema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
+  <FormRoot :state="state" :schema="formSchema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
     <div class="grid gap-5 lg:grid-cols-2">
       <FormField v-model="state.name" name="name" label="Nombre" required />
       <FormField v-model="state.lastName" name="lastName" label="Apellido" required />
@@ -254,5 +254,5 @@ watch(() => state, () => {
         {{ submitLabel }}
       </BaseButton>
     </div>
-  </UForm>
+  </FormRoot>
 </template>

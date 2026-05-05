@@ -49,7 +49,7 @@ const iconBoxClass = computed(() => {
       </div>
 
       <div :class="iconBoxClass">
-        <UIcon :name="icon" class="size-5" />
+        <BaseIcon :name="icon" class="size-5" />
       </div>
     </div>
   </UiGlassPanel>

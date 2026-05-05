@@ -51,7 +51,7 @@ function isActive(path: string): boolean {
 
 <template>
   <section class="py-8 sm:py-10 lg:py-12">
-    <UContainer>
+    <BaseContainer>
       <div class="mx-auto max-w-7xl space-y-8">
         <!-- Header -->
         <header class="space-y-5 border-b border-default/55 pb-7">
@@ -98,6 +98,6 @@ function isActive(path: string): boolean {
         <!-- Content -->
         <slot />
       </div>
-    </UContainer>
+    </BaseContainer>
   </section>
 </template>

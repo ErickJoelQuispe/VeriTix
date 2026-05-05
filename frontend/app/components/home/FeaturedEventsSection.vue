@@ -18,7 +18,7 @@ const featuredEvents = computed(() => {
       v-if="pending"
       class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
     >
-      <USkeleton
+      <BaseSkeleton
         v-for="i in 3"
         :key="`skeleton-${i}`"
         class="h-105 rounded-2xl"
@@ -52,7 +52,7 @@ const featuredEvents = computed(() => {
 
       <p
         v-if="!featuredEvents.length"
-        class="mt-8 rounded-2xl border border-default/75 bg-muted/50 px-6 py-8 text-center text-sm text-muted"
+        class="mt-8 rounded-2xl border border-default/75 bg-elevated/50 px-6 py-8 text-center text-sm text-muted"
       >
         No encontramos conciertos para tu búsqueda actual.
       </p>

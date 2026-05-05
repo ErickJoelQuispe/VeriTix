@@ -1,14 +1,24 @@
 <script setup lang="ts">
+import { useFormContext } from './context'
+
 defineOptions({
   inheritAttrs: false,
 })
 
 const props = withDefaults(defineProps<{
+  name?: string
+  label?: string
+  help?: string
+  required?: boolean
   color?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
   variant?: 'outline' | 'soft' | 'subtle' | 'ghost' | 'none'
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   rows?: number
 }>(), {
+  name: '',
+  label: '',
+  help: '',
+  required: false,
   color: 'neutral',
   variant: 'subtle',
   size: 'lg',
@@ -17,6 +27,7 @@ const props = withDefaults(defineProps<{
 
 const modelValue = defineModel<string | undefined>()
 const attrs = useAttrs()
+const formContext = useFormContext()
 
 const forwardedAttrs = computed(() => {
   const { class: _class, ...rest } = attrs
@@ -24,19 +35,79 @@ const forwardedAttrs = computed(() => {
 })
 
 const textareaClass = computed(() => {
-  const customClass = attrs.class
-  return ['w-full', customClass]
+  const sizeClass = {
+    xs: 'px-3 py-1.5 text-xs',
+    sm: 'px-3.5 py-2 text-sm',
+    md: 'px-4 py-2.5 text-sm',
+    lg: 'px-4.5 py-3 text-base',
+    xl: 'px-5 py-3.5 text-base',
+  }[props.size]
+
+  const variantClass = {
+    outline: 'border border-default/60 bg-default/20 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
+    soft: 'border border-default/55 bg-elevated/45 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
+    subtle: 'border border-default/55 bg-default/30 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
+    ghost: 'border border-transparent bg-transparent shadow-none focus-visible:ring-2 focus-visible:ring-primary/25',
+    none: 'border-0 bg-transparent px-0 shadow-none focus-visible:ring-0',
+  }[props.variant]
+
+  return [
+    'w-full rounded-xl text-highlighted placeholder:text-toned/70 transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60',
+    sizeClass,
+    variantClass,
+    attrs.class,
+  ]
+})
+
+const errorMessage = computed(() => {
+  if (!props.name) {
+    return ''
+  }
+
+  return formContext?.errors[props.name] ?? ''
+})
+
+watch(modelValue, () => {
+  if (props.name) {
+    formContext?.clearError(props.name)
+  }
 })
 </script>
 
 <template>
-  <UTextarea
+  <div v-if="props.label" class="space-y-2">
+    <label class="flex items-center gap-2 text-sm font-medium text-highlighted">
+      <span>{{ props.label }}</span>
+      <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
+    </label>
+
+    <textarea
+      v-model="modelValue"
+      v-bind="forwardedAttrs"
+      :name="props.name || undefined"
+      :rows="props.rows"
+      :required="props.required"
+      :class="textareaClass"
+      :aria-invalid="errorMessage ? 'true' : undefined"
+    />
+
+    <p v-if="props.help && !errorMessage" class="text-xs text-toned">
+      {{ props.help }}
+    </p>
+
+    <p v-if="errorMessage" class="text-xs font-medium text-error" role="alert">
+      {{ errorMessage }}
+    </p>
+  </div>
+
+  <textarea
+    v-else
     v-model="modelValue"
     v-bind="forwardedAttrs"
-    :color="props.color"
-    :variant="props.variant"
-    :size="props.size"
+    :name="props.name || undefined"
     :rows="props.rows"
+    :required="props.required"
     :class="textareaClass"
+    :aria-invalid="errorMessage ? 'true' : undefined"
   />
 </template>

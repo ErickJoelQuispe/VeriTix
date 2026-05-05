@@ -231,7 +231,7 @@ onMounted(() => {
           />
 
           <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <USkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
+            <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
           </div>
 
           <UiEmptyState
@@ -252,7 +252,7 @@ onMounted(() => {
               <div class="flex h-full flex-col gap-4">
                 <div class="flex items-start justify-between gap-3">
                   <div class="flex min-w-0 items-center gap-3">
-                    <UAvatar
+                    <BaseAvatar
                       :src="user.avatarUrl || undefined"
                       :alt="`${user.name} ${user.lastName}`.trim() || user.email"
                       :text="userInitials(user)"

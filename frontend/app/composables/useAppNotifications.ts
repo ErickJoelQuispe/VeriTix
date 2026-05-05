@@ -5,7 +5,7 @@ interface NotifyOptions {
 }
 
 export function useAppNotifications() {
-  const toast = useToast()
+  const toast = useToastQueue()
   const { getApiErrorMessage, isApiSessionExpiredError } = useApiErrorMessage()
   const { clearAuth } = useAuth()
 

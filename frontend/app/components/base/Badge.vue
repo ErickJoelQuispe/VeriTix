@@ -1,24 +1,4 @@
 <script setup lang="ts">
-/**
- * BaseBadge — semantic wrapper around UBadge.
- *
- * Kinds:
- *   status  → dynamic color (success/warning/error/neutral) + soft variant + pill shape
- *            Used for entity statuses (Activo/Inactivo, PUBLISHED/DRAFT/etc.)
- *   tag     → neutral color + subtle variant + rounded-md shape
- *            Used for categorisation labels (genres, formats)
- *   outline → neutral/warning color + outline variant + pill shape
- *            Used for secondary tags (Revisión, +N overflow, alert counts)
- *   info    → neutral color + soft variant + pill shape
- *            Used for contextual info (pagination, counts)
- *   role    → primary color + soft variant + pill shape
- *            Used for role indicators (ADMIN)
- *   price   → primary color + soft variant + larger pill shape
- *            Used for price displays
- *   accent  → dynamic color/variant + pill shape with icon
- *            Used for highlighted callouts (SettingsShell badges)
- */
-
 defineOptions({
   inheritAttrs: false,
 })
@@ -59,6 +39,8 @@ function resolveDefaults(kind: BadgeKind, explicitColor?: BadgeColor): { color: 
       return { color: 'primary', variant: 'soft' as const }
     case 'accent':
       return { color: explicitColor ?? 'primary', variant: 'soft' as const }
+    default:
+      return { color: explicitColor ?? 'neutral', variant: 'soft' as const }
   }
 }
 
@@ -92,18 +74,43 @@ const resolved = computed(() => {
     variant: defaults.variant,
   }
 })
+
+const toneClass = computed(() => {
+  const colors: Record<BadgeColor, string> = {
+    primary: 'border-primary/20 bg-primary/12 text-primary',
+    secondary: 'border-secondary/20 bg-secondary/12 text-secondary',
+    success: 'border-success/20 bg-success/12 text-success',
+    info: 'border-info/20 bg-info/12 text-info',
+    warning: 'border-warning/20 bg-warning/12 text-warning',
+    error: 'border-error/20 bg-error/12 text-error',
+    neutral: 'border-default/55 bg-default/40 text-toned',
+  }
+
+  const variants: Record<BadgeVariant, string> = {
+    soft: 'shadow-sm',
+    subtle: 'shadow-none',
+    outline: 'bg-transparent',
+  }
+
+  const sizeClass: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', string> = {
+    xs: 'px-2 py-0.5 text-[0.7rem]',
+    sm: 'px-2.5 py-0.5 text-xs',
+    md: 'px-3 py-1 text-sm',
+    lg: 'px-3.5 py-1.5 text-sm',
+    xl: 'px-4 py-1.5 text-base',
+  }
+
+  return [colors[resolved.value.color], variants[resolved.value.variant], sizeClass[props.size], badgeClass.value]
+})
 </script>
 
 <template>
-  <UBadge
+  <span
     v-bind="attrs"
-    :color="resolved.color"
-    :variant="resolved.variant"
-    :size="size"
-    :icon="icon"
-    :leading="leading"
-    :class="badgeClass"
+    :class="['inline-flex items-center gap-1 border text-xs leading-none', toneClass]"
   >
+    <BaseIcon v-if="icon && leading !== false" :name="icon" class="size-3.5" aria-hidden="true" />
     <slot />
-  </UBadge>
+    <BaseIcon v-if="icon && leading === false" :name="icon" class="size-3.5" aria-hidden="true" />
+  </span>
 </template>
