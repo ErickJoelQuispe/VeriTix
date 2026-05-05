@@ -11,6 +11,7 @@ import { PaginatedResponse } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import { Role, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TicketPdfService } from '../queues/ticket-pdf.service';
 import {
   TicketDetailResponseDto,
   TicketListResponseDto,
@@ -93,6 +94,7 @@ export class TicketsService {
     private readonly ticketsRepository: TicketsRepository,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly ticketPdfService: TicketPdfService,
   ) {}
 
   // ── getMyTickets ─────────────────────────────────────────────────────────
@@ -163,6 +165,55 @@ export class TicketsService {
     }
 
     return toDetailResponse(ticket);
+  }
+
+  // ── generateTicketPdf ────────────────────────────────────────────────────
+  // Genera el PDF de un ticket on-demand. Solo el dueño puede descargarlo.
+
+  async generateTicketPdf(ticketId: string, userId: string): Promise<Buffer> {
+    const ticket = await this.prisma.ticket.findUnique({
+      where: { id: ticketId },
+      select: {
+        id: true,
+        qrPayload: true,
+        order: {
+          select: { buyerId: true },
+        },
+        buyer: {
+          select: { name: true, lastName: true },
+        },
+        event: {
+          select: {
+            name: true,
+            eventDate: true,
+            venue: {
+              select: { name: true },
+            },
+          },
+        },
+        ticketType: {
+          select: { name: true },
+        },
+      },
+    });
+
+    if (!ticket) {
+      throw new NotFoundException('Ticket no encontrado');
+    }
+
+    if (ticket.order.buyerId !== userId) {
+      throw new ForbiddenException('No tenés permiso para descargar este ticket');
+    }
+
+    return this.ticketPdfService.generatePdf({
+      ticketId: ticket.id,
+      qrPayload: ticket.qrPayload,
+      buyerName: `${ticket.buyer.name} ${ticket.buyer.lastName}`,
+      eventName: ticket.event.name,
+      eventDate: ticket.event.eventDate,
+      venueName: ticket.event.venue.name,
+      ticketTypeName: ticket.ticketType.name,
+    });
   }
 
   // ── validateTicket ───────────────────────────────────────────────────────

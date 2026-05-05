@@ -10,6 +10,7 @@ import { createCipheriv, randomBytes } from 'node:crypto';
 import { JwtPayload } from '@common/interfaces';
 import { Role, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TicketPdfService } from '../queues/ticket-pdf.service';
 import { TicketsRepository } from './tickets.repository';
 import { TicketsService } from './tickets.service';
 
@@ -101,6 +102,11 @@ const mockTicketsRepository = {
 const mockPrismaService = {
   event: { findUnique: jest.fn() },
   user: { findUniqueOrThrow: jest.fn() },
+  ticket: { findUnique: jest.fn() },
+};
+
+const mockTicketPdfService = {
+  generatePdf: jest.fn(),
 };
 
 const mockConfigService = {
@@ -121,6 +127,7 @@ describe('TicketsService', () => {
         { provide: TicketsRepository, useValue: mockTicketsRepository },
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: TicketPdfService, useValue: mockTicketPdfService },
       ],
     }).compile();
 
@@ -381,6 +388,76 @@ describe('TicketsService', () => {
       const result = await service.validateTicket(encryptForTest(HASH), 'uuid-validator-1');
 
       expect(result.buyerName).toBe('Carlos Martínez');
+    });
+  });
+
+  // ── generateTicketPdf() ───────────────────────────────────────────────────
+
+  describe('generateTicketPdf()', () => {
+    const mockPdfTicket = {
+      id: 'uuid-ticket-1',
+      qrPayload: 'encrypted-qr-payload',
+      order: { buyerId: 'uuid-buyer-1' },
+      buyer: { name: 'Ana', lastName: 'García' },
+      event: {
+        name: 'Granada Indie Night 2026',
+        eventDate: new Date('2026-09-19T21:00:00Z'),
+        venue: { name: 'Sala X' },
+      },
+      ticketType: { name: 'Pista General' },
+    };
+
+    const mockPdfBuffer = Buffer.from('%PDF-1.4 mock');
+
+    beforeEach(() => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue(mockPdfTicket);
+      mockTicketPdfService.generatePdf.mockResolvedValue(mockPdfBuffer);
+    });
+
+    it('should return a PDF buffer when the user owns the ticket', async () => {
+      const result = await service.generateTicketPdf('uuid-ticket-1', 'uuid-buyer-1');
+
+      expect(result).toBe(mockPdfBuffer);
+      expect(mockTicketPdfService.generatePdf).toHaveBeenCalledWith({
+        ticketId: 'uuid-ticket-1',
+        qrPayload: 'encrypted-qr-payload',
+        buyerName: 'Ana García',
+        eventName: 'Granada Indie Night 2026',
+        eventDate: new Date('2026-09-19T21:00:00Z'),
+        venueName: 'Sala X',
+        ticketTypeName: 'Pista General',
+      });
+    });
+
+    it('should throw NotFoundException when ticket does not exist', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.generateTicketPdf('uuid-not-found', 'uuid-buyer-1'),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(mockTicketPdfService.generatePdf).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException when user is not the ticket owner', async () => {
+      await expect(
+        service.generateTicketPdf('uuid-ticket-1', 'uuid-other-user'),
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(mockTicketPdfService.generatePdf).not.toHaveBeenCalled();
+    });
+
+    it('should compose buyerName as name + lastName', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        ...mockPdfTicket,
+        buyer: { name: 'Carlos', lastName: 'López' },
+      });
+
+      await service.generateTicketPdf('uuid-ticket-1', 'uuid-buyer-1');
+
+      expect(mockTicketPdfService.generatePdf).toHaveBeenCalledWith(
+        expect.objectContaining({ buyerName: 'Carlos López' }),
+      );
     });
   });
 });

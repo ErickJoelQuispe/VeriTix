@@ -6,7 +6,9 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
@@ -14,6 +16,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser, Roles } from '@common/decorators';
@@ -94,6 +97,31 @@ export class TicketsController {
     @CurrentUser() user: JwtPayload,
   ): Promise<ValidateTicketResponseDto> {
     return this.ticketsService.validateTicket(dto.payload, user.sub);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({
+    summary: 'Descargar ticket como PDF (solo el dueño del ticket)',
+  })
+  @ApiProduces('application/pdf')
+  @ApiOkResponse({ description: 'PDF del ticket generado exitosamente.' })
+  @ApiNotFoundResponse({ description: 'Ticket no encontrado.' })
+  @ApiForbiddenResponse({
+    description: 'No tenés permiso para descargar este ticket.',
+  })
+  async downloadPdf(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayload,
+    @Res() res: Response,
+  ): Promise<void> {
+    const buffer = await this.ticketsService.generateTicketPdf(id, user.sub);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="ticket-${id}.pdf"`,
+    );
+    res.send(buffer);
   }
 
   @Get(':id')
