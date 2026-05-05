@@ -298,15 +298,18 @@ onMounted(() => {
             </div>
           </div>
 
-          <AdminPaginationBar
-            v-if="catalogMode === 'published'"
-            :page="meta.page"
-            :total-pages="meta.totalPages"
-            :total-items="meta.total"
-            :page-size="meta.limit"
-            :pending="catalogPending"
-            @change="goToCatalogPage"
-          />
+          <UiPaginationFrame v-if="catalogMode === 'published'">
+            <BasePagination
+              :page="meta.page"
+              :total="meta.total"
+              :items-per-page="meta.limit"
+              :disabled="catalogPending"
+              :sibling-count="1"
+              :show-edges="meta.totalPages > 5"
+              size="lg"
+              @update:page="goToCatalogPage"
+            />
+          </UiPaginationFrame>
 
           <div v-if="catalogMode === 'review'" class="flex flex-col gap-3 border-y border-default/70 py-3 text-sm text-toned sm:flex-row sm:items-center sm:justify-between">
             <p class="font-medium text-highlighted">
@@ -388,15 +391,18 @@ onMounted(() => {
             </AdminEventRow>
           </div>
 
-          <AdminPaginationBar
-            v-if="catalogMode === 'published'"
-            :page="meta.page"
-            :total-pages="meta.totalPages"
-            :total-items="meta.total"
-            :page-size="meta.limit"
-            :pending="catalogPending"
-            @change="goToCatalogPage"
-          />
+          <UiPaginationFrame v-if="catalogMode === 'published'">
+            <BasePagination
+              :page="meta.page"
+              :total="meta.total"
+              :items-per-page="meta.limit"
+              :disabled="catalogPending"
+              :sibling-count="1"
+              :show-edges="meta.totalPages > 5"
+              size="lg"
+              @update:page="goToCatalogPage"
+            />
+          </UiPaginationFrame>
         </div>
       </AdminOverviewPanel>
     </div>

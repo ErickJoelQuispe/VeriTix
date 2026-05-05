@@ -26,11 +26,23 @@ const featuredEvents = computed(() => {
     </div>
 
     <template v-else>
-      <div class="mt-8 md:hidden">
-        <EventsCarousel :events="featuredEvents" />
+      <div v-if="featuredEvents.length" class="mt-8 md:hidden">
+        <BaseCarousel
+          :items="featuredEvents"
+          arrows
+          dots
+          class="-ms-4"
+          :ui="{
+            item: 'basis-[86%] ps-4 sm:basis-[48%]',
+          }"
+        >
+          <template #default="{ item }">
+            <EventsListingCard :event="item" />
+          </template>
+        </BaseCarousel>
       </div>
 
-      <div class="mt-8 hidden grid-cols-2 gap-6 md:grid lg:grid-cols-3">
+      <div v-if="featuredEvents.length" class="mt-8 hidden grid-cols-2 gap-6 md:grid lg:grid-cols-3">
         <EventsListingCard
           v-for="event in featuredEvents"
           :key="event.id"
