@@ -298,18 +298,20 @@ onMounted(() => {
             </div>
           </div>
 
-          <UiPaginationFrame v-if="catalogMode === 'published'">
-            <BasePagination
-              :page="meta.page"
-              :total="meta.total"
-              :items-per-page="meta.limit"
-              :disabled="catalogPending"
-              :sibling-count="1"
-              :show-edges="meta.totalPages > 5"
-              size="lg"
-              @update:page="goToCatalogPage"
-            />
-          </UiPaginationFrame>
+          <div v-if="catalogMode === 'published'" class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="catalogPending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToCatalogPage"
+              />
+            </div>
+          </div>
 
           <div v-if="catalogMode === 'review'" class="flex flex-col gap-3 border-y border-default/70 py-3 text-sm text-toned sm:flex-row sm:items-center sm:justify-between">
             <p class="font-medium text-highlighted">
@@ -391,18 +393,20 @@ onMounted(() => {
             </AdminEventRow>
           </div>
 
-          <UiPaginationFrame v-if="catalogMode === 'published'">
-            <BasePagination
-              :page="meta.page"
-              :total="meta.total"
-              :items-per-page="meta.limit"
-              :disabled="catalogPending"
-              :sibling-count="1"
-              :show-edges="meta.totalPages > 5"
-              size="lg"
-              @update:page="goToCatalogPage"
-            />
-          </UiPaginationFrame>
+          <div v-if="catalogMode === 'published'" class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="catalogPending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToCatalogPage"
+              />
+            </div>
+          </div>
         </div>
       </AdminOverviewPanel>
     </div>

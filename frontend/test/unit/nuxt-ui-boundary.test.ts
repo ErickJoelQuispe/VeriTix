@@ -44,5 +44,4 @@ describe('nuxt ui boundary', () => {
 
     expect(violations, `Direct Nuxt UI usage found outside adapters:\n${violations.join('\n')}`).toEqual([])
   })
-
 })

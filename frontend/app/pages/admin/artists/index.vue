@@ -176,18 +176,20 @@ onMounted(() => {
             class="w-full"
           />
 
-          <UiPaginationFrame>
-            <BasePagination
-              :page="meta.page"
-              :total="meta.total"
-              :items-per-page="meta.limit"
-              :disabled="pending"
-              :sibling-count="1"
-              :show-edges="meta.totalPages > 5"
-              size="lg"
-              @update:page="goToPage"
-            />
-          </UiPaginationFrame>
+          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToPage"
+              />
+            </div>
+          </div>
 
           <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
@@ -260,18 +262,20 @@ onMounted(() => {
             </div>
           </div>
 
-          <UiPaginationFrame>
-            <BasePagination
-              :page="meta.page"
-              :total="meta.total"
-              :items-per-page="meta.limit"
-              :disabled="pending"
-              :sibling-count="1"
-              :show-edges="meta.totalPages > 5"
-              size="lg"
-              @update:page="goToPage"
-            />
-          </UiPaginationFrame>
+          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToPage"
+              />
+            </div>
+          </div>
         </div>
       </AdminOverviewPanel>
     </div>

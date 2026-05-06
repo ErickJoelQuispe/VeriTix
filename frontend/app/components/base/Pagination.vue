@@ -27,11 +27,10 @@ const props = withDefaults(defineProps<{
   showEdges: false,
 })
 
-const attrs = useAttrs()
 const emit = defineEmits<{
   'update:page': [page: number]
 }>()
-
+const attrs = useAttrs()
 const forwardedAttrs = computed(() => {
   const { class: _class, ...rest } = attrs
   return rest
@@ -86,7 +85,7 @@ function goToPage(nextPage: number) {
 </script>
 
 <template>
-  <nav v-bind="forwardedAttrs" :class="['flex flex-col items-center gap-3 sm:flex-row', paginationClass]" aria-label="Pagination">
+  <nav v-bind="forwardedAttrs" class="flex flex-col items-center gap-3 sm:flex-row" :class="[paginationClass]" aria-label="Pagination">
     <div v-if="showEdges" class="flex items-center gap-2">
       <BaseButton kind="tertiary" :size="size" :disabled="disabled || currentPage === 1" @click="goToPage(1)">
         <span class="sr-only">Primera página</span>

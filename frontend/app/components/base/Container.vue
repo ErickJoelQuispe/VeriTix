@@ -14,7 +14,7 @@ const containerClass = computed(() => attrs.class)
 </script>
 
 <template>
-  <div v-bind="forwardedAttrs" :class="['mx-auto w-full max-w-[var(--container-content)] px-4 sm:px-6 lg:px-8', containerClass]">
+  <div v-bind="forwardedAttrs" class="mx-auto w-full max-w-[var(--container-content)] px-4 sm:px-6 lg:px-8" :class="[containerClass]">
     <slot />
   </div>
 </template>

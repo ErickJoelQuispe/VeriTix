@@ -7,7 +7,6 @@ const props = withDefaults(defineProps<{
   venueCity?: string
   imageUrl?: string | null
   status?: string
-  active?: boolean
   compact?: boolean
 }>(), {
   to: '',
@@ -16,20 +15,7 @@ const props = withDefaults(defineProps<{
   venueCity: '',
   imageUrl: null,
   status: '',
-  active: false,
   compact: false,
-})
-
-const cardVariant = computed(() => {
-  if (props.active) {
-    return 'primary'
-  }
-
-  if (props.status === 'DRAFT') {
-    return 'warning'
-  }
-
-  return 'default'
 })
 
 function formatDate(value: string | null | undefined) {
@@ -45,10 +31,11 @@ function formatDate(value: string | null | undefined) {
 </script>
 
 <template>
-  <UiCard
-    :variant="cardVariant"
-    hover
-    :padding="compact ? 'compact' : 'default'"
+  <UiGlassPanel
+    tone="subtle"
+    interactive
+    :padding="compact ? 'sm' : 'md'"
+    radius="lg"
     class="group flex flex-col gap-4 !border-default/65 !bg-elevated/25 sm:flex-row sm:items-center sm:justify-between"
   >
     <div class="flex min-w-0 items-center gap-4 sm:gap-5">
@@ -94,5 +81,5 @@ function formatDate(value: string | null | undefined) {
     <div v-if="$slots.actions" class="flex shrink-0 flex-wrap items-center justify-start gap-2.5 pt-1 sm:justify-end sm:pt-0">
       <slot name="actions" />
     </div>
-  </UiCard>
+  </UiGlassPanel>
 </template>

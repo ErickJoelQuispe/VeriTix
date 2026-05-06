@@ -165,201 +165,209 @@ async function handlePageChange(page: number) {
 </script>
 
 <template>
-  <EventsPageShell variant="index" container-class="relative">
-    <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
-      <header class="space-y-4 border-b border-default/55 pb-8">
-        <UiMetaLabel tone="accent">
-          Cartelera
-        </UiMetaLabel>
+  <section class="relative py-10 sm:py-14 lg:py-16">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div class="absolute inset-x-0 top-0 h-56 bg-linear-to-b from-primary/10 via-transparent to-transparent" />
+      <div class="absolute -left-12 top-24 h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
+      <div class="absolute right-0 top-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+    </div>
 
-        <div>
-          <h1 class="font-display text-3xl text-highlighted sm:text-4xl lg:text-5xl">
-            Eventos en vivo
-          </h1>
-          <p class="mt-2.5 max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-            Descubrí la cartelera y encontrá rápido lo que querés ver.
-          </p>
-        </div>
-      </header>
+    <BaseContainer class="relative">
+      <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
+        <header class="space-y-4 border-b border-default/55 pb-8">
+          <UiMetaLabel tone="accent">
+            Cartelera
+          </UiMetaLabel>
 
-      <section class="grid gap-8 xl:grid-cols-[292px_minmax(0,1fr)] xl:items-start xl:gap-10">
-        <aside class="xl:sticky xl:top-24">
-          <UiGlassPanel padding="lg" radius="md">
-            <div class="border-b border-default/55 pb-5">
-              <div>
-                <UiMetaLabel tone="accent">
-                  Filtros
-                </UiMetaLabel>
-              </div>
-
-              <div v-if="hasActiveFilters" class="mt-4 flex flex-wrap items-center gap-2">
-                <p class="text-xs font-medium text-dimmed uppercase">
-                  {{ activeFilterCount }} filtro{{ activeFilterCount > 1 ? 's' : '' }} activo{{ activeFilterCount > 1 ? 's' : '' }}
-                </p>
-
-                <BaseButton
-                  kind="tertiary"
-                  size="xs"
-                  :disabled="isPending"
-                  class="px-2.5"
-                  @click="clearFilters"
-                >
-                  Limpiar todo
-                </BaseButton>
-              </div>
-            </div>
-
-            <div class="mt-5 space-y-4.5">
-              <EventsFilterSection title="Búsqueda">
-                <form class="mt-3.5 space-y-3" @submit.prevent="submitSearch">
-                  <FormInput
-                    v-model="searchDraft"
-                    placeholder="Buscar por evento"
-                    icon="i-lucide-search"
-                    :disabled="isPending"
-                    class="min-w-0"
-                  />
-
-                  <FormInput
-                    v-model="artistNameDraft"
-                    placeholder="Buscar por artista"
-                    icon="i-lucide-mic-vocal"
-                    :disabled="isPending"
-                    class="min-w-0"
-                  />
-
-                  <BaseButton kind="primary" type="submit" size="sm" :loading="isPending" :disabled="isPending" block>
-                    Buscar
-                  </BaseButton>
-                </form>
-              </EventsFilterSection>
-
-              <EventsFilterSection title="Géneros" :status="filters.genreId ? '1 seleccionado' : 'Top'">
-                <div class="mt-3.5 flex flex-wrap gap-2.5">
-                  <EventsFilterChip
-                    label="Todos"
-                    size="sm"
-                    :active="!filters.genreId"
-                    :disabled="isPending"
-                    @click="updateFilters({ genreId: '' })"
-                  />
-
-                  <EventsFilterChip
-                    v-for="genre in visibleGenres"
-                    :key="genre.id"
-                    :label="genre.name"
-                    size="sm"
-                    :active="filters.genreId === genre.id"
-                    :disabled="isPending"
-                    @click="updateFilters({ genreId: genre.id })"
-                  />
-                </div>
-
-                <BaseButton
-                  v-if="hiddenGenresCount > 0"
-                  kind="tertiary"
-                  size="xs"
-                  class="mt-3 px-0"
-                  :disabled="isPending"
-                  @click="showAllGenres = !showAllGenres"
-                >
-                  {{ showAllGenres ? 'Mostrar menos' : `Ver ${hiddenGenresCount} más` }}
-                </BaseButton>
-              </EventsFilterSection>
-
-              <EventsFilterSection title="Ubicación" :status="filters.city ? '1' : 'Todas'">
-                <div class="mt-3.5 flex flex-wrap gap-2.5">
-                  <EventsFilterChip
-                    label="Todas"
-                    size="sm"
-                    :active="!filters.city"
-                    :disabled="isPending"
-                    @click="updateFilters({ city: '' })"
-                  />
-
-                  <EventsFilterChip
-                    v-for="city in cityOptions"
-                    :key="city"
-                    :label="city"
-                    size="sm"
-                    :active="filters.city === city"
-                    :disabled="isPending"
-                    @click="updateFilters({ city })"
-                  />
-                </div>
-              </EventsFilterSection>
-            </div>
-          </UiGlassPanel>
-        </aside>
-
-        <section class="space-y-7">
-          <div class="border-b border-default/50 pb-4 sm:pb-5">
-            <div class="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between md:gap-6">
-              <div class="space-y-1">
-                <UiMetaLabel>
-                  Resultados
-                </UiMetaLabel>
-                <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
-                  {{ resultsHeading }}
-                </h2>
-              </div>
-
-              <p class="max-w-2xl text-sm leading-relaxed text-toned/88 md:text-right">
-                {{ resultsContext }}
-              </p>
-            </div>
-          </div>
-
-          <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <BaseSkeleton v-for="index in 6" :key="index" class="h-104 rounded-2xl" />
-          </div>
-
-          <div v-else-if="eventsErrorMessage" class="rounded-2xl border border-error/30 bg-error/8 px-6 py-14 text-center">
-            <div class="mx-auto flex max-w-md flex-col items-center gap-4">
-              <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
-              <div class="space-y-2">
-                <p class="text-lg font-semibold text-highlighted">
-                  No pudimos cargar la cartelera.
-                </p>
-                <p class="text-sm leading-relaxed text-toned">
-                  {{ eventsErrorMessage }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div v-else-if="events.length === 0" class="rounded-2xl border border-default/65 bg-default/8 px-6 py-14 text-center">
-            <p class="text-lg font-semibold text-highlighted">
-              No hay eventos para estos filtros.
+          <div>
+            <h1 class="font-display text-3xl text-highlighted sm:text-4xl lg:text-5xl">
+              Eventos en vivo
+            </h1>
+            <p class="mt-2.5 max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
+              Descubrí la cartelera y encontrá rápido lo que querés ver.
             </p>
           </div>
+        </header>
 
-          <div v-else class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <EventsListingCard
-              v-for="event in events"
-              :key="event.id"
-              :event="event"
-            />
-          </div>
+        <section class="grid gap-8 xl:grid-cols-[292px_minmax(0,1fr)] xl:items-start xl:gap-10">
+          <aside class="xl:sticky xl:top-24">
+            <UiGlassPanel padding="lg" radius="md">
+              <div class="border-b border-default/55 pb-5">
+                <div>
+                  <UiMetaLabel tone="accent">
+                    Filtros
+                  </UiMetaLabel>
+                </div>
 
-          <div v-if="meta.totalPages > 1" class="mt-2 flex justify-center border-t border-default/55 pt-8">
-            <BasePagination
-              :page="filters.page"
-              :total="meta.total"
-              :items-per-page="meta.limit"
-              :disabled="isPending"
-              :sibling-count="1"
-              size="sm"
-              color="neutral"
-              variant="ghost"
-              active-color="primary"
-              active-variant="soft"
-              show-edges
-              @update:page="handlePageChange"
-            />
-          </div>
+                <div v-if="hasActiveFilters" class="mt-4 flex flex-wrap items-center gap-2">
+                  <p class="text-xs font-medium text-dimmed uppercase">
+                    {{ activeFilterCount }} filtro{{ activeFilterCount > 1 ? 's' : '' }} activo{{ activeFilterCount > 1 ? 's' : '' }}
+                  </p>
+
+                  <BaseButton
+                    kind="tertiary"
+                    size="xs"
+                    :disabled="isPending"
+                    class="px-2.5"
+                    @click="clearFilters"
+                  >
+                    Limpiar todo
+                  </BaseButton>
+                </div>
+              </div>
+
+              <div class="mt-5 space-y-4.5">
+                <PagesEventsFilterSection title="Búsqueda">
+                  <form class="mt-3.5 space-y-3" @submit.prevent="submitSearch">
+                    <FormInput
+                      v-model="searchDraft"
+                      placeholder="Buscar por evento"
+                      icon="i-lucide-search"
+                      :disabled="isPending"
+                      class="min-w-0"
+                    />
+
+                    <FormInput
+                      v-model="artistNameDraft"
+                      placeholder="Buscar por artista"
+                      icon="i-lucide-mic-vocal"
+                      :disabled="isPending"
+                      class="min-w-0"
+                    />
+
+                    <BaseButton kind="primary" type="submit" size="sm" :loading="isPending" :disabled="isPending" block>
+                      Buscar
+                    </BaseButton>
+                  </form>
+                </PagesEventsFilterSection>
+
+                <PagesEventsFilterSection title="Géneros" :status="filters.genreId ? '1 seleccionado' : 'Top'">
+                  <div class="mt-3.5 flex flex-wrap gap-2.5">
+                    <PagesEventsFilterChip
+                      label="Todos"
+                      size="sm"
+                      :active="!filters.genreId"
+                      :disabled="isPending"
+                      @click="updateFilters({ genreId: '' })"
+                    />
+
+                    <PagesEventsFilterChip
+                      v-for="genre in visibleGenres"
+                      :key="genre.id"
+                      :label="genre.name"
+                      size="sm"
+                      :active="filters.genreId === genre.id"
+                      :disabled="isPending"
+                      @click="updateFilters({ genreId: genre.id })"
+                    />
+                  </div>
+
+                  <BaseButton
+                    v-if="hiddenGenresCount > 0"
+                    kind="tertiary"
+                    size="xs"
+                    class="mt-3 px-0"
+                    :disabled="isPending"
+                    @click="showAllGenres = !showAllGenres"
+                  >
+                    {{ showAllGenres ? 'Mostrar menos' : `Ver ${hiddenGenresCount} más` }}
+                  </BaseButton>
+                </PagesEventsFilterSection>
+
+                <PagesEventsFilterSection title="Ubicación" :status="filters.city ? '1' : 'Todas'">
+                  <div class="mt-3.5 flex flex-wrap gap-2.5">
+                    <PagesEventsFilterChip
+                      label="Todas"
+                      size="sm"
+                      :active="!filters.city"
+                      :disabled="isPending"
+                      @click="updateFilters({ city: '' })"
+                    />
+
+                    <PagesEventsFilterChip
+                      v-for="city in cityOptions"
+                      :key="city"
+                      :label="city"
+                      size="sm"
+                      :active="filters.city === city"
+                      :disabled="isPending"
+                      @click="updateFilters({ city })"
+                    />
+                  </div>
+                </PagesEventsFilterSection>
+              </div>
+            </UiGlassPanel>
+          </aside>
+
+          <section class="space-y-7">
+            <div class="border-b border-default/50 pb-4 sm:pb-5">
+              <div class="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between md:gap-6">
+                <div class="space-y-1">
+                  <UiMetaLabel>
+                    Resultados
+                  </UiMetaLabel>
+                  <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
+                    {{ resultsHeading }}
+                  </h2>
+                </div>
+
+                <p class="max-w-2xl text-sm leading-relaxed text-toned/88 md:text-right">
+                  {{ resultsContext }}
+                </p>
+              </div>
+            </div>
+
+            <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
+              <BaseSkeleton v-for="index in 6" :key="index" class="h-104 rounded-2xl" />
+            </div>
+
+            <div v-else-if="eventsErrorMessage" class="rounded-2xl border border-error/30 bg-error/8 px-6 py-14 text-center">
+              <div class="mx-auto flex max-w-md flex-col items-center gap-4">
+                <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
+                <div class="space-y-2">
+                  <p class="text-lg font-semibold text-highlighted">
+                    No pudimos cargar la cartelera.
+                  </p>
+                  <p class="text-sm leading-relaxed text-toned">
+                    {{ eventsErrorMessage }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div v-else-if="events.length === 0" class="rounded-2xl border border-default/65 bg-default/8 px-6 py-14 text-center">
+              <p class="text-lg font-semibold text-highlighted">
+                No hay eventos para estos filtros.
+              </p>
+            </div>
+
+            <div v-else class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
+              <UiEventCard
+                v-for="event in events"
+                :key="event.id"
+                :event="event"
+              />
+            </div>
+
+            <div v-if="meta.totalPages > 1" class="mt-2 flex justify-center border-t border-default/55 pt-8">
+              <BasePagination
+                :page="filters.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="isPending"
+                :sibling-count="1"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                active-color="primary"
+                active-variant="soft"
+                show-edges
+                @update:page="handlePageChange"
+              />
+            </div>
+          </section>
         </section>
-      </section>
-    </div>
-  </EventsPageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

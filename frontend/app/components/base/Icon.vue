@@ -20,7 +20,7 @@ const iconClass = computed(() => attrs.class)
 <template>
   <span
     v-bind="forwardedAttrs"
-    :class="['inline-block align-middle leading-none', props.name, iconClass]"
+    class="inline-block align-middle leading-none" :class="[props.name, iconClass]"
     aria-hidden="true"
   />
 </template>

@@ -32,7 +32,7 @@ const itemClass = computed(() => props.ui?.item ?? 'basis-[86%] ps-4 sm:basis-[4
       <div
         v-for="(item, index) in props.items"
         :key="index"
-        :class="['shrink-0 snap-start', itemClass]"
+        class="shrink-0 snap-start" :class="[itemClass]"
       >
         <slot :item="item" :index="index" />
       </div>

@@ -14,5 +14,5 @@ const skeletonClass = computed(() => attrs.class)
 </script>
 
 <template>
-  <div v-bind="forwardedAttrs" :class="['animate-pulse rounded-xl bg-default/45', skeletonClass]" />
+  <div v-bind="forwardedAttrs" class="animate-pulse rounded-xl bg-default/45" :class="[skeletonClass]" />
 </template>

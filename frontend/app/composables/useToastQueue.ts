@@ -38,7 +38,7 @@ export function useToastQueue() {
     toasts.value = [...toasts.value, normalized]
 
     if (normalized.duration > 0) {
-      const timer = setTimeout(() => remove(id), normalized.duration)
+      const timer = setTimeout(remove, normalized.duration, id)
       timers.set(id, timer)
     }
   }

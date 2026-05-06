@@ -107,7 +107,7 @@ const toneClass = computed(() => {
 <template>
   <span
     v-bind="attrs"
-    :class="['inline-flex items-center gap-1 border text-xs leading-none', toneClass]"
+    class="inline-flex items-center gap-1 border text-xs leading-none" :class="[toneClass]"
   >
     <BaseIcon v-if="icon && leading !== false" :name="icon" class="size-3.5" aria-hidden="true" />
     <slot />

@@ -75,7 +75,7 @@ watch(modelValue, () => {
 </script>
 
 <template>
-  <label :class="['space-y-2', fieldClass]">
+  <label class="space-y-2" :class="[fieldClass]">
     <div class="flex items-center gap-2 text-sm font-medium text-highlighted">
       <span>{{ props.label }}</span>
       <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
@@ -95,7 +95,7 @@ watch(modelValue, () => {
           type="button"
           :aria-label="isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'"
           :aria-pressed="isVisible"
-            class="cursor-pointer rounded-md p-0.5 text-muted transition-colors duration-150 hover:bg-white/6 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+          class="cursor-pointer rounded-md p-0.5 text-muted transition-colors duration-150 hover:bg-white/6 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
           @click="toggleVisibility"
         >
           <BaseIcon

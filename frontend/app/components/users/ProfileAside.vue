@@ -28,7 +28,7 @@ const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de e
           </button>
 
           <template #content>
-            <AccountMenuPanel
+            <UiAccountMenuPanel
               :title="fullName"
               :subtitle="email"
               :items="accountMenuItems"
@@ -38,7 +38,7 @@ const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de e
                   {{ initials }}
                 </div>
               </template>
-            </AccountMenuPanel>
+            </UiAccountMenuPanel>
           </template>
         </BasePopover>
 

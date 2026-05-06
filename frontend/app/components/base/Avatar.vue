@@ -40,7 +40,7 @@ const sizeClass = computed(() => {
 <template>
   <div
     v-bind="forwardedAttrs"
-    :class="['inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-default/60 bg-default/40 text-highlighted', sizeClass, avatarClass]"
+    class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-default/60 bg-default/40 text-highlighted" :class="[sizeClass, avatarClass]"
   >
     <img
       v-if="props.src"

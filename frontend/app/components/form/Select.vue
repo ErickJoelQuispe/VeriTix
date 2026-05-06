@@ -90,7 +90,7 @@ function handleChange(event: Event) {
 </script>
 
 <template>
-  <label :class="['space-y-2', fieldClass]">
+  <label class="space-y-2" :class="[fieldClass]">
     <span class="flex items-center gap-2 text-sm font-medium text-highlighted">
       {{ props.label }}
       <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>

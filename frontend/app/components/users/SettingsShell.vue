@@ -38,7 +38,7 @@ const toneClasses = computed(() => {
     section: 'py-10 sm:py-14 lg:py-16',
     glow: 'from-primary/12 via-transparent to-transparent',
     leftGlow: 'bg-secondary/12',
-      rightGlow: 'bg-primary/14',
+    rightGlow: 'bg-primary/14',
     bottomGlow: 'bg-primary/10',
     divider: 'border-default/60',
     badgeColor: 'warning' as const,

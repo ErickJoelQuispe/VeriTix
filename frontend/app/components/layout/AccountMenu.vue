@@ -55,7 +55,7 @@ const accountSubtitle = computed(() => {
     </button>
 
     <template #content>
-      <AccountMenuPanel
+      <UiAccountMenuPanel
         :title="accountDisplayName"
         :subtitle="accountSubtitle"
         :items="accountMenuItems"
@@ -69,7 +69,7 @@ const accountSubtitle = computed(() => {
             class="vtx-account-panel-avatar"
           />
         </template>
-      </AccountMenuPanel>
+      </UiAccountMenuPanel>
     </template>
   </BasePopover>
 </template>
