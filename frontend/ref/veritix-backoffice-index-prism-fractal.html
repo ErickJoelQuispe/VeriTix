@@ -1,0 +1,44 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VeriTix | Backoffice</title>
+  <style>
+    :root { --bg: oklch(16% 0.015 270); --surface: oklch(21% 0.015 270); --fg: oklch(95% 0.01 270); --muted: oklch(65% 0.015 270); --border: oklch(28% 0.015 270); --accent-1: oklch(70% 0.22 340); --accent-2: oklch(75% 0.20 40); --accent-3: oklch(65% 0.18 200); --font-serif: 'Iowan Old Style', 'Charter', 'Times New Roman', Georgia, serif; --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif; --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; background: radial-gradient(circle at 50% 10%, color-mix(in oklch, var(--accent-1) 12%, transparent) 0%, transparent 34%), radial-gradient(circle at 78% 16%, color-mix(in oklch, var(--accent-2) 8%, transparent) 0%, transparent 28%), radial-gradient(circle at 24% 28%, color-mix(in oklch, var(--accent-3) 9%, transparent) 0%, transparent 24%), var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; display: grid; place-items: center; padding: 32px; }
+    .noise-overlay { position: fixed; inset: 0; z-index: 999; pointer-events: none; opacity: 0.04; background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E'); mix-blend-mode: overlay; }
+    .angled-grid { position: fixed; inset: -40vh -20vw; width: 140vw; height: 180vh; z-index: -4; pointer-events: none; opacity: 0.18; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 100px 100px; transform: perspective(900px) rotateX(64deg) rotateZ(-18deg); transform-origin: center; mask-image: radial-gradient(circle at center, black 0 48%, transparent 82%); -webkit-mask-image: radial-gradient(circle at center, black 0 48%, transparent 82%); mix-blend-mode: screen; }
+    .card { width: min(980px, 100%); border: 1px solid color-mix(in oklch, var(--border) 78%, transparent); background: color-mix(in oklch, var(--surface) 74%, transparent); border-radius: 20px; padding: 28px; box-shadow: 0 24px 70px rgba(0,0,0,0.18); }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; display: block; }
+    h1 { margin: 0 0 10px; font-family: var(--font-serif); font-weight: 400; font-size: clamp(2.4rem, 6vw, 4.8rem); letter-spacing: -0.02em; line-height: 1; }
+    p { margin: 0 0 24px; color: color-mix(in oklch, var(--fg) 70%, var(--muted)); max-width: 56ch; }
+    .grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+    .link { display: block; padding: 18px; border: 1px solid color-mix(in oklch, var(--border) 70%, transparent); border-radius: 14px; background: color-mix(in oklch, var(--bg) 12%, transparent); transition: transform 0.2s ease, border-color 0.2s ease; color: var(--fg); text-decoration: none; }
+    .link:hover { transform: translateY(-2px); border-color: var(--accent-2); }
+    .link .kicker { display: block; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .link strong { display: block; font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; line-height: 1.1; margin-bottom: 8px; }
+    .link span { display: block; color: var(--muted); font-size: 0.95rem; }
+    @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <div class="angled-grid" aria-hidden="true"></div>
+  <main class="card">
+    <div class="eyebrow">Backoffice</div>
+    <h1>Admin pages.</h1>
+    <p>Dashboard principal y entidades separadas, todas con el mismo sistema visual y sin texto de relleno.</p>
+    <div class="grid">
+      <a class="link" href="veritix-backoffice-dashboard-prism-fractal.html"><span class="kicker">01</span><strong>Dashboard</strong><span>KPIs and activity.</span></a>
+      <a class="link" href="veritix-backoffice-events-prism-fractal.html"><span class="kicker">02</span><strong>Events</strong><span>Search, filters, cards.</span></a>
+      <a class="link" href="veritix-backoffice-artists-prism-fractal.html"><span class="kicker">03</span><strong>Artists</strong><span>Roster and status.</span></a>
+      <a class="link" href="veritix-backoffice-venues-prism-fractal.html"><span class="kicker">04</span><strong>Venues</strong><span>Capacity and open state.</span></a>
+      <a class="link" href="veritix-backoffice-users-prism-fractal.html"><span class="kicker">05</span><strong>Users</strong><span>Roles and verification.</span></a>
+    </div>
+  </main>
+</body>
+</html>
