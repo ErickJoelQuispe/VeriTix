@@ -1,7 +1,7 @@
 export function useRouteAccess() {
   const { ensureSession, isAuthenticated, user } = useAuth()
 
-  const isAdmin = computed(() => user.value?.role === 'ADMIN')
+  const isBackofficeUser = computed(() => user.value?.role === 'ADMIN')
 
   async function ensureSessionSafe(): Promise<boolean> {
     try {
@@ -12,37 +12,45 @@ export function useRouteAccess() {
     }
   }
 
-  async function requireAuthenticated(redirectTo = '/login') {
+  async function requireAuthenticated(redirectTo = '/login'): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
     if (!sessionReady || !isAuthenticated.value) {
-      return navigateTo(redirectTo)
+      if (import.meta.server) {
+        return
+      }
+
+      return redirectTo
     }
   }
 
-  async function requireAdmin() {
+  async function requireBackofficeAccess(): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
     if (!sessionReady || !isAuthenticated.value) {
-      return navigateTo('/login')
+      if (import.meta.server) {
+        return
+      }
+
+      return '/login'
     }
 
-    if (!isAdmin.value) {
-      return navigateTo('/users/me')
+    if (!isBackofficeUser.value) {
+      return '/users/me'
     }
   }
 
-  async function redirectIfAuthenticated(redirectTo = '/users/me') {
+  async function redirectIfAuthenticated(redirectTo = '/users/me'): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
     if (sessionReady && isAuthenticated.value) {
-      return navigateTo(redirectTo)
+      return redirectTo
     }
   }
 
   return {
     requireAuthenticated,
-    requireAdmin,
+    requireBackofficeAccess,
     redirectIfAuthenticated,
   }
 }

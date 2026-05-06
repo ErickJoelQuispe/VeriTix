@@ -26,7 +26,12 @@ export function useApiErrorMessage() {
 
   function isApiAuthError(error: unknown): boolean {
     const status = getApiErrorStatus(error)
-    return status === 401 || status === 403
+    return status === 401
+  }
+
+  function isApiForbiddenError(error: unknown): boolean {
+    const status = getApiErrorStatus(error)
+    return status === 403
   }
 
   function isApiSessionExpiredError(error: unknown): boolean {
@@ -72,6 +77,7 @@ export function useApiErrorMessage() {
     getApiErrorStatus,
     getApiErrorMessage,
     isApiAuthError,
+    isApiForbiddenError,
     isApiTimeoutError,
     isApiSessionExpiredError,
     markApiSessionExpiredError,

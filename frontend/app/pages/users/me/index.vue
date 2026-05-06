@@ -316,15 +316,25 @@ onMounted(() => {
     </section>
 
     <template #aside>
-      <UsersProfileAside
-        :initials="profileInitials"
-        :full-name="`${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim()"
-        :email="user?.email ?? 'Sin email'"
-        :avatar-configured="Boolean(profileState.avatarUrl.trim())"
-        :phone="profileState.phone"
-        :is-admin="isAdmin"
-        :role-view="roleView"
-      />
+      <ClientOnly>
+        <UsersProfileAside
+          :initials="profileInitials"
+          :full-name="`${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim()"
+          :email="user?.email ?? 'Sin email'"
+          :avatar-configured="Boolean(profileState.avatarUrl.trim())"
+          :phone="profileState.phone"
+          :is-admin="isAdmin"
+          :role-view="roleView"
+        />
+
+        <template #fallback>
+          <div class="rounded-panel border border-default bg-elevated/35 p-5 sm:p-6" aria-hidden="true">
+            <BaseSkeleton class="h-16 w-16 rounded-2xl" />
+            <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
+            <BaseSkeleton class="mt-2 h-4 w-44 rounded" />
+          </div>
+        </template>
+      </ClientOnly>
     </template>
   </UsersSettingsShell>
 </template>

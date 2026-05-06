@@ -9,17 +9,17 @@ export interface AccountMenuItem {
 }
 
 export function useAccountMenuItems(
-  isAdmin: MaybeRefOrGetter<boolean>,
-  adminDescription = 'Eventos, usuarios y artistas',
+  isBackofficeUser: MaybeRefOrGetter<boolean>,
+  backofficeDescription = 'Eventos, usuarios y artistas',
 ) {
   return computed<AccountMenuItem[]>(() => {
     const items: AccountMenuItem[] = []
 
-    if (toValue(isAdmin)) {
+    if (toValue(isBackofficeUser)) {
       items.push({
-        label: 'Panel admin',
-        description: adminDescription,
-        to: '/admin',
+        label: 'Backoffice',
+        description: backofficeDescription,
+        to: '/backoffice',
         icon: 'i-lucide-shield-check',
       })
     }

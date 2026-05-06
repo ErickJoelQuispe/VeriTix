@@ -1,9 +1,17 @@
 <script setup lang="ts">
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
 
 const isEventsRoute = computed(() => {
   return route.path.startsWith('/events')
+})
+
+const showGuestActions = computed(() => {
+  return sessionStatus.value !== 'unknown' && !isAuthenticated.value
+})
+
+const showAccountMenu = computed(() => {
+  return sessionStatus.value !== 'unknown' && isAuthenticated.value
 })
 </script>
 
@@ -39,29 +47,37 @@ const isEventsRoute = computed(() => {
 
         <div class="flex shrink-0 items-center gap-3">
           <div class="flex shrink-0 items-center gap-2">
-            <template v-if="!isAuthenticated">
-              <BaseButton
-                to="/login"
-                kind="secondary"
-                size="xs"
-                class="px-3.5 text-xs tracking-wide uppercase"
-              >
-                Iniciar sesión
-              </BaseButton>
+            <ClientOnly>
+              <template v-if="showGuestActions">
+                <BaseButton
+                  to="/login"
+                  kind="secondary"
+                  size="xs"
+                  class="px-3.5 text-xs tracking-wide uppercase"
+                >
+                  Iniciar sesión
+                </BaseButton>
 
-              <BaseButton
-                to="/register"
-                kind="primary"
-                size="xs"
-                class="px-3.5 text-xs tracking-wide uppercase"
-              >
-                Registrarse
-              </BaseButton>
-            </template>
+                <BaseButton
+                  to="/register"
+                  kind="primary"
+                  size="xs"
+                  class="px-3.5 text-xs tracking-wide uppercase"
+                >
+                  Registrarse
+                </BaseButton>
+              </template>
 
-            <template v-else>
-              <LayoutAccountMenu />
-            </template>
+              <template v-else-if="showAccountMenu">
+                <LayoutAccountMenu />
+              </template>
+
+              <div v-else class="h-8 w-24" aria-hidden="true" />
+
+              <template #fallback>
+                <div class="h-8 w-24" aria-hidden="true" />
+              </template>
+            </ClientOnly>
           </div>
         </div>
       </div>
