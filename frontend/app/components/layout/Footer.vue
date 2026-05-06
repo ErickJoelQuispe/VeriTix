@@ -1,104 +1,153 @@
 <script setup lang="ts">
-const email = ref('')
-const subscribed = ref(false)
-const subscriptionError = ref('')
 const currentYear = new Date().getFullYear()
-const emailPattern = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/
+const route = useRoute()
 
-function handleSubscribe() {
-  const normalizedEmail = email.value.trim()
-
-  if (!normalizedEmail) {
-    subscriptionError.value = 'Ingresá un correo para suscribirte.'
-    subscribed.value = false
-    return
-  }
-
-  const isValidEmail = emailPattern.test(normalizedEmail)
-
-  if (!isValidEmail) {
-    subscriptionError.value = 'Ingresá un correo válido.'
-    subscribed.value = false
-    return
-  }
-
-  subscriptionError.value = ''
-
-  subscribed.value = true
-  email.value = ''
-}
+const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
 </script>
 
 <template>
-  <footer
-    id="footer"
-    class="border-t border-default/75 bg-elevated/40"
-  >
-    <BaseContainer class="py-12">
-      <div class="flex flex-col items-start justify-between gap-10 lg:flex-row lg:items-center">
-        <div class="max-w-md space-y-5">
-          <div class="space-y-2">
-            <UiMetaLabel tone="accent">
-              Cierre del ritual
-            </UiMetaLabel>
-            <p class="font-display text-3xl text-highlighted">
-              VeriTix Newsletter
+  <footer id="footer" class="bg-transparent pt-24">
+    <BaseContainer class="pb-12">
+      <div class="flex flex-col justify-between gap-14 lg:flex-row lg:items-start">
+        <h3 class="font-display text-5xl leading-none text-highlighted sm:text-6xl">
+          Define your<br>
+          frequency.
+        </h3>
+
+        <div v-if="isBackofficeRoute" class="grid flex-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-16">
+          <div>
+            <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
+              Backoffice
             </p>
+            <ul class="space-y-3 text-sm text-toned">
+              <li>
+                <NuxtLink to="/backoffice/dashboard">
+                  Dashboard
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/backoffice/events">
+                  Events
+                </NuxtLink>
+              </li>
+            </ul>
           </div>
+          <div>
+            <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
+              Entities
+            </p>
+            <ul class="space-y-3 text-sm text-toned">
+              <li>
+                <NuxtLink to="/backoffice/artists">
+                  Artists
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/backoffice/venues">
+                  Venues
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/backoffice/users">
+                  Users
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
+              Public
+            </p>
+            <ul class="space-y-3 text-sm text-toned">
+              <li>
+                <NuxtLink to="/">
+                  Home
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/events">
+                  Events
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-          <p class="text-sm text-toned">
-            Enterate antes que nadie de nuevos conciertos, preventas y experiencias exclusivas con curaduría progresiva.
-          </p>
-
-          <form
-            class="flex flex-col gap-3 sm:flex-row sm:items-center"
-            @submit.prevent="handleSubscribe"
-          >
-            <label class="sr-only" for="newsletter-email">
-              Correo para newsletter
-            </label>
-
-            <FormInput
-              id="newsletter-email"
-              v-model="email"
-              type="email"
-              placeholder="tu@email.com"
-              aria-label="Correo para newsletter"
-              color="neutral"
-              variant="subtle"
-              size="lg"
-              class="w-full sm:w-64"
-            />
-
-            <BaseButton
-              kind="secondary"
-              type="submit"
-              size="md"
-              class="shrink-0 px-6"
-            >
-              Suscribirme
-            </BaseButton>
-          </form>
-
-          <p
-            v-if="subscribed"
-            class="text-sm text-secondary"
-          >
-            Te has suscrito correctamente. Revisa tu correo para confirmar.
-          </p>
-
-          <p
-            v-else-if="subscriptionError"
-            class="text-sm text-error"
-            role="alert"
-          >
-            {{ subscriptionError }}
-          </p>
+        <div v-else class="grid flex-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-16">
+          <div>
+            <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
+              Discover
+            </p>
+            <ul class="space-y-3 text-sm text-toned">
+              <li>
+                <NuxtLink to="/events">
+                  All Events
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/events">
+                  Venues
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/events">
+                  Artists
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
+              Platform
+            </p>
+            <ul class="space-y-3 text-sm text-toned">
+              <li>
+                <NuxtLink to="/">
+                  The Ledger
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/login">
+                  For Creators
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/events">
+                  Transfer Protocol
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
+              Company
+            </p>
+            <ul class="space-y-3 text-sm text-toned">
+              <li>
+                <NuxtLink to="/">
+                  About
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/">
+                  Manifesto
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/">
+                  Support
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <div class="mt-10 border-t border-default/75 pt-5 text-xs tracking-wide text-muted uppercase">
-        © {{ currentYear }} Veritix. Todos los derechos reservados.
+      <div class="mt-14 flex items-center justify-between border-t border-default/75 pt-6 text-xs tracking-wide text-muted uppercase">
+        <p class="font-display text-lg normal-case text-highlighted">
+          VeriTix
+        </p>
+        <p>© {{ currentYear }} Veritix infrastructure</p>
       </div>
     </BaseContainer>
   </footer>

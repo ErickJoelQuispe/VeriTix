@@ -10,7 +10,7 @@ definePageMeta({ middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo artista | Backoffice VeriTix' })
 
 const { createArtist: createBackofficeArtist, listGenres } = useBackofficeArtistsRepository()
-const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { getApiErrorStatus } = useApiErrorMessage()
 const { notifyApiError, notifyError, notifySuccess } = useAppNotifications()
 
 const genres = ref<GenreOption[]>([])

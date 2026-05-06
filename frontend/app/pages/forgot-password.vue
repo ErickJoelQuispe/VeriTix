@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { z } from 'zod'
+
 definePageMeta({
   middleware: 'guest',
 })
@@ -7,76 +9,73 @@ useSeoMeta({
   title: 'Recuperar acceso | VeriTix',
   description: 'Pantalla de recuperacion de acceso de VeriTix con una composicion completa y coherente con el resto de la experiencia.',
 })
+
+const schema = z.object({
+  email: z.string().email('Ingresá un email válido').min(1, 'El email es obligatorio'),
+})
+
+const state = reactive({ email: '' })
+const form = useTemplateRef('form')
+
+const submitted = ref(false)
+
+async function onSubmit() {
+  if (!form.value) {
+    return
+  }
+
+  submitted.value = true
+}
 </script>
 
 <template>
-  <AuthShell variant="login">
-    <div class="w-full max-w-lg px-4 sm:px-0">
-      <section class="space-y-8">
-        <header class="text-center">
-          <UiMetaLabel tone="accent" class="mb-3 text-secondary/90">
-            VeriTix
-          </UiMetaLabel>
-
-          <h1 class="font-display text-3xl text-highlighted md:text-4xl">
-            Recupera tu acceso
-          </h1>
-
-          <p class="mx-auto mt-3 max-w-md text-sm text-toned">
-            Esta pantalla ahora sigue la misma familia visual que inicio de sesión y te guía solo hacia las acciones reales disponibles.
-          </p>
-        </header>
-
-        <div class="mb-7 flex items-center justify-center">
-          <span class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-wide text-primary/80 uppercase">
-            <BaseIcon name="i-lucide-key-round" class="size-3.5" />
-            Recuperación no disponible
-          </span>
+  <div>
+    <header class="sticky top-0 z-50 flex items-center justify-between border-b border-default/70 bg-default/85 px-6 py-4 backdrop-blur md:px-16">
+      <div class="flex flex-col gap-1">
+        <div class="font-display text-2xl">
+          VeriTix
+        </div><div class="font-mono text-[0.68rem] tracking-[0.12em] text-muted uppercase">
+          Live events / ledger access
         </div>
-
-        <div class="space-y-4 text-center">
-          <p class="text-sm leading-relaxed text-toned">
-            El restablecimiento automático de contraseña todavía no está habilitado. Si aún recordás tu clave, volvé a iniciar sesión. Si conservás una sesión activa en otro dispositivo, cambiá la contraseña desde seguridad dentro de tu cuenta.
+      </div><BaseButton kind="secondary" to="/">
+        Home
+      </BaseButton>
+    </header>
+    <main class="grid min-h-[calc(100vh-78px)] place-items-center px-6 py-14 md:px-16 md:py-24">
+      <section class="w-full max-w-[520px] overflow-hidden rounded-[18px] border border-default/80 bg-elevated/75 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
+        <div class="flex items-center justify-between border-b border-default/70 px-6 py-5">
+          <strong class="font-display text-3xl font-normal">Reset password</strong><span class="font-mono text-[0.68rem] tracking-[0.12em] text-muted uppercase">Secure link</span>
+        </div><div class="px-6 pb-6 pt-7">
+          <span class="mb-3 block font-mono text-xs tracking-[0.1em] text-muted uppercase">Recovery</span><h1 class="font-display text-6xl leading-[0.95]">
+            Reset access.
+          </h1><p class="mb-7 mt-3 max-w-[34ch] text-toned">
+            We’ll send a one-time link to your email so you can get back to your tickets safely.
           </p>
-
-          <div class="vtx-recovery-note">
-            <BaseIcon name="i-lucide-shield-check" class="size-4 text-primary" />
-            <p>
-              Evitamos prometer un flujo que aún no existe y te dejamos las rutas seguras que sí funcionan hoy.
-            </p>
+          <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
+            <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="name@domain.com" icon="i-lucide-mail" required />
+            <div class="grid gap-3 pt-2">
+              <BaseButton kind="primary" type="submit" size="lg" block>
+                Send reset link
+              </BaseButton><BaseButton kind="secondary" to="/login" size="lg" block>
+                Back to sign in
+              </BaseButton>
+            </div>
+          </FormRoot>
+          <div class="mt-4 text-sm text-muted">
+            Check spam if you don’t see it in a minute.
           </div>
-        </div>
-
-        <div class="flex flex-col gap-3">
-          <BaseButton kind="primary" to="/login" size="lg" block>
-            Volvé a iniciar sesión
-          </BaseButton>
-
-          <BaseButton kind="secondary" to="/" size="lg" block>
-            Ir al inicio
-          </BaseButton>
-        </div>
-
-        <footer class="pt-1">
-          <p class="text-center text-xs text-toned">
-            Cuando el flujo de recuperación exista, esta pantalla podrá conectarse a él sin romper la experiencia visual de autenticación.
+          <p v-if="submitted" class="mt-3 rounded-xl border border-default/70 bg-default/20 px-4 py-3 text-sm text-toned" role="status">
+            Check spam if you don’t see it in a minute.
           </p>
-        </footer>
+        </div>
       </section>
-    </div>
-  </AuthShell>
+    </main>
+    <footer class="mx-auto flex w-full max-w-[1400px] items-center justify-between border-t border-default px-6 pb-10 pt-7 text-sm text-muted md:px-16">
+      <div class="font-display text-2xl text-highlighted">
+        VeriTix
+      </div><p class="font-mono text-[0.68rem] tracking-[0.12em] uppercase">
+        © 2024 VERITIX INFRASTRUCTURE
+      </p>
+    </footer>
+  </div>
 </template>
-
-<style scoped>
-@reference "@/assets/css/main.css";
-
-.vtx-recovery-note {
-  @apply flex items-start gap-3 rounded-2xl border px-4 py-4 text-left text-sm leading-relaxed;
-  color: var(--color-toned);
-  border-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015)),
-    color-mix(in srgb, var(--color-elevated) 62%, transparent);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
-}
-</style>

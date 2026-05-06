@@ -16,7 +16,7 @@ const route = useRoute()
 const eventId = computed(() => String(route.params.id || ''))
 
 const { getFormOptions, getEvent: getBackofficeEvent, updateEvent: updateBackofficeEvent } = useBackofficeEventsRepository()
-const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { getApiErrorStatus } = useApiErrorMessage()
 const { notifyApiError, notifyInfo, notifySuccess } = useAppNotifications()
 
 const event = ref<BackofficeEventDetail | null>(null)

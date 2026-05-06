@@ -1,31 +1,31 @@
 @import 'tailwindcss';
 @theme {
-  --font-display: 'Cinzel Decorative', 'Cinzel', 'Times New Roman', serif;
-  --font-sans: 'Instrument Sans', 'Avenir Next', 'Segoe UI', sans-serif;
+  --font-display: 'Iowan Old Style', 'Charter', 'Times New Roman', Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  --radius-panel: 1rem;
+  --radius-panel: 1.125rem;
   --container-content: 84rem;
 
-  --color-primary: #efaa47;
-  --color-secondary: #2cbde6;
-  --color-success: #44ce9d;
-  --color-info: #5cb2ef;
-  --color-warning: #f97f5b;
-  --color-error: #d74261;
+  --color-primary: oklch(0.75 0.2 40);
+  --color-secondary: oklch(0.65 0.18 200);
+  --color-success: oklch(0.71 0.16 160);
+  --color-info: oklch(0.65 0.18 240);
+  --color-warning: oklch(0.78 0.16 72);
+  --color-error: oklch(0.7 0.22 340);
 
-  --color-default: #11131f;
-  --color-elevated: #1c2133;
-  --color-muted: #aab4cd;
-  --color-toned: #c6cde0;
-  --color-dimmed: #8f9bb8;
-  --color-highlighted: #f6f8ff;
-  --color-inverted: #1c1b1e;
+  --color-default: oklch(0.16 0.015 270);
+  --color-elevated: oklch(0.21 0.015 270);
+  --color-muted: oklch(0.65 0.015 270);
+  --color-toned: oklch(0.8 0.015 270);
+  --color-dimmed: oklch(0.57 0.015 270);
+  --color-highlighted: oklch(0.95 0.01 270);
+  --color-inverted: oklch(0.16 0.015 270);
 
-  --color-border-default: #2f3855;
-  --color-border-muted: #3e4869;
-  --color-border-accented: #5b6891;
-  --color-border-inverted: #241f1a;
+  --color-border-default: oklch(0.28 0.015 270);
+  --color-border-muted: oklch(0.33 0.015 270);
+  --color-border-accented: oklch(0.38 0.018 270);
+  --color-border-inverted: oklch(0.25 0.015 270);
 
 }
 
@@ -33,11 +33,71 @@
   color-scheme: dark;
 }
 
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 10%, color-mix(in oklch, var(--color-error) 12%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at 78% 16%, color-mix(in oklch, var(--color-primary) 8%, transparent) 0%, transparent 28%),
+    radial-gradient(circle at 24% 28%, color-mix(in oklch, var(--color-secondary) 9%, transparent) 0%, transparent 24%),
+    var(--color-default);
+  color: var(--color-highlighted);
+}
+
+.vtx-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--color-highlighted) 60%, var(--color-muted));
+}
+
+.vtx-brand-note {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.vtx-prism-shell {
+  border: 1px solid color-mix(in oklch, var(--color-border-default) 72%, transparent);
+  background: color-mix(in oklch, var(--color-elevated) 66%, transparent);
+  border-radius: 1.125rem;
+  backdrop-filter: blur(10px);
+}
+
+.vtx-prism-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.1rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 0.125rem;
+  border: 1px solid transparent;
+}
+
+::selection { background: var(--color-error); color: #fff; }
+
 .vtx-prismatic-text {
-  background-image: linear-gradient(112deg, var(--color-primary) 8%, var(--color-info) 50%, var(--color-error) 94%);
+  background-image: linear-gradient(135deg, var(--color-primary), var(--color-error), var(--color-secondary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+@utility vtx-glass {
+  border: 1px solid color-mix(in oklch, var(--color-border-default) 72%, transparent);
+  background: color-mix(in oklch, var(--color-elevated) 66%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+@utility vtx-panel {
+  border: 1px solid color-mix(in oklch, var(--color-border-default) 78%, transparent);
+  background: color-mix(in oklch, var(--color-elevated) 74%, transparent);
+  border-radius: 1.125rem;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.18);
 }
 
 @utility vtx-admin-list-card {

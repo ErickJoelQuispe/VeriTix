@@ -48,6 +48,17 @@ const roleFilterOptions = computed(() => {
   }))
 })
 
+const toolbarChips = computed(() => {
+  const verifiedUsers = users.value.filter(user => user.emailVerified).length
+  const activeUsers = users.value.filter(user => user.isActive).length
+
+  return [
+    { label: 'visibles', value: meta.value.total },
+    { label: 'verificados', value: verifiedUsers },
+    { label: 'activos', value: activeUsers },
+  ]
+})
+
 function userInitials(user: BackofficeUserRecord) {
   const initials = [user.name, user.lastName]
     .map(value => value?.trim()?.charAt(0)?.toUpperCase() ?? '')
@@ -177,16 +188,25 @@ onMounted(() => {
 
 <template>
   <BackofficePageShell
-    title="Usuarios"
-    description="Gestioná cuentas, roles y estado de acceso del equipo y de los compradores."
+    title="Manage users"
+    description="Search by status, role, and activity with a concise view."
     primary-action-to="/backoffice/users/new"
     primary-action-label="Nuevo usuario"
   >
     <div class="mx-auto max-w-7xl space-y-8" data-testid="backoffice-users-page">
+      <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
+        <FormInput v-model="filters.search" placeholder="Search name or email" icon="i-lucide-search" :disabled="pending" />
+        <FormSelect label="Role" name="role" :model-value="filters.role || '__all__'" :items="[{ label: 'Role: all', value: '__all__' }, ...roleFilterOptions.map(role => ({ label: role.name, value: role.id }))]" :disabled="pending" @update:model-value="filters.role = $event === '__all__' ? '' : String($event)" />
+        <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
+        <BaseButton kind="secondary" :loading="pending" @click="applyFilters">
+          Search
+        </BaseButton>
+      </section>
+
       <BackofficeOverviewPanel
-        eyebrow="Administración"
-        title="Directorio de usuarios"
-        description="Busca por nombre o correo, filtra por rol y controla quién mantiene acceso activo."
+        eyebrow="Filter"
+        title="Refine list."
+        description="Search by status, role, and activity with a concise view."
         tone="subtle"
       >
         <template #actions>
@@ -221,20 +241,16 @@ onMounted(() => {
             class="w-full"
           />
 
-          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
-            <div class="flex w-full flex-wrap items-center justify-center">
-              <BasePagination
-                :page="meta.page"
-                :total="meta.total"
-                :items-per-page="meta.limit"
-                :disabled="pending"
-                :sibling-count="1"
-                :show-edges="meta.totalPages > 5"
-                size="lg"
-                @update:page="goToPage"
-              />
-            </div>
-          </div>
+          <BackofficeToolbarChips :items="toolbarChips" />
+
+          <BackofficePaginationRail
+            :page="meta.page"
+            :total="meta.total"
+            :items-per-page="meta.limit"
+            :pending="pending"
+            :show-edges="meta.totalPages > 5"
+            @update:page="goToPage"
+          />
 
           <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
@@ -327,20 +343,14 @@ onMounted(() => {
             </UiGlassPanel>
           </div>
 
-          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
-            <div class="flex w-full flex-wrap items-center justify-center">
-              <BasePagination
-                :page="meta.page"
-                :total="meta.total"
-                :items-per-page="meta.limit"
-                :disabled="pending"
-                :sibling-count="1"
-                :show-edges="meta.totalPages > 5"
-                size="lg"
-                @update:page="goToPage"
-              />
-            </div>
-          </div>
+          <BackofficePaginationRail
+            :page="meta.page"
+            :total="meta.total"
+            :items-per-page="meta.limit"
+            :pending="pending"
+            :show-edges="meta.totalPages > 5"
+            @update:page="goToPage"
+          />
         </div>
       </BackofficeOverviewPanel>
     </div>

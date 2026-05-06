@@ -2,6 +2,24 @@
 const { query, results, pending } = useEventSearch()
 const { scrollToSection } = useSectionScroll()
 
+const heroRail = [
+  {
+    kicker: 'Curated',
+    title: 'Prismatic lineup',
+    text: 'Selección viva de shows con lectura editorial y datos reales.',
+  },
+  {
+    kicker: 'Signals',
+    title: 'Genre vectors',
+    text: 'Filtrá por ciudad, género y formato con respuesta inmediata.',
+  },
+  {
+    kicker: 'Access',
+    title: 'Ledger-backed',
+    text: 'Reservas y acceso vinculados a estado real de disponibilidad.',
+  },
+] as const
+
 function onSearch() {
   scrollToSection('eventos')
 }
@@ -9,23 +27,32 @@ function onSearch() {
 
 <template>
   <UiSectionContainer id="hero">
-    <div class="relative grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+    <div class="relative grid items-center gap-10 lg:grid-cols-[1.15fr_.85fr] lg:gap-12">
       <div class="pointer-events-none absolute -left-6 top-6 hidden h-24 w-24 rotate-45 border border-secondary/35 lg:block" />
 
       <div class="space-y-8 animate-hero-reveal">
-        <h1 class="font-display text-5xl leading-[0.94] text-highlighted md:text-6xl lg:text-7xl">
+        <h1 class="font-display text-6xl leading-[0.9] text-highlighted md:text-7xl lg:text-8xl">
           Veritix
-          <span class="vtx-prismatic-text mt-2 block text-3xl md:text-4xl lg:text-5xl">
-            Atlas de conciertos visionarios
+          <span class="vtx-prismatic-text mt-2 block text-4xl md:text-5xl lg:text-6xl">
+            The Pure Experience
           </span>
         </h1>
 
         <p class="max-w-2xl text-base leading-relaxed text-toned md:text-lg">
-          Explorá el universo de conciertos visionarios con VeriTix, tu atlas definitivo para descubrir eventos en vivo que desafían lo convencional.
+          The pristine way to discover, filter, and book live events with a single visual language.
         </p>
-        <p class="max-w-2xl text-base leading-relaxed text-toned md:text-lg">
-          Desde artistas emergentes hasta leyendas del escenario, encontrá tu próximo ritual musical con nuestro buscador intuitivo y sumergite en experiencias sonoras únicas.
-        </p>
+
+        <div class="flex flex-wrap gap-2.5">
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-default/70 bg-elevated/45 px-3 py-1.5 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
+            <strong class="text-highlighted">Live</strong> catalog
+          </span>
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-default/70 bg-elevated/45 px-3 py-1.5 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
+            <strong class="text-highlighted">Synced</strong> filters
+          </span>
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-default/70 bg-elevated/45 px-3 py-1.5 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
+            <strong class="text-highlighted">Secure</strong> session
+          </span>
+        </div>
 
         <form class="space-y-3" @submit.prevent="onSearch">
           <!-- Search Field Container -->
@@ -79,6 +106,24 @@ function onSearch() {
           >
             Explorar géneros
           </BaseButton>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-3">
+          <article
+            v-for="item in heroRail"
+            :key="item.title"
+            class="rounded-xl border border-default/70 bg-elevated/45 p-4"
+          >
+            <p class="text-[0.64rem] tracking-[0.12em] text-muted uppercase">
+              {{ item.kicker }}
+            </p>
+            <h3 class="mt-2 font-display text-2xl leading-none text-highlighted">
+              {{ item.title }}
+            </h3>
+            <p class="mt-2 text-sm text-toned">
+              {{ item.text }}
+            </p>
+          </article>
         </div>
       </div>
 

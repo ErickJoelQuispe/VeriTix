@@ -9,6 +9,14 @@ const props = defineProps<{
 const eventDate = computed(() => {
   return formatEventDate(props.event.dateISO)
 })
+
+const eventTime = computed(() => {
+  return new Date(props.event.dateISO).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+})
+
+const cardPrice = computed(() => {
+  return `Price · ${props.event.currency}`
+})
 </script>
 
 <template>
@@ -42,32 +50,29 @@ const eventDate = computed(() => {
       </div>
 
       <div class="mt-3 min-h-20 space-y-2">
+        <div class="flex items-center justify-between text-[0.68rem] tracking-[0.11em] text-muted uppercase">
+          <span>{{ eventDate }}</span>
+          <span class="truncate">{{ event.venue.name }}</span>
+        </div>
+
         <h3 class="line-clamp-2 text-base font-semibold leading-tight text-highlighted transition-colors duration-300 group-hover:text-white sm:text-lg">
           {{ event.name }}
         </h3>
 
         <p class="line-clamp-1 text-sm font-medium text-toned/90 sm:text-base">
-          {{ event.venue.name }}
+          Curated transmission from the live catalog.
         </p>
       </div>
 
       <div class="mt-auto border-t border-white/10 pt-3 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div class="min-w-0 flex-1 space-y-1">
-            <UiMetaLabel>
-              Fecha
-            </UiMetaLabel>
-            <p class="flex min-w-0 items-center gap-2 text-sm font-medium text-muted/90 transition-colors duration-200 group-hover:text-toned group-focus-within:text-toned">
-              <BaseIcon name="i-lucide-calendar-days" class="size-3.5 text-secondary/80 transition-colors duration-200 group-hover:text-primary/80 group-focus-within:text-primary/80" />
-              <span class="min-w-0 truncate">{{ eventDate }}</span>
-            </p>
-          </div>
-
+        <div class="flex items-center justify-between gap-3">
+          <span class="text-xs tracking-[0.1em] text-muted uppercase">{{ eventTime }}</span>
+          <span class="text-sm font-medium text-highlighted">{{ cardPrice }}</span>
           <BaseButton
             :to="`/events/${event.id}`"
             kind="primary"
             size="sm"
-            class="shrink-0 self-start px-3.5 sm:self-auto"
+            class="shrink-0 px-3.5"
           >
             Reservar
           </BaseButton>

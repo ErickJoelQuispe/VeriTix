@@ -1,46 +1,21 @@
-<script setup lang="ts">
-const props = defineProps<{
-  duration?: string
-  direction?: 'alternate' | 'alternate-reverse' | 'normal' | 'reverse'
-}>()
-</script>
-
 <template>
-  <div aria-hidden="true" class="vtx-bg-spectrum pointer-events-none fixed -z-20" />
+  <div aria-hidden="true" class="vtx-bg-grid pointer-events-none fixed inset-0 -z-20" />
 </template>
 
 <style scoped>
-.vtx-bg-spectrum {
-  inset: -44% -22% auto;
-  height: 58rem;
-  background: conic-gradient(
-    from 112deg at 48% 44%,
-    rgb(44 189 230 / 0.22),
-    rgb(255 255 255 / 0) 24%,
-    rgb(239 170 71 / 0.26) 48%,
-    rgb(255 255 255 / 0) 70%,
-    rgb(215 66 97 / 0.22),
-    rgb(255 255 255 / 0)
-  );
-  filter: blur(56px);
-  animation: spectrum-drift v-bind('props.duration || "22s"') ease-in-out infinite
-    v-bind('props.direction || "alternate"');
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .vtx-bg-spectrum {
-    animation: none;
-  }
-}
-
-@keyframes spectrum-drift {
-  from {
-    transform: translate3d(-2%, 0, 0) rotate(0deg);
-  }
-
-  to {
-    transform: translate3d(2%, -2%, 0) rotate(10deg);
-  }
+.vtx-bg-grid {
+  inset: -40vh -20vw;
+  width: 140vw;
+  height: 180vh;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(var(--color-border-default) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border-default) 1px, transparent 1px);
+  background-size: 100px 100px;
+  transform: perspective(900px) rotateX(64deg) rotateZ(-18deg);
+  transform-origin: center;
+  mask-image: radial-gradient(circle at center, black 0 48%, transparent 82%);
+  -webkit-mask-image: radial-gradient(circle at center, black 0 48%, transparent 82%);
+  mix-blend-mode: screen;
 }
 </style>

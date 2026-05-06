@@ -12,7 +12,6 @@ definePageMeta({ middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo evento | Backoffice VeriTix' })
 
 const { createEvent: createBackofficeEvent, getFormOptions } = useBackofficeEventsRepository()
-const { getApiErrorMessage } = useApiErrorMessage()
 const { notifyApiError, notifySuccess } = useAppNotifications()
 
 const venues = ref<VenueOption[]>([])

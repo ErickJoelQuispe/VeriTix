@@ -47,7 +47,7 @@ function handleConfirm() {
     </BaseButton>
 
     <template #content>
-        <div class="vtx-backoffice-confirm-panel">
+      <div class="vtx-backoffice-confirm-panel">
         <div class="space-y-2">
           <p class="text-sm font-semibold text-highlighted">
             {{ title }}

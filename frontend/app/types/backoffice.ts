@@ -203,3 +203,21 @@ export interface BackofficeArtistPayload {
   isActive?: boolean
   genreIds?: string[]
 }
+
+export interface BackofficeVenueRecord {
+  id: string
+  name: string
+  city: string
+  country: string
+  capacity: number | null
+  isActive: boolean
+  updatedAt: string
+}
+
+export interface BackofficeVenueListQuery {
+  pageValue: number
+  pageSize: number
+  search: string
+  city: string
+  isActive: string
+}

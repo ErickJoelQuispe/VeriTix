@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { BACKOFFICE_NAV_ITEMS } from '~/utils/navigation/ia'
+
 interface BackofficePageNavigationItem {
   label: string
   to: string
@@ -16,12 +18,7 @@ const props = withDefaults(defineProps<{
   primaryActionLabel: '',
 })
 
-const DEFAULT_NAVIGATION_ITEMS: BackofficePageNavigationItem[] = [
-  { label: 'Dashboard', to: '/backoffice', icon: 'i-lucide-layout-dashboard' },
-  { label: 'Eventos', to: '/backoffice/events', icon: 'i-lucide-calendar-range' },
-  { label: 'Usuarios', to: '/backoffice/users', icon: 'i-lucide-users' },
-  { label: 'Artistas', to: '/backoffice/artists', icon: 'i-lucide-mic-2' },
-]
+const DEFAULT_NAVIGATION_ITEMS: BackofficePageNavigationItem[] = BACKOFFICE_NAV_ITEMS
 
 const route = useRoute()
 
@@ -38,7 +35,7 @@ const navigationSegments = computed(() => {
 })
 
 const activeNavigation = computed(() => {
-  return navigationItems.value.find(item => isActive(item.to))?.to ?? '/backoffice'
+  return navigationItems.value.find(item => isActive(item.to))?.to ?? '/backoffice/dashboard'
 })
 
 function isActive(path: string): boolean {
@@ -50,19 +47,19 @@ function isActive(path: string): boolean {
 </script>
 
 <template>
-  <section class="py-8 sm:py-10 lg:py-12">
+  <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="mx-auto max-w-7xl space-y-8">
         <!-- Header -->
         <header class="space-y-5 border-b border-default/55 pb-7">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div class="space-y-3">
-              <UiMetaLabel tone="accent">
-                Backoffice control center
-              </UiMetaLabel>
+              <p class="vtx-eyebrow">
+                Backoffice
+              </p>
 
               <div class="space-y-1.5">
-                <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">
+                <h1 class="font-display text-5xl leading-[0.92] tracking-tight text-highlighted sm:text-6xl">
                   {{ title }}
                 </h1>
                 <p class="max-w-3xl text-sm leading-relaxed text-toned sm:text-base">

@@ -15,8 +15,9 @@ defineProps<{
 <style scoped>
 .vtx-bg-base {
   background:
-    radial-gradient(circle at 14% 16%, rgb(239 170 71 / 0.22), transparent 30%),
-    radial-gradient(circle at 84% 14%, rgb(20 128 188 / 0.26), transparent 33%),
-    radial-gradient(ellipse at 56% 52%, rgb(24 31 52 / 0.9), rgb(14 20 35 / 0.88) 60%);
+    radial-gradient(circle at 50% 10%, color-mix(in oklch, var(--color-error) 12%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at 78% 16%, color-mix(in oklch, var(--color-primary) 8%, transparent) 0%, transparent 28%),
+    radial-gradient(circle at 24% 28%, color-mix(in oklch, var(--color-secondary) 9%, transparent) 0%, transparent 24%),
+    var(--color-default);
 }
 </style>

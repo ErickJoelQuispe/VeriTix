@@ -26,6 +26,7 @@ useSeoMeta({
 const searchDraft = ref(readQueryValue(route.query.search))
 const artistNameDraft = ref('')
 const showAllGenres = ref(false)
+const dateWindow = ref<'30' | 'quarter' | 'all'>('30')
 
 const filters = computed(() => {
   return {
@@ -111,6 +112,14 @@ const resultsContext = computed(() => {
 const activeFilterCount = computed(() => {
   return [filters.value.search, filters.value.genreId, filters.value.city].filter(Boolean).length
 })
+
+const resultsChips = computed(() => {
+  return [
+    { label: 'resultados', value: meta.value.total },
+    { label: 'página', value: `${meta.value.page}/${Math.max(meta.value.totalPages, 1)}` },
+    { label: 'filtros', value: activeFilterCount.value },
+  ]
+})
 const isPending = computed(() => status.value === 'pending')
 const eventsErrorMessage = computed(() => {
   if (!error.value) {
@@ -181,11 +190,25 @@ async function handlePageChange(page: number) {
 
           <div>
             <h1 class="font-display text-3xl text-highlighted sm:text-4xl lg:text-5xl">
-              Eventos en vivo
+              Curated Transmissions.
             </h1>
             <p class="mt-2.5 max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-              Descubrí la cartelera y encontrá rápido lo que querés ver.
+              Browse the catalog, narrow by date or venue, and move from discovery to ticket in a few clean steps.
             </p>
+          </div>
+
+          <form class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.3fr_.8fr_.8fr_auto]" @submit.prevent="submitSearch">
+            <FormInput v-model="searchDraft" placeholder="Search artists, venues, or cities" icon="i-lucide-search" :disabled="isPending" />
+            <FormInput v-model="artistNameDraft" placeholder="Artist" icon="i-lucide-mic-vocal" :disabled="isPending" />
+            <FormSelect label="Location" name="city" :model-value="filters.city || '__all__'" :items="[{ label: 'Location: any', value: '__all__' }, ...cityOptions.map(city => ({ label: city, value: city }))]" :disabled="isPending" @update:model-value="updateFilters({ city: $event === '__all__' ? '' : String($event) })" />
+            <BaseButton kind="secondary" type="submit" :loading="isPending">
+              Search
+            </BaseButton>
+          </form>
+
+          <div class="flex items-center justify-between gap-4 text-[0.68rem] tracking-[0.1em] text-muted uppercase">
+            <p>{{ meta.total }} visibles</p>
+            <p>página {{ meta.page }} / {{ Math.max(meta.totalPages, 1) }}</p>
           </div>
         </header>
 
@@ -241,7 +264,7 @@ async function handlePageChange(page: number) {
                   </form>
                 </PagesEventsFilterSection>
 
-                <PagesEventsFilterSection title="Géneros" :status="filters.genreId ? '1 seleccionado' : 'Top'">
+                <PagesEventsFilterSection title="Genre" :status="filters.genreId ? '1 selected' : 'Top'">
                   <div class="mt-3.5 flex flex-wrap gap-2.5">
                     <PagesEventsFilterChip
                       label="Todos"
@@ -274,10 +297,10 @@ async function handlePageChange(page: number) {
                   </BaseButton>
                 </PagesEventsFilterSection>
 
-                <PagesEventsFilterSection title="Ubicación" :status="filters.city ? '1' : 'Todas'">
+                <PagesEventsFilterSection title="Venue" :status="filters.city ? '1' : 'Any'">
                   <div class="mt-3.5 flex flex-wrap gap-2.5">
                     <PagesEventsFilterChip
-                      label="Todas"
+                      label="Any"
                       size="sm"
                       :active="!filters.city"
                       :disabled="isPending"
@@ -293,6 +316,20 @@ async function handlePageChange(page: number) {
                       :disabled="isPending"
                       @click="updateFilters({ city })"
                     />
+                  </div>
+                </PagesEventsFilterSection>
+
+                <PagesEventsFilterSection title="Date" :status="dateWindow === 'all' ? 'All' : 'Active'">
+                  <div class="mt-3.5 space-y-2.5">
+                    <button type="button" class="w-full rounded-lg border px-3 py-2 text-left text-sm" :class="dateWindow === '30' ? 'border-primary/50 bg-primary/10 text-highlighted' : 'border-default/60 bg-default/10 text-toned'" @click="dateWindow = '30'">
+                      Next 30 days
+                    </button>
+                    <button type="button" class="w-full rounded-lg border px-3 py-2 text-left text-sm" :class="dateWindow === 'quarter' ? 'border-primary/50 bg-primary/10 text-highlighted' : 'border-default/60 bg-default/10 text-toned'" @click="dateWindow = 'quarter'">
+                      This quarter
+                    </button>
+                    <button type="button" class="w-full rounded-lg border px-3 py-2 text-left text-sm" :class="dateWindow === 'all' ? 'border-primary/50 bg-primary/10 text-highlighted' : 'border-default/60 bg-default/10 text-toned'" @click="dateWindow = 'all'">
+                      All dates
+                    </button>
                   </div>
                 </PagesEventsFilterSection>
               </div>
@@ -314,6 +351,10 @@ async function handlePageChange(page: number) {
                 <p class="max-w-2xl text-sm leading-relaxed text-toned/88 md:text-right">
                   {{ resultsContext }}
                 </p>
+              </div>
+
+              <div class="mt-3">
+                <BackofficeToolbarChips :items="resultsChips" />
               </div>
             </div>
 

@@ -14,7 +14,7 @@ const route = useRoute()
 const artistId = computed(() => String(route.params.id || ''))
 
 const { getArtist: getBackofficeArtist, listGenres, updateArtist: updateBackofficeArtist } = useBackofficeArtistsRepository()
-const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { getApiErrorStatus } = useApiErrorMessage()
 const { notifyApiError, notifyError, notifyInfo, notifySuccess } = useAppNotifications()
 
 const artist = ref<BackofficeArtistRecord | null>(null)
