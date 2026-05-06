@@ -36,7 +36,7 @@ function formatDate(value: string | null | undefined) {
     interactive
     :padding="compact ? 'sm' : 'md'"
     radius="lg"
-    class="group flex flex-col gap-4 !border-default/65 !bg-elevated/25 sm:flex-row sm:items-center sm:justify-between"
+    class="group flex flex-col gap-4 border-default/65! bg-elevated/25! sm:flex-row sm:items-center sm:justify-between"
   >
     <div class="flex min-w-0 items-center gap-4 sm:gap-5">
       <div class="flex size-16 shrink-0 self-center items-center justify-center overflow-hidden rounded-xl border border-default/60 bg-default/50">

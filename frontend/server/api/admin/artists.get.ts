@@ -1,9 +1,9 @@
-import type { AdminArtistRecord, PaginatedResponse } from '~/types'
+import type { BackofficeArtistRecord, PaginatedResponse } from '~/types'
 import { readBooleanQuery, readLimitQuery, readOptionalStringQuery, readPageQuery, withDefinedQuery } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 
 export default defineEventHandler(async (event) => {
-  return proxyBackendRequest<PaginatedResponse<AdminArtistRecord>>(event, '/artists', {
+  return proxyBackendRequest<PaginatedResponse<BackofficeArtistRecord>>(event, '/artists', {
     method: 'GET',
     query: withDefinedQuery({
       page: readPageQuery(event),

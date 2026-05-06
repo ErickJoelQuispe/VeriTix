@@ -16,7 +16,7 @@ export function normalizeApiError(
   })
 
   if (deps.isApiSessionExpiredError?.(error)) {
-    ;(normalizedError as Record<string, unknown>).__sessionExpired = true
+    ;(normalizedError as unknown as Record<string, unknown>).__sessionExpired = true
   }
 
   throw normalizedError

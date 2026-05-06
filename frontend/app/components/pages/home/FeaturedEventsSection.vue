@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import type { EventCatalogItem } from '~/types'
+
 const { results, pending } = useEventSearch()
 
 const featuredEvents = computed(() => {
   return results.value.slice(0, 6)
 })
+
+function toEventCatalogItem(value: unknown): EventCatalogItem {
+  return value as EventCatalogItem
+}
 </script>
 
 <template>
@@ -37,7 +43,7 @@ const featuredEvents = computed(() => {
           }"
         >
           <template #default="{ item }">
-            <UiEventCard :event="item" />
+            <UiEventCard :event="toEventCatalogItem(item)" />
           </template>
         </BaseCarousel>
       </div>

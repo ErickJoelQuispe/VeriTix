@@ -14,8 +14,18 @@ function handleFieldUpdate(item: BackofficeFilterFieldControl, value: string | n
   item.onUpdate(String(value ?? ''))
 }
 
-function handleSelectUpdate(item: BackofficeFilterSelectControl, value: string | number | undefined) {
-  item.onUpdate(value ?? '')
+type SelectUpdateValue = string | number | Array<string | number> | undefined
+
+function normalizeSelectValue(value: SelectUpdateValue): string | number {
+  if (Array.isArray(value)) {
+    return value[0] ?? ''
+  }
+
+  return value ?? ''
+}
+
+function handleSelectUpdate(item: BackofficeFilterSelectControl, value: SelectUpdateValue) {
+  item.onUpdate(normalizeSelectValue(value))
 }
 </script>
 

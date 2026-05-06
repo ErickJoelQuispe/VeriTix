@@ -1,9 +1,9 @@
-import type { AdminUserRecord, PaginatedResponse } from '~/types'
+import type { BackofficeUserRecord, PaginatedResponse } from '~/types'
 import { readBooleanQuery, readLimitQuery, readOptionalStringQuery, readPageQuery, withDefinedQuery } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 
 export default defineEventHandler(async (event) => {
-  return proxyBackendRequest<PaginatedResponse<AdminUserRecord>>(event, '/users', {
+  return proxyBackendRequest<PaginatedResponse<BackofficeUserRecord>>(event, '/users', {
     method: 'GET',
     query: withDefinedQuery({
       page: readPageQuery(event),

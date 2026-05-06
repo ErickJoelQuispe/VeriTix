@@ -79,7 +79,7 @@ export function requireRouteId(event: H3Event, entityName: string): string {
   return id
 }
 
-export async function readRequiredBodyObject<TBody extends Record<string, unknown>>(event: H3Event): Promise<TBody> {
+export async function readRequiredBodyObject<TBody extends object>(event: H3Event): Promise<TBody> {
   const body = await readBody<TBody | null>(event)
 
   if (!body || typeof body !== 'object' || Array.isArray(body)) {

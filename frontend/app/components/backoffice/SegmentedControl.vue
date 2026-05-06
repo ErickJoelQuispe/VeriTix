@@ -43,7 +43,7 @@ function handleSelect(item: SegmentedControlItem) {
       :aria-current="activeValue === item.value ? 'page' : undefined"
       class="min-w-0 border-transparent shadow-none transition-all duration-200"
       :class="activeValue === item.value
-        ? '!border-primary/45 bg-primary/20 text-highlighted shadow-sm ring-1 ring-primary/30 hover:bg-primary/24 hover:ring-primary/40'
+        ? 'border-primary/45! bg-primary/20 text-highlighted shadow-sm ring-1 ring-primary/30 hover:bg-primary/24 hover:ring-primary/40'
         : 'text-toned hover:-translate-y-px hover:border-default/55 hover:bg-default/70 hover:text-highlighted hover:shadow-sm'"
       @click="handleSelect(item)"
     >
