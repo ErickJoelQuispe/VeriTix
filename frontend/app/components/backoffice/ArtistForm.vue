@@ -75,7 +75,13 @@ function hasDirtyChanges() {
     return false
   }
 
-  return JSON.stringify(currentPayload) !== JSON.stringify(initialSnapshot.value)
+  return currentPayload.name !== initialSnapshot.value.name
+    || currentPayload.slug !== initialSnapshot.value.slug
+    || currentPayload.bio !== initialSnapshot.value.bio
+    || currentPayload.imageUrl !== initialSnapshot.value.imageUrl
+    || currentPayload.country !== initialSnapshot.value.country
+    || currentPayload.website !== initialSnapshot.value.website
+    || (currentPayload.genreIds ?? []).join('|') !== (initialSnapshot.value.genreIds ?? []).join('|')
 }
 
 function applyInitialValue() {
@@ -108,9 +114,17 @@ function handleSubmit() {
 }
 
 watch(() => props.initialValue, applyInitialValue, { immediate: true })
-watch(() => state, () => {
+watch(() => [
+  state.name,
+  state.slug,
+  state.bio,
+  state.imageUrl,
+  state.country,
+  state.website,
+  state.genreIds.join('|'),
+], () => {
   dirty.value = hasDirtyChanges()
-}, { deep: true })
+})
 </script>
 
 <template>

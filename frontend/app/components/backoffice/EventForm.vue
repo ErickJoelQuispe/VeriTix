@@ -139,7 +139,18 @@ function hasDirtyChanges() {
     return false
   }
 
-  return JSON.stringify(currentPayload) !== JSON.stringify(initialSnapshot.value)
+  return currentPayload.name !== initialSnapshot.value.name
+    || currentPayload.description !== initialSnapshot.value.description
+    || currentPayload.eventDate !== initialSnapshot.value.eventDate
+    || currentPayload.doorsOpenTime !== initialSnapshot.value.doorsOpenTime
+    || currentPayload.startSale !== initialSnapshot.value.startSale
+    || currentPayload.endSale !== initialSnapshot.value.endSale
+    || currentPayload.maxCapacity !== initialSnapshot.value.maxCapacity
+    || currentPayload.venueId !== initialSnapshot.value.venueId
+    || currentPayload.imageUrl !== initialSnapshot.value.imageUrl
+    || currentPayload.currency !== initialSnapshot.value.currency
+    || currentPayload.formatId !== initialSnapshot.value.formatId
+    || (currentPayload.genreIds ?? []).join('|') !== (initialSnapshot.value.genreIds ?? []).join('|')
 }
 
 function applyInitialValue() {
@@ -182,9 +193,22 @@ function handleSubmit() {
 }
 
 watch(() => props.initialValue, applyInitialValue, { immediate: true })
-watch(() => state, () => {
+watch(() => [
+  state.name,
+  state.description,
+  state.eventDate,
+  state.doorsOpenTime,
+  state.startSale,
+  state.endSale,
+  state.maxCapacity,
+  state.venueId,
+  state.imageUrl,
+  state.currency,
+  state.formatId,
+  state.genreIds.join('|'),
+], () => {
   dirty.value = hasDirtyChanges()
-}, { deep: true })
+})
 </script>
 
 <template>

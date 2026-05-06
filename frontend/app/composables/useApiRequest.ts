@@ -15,6 +15,12 @@ interface ApiRequestOptions<TBody = unknown> {
   skipAuthRefresh?: boolean
 }
 
+interface PreparedRequest {
+  path: string
+  url: string
+  timeout: number
+}
+
 function normalizeHeaders(headers?: HeadersInit | (() => HeadersInit)): Headers {
   return new Headers(typeof headers === 'function' ? headers() : headers)
 }
@@ -47,6 +53,86 @@ export function useApiRequest() {
     return resolved
   }
 
+  function prepareRequest(path: string, timeoutOverride?: number): PreparedRequest {
+    const origin = import.meta.server ? useRequestURL().origin : window.location.origin
+    const apiBaseUrl = new URL(config.public.apiBase, origin).toString().replace(TRAILING_SLASH_REGEX, '')
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`
+    const configuredTimeout = Number(config.public.apiTimeoutMs ?? 8000)
+    const timeout = Number.isFinite(configuredTimeout) && configuredTimeout > 0
+      ? configuredTimeout
+      : 8000
+
+    return {
+      path: normalizedPath,
+      url: `${apiBaseUrl}${normalizedPath}`,
+      timeout: timeoutOverride ?? timeout,
+    }
+  }
+
+  async function executeRequest<TResponse, TBody extends BodyInit | object | null>(
+    request: PreparedRequest,
+    options: ApiRequestOptions<TBody>,
+  ): Promise<TResponse> {
+    const headers = resolveHeaders(request.path, options.headers)
+    const response = await $fetch.raw(request.url, {
+      method: options.method,
+      body: options.body,
+      headers,
+      query: options.query,
+      credentials: 'include' as const,
+      retry: 0,
+      timeout: request.timeout,
+    })
+
+    return response._data as TResponse
+  }
+
+  function markAnonymousSession() {
+    accessToken.value = null
+    user.value = null
+    sessionStatus.value = 'anonymous'
+  }
+
+  async function retryAfterRefresh<TResponse, TBody extends BodyInit | object | null>(
+    request: PreparedRequest,
+    options: ApiRequestOptions<TBody>,
+    sourceError: unknown,
+  ): Promise<TResponse> {
+    try {
+      const { refreshSession } = useAuth()
+      const refreshed = await refreshSession()
+
+      if (!refreshed) {
+        markAnonymousSession()
+        throw markApiSessionExpiredError(sourceError)
+      }
+
+      accessToken.value = refreshed.accessToken
+      user.value = refreshed.user
+      sessionStatus.value = 'authenticated'
+
+      try {
+        return await executeRequest<TResponse, TBody>(request, options)
+      }
+      catch (retryError) {
+        if (getApiErrorStatus(retryError) === 401) {
+          markAnonymousSession()
+          throw markApiSessionExpiredError(retryError)
+        }
+
+        throw retryError
+      }
+    }
+    catch (refreshError) {
+      if (getApiErrorStatus(refreshError) === 401) {
+        markAnonymousSession()
+        throw markApiSessionExpiredError(sourceError)
+      }
+
+      throw refreshError
+    }
+  }
+
   async function callApi<TResponse, TBody extends BodyInit | object | null = Record<string, unknown>>(
     path: string,
     options: ApiRequestOptions<TBody> = {},
@@ -56,88 +142,14 @@ export function useApiRequest() {
       && !path.startsWith('/auth/')
       && (Boolean(accessToken.value) || sessionStatus.value !== 'anonymous')
 
-    const origin = import.meta.server ? useRequestURL().origin : window.location.origin
-    const apiBaseUrl = new URL(config.public.apiBase, origin).toString().replace(TRAILING_SLASH_REGEX, '')
-    const normalizedPath = path.startsWith('/') ? path : `/${path}`
-    const apiUrl = `${apiBaseUrl}${normalizedPath}`
-    const configuredTimeout = Number(config.public.apiTimeoutMs ?? 8000)
-    const timeout = Number.isFinite(configuredTimeout) && configuredTimeout > 0
-      ? configuredTimeout
-      : 8000
-
-    const executeRequest = async () => {
-      const headers = resolveHeaders(path, options.headers)
-
-      const response = await $fetch.raw(apiUrl, {
-        method: options.method,
-        body: options.body,
-        headers,
-        query: options.query,
-        credentials: 'include' as const,
-        retry: 0,
-        timeout: options.timeoutMs ?? timeout,
-      })
-
-      return response._data
-    }
+    const request = prepareRequest(path, options.timeoutMs)
 
     try {
-      const response: unknown = await executeRequest()
-      return response as TResponse
+      return await executeRequest<TResponse, TBody>(request, options)
     }
     catch (error) {
       if (shouldRetryAuth && getApiErrorStatus(error) === 401) {
-        try {
-          const { refreshSession } = useAuth()
-          const refreshed = await refreshSession()
-
-          if (!refreshed) {
-            accessToken.value = null
-            user.value = null
-            sessionStatus.value = 'anonymous'
-            throw markApiSessionExpiredError(error)
-          }
-
-          accessToken.value = refreshed.accessToken
-          user.value = refreshed.user
-          sessionStatus.value = 'authenticated'
-
-          try {
-            const retryHeaders = resolveHeaders(path, options.headers)
-
-            const retryResponse = await $fetch.raw(apiUrl, {
-              method: options.method,
-              body: options.body,
-              headers: retryHeaders,
-              query: options.query,
-              credentials: 'include' as const,
-              retry: 0,
-              timeout: options.timeoutMs ?? timeout,
-            })
-
-            return retryResponse._data as TResponse
-          }
-          catch (retryError) {
-            if (getApiErrorStatus(retryError) === 401) {
-              accessToken.value = null
-              user.value = null
-              sessionStatus.value = 'anonymous'
-              throw markApiSessionExpiredError(retryError)
-            }
-
-            throw retryError
-          }
-        }
-        catch (refreshError) {
-          if (getApiErrorStatus(refreshError) === 401) {
-            accessToken.value = null
-            user.value = null
-            sessionStatus.value = 'anonymous'
-            throw markApiSessionExpiredError(error)
-          }
-
-          throw refreshError
-        }
+        return retryAfterRefresh<TResponse, TBody>(request, options, error)
       }
 
       throw error

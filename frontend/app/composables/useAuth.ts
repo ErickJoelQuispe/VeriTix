@@ -34,11 +34,11 @@ export function useAuth() {
       return true
     }
 
-    if (import.meta.server) {
+    if (sessionStatus.value === 'anonymous') {
       return false
     }
 
-    if (sessionStatus.value === 'anonymous') {
+    if (import.meta.server) {
       return false
     }
 
@@ -101,9 +101,10 @@ export function useAuth() {
       catch (error) {
         if (isApiAuthError(error)) {
           clearAuth()
+          return null
         }
 
-        return null
+        throw error
       }
       finally {
         refreshStatus.value = 'idle'
@@ -136,6 +137,7 @@ export function useAuth() {
     user,
     pending,
     sessionStatus,
+    refreshStatus,
     isAuthenticated,
     register,
     login,

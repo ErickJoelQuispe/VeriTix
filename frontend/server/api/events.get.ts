@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import type { PaginatedResponse } from '~/types'
+import type { EventCatalogItem, PaginatedResponse } from '~/types'
 import { getQuery } from 'h3'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'
@@ -28,7 +28,7 @@ function normalizeEventsCatalogQuery(event: H3Event) {
   }
 }
 
-const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<PaginatedResponse<unknown>, ReturnType<typeof normalizeEventsCatalogQuery>>({
+const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<PaginatedResponse<EventCatalogItem>, ReturnType<typeof normalizeEventsCatalogQuery>>({
   prefix: 'events',
   getNormalizedQuery: normalizeEventsCatalogQuery,
   maxAge: 60,
@@ -38,7 +38,7 @@ const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<PaginatedResp
 export default createCachedHandler(async (event) => {
   const normalizedQuery = normalizeEventsCatalogQuery(event)
 
-  return proxyBackendRequest<PaginatedResponse<unknown>>(event, '/events', {
+  return proxyBackendRequest<PaginatedResponse<EventCatalogItem>>(event, '/events', {
     method: 'GET',
     query: normalizedQuery,
   })

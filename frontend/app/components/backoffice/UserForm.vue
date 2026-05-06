@@ -130,7 +130,29 @@ function hasDirtyChanges() {
     return false
   }
 
-  return JSON.stringify(currentPayload) !== JSON.stringify(initialSnapshot.value)
+  if (props.includePassword) {
+    const initial = initialSnapshot.value as BackofficeCreateUserPayload
+    const current = currentPayload as BackofficeCreateUserPayload
+
+    return current.email !== initial.email
+      || current.phone !== initial.phone
+      || current.name !== initial.name
+      || current.lastName !== initial.lastName
+      || current.password !== initial.password
+      || current.role !== initial.role
+  }
+
+  const initial = initialSnapshot.value as BackofficeUpdateUserPayload
+  const current = currentPayload as BackofficeUpdateUserPayload
+
+  return current.email !== initial.email
+    || current.phone !== initial.phone
+    || current.name !== initial.name
+    || current.lastName !== initial.lastName
+    || current.role !== initial.role
+    || current.avatarUrl !== initial.avatarUrl
+    || current.isActive !== initial.isActive
+    || current.emailVerified !== initial.emailVerified
 }
 
 function applyInitialValue() {
@@ -183,9 +205,20 @@ function handleSubmit() {
 }
 
 watch(() => props.initialValue, applyInitialValue, { immediate: true })
-watch(() => state, () => {
+watch(() => [
+  state.email,
+  state.phone,
+  state.name,
+  state.lastName,
+  state.password,
+  state.role,
+  state.avatarUrl,
+  state.isActive,
+  state.emailVerified,
+  props.includePassword,
+], () => {
   dirty.value = hasDirtyChanges()
-}, { deep: true })
+})
 </script>
 
 <template>

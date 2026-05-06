@@ -1,13 +1,12 @@
 import type { AdminUpcomingEventRecord } from '~/types'
+import { readLimitQuery } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 
 export default defineEventHandler(async (event) => {
-  const query = getQuery(event)
-
   return proxyBackendRequest<AdminUpcomingEventRecord[]>(event, '/events/upcoming', {
     method: 'GET',
     query: {
-      limit: Number(query.limit ?? 5),
+      limit: readLimitQuery(event, 5, 50),
     },
   })
 })

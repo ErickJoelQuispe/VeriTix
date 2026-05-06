@@ -1,25 +1,31 @@
 export function useRouteAccess() {
-  const { ensureSession, isAuthenticated, user } = useAuth()
+  const { ensureSession, isAuthenticated, sessionStatus, user } = useAuth()
 
   const isBackofficeUser = computed(() => user.value?.role === 'ADMIN')
 
-  async function ensureSessionSafe(): Promise<boolean> {
+  async function ensureSessionSafe(): Promise<boolean | 'unknown'> {
     try {
-      return await ensureSession()
+      const sessionReady = await ensureSession()
+
+      if (sessionReady) {
+        return true
+      }
+
+      return sessionStatus.value === 'anonymous' ? false : 'unknown'
     }
     catch {
-      return false
+      return import.meta.server ? 'unknown' : false
     }
   }
 
   async function requireAuthenticated(redirectTo = '/login'): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
-    if (!sessionReady || !isAuthenticated.value) {
-      if (import.meta.server) {
-        return
-      }
+    if (sessionReady === 'unknown') {
+      return
+    }
 
+    if (!sessionReady || !isAuthenticated.value) {
       return redirectTo
     }
   }
@@ -27,11 +33,11 @@ export function useRouteAccess() {
   async function requireBackofficeAccess(): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
-    if (!sessionReady || !isAuthenticated.value) {
-      if (import.meta.server) {
-        return
-      }
+    if (sessionReady === 'unknown') {
+      return
+    }
 
+    if (!sessionReady || !isAuthenticated.value) {
       return '/login'
     }
 
