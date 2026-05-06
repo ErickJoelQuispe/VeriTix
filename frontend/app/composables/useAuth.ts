@@ -1,21 +1,11 @@
 import type { AuthResponse, LoginRequest, RegisterRequest, RegisterResponse, UserProfile } from '~~/shared/types'
-
-function buildAuthHeaders(accessToken: string | null): HeadersInit | undefined {
-  if (!accessToken) {
-    return undefined
-  }
-
-  return {
-    authorization: `Bearer ${accessToken}`,
-  }
-}
+import { buildAuthHeaders } from '~/utils/apiAuth'
 
 export function useAuth() {
   const accessToken = useState<string | null>('auth-access-token', () => null)
   const user = useState<UserProfile | null>('auth-user', () => null)
   const pending = useState<boolean>('auth-pending', () => false)
   const hydrated = useState<boolean>('auth-hydrated', () => false)
-  const ensureSessionPromise = useState<Promise<boolean> | null>('auth-ensure-session-promise', () => null)
 
   const apiRequest = useApiRequest()
   const { isApiAuthError } = useApiErrorMessage()
@@ -46,22 +36,9 @@ export function useAuth() {
       return false
     }
 
-    if (ensureSessionPromise.value) {
-      return await ensureSessionPromise.value
-    }
-
-    ensureSessionPromise.value = (async () => {
-      const response = await refreshSession()
-      hydrated.value = true
-      return Boolean(response)
-    })()
-
-    try {
-      return await ensureSessionPromise.value
-    }
-    finally {
-      ensureSessionPromise.value = null
-    }
+    const response = await refreshSession()
+    hydrated.value = true
+    return Boolean(response)
   }
 
   async function register(payload: RegisterRequest): Promise<AuthResponse> {

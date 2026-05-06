@@ -1,5 +1,7 @@
 export default defineNuxtPlugin(async () => {
   const { ensureSession } = useAuth()
 
-  await ensureSession()
+  await callOnce(async () => {
+    await ensureSession()
+  })
 })

@@ -4,41 +4,49 @@ interface NotifyOptions {
   duration?: number
 }
 
+interface ToastConfig {
+  title: string
+  color: 'error' | 'success' | 'info' | 'warning'
+  icon: string
+}
+
+function pushToast(toast: ReturnType<typeof useToastQueue>, description: string, options: NotifyOptions, config: ToastConfig) {
+  toast.add({
+    id: options.id,
+    title: options.title ?? config.title,
+    description,
+    color: config.color,
+    icon: config.icon,
+    duration: options.duration,
+  })
+}
+
 export function useAppNotifications() {
   const toast = useToastQueue()
   const { getApiErrorMessage, isApiSessionExpiredError } = useApiErrorMessage()
   const { clearAuth } = useAuth()
 
   function notifyError(description: string, options: NotifyOptions = {}) {
-    toast.add({
-      id: options.id,
-      title: options.title ?? 'Error',
-      description,
+    pushToast(toast, description, options, {
+      title: 'Error',
       color: 'error',
       icon: 'i-lucide-alert-circle',
-      duration: options.duration,
     })
   }
 
   function notifySuccess(description: string, options: NotifyOptions = {}) {
-    toast.add({
-      id: options.id,
-      title: options.title ?? 'Éxito',
-      description,
+    pushToast(toast, description, options, {
+      title: 'Éxito',
       color: 'success',
       icon: 'i-lucide-check-circle',
-      duration: options.duration,
     })
   }
 
   function notifyInfo(description: string, options: NotifyOptions = {}) {
-    toast.add({
-      id: options.id,
-      title: options.title ?? 'Aviso',
-      description,
+    pushToast(toast, description, options, {
+      title: 'Aviso',
       color: 'info',
       icon: 'i-lucide-info',
-      duration: options.duration,
     })
   }
 
