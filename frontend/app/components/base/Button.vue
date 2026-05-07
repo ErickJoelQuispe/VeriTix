@@ -65,7 +65,7 @@ const buttonClass = computed(() => {
     xl: 'px-6 py-3.5 text-sm',
   }[props.size]
 
-  const sharedClass = 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border font-medium uppercase leading-none tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-60'
+  const sharedClass = 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border font-medium uppercase leading-none tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 active:translate-y-px active:scale-[0.99] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-60'
 
   const variantClass: Record<ButtonVariant, string> = {
     primary: 'border-highlighted bg-highlighted text-default shadow-sm focus-visible:ring-highlighted/30 hover:-translate-y-0.5 hover:border-lavender hover:bg-lavender hover:text-white hover:font-semibold hover:shadow-[0_14px_28px_-18px_rgba(62,21,120,0.6)]',
