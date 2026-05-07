@@ -2,7 +2,7 @@
 import type { BackofficeOption, BackofficeVenueRecord, PaginatedMeta } from '~/types'
 import { useBackofficeVenuesRepository } from '~/repositories/backofficeVenuesRepository'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Venues | Backoffice VeriTix' })
 
 const { listVenues } = useBackofficeVenuesRepository()

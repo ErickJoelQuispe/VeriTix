@@ -5,6 +5,7 @@ import type {
 import { useBackofficeEventsRepository } from '~/repositories/backofficeEventsRepository'
 
 definePageMeta({
+  layout: 'backoffice',
   middleware: 'backoffice',
 })
 

@@ -9,7 +9,7 @@ import type {
 import { useBackofficeEventsRepository } from '~/repositories/backofficeEventsRepository'
 import { hasEventSemanticChanges, normalizeEventPayload } from '~/utils/backoffice/formSafeRails'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar evento | Backoffice VeriTix' })
 
 const route = useRoute()

@@ -6,7 +6,7 @@ import type {
 import { useBackofficeUsersRepository } from '~/repositories/backofficeUsersRepository'
 import { normalizeCreateUserPayload } from '~/utils/backoffice/formSafeRails'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo usuario | Backoffice VeriTix' })
 
 const { createUser: createBackofficeUser, isEmailTaken } = useBackofficeUsersRepository()

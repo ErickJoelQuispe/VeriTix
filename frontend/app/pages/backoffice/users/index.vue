@@ -7,7 +7,7 @@ import type {
 import { useBackofficeUsersRepository } from '~/repositories/backofficeUsersRepository'
 import { PAGE_SIZE_OPTIONS } from '~/utils/backoffice/pagination'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Usuarios | Backoffice VeriTix' })
 
 const { listUsers, deleteUser } = useBackofficeUsersRepository()

@@ -8,7 +8,7 @@ import type {
 import { useBackofficeArtistsRepository } from '~/repositories/backofficeArtistsRepository'
 import { PAGE_SIZE_OPTIONS } from '~/utils/backoffice/pagination'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Artistas | Backoffice VeriTix' })
 
 const { deleteArtist: deleteBackofficeArtist, listArtists, listGenres } = useBackofficeArtistsRepository()

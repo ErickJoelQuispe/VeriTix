@@ -6,7 +6,7 @@ import type {
 import { useBackofficeArtistsRepository } from '~/repositories/backofficeArtistsRepository'
 import { normalizeArtistPayload } from '~/utils/backoffice/formSafeRails'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo artista | Backoffice VeriTix' })
 
 const { createArtist: createBackofficeArtist, listGenres } = useBackofficeArtistsRepository()

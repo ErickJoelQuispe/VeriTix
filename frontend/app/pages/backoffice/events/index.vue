@@ -22,7 +22,7 @@ import {
   QUICK_WINDOW_OPTIONS,
 } from '~/utils/backoffice/eventsCatalog'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Operaciones de eventos | VeriTix' })
 
 const { deleteEvent: deleteBackofficeEvent, getFormOptions, listCatalog, listRequiresAttention } = useBackofficeEventsRepository()

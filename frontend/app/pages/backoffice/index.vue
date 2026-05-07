@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 
 useSeoMeta({
   title: 'Backoffice | VeriTix',

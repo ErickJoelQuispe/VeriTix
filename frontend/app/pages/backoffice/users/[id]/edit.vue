@@ -6,7 +6,7 @@ import type {
 import { useBackofficeUsersRepository } from '~/repositories/backofficeUsersRepository'
 import { hasUserSemanticChanges, normalizeUpdateUserPayload } from '~/utils/backoffice/formSafeRails'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar usuario | Backoffice VeriTix' })
 
 const route = useRoute()

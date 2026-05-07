@@ -7,7 +7,7 @@ import type {
 import { useBackofficeArtistsRepository } from '~/repositories/backofficeArtistsRepository'
 import { hasArtistSemanticChanges, normalizeArtistPayload } from '~/utils/backoffice/formSafeRails'
 
-definePageMeta({ middleware: 'backoffice' })
+definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar artista | Backoffice VeriTix' })
 
 const route = useRoute()
