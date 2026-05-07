@@ -12,8 +12,6 @@ function onSearch() {
     id="hero"
     class="vtx-section-fade relative scroll-mt-36 py-14 sm:scroll-mt-40 sm:py-16 lg:scroll-mt-44 lg:py-24"
   >
-    <div aria-hidden="true" class="pointer-events-none absolute left-0 right-0 top-0 h-px w-[min(24rem,64vw)] bg-linear-to-r from-primary/70 via-secondary/45 to-transparent" />
-
     <BaseContainer>
       <div class="relative grid items-center gap-10 lg:grid-cols-[1.15fr_.85fr] lg:gap-12">
         <div class="pointer-events-none absolute -left-6 top-6 hidden h-24 w-24 rotate-45 border border-secondary/35 lg:block" />
@@ -110,6 +108,13 @@ function onSearch() {
 
 .vtx-section-fade {
   animation: section-fade-in 700ms ease-out both;
+}
+
+.vtx-prismatic-text {
+  background-image: linear-gradient(135deg, var(--color-primary), var(--color-error), var(--color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .animate-hero-reveal {

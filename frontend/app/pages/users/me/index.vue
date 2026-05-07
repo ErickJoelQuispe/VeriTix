@@ -338,3 +338,42 @@ onMounted(() => {
     </template>
   </UsersSettingsShell>
 </template>
+
+<style scoped>
+@reference "@/assets/css/main.css";
+
+.vtx-profile-submit {
+  border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-primary) 10%, transparent),
+    color-mix(in srgb, var(--color-primary) 6%, transparent)
+  );
+  color: var(--color-highlighted);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 14px 28px -24px color-mix(in srgb, var(--color-primary) 42%, transparent);
+  transition:
+    transform 0.15s ease-out,
+    border-color 0.15s ease-out,
+    background-color 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    color 0.15s ease-out;
+}
+
+.vtx-profile-submit:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 26%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-primary) 12%, transparent),
+    color-mix(in srgb, var(--color-primary) 8%, transparent)
+  );
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px -24px color-mix(in srgb, var(--color-primary) 50%, transparent);
+}
+
+.vtx-profile-submit:active {
+  transform: translateY(1px);
+}
+</style>

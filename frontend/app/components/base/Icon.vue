@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import lucideIcons from '@iconify-json/lucide/icons.json'
 import heroiconsIcons from '@iconify-json/heroicons/icons.json'
+import lucideIcons from '@iconify-json/lucide/icons.json'
 
 defineOptions({
   inheritAttrs: false,
@@ -14,20 +14,23 @@ const attrs = useAttrs()
 
 type IconPack = typeof lucideIcons | typeof heroiconsIcons
 
+const ICON_NAME_RE = /^i-([^-]+)-(.+)$/
+
 const ICON_PACKS: Record<string, IconPack> = {
   lucide: lucideIcons,
   heroicons: heroiconsIcons,
 }
 
 const iconData = computed(() => {
-  const match = props.name.match(/^i-([^-]+)-(.+)$/)
+  const match = ICON_NAME_RE.exec(props.name)
 
   if (!match) {
     return null
   }
 
-  const [, collection, iconName] = match
-  const pack = ICON_PACKS[collection]
+  const collection = match[1]
+  const iconName = match[2]
+  const pack = ICON_PACKS[collection as keyof typeof ICON_PACKS]
 
   if (!pack) {
     return null

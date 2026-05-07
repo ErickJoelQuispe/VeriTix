@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { BACKOFFICE_NAV_ITEMS, MAIN_NAV_ITEMS } from '~/utils/navigation/ia'
 
-const { isAuthenticated, sessionStatus } = useAuth()
+const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
+const accountMenuItems = useAccountMenuItems(() => user.value?.role === 'ADMIN')
 
 const authRoutes = ['/login', '/register', '/forgot-password']
 
@@ -24,6 +25,40 @@ const showGuestActions = computed(() => {
 
 const showAccountMenu = computed(() => {
   return sessionStatus.value !== 'unknown' && isAuthenticated.value
+})
+
+const accountAvatarAlt = computed(() => {
+  const fullName = [user.value?.name, user.value?.lastName]
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+
+  return fullName || user.value?.email || 'Mi cuenta'
+})
+
+const accountInitials = computed(() => {
+  const initials = [user.value?.name, user.value?.lastName]
+    .map(value => value?.trim()?.charAt(0)?.toUpperCase() ?? '')
+    .join('')
+
+  if (initials) {
+    return initials
+  }
+
+  return user.value?.email?.trim()?.charAt(0)?.toUpperCase() || 'V'
+})
+
+const accountDisplayName = computed(() => {
+  const fullName = [user.value?.name, user.value?.lastName]
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+
+  return fullName || 'Mi cuenta'
+})
+
+const accountSubtitle = computed(() => {
+  return user.value?.email || 'Gestioná tu perfil y ajustes'
 })
 
 const mainNavItems = MAIN_NAV_ITEMS
@@ -166,7 +201,14 @@ function isBackofficeActive(path: string): boolean {
               </template>
 
               <template v-else-if="showAccountMenu">
-                <LayoutAccountMenu />
+                <UiAccountMenu
+                  :title="accountDisplayName"
+                  :subtitle="accountSubtitle"
+                  :items="accountMenuItems"
+                  :avatar-alt="accountAvatarAlt"
+                  :avatar-initials="accountInitials"
+                  :avatar-src="user?.avatarUrl || undefined"
+                />
               </template>
 
               <div v-else class="h-8 w-24" aria-hidden="true" />

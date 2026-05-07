@@ -47,39 +47,33 @@ async function onSubmit() {
 <template>
   <div>
     <main class="grid min-h-[calc(100vh-78px)] place-items-center px-6 py-14 md:px-16 md:py-24">
-      <section class="w-full max-w-[520px] overflow-hidden rounded-[18px] border border-default/80 bg-elevated/75 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
-        <div class="flex items-center justify-between border-b border-default/70 px-6 py-5">
-          <strong class="font-display text-3xl font-normal">Sign in</strong>
-          <span class="font-mono text-[0.68rem] tracking-[0.12em] text-muted uppercase">Secure session</span>
-        </div>
-        <div class="px-6 pb-6 pt-7">
-          <span class="mb-3 block font-mono text-xs tracking-[0.1em] text-muted uppercase">Access</span>
-          <h1 class="font-display text-6xl leading-[0.95]">
-            Sign in.
-          </h1>
-          <p class="mb-7 mt-3 max-w-[34ch] text-toned">
-            Pick up where you left off. Saved events, transfers, and tickets stay in one place.
-          </p>
-          <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
-            <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="name@domain.com" icon="i-lucide-mail" :disabled="pending" required />
-            <FormPassword v-model="state.password" name="password" label="Password" placeholder="Enter your password" icon="i-lucide-lock" :disabled="pending" required />
-            <div class="grid gap-3 pt-2">
-              <BaseButton kind="primary" type="submit" size="lg" block :loading="pending">
-                Sign in
-              </BaseButton>
-              <BaseButton kind="secondary" to="/register" size="lg" block>
-                Create account
-              </BaseButton>
-            </div>
-          </FormRoot>
-          <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
-            <NuxtLink to="/forgot-password" class="hover:text-primary">
-              Forgot your password?
-            </NuxtLink>
-            <span>Ledger-backed access.</span>
+      <AuthPanel
+        panel-title="Sign in"
+        kicker="Secure session"
+        eyebrow="Access"
+        title="Sign in."
+        description="Pick up where you left off. Saved events, transfers, and tickets stay in one place."
+      >
+        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
+          <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="name@domain.com" icon="i-lucide-mail" :disabled="pending" required />
+          <FormPassword v-model="state.password" name="password" label="Password" placeholder="Enter your password" icon="i-lucide-lock" :disabled="pending" required />
+          <div class="grid gap-3 pt-2">
+            <BaseButton kind="primary" type="submit" size="lg" block :loading="pending">
+              Sign in
+            </BaseButton>
+            <BaseButton kind="secondary" to="/register" size="lg" block>
+              Create account
+            </BaseButton>
           </div>
-        </div>
-      </section>
+        </FormRoot>
+
+        <template #meta>
+          <NuxtLink to="/forgot-password" class="hover:text-primary">
+            Forgot your password?
+          </NuxtLink>
+          <span>Ledger-backed access.</span>
+        </template>
+      </AuthPanel>
     </main>
     <footer class="mx-auto flex w-full max-w-[1400px] items-center justify-between border-t border-default px-6 pb-10 pt-7 text-sm text-muted md:px-16">
       <div class="font-display text-2xl text-highlighted">

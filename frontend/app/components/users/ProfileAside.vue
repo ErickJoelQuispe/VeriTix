@@ -1,5 +1,12 @@
 <script setup lang="ts">
-const props = defineProps<{
+const {
+  initials,
+  fullName,
+  email,
+  avatarConfigured,
+  phone,
+  roleView,
+} = defineProps<{
   initials: string
   fullName: string
   email: string
@@ -8,39 +15,15 @@ const props = defineProps<{
   isAdmin: boolean
   roleView: { title: string, capabilities: string[] } | null
 }>()
-
-const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de eventos, usuarios y artistas')
 </script>
 
 <template>
   <div class="space-y-8">
     <section class="relative vtx-profile-presence space-y-5 border-b border-default/55 pb-8">
       <div class="flex items-center gap-4">
-        <BasePopover :content="{ align: 'start', side: 'bottom', sideOffset: 12 }">
-          <button
-            type="button"
-            class="vtx-profile-avatar-trigger"
-            :aria-label="`Abrir acciones de cuenta de ${fullName || email}`"
-          >
-            <div class="vtx-profile-avatar flex size-16 shrink-0 items-center justify-center rounded-2xl text-lg font-semibold text-highlighted">
-              {{ initials }}
-            </div>
-          </button>
-
-          <template #content>
-            <UiAccountMenuPanel
-              :title="fullName"
-              :subtitle="email"
-              :items="accountMenuItems"
-            >
-              <template #avatar>
-                <div class="vtx-profile-avatar flex size-14 shrink-0 items-center justify-center rounded-2xl text-base font-semibold text-highlighted">
-                  {{ initials }}
-                </div>
-              </template>
-            </UiAccountMenuPanel>
-          </template>
-        </BasePopover>
+        <div class="vtx-profile-avatar flex size-16 shrink-0 items-center justify-center rounded-2xl text-lg font-semibold text-highlighted">
+          {{ initials }}
+        </div>
 
         <div>
           <UiMetaLabel>
@@ -51,9 +34,6 @@ const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de e
           </p>
           <p class="mt-1 text-sm text-toned">
             {{ email }}
-          </p>
-          <p class="mt-2 text-xs text-dimmed">
-            Pulsa el avatar para abrir acciones de cuenta.
           </p>
         </div>
       </div>
@@ -119,29 +99,6 @@ const accountMenuItems = useAccountMenuItems(() => props.isAdmin, 'Gestión de e
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 0.04),
     0 18px 34px -24px rgb(239 170 71 / 0.8);
-}
-
-.vtx-profile-avatar-trigger {
-  @apply inline-flex cursor-pointer rounded-[1.1rem] p-1 transition-all duration-150 ease-out;
-  background: rgb(255 255 255 / 0.03);
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.04),
-    0 10px 22px -22px rgb(0 0 0 / 0.85);
-}
-
-.vtx-profile-avatar-trigger:hover {
-  background: rgb(255 255 255 / 0.05);
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.06),
-    0 16px 26px -22px rgb(239 170 71 / 0.28);
-}
-
-.vtx-profile-avatar-trigger:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px rgb(239 170 71 / 0.3),
-    0 0 0 5px rgb(239 170 71 / 0.08),
-    inset 0 0 0 1px rgb(255 255 255 / 0.06);
 }
 
 .vtx-profile-signal {

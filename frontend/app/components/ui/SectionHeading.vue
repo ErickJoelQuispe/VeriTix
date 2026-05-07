@@ -22,7 +22,7 @@ withDefaults(
 
 <template>
   <div
-    class="w-full border-b border-default/70 pb-6"
+    class="w-full border-b border-white/16 pb-8"
     :class="center ? 'mx-auto text-center' : 'text-left'"
   >
     <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
