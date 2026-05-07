@@ -175,12 +175,6 @@ async function handlePageChange(page: number) {
 
 <template>
   <section class="relative py-10 sm:py-14 lg:py-16">
-    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div class="absolute inset-x-0 top-0 h-56 bg-linear-to-b from-primary/10 via-transparent to-transparent" />
-      <div class="absolute -left-12 top-24 h-52 w-52 rounded-full bg-primary/10 blur-3xl" />
-      <div class="absolute right-0 top-10 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
-    </div>
-
     <BaseContainer class="relative">
       <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
         <header class="space-y-4 border-b border-default/55 pb-8">
@@ -206,7 +200,7 @@ async function handlePageChange(page: number) {
             </BaseButton>
           </form>
 
-          <div class="flex items-center justify-between gap-4 text-[0.68rem] tracking-[0.1em] text-muted uppercase">
+          <div class="flex items-center justify-between gap-4 text-[0.68rem] tracking-widest text-muted uppercase">
             <p>{{ meta.total }} visibles</p>
             <p>página {{ meta.page }} / {{ Math.max(meta.totalPages, 1) }}</p>
           </div>

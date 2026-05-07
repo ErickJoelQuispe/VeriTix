@@ -332,5 +332,4 @@ const triggerAvatarSize = computed(() => props.triggerSize)
   opacity: 1;
   color: var(--color-highlighted);
 }
-
 </style>

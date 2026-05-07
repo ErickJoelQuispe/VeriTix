@@ -96,7 +96,7 @@ function onSearch() {
         </div>
 
         <div class="animate-hero-reveal">
-          <PagesHomePsychedelicOrb />
+          <PagesHomeCrystalPrism />
         </div>
       </div>
     </BaseContainer>
