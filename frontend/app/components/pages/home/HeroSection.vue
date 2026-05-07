@@ -2,24 +2,6 @@
 const { query, results, pending } = useEventSearch()
 const { scrollToSection } = useSectionScroll()
 
-const heroRail = [
-  {
-    kicker: 'Curated',
-    title: 'Prismatic lineup',
-    text: 'Selección viva de shows con lectura editorial y datos reales.',
-  },
-  {
-    kicker: 'Signals',
-    title: 'Genre vectors',
-    text: 'Filtrá por ciudad, género y formato con respuesta inmediata.',
-  },
-  {
-    kicker: 'Access',
-    title: 'Ledger-backed',
-    text: 'Reservas y acceso vinculados a estado real de disponibilidad.',
-  },
-] as const
-
 function onSearch() {
   scrollToSection('eventos')
 }
@@ -106,24 +88,6 @@ function onSearch() {
           >
             Explorar géneros
           </BaseButton>
-        </div>
-
-        <div class="grid gap-3 sm:grid-cols-3">
-          <article
-            v-for="item in heroRail"
-            :key="item.title"
-            class="rounded-xl border border-default/70 bg-elevated/45 p-4"
-          >
-            <p class="text-[0.64rem] tracking-[0.12em] text-muted uppercase">
-              {{ item.kicker }}
-            </p>
-            <h3 class="mt-2 font-display text-2xl leading-none text-highlighted">
-              {{ item.title }}
-            </h3>
-            <p class="mt-2 text-sm text-toned">
-              {{ item.text }}
-            </p>
-          </article>
         </div>
       </div>
 

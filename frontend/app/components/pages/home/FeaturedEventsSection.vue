@@ -11,7 +11,8 @@ const featuredEvents = computed(() => {
     <UiSectionHeading
       eyebrow="Curated access"
       title="Curated Transmissions"
-      description="Una lectura editorial del catálogo real, con imagen arriba e información clara debajo para descubrir rápido qué merece tu atención."
+      action-label="Ver eventos"
+      action-to="/events"
     />
 
     <div
@@ -34,18 +35,6 @@ const featuredEvents = computed(() => {
           :event="event"
           :index="index"
         />
-      </div>
-
-      <div v-if="featuredEvents.length" class="mt-6 flex justify-end">
-        <BaseButton
-          kind="tertiary"
-          to="/events"
-          size="sm"
-          trailing-icon="i-lucide-arrow-right"
-          class="border border-default/55 bg-default/6 px-4"
-        >
-          Ver cartel completo
-        </BaseButton>
       </div>
 
       <p
