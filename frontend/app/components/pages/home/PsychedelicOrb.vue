@@ -1,253 +1,212 @@
-<script setup lang="ts">
-const rays = Array.from({ length: 10 }, (_, index) => {
-  return {
-    id: index,
-    rotate: `${index * 25}deg`,
-    delay: `${index * 120}ms`,
-  }
-})
-
-const satellites = [
-  { id: 'a', angle: '18deg', delay: '0ms' },
-  { id: 'b', angle: '142deg', delay: '520ms' },
-  { id: 'c', angle: '258deg', delay: '940ms' },
-]
-</script>
-
 <template>
   <div class="orb-wrapper relative mx-auto aspect-square w-full max-w-md">
-    <div class="orb-sigil orb-sigil--outer" />
-    <div class="orb-sigil orb-sigil--offset" />
-    <div class="orb-halo" />
+    <div class="orb-ambient orb-ambient--top" />
+    <div class="orb-ambient orb-ambient--bottom" />
 
-    <div class="orb-rays">
-      <span
-        v-for="ray in rays"
-        :key="ray.id"
-        class="orb-ray"
-        :style="{ '--ray-rotate': ray.rotate, '--ray-delay': ray.delay }"
-      />
+    <div class="orb-field" />
+
+    <div class="orb-frame orb-frame--outer" />
+    <div class="orb-frame orb-frame--inner" />
+
+    <div class="orb-prism">
+      <span class="orb-prism__facet orb-prism__facet--left" />
+      <span class="orb-prism__facet orb-prism__facet--right" />
+      <span class="orb-prism__facet orb-prism__facet--top" />
+      <span class="orb-prism__facet orb-prism__facet--bottom" />
+      <span class="orb-prism__core" />
+      <span class="orb-prism__cut orb-prism__cut--a" />
+      <span class="orb-prism__cut orb-prism__cut--b" />
     </div>
 
-    <div class="orb-core" />
-    <div class="orb-ring orb-ring--outer" />
-    <div class="orb-ring orb-ring--inner" />
-    <div class="orb-ring orb-ring--accent" />
-    <div class="orb-ring orb-ring--soft" />
-    <div class="orb-comet orb-comet--a" />
-    <div class="orb-comet orb-comet--b" />
-    <div class="orb-lattice" />
-    <div class="orb-triangle" />
-    <div class="orb-hex" />
+    <div class="orb-rim orb-rim--outer" />
+    <div class="orb-rim orb-rim--inner" />
 
-    <div class="orb-satellites">
-      <span
-        v-for="satellite in satellites"
-        :key="satellite.id"
-        class="orb-satellite"
-        :style="{ '--sat-angle': satellite.angle, '--sat-delay': satellite.delay }"
-      />
-    </div>
+    <div class="orb-spark orb-spark--a" />
+    <div class="orb-spark orb-spark--b" />
   </div>
 </template>
 
 <style scoped>
 .orb-wrapper {
-  transform: rotate(-5deg);
+  transform: rotate(195deg);
 }
 
-.orb-halo {
+.orb-ambient,
+.orb-field,
+.orb-frame,
+.orb-rim,
+.orb-spark,
+.orb-prism,
+.orb-prism__facet,
+.orb-prism__core,
+.orb-prism__cut {
   position: absolute;
+}
+
+.orb-ambient {
   inset: 0;
   border-radius: 9999px;
+  filter: blur(18px);
+  opacity: 0.8;
+  animation: orb-breathe 8s ease-in-out infinite;
+}
+
+.orb-ambient--top {
   background:
-    radial-gradient(circle at 30% 28%, rgb(239 170 71 / 0.24), rgb(255 255 255 / 0) 52%),
-    radial-gradient(circle at 72% 68%, rgb(20 128 188 / 0.22), rgb(255 255 255 / 0) 54%);
-  animation: orbit-breathe 5.8s ease-in-out infinite;
+    radial-gradient(circle at 16% 14%, color-mix(in oklch, var(--color-accent) 28%, transparent) 0%, transparent 44%),
+    radial-gradient(circle at 34% 22%, color-mix(in oklch, var(--color-accent) 14%, transparent) 0%, transparent 58%);
 }
 
-.orb-sigil {
-  position: absolute;
-  pointer-events: none;
-  border: 1px solid rgb(255 255 255 / 0.22);
-  background: linear-gradient(130deg, rgb(239 170 71 / 0.08), rgb(20 128 188 / 0.08), rgb(240 100 127 / 0.08));
+.orb-ambient--bottom {
+  background:
+    radial-gradient(circle at 84% 88%, color-mix(in oklch, var(--color-accent) 20%, transparent) 0%, transparent 48%),
+    radial-gradient(circle at 66% 78%, color-mix(in oklch, var(--color-primary) 10%, transparent) 0%, transparent 60%);
+  animation-delay: 800ms;
 }
 
-.orb-sigil--outer {
-  inset: -3%;
-  clip-path: polygon(50% 0%, 78% 11%, 99% 47%, 86% 83%, 52% 100%, 20% 90%, 0% 52%, 12% 15%);
-  animation: sigil-tilt 12s ease-in-out infinite;
+.orb-field {
+  inset: 8%;
+  border-radius: 42% 58% 55% 45% / 46% 40% 60% 54%;
+  background:
+    radial-gradient(circle at 28% 28%, color-mix(in oklch, var(--color-highlighted) 12%, transparent) 0%, transparent 22%),
+    linear-gradient(145deg, color-mix(in oklch, var(--color-accent) 26%, transparent), color-mix(in oklch, var(--color-default) 10%, transparent) 42%, color-mix(in oklch, var(--color-primary) 16%, transparent));
+  opacity: 0.72;
+  filter: blur(1px);
+  animation: orb-spin 22s linear infinite;
 }
 
-.orb-sigil--offset {
-  top: 6%;
-  left: 4%;
-  height: 88%;
-  width: 88%;
-  border-color: rgb(255 255 255 / 0.16);
-  clip-path: polygon(44% 0%, 100% 36%, 88% 100%, 36% 92%, 0% 50%);
-  opacity: 0.48;
-  animation: sigil-tilt 9s ease-in-out infinite reverse;
+.orb-frame {
+  inset: 7%;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  clip-path: polygon(50% 0%, 81% 11%, 98% 39%, 88% 79%, 50% 100%, 12% 79%, 2% 39%, 19% 11%);
 }
 
-.orb-core {
-  position: absolute;
-  inset: 22%;
-  border-radius: 9999px;
-  background: radial-gradient(circle at 32% 30%, rgb(239 170 71 / 0.92), rgb(44 189 230 / 0.7), rgb(17 21 38 / 0.84));
+.orb-frame--outer {
+  opacity: 0.6;
+  animation: orb-drift 14s ease-in-out infinite;
+}
+
+.orb-frame--inner {
+  inset: 14%;
+  border-color: rgb(255 255 255 / 0.08);
+  opacity: 0.38;
+  animation: orb-drift 10s ease-in-out infinite reverse;
+}
+
+.orb-prism {
+  inset: 20%;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  clip-path: polygon(50% 0%, 78% 10%, 95% 36%, 86% 74%, 50% 100%, 14% 74%, 5% 36%, 22% 10%);
+  --prism-tilt: -8deg;
+  background:
+    radial-gradient(circle at 32% 26%, color-mix(in oklch, var(--color-highlighted) 18%, transparent) 0%, transparent 26%),
+    linear-gradient(135deg, color-mix(in oklch, var(--color-accent) 44%, transparent) 0%, color-mix(in oklch, var(--color-accent) 18%, transparent) 38%, color-mix(in oklch, var(--color-primary) 20%, transparent) 64%, color-mix(in oklch, var(--color-default) 8%, transparent) 100%);
   box-shadow:
-    0 0 42px rgb(239 170 71 / 0.38),
-    inset 0 0 25px rgb(255 255 255 / 0.12);
+    0 0 34px rgb(166 102 255 / 0.26),
+    inset 0 0 28px rgb(255 255 255 / 0.1);
+  transform: translateZ(0);
+  animation: prism-float 7.4s ease-in-out infinite;
 }
 
-.orb-ring {
-  position: absolute;
-  border-radius: 52% 48% 56% 44% / 46% 54% 42% 58%;
-  border: 1px solid rgb(237 215 183 / 0.35);
-  animation: orbit-rotate 17s linear infinite;
-}
-
-.orb-ring--outer {
-  inset: 5%;
-}
-
-.orb-ring--inner {
-  inset: 15%;
-  border-radius: 47% 53% 49% 51% / 57% 43% 55% 45%;
-  animation-duration: 14s;
-  animation-direction: reverse;
-}
-
-.orb-ring--accent {
+.orb-prism__facet {
   inset: 0;
-  border-color: rgb(240 100 127 / 0.45);
-  border-radius: 58% 42% 51% 49% / 44% 56% 40% 60%;
-  animation-duration: 21s;
+  mix-blend-mode: screen;
+  opacity: 0.9;
 }
 
-.orb-ring--soft {
-  inset: 10%;
+.orb-prism__facet--left {
+  clip-path: polygon(50% 0%, 22% 10%, 14% 74%, 50% 100%);
+  background: linear-gradient(160deg, color-mix(in oklch, var(--color-accent) 34%, transparent), transparent 72%);
+}
+
+.orb-prism__facet--right {
+  clip-path: polygon(50% 0%, 78% 10%, 86% 74%, 50% 100%);
+  background: linear-gradient(210deg, transparent 18%, color-mix(in oklch, var(--color-primary) 24%, transparent) 100%);
+}
+
+.orb-prism__facet--top {
+  clip-path: polygon(50% 0%, 78% 10%, 22% 10%);
+  background: linear-gradient(180deg, color-mix(in oklch, var(--color-highlighted) 18%, transparent), transparent 100%);
+}
+
+.orb-prism__facet--bottom {
+  clip-path: polygon(14% 74%, 86% 74%, 50% 100%);
+  background: linear-gradient(0deg, color-mix(in oklch, var(--color-accent) 22%, transparent), transparent 100%);
+}
+
+.orb-prism__core {
+  inset: 16%;
+  clip-path: polygon(50% 0%, 79% 12%, 89% 39%, 80% 72%, 50% 100%, 20% 72%, 11% 39%, 21% 12%);
+  background:
+    radial-gradient(circle at 34% 28%, rgb(255 255 255 / 0.55) 0%, transparent 18%),
+    radial-gradient(circle at 70% 74%, color-mix(in oklch, var(--color-accent) 36%, transparent) 0%, transparent 38%),
+    linear-gradient(140deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.02) 42%, rgb(10 12 24 / 0.22) 100%);
+  box-shadow:
+    inset 0 0 22px rgb(255 255 255 / 0.08),
+    inset 0 -10px 28px rgb(82 38 155 / 0.22);
+  animation: prism-pulse 6.2s ease-in-out infinite;
+}
+
+.orb-prism__cut {
+  top: 8%;
+  bottom: 8%;
+  width: 10%;
+  opacity: 0.42;
+  background: linear-gradient(180deg, transparent, rgb(255 255 255 / 0.9), transparent);
+}
+
+.orb-prism__cut--a {
+  left: 30%;
+  transform: skewX(-20deg) rotate(-12deg);
+}
+
+.orb-prism__cut--b {
+  right: 30%;
+  transform: skewX(20deg) rotate(12deg);
+}
+
+.orb-rim {
+  inset: 11%;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  opacity: 0.5;
+}
+
+.orb-rim--outer {
+  transform: rotate(12deg);
+  animation: rim-rotate 18s linear infinite;
+}
+
+.orb-rim--inner {
+  inset: 18%;
   border-style: dashed;
-  border-color: rgb(246 248 255 / 0.3);
-  animation-duration: 27s;
+  border-color: rgb(255 255 255 / 0.1);
+  transform: rotate(-16deg);
+  animation: rim-rotate 28s linear infinite reverse;
 }
 
-.orb-lattice {
-  position: absolute;
-  inset: 12%;
+.orb-spark {
+  height: 0.72rem;
+  width: 0.72rem;
   border-radius: 9999px;
-  mask-image: radial-gradient(circle at center, transparent 24%, black 24%);
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      rgb(255 255 255 / 0.15),
-      rgb(255 255 255 / 0.15) 1px,
-      transparent 1px,
-      transparent 18px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgb(255 255 255 / 0.1),
-      rgb(255 255 255 / 0.1) 1px,
-      transparent 1px,
-      transparent 18px
-    );
-  opacity: 0.3;
+  background: radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.92), color-mix(in oklch, var(--color-accent) 55%, transparent) 66%);
+  box-shadow: 0 0 22px rgb(171 110 255 / 0.64);
+  animation: spark-bob 4.8s ease-in-out infinite;
 }
 
-.orb-comet {
-  --comet-angle: 0deg;
-  --drift-x: -8px;
-  --drift-y: 5px;
-  position: absolute;
-  border-radius: 9999px;
-  pointer-events: none;
-  transform: rotate(var(--comet-angle));
+.orb-spark--a {
+  top: 18%;
+  left: 12%;
 }
 
-.orb-comet--a {
-  top: 15%;
-  right: 6%;
-  height: 0.85rem;
-  width: 3.5rem;
-  --comet-angle: 26deg;
-  background: linear-gradient(90deg, rgb(255 255 255 / 0), rgb(239 170 71 / 0.92));
-  animation: comet-drift 6.2s ease-in-out infinite;
+.orb-spark--b {
+  right: 14%;
+  bottom: 18%;
+  animation-delay: 900ms;
 }
 
-.orb-comet--b {
-  bottom: 16%;
-  left: 3%;
-  height: 0.7rem;
-  width: 2.7rem;
-  --comet-angle: -20deg;
-  --drift-x: 6px;
-  --drift-y: -4px;
-  background: linear-gradient(90deg, rgb(255 255 255 / 0), rgb(20 128 188 / 0.9));
-  animation: comet-drift 7.1s ease-in-out infinite reverse;
-}
-
-.orb-triangle {
-  position: absolute;
-  inset: 9%;
-  clip-path: polygon(50% 6%, 93% 84%, 7% 84%);
-  border: 1px solid rgb(246 248 255 / 0.25);
-  animation: orbit-pulse 7s ease-in-out infinite;
-}
-
-.orb-hex {
-  position: absolute;
-  inset: 19%;
-  clip-path: polygon(25% 7%, 75% 7%, 96% 50%, 75% 93%, 25% 93%, 4% 50%);
-  border: 1px solid rgb(239 170 71 / 0.34);
-  animation: orbit-pulse 8.2s ease-in-out infinite reverse;
-}
-
-.orb-rays {
-  position: absolute;
-  inset: 0;
-  opacity: 0.88;
-}
-
-.orb-ray {
-  --ray-rotate: 0deg;
-  --ray-delay: 0ms;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 40%;
-  height: 1px;
-  transform-origin: 0 0;
-  transform: rotate(var(--ray-rotate));
-  background: linear-gradient(90deg, rgb(255 255 255 / 0), rgb(255 255 255 / 0.45), rgb(255 255 255 / 0));
-  opacity: 0.28;
-  animation: ray-flicker 6.2s ease-in-out infinite;
-  animation-delay: var(--ray-delay);
-}
-
-.orb-satellites {
-  position: absolute;
-  inset: 0;
-  animation: orbit-rotate 24s linear infinite reverse;
-}
-
-.orb-satellite {
-  --sat-angle: 0deg;
-  --sat-delay: 0ms;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 0.7rem;
-  width: 0.7rem;
-  border-radius: 9999px;
-  transform: rotate(var(--sat-angle)) translateY(-10.4rem);
-  background: radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.9), rgb(44 189 230 / 0.68));
-  box-shadow: 0 0 18px rgb(44 189 230 / 0.65);
-  animation: sat-pulse 5.4s ease-in-out infinite;
-  animation-delay: var(--sat-delay);
-}
-
-@keyframes orbit-rotate {
+@keyframes orb-spin {
   from {
     transform: rotate(0deg);
   }
@@ -256,90 +215,67 @@ const satellites = [
   }
 }
 
-@keyframes orbit-pulse {
+@keyframes orb-drift {
   0%,
   100% {
-    opacity: 0.4;
     transform: scale(1) rotate(0deg);
+    opacity: 0.5;
   }
   50% {
-    opacity: 0.7;
-    transform: scale(1.03) rotate(-5deg);
+    transform: scale(1.04) rotate(-4deg);
+    opacity: 0.72;
   }
 }
 
-@keyframes orbit-breathe {
+@keyframes prism-float {
   0%,
   100% {
-    transform: scale(1);
-    opacity: 0.8;
+    transform: translateY(0) rotate(var(--prism-tilt));
   }
   50% {
-    transform: scale(1.04);
+    transform: translateY(-10px) rotate(calc(var(--prism-tilt) + 2deg));
+  }
+}
+
+@keyframes prism-pulse {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
     opacity: 1;
   }
 }
 
-@keyframes ray-flicker {
-  0%,
-  100% {
-    opacity: 0.18;
+@keyframes rim-rotate {
+  from {
+    transform: rotate(0deg);
   }
-  45% {
-    opacity: 0.42;
-  }
-  60% {
-    opacity: 0.2;
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@keyframes sat-pulse {
+@keyframes spark-bob {
   0%,
   100% {
-    transform: rotate(var(--sat-angle)) translateY(-10.4rem) scale(1);
+    transform: translateY(0) scale(1);
+    opacity: 0.75;
   }
   50% {
-    transform: rotate(var(--sat-angle)) translateY(-10.4rem) scale(1.26);
-  }
-}
-
-@keyframes comet-drift {
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: translate3d(0, 0, 0) rotate(var(--comet-angle));
-  }
-  50% {
-    opacity: 0.95;
-    transform: translate3d(var(--drift-x), var(--drift-y), 0) rotate(var(--comet-angle));
-  }
-}
-
-@keyframes sigil-tilt {
-  0%,
-  100% {
-    transform: rotate(0deg) scale(1);
-  }
-  50% {
-    transform: rotate(4deg) scale(1.02);
+    transform: translateY(-8px) scale(1.18);
+    opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .orb-sigil,
-  .orb-ring,
-  .orb-halo,
-  .orb-rays,
-  .orb-satellites,
-  .orb-satellite,
-  .orb-comet,
-  .orb-triangle,
-  .orb-hex {
+  .orb-ambient,
+  .orb-field,
+  .orb-frame,
+  .orb-prism,
+  .orb-rim,
+  .orb-spark {
     animation: none;
-  }
-
-  .orb-wrapper {
-    transform: none;
   }
 }
 </style>
