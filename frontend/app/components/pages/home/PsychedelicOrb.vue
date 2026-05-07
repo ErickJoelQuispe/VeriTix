@@ -2,6 +2,7 @@
   <div class="orb-wrapper relative mx-auto aspect-square w-full max-w-md">
     <div class="orb-ambient orb-ambient--top" />
     <div class="orb-ambient orb-ambient--bottom" />
+    <div class="orb-backglow" />
 
     <div class="orb-field" />
 
@@ -33,6 +34,7 @@
 
 .orb-ambient,
 .orb-field,
+.orb-backglow,
 .orb-frame,
 .orb-rim,
 .orb-spark,
@@ -48,6 +50,7 @@
   border-radius: 9999px;
   filter: blur(18px);
   opacity: 0.8;
+  mix-blend-mode: soft-light;
   animation: orb-breathe 8s ease-in-out infinite;
 }
 
@@ -64,43 +67,61 @@
   animation-delay: 800ms;
 }
 
+.orb-backglow {
+  inset: -8%;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 18% 16%, color-mix(in oklch, var(--color-accent) 20%, transparent) 0%, transparent 46%),
+    radial-gradient(circle at 82% 86%, color-mix(in oklch, var(--color-accent) 14%, transparent) 0%, transparent 54%),
+    radial-gradient(circle at 50% 52%, color-mix(in oklch, var(--color-highlighted) 8%, transparent) 0%, transparent 36%);
+  filter: blur(30px);
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+  mask-image: radial-gradient(circle at 50% 50%, black 0 60%, transparent 90%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black 0 60%, transparent 90%);
+  animation: orb-breathe 10s ease-in-out infinite reverse;
+}
+
 .orb-field {
-  inset: 8%;
+  inset: 8% 7% 9% 6%;
   border-radius: 42% 58% 55% 45% / 46% 40% 60% 54%;
   background:
     radial-gradient(circle at 28% 28%, color-mix(in oklch, var(--color-highlighted) 12%, transparent) 0%, transparent 22%),
     linear-gradient(145deg, color-mix(in oklch, var(--color-accent) 26%, transparent), color-mix(in oklch, var(--color-default) 10%, transparent) 42%, color-mix(in oklch, var(--color-primary) 16%, transparent));
   opacity: 0.72;
   filter: blur(1px);
+  mix-blend-mode: soft-light;
   animation: orb-spin 22s linear infinite;
 }
 
 .orb-frame {
-  inset: 7%;
+  inset: 7% 6% 8% 5%;
   border: 1px solid rgb(255 255 255 / 0.14);
   clip-path: polygon(50% 0%, 81% 11%, 98% 39%, 88% 79%, 50% 100%, 12% 79%, 2% 39%, 19% 11%);
 }
 
 .orb-frame--outer {
   opacity: 0.6;
+  --frame-tilt: 10deg;
   animation: orb-drift 14s ease-in-out infinite;
 }
 
 .orb-frame--inner {
-  inset: 14%;
+  inset: 14% 16% 13% 12%;
   border-color: rgb(255 255 255 / 0.08);
   opacity: 0.38;
+  --frame-tilt: -14deg;
   animation: orb-drift 10s ease-in-out infinite reverse;
 }
 
 .orb-prism {
-  inset: 20%;
+  inset: 20% 17% 17% 21%;
   overflow: hidden;
   border: 1px solid rgb(255 255 255 / 0.18);
-  clip-path: polygon(50% 0%, 78% 10%, 95% 36%, 86% 74%, 50% 100%, 14% 74%, 5% 36%, 22% 10%);
+  clip-path: polygon(50% 0%, 80% 10%, 96% 35%, 85% 75%, 49% 100%, 12% 74%, 4% 36%, 21% 9%);
   --prism-tilt: -8deg;
   background:
-    radial-gradient(circle at 32% 26%, color-mix(in oklch, var(--color-highlighted) 18%, transparent) 0%, transparent 26%),
+    radial-gradient(circle at 30% 24%, color-mix(in oklch, var(--color-highlighted) 18%, transparent) 0%, transparent 26%),
     linear-gradient(135deg, color-mix(in oklch, var(--color-accent) 44%, transparent) 0%, color-mix(in oklch, var(--color-accent) 18%, transparent) 38%, color-mix(in oklch, var(--color-primary) 20%, transparent) 64%, color-mix(in oklch, var(--color-default) 8%, transparent) 100%);
   box-shadow:
     0 0 34px rgb(166 102 255 / 0.26),
@@ -111,33 +132,33 @@
 
 .orb-prism__facet {
   inset: 0;
-  mix-blend-mode: screen;
+  mix-blend-mode: soft-light;
   opacity: 0.9;
 }
 
 .orb-prism__facet--left {
-  clip-path: polygon(50% 0%, 22% 10%, 14% 74%, 50% 100%);
+  clip-path: polygon(50% 0%, 18% 10%, 12% 74%, 50% 100%);
   background: linear-gradient(160deg, color-mix(in oklch, var(--color-accent) 34%, transparent), transparent 72%);
 }
 
 .orb-prism__facet--right {
-  clip-path: polygon(50% 0%, 78% 10%, 86% 74%, 50% 100%);
+  clip-path: polygon(50% 0%, 82% 9%, 88% 76%, 50% 100%);
   background: linear-gradient(210deg, transparent 18%, color-mix(in oklch, var(--color-primary) 24%, transparent) 100%);
 }
 
 .orb-prism__facet--top {
-  clip-path: polygon(50% 0%, 78% 10%, 22% 10%);
+  clip-path: polygon(50% 0%, 80% 9%, 21% 10%);
   background: linear-gradient(180deg, color-mix(in oklch, var(--color-highlighted) 18%, transparent), transparent 100%);
 }
 
 .orb-prism__facet--bottom {
-  clip-path: polygon(14% 74%, 86% 74%, 50% 100%);
+  clip-path: polygon(12% 74%, 88% 76%, 49% 100%);
   background: linear-gradient(0deg, color-mix(in oklch, var(--color-accent) 22%, transparent), transparent 100%);
 }
 
 .orb-prism__core {
-  inset: 16%;
-  clip-path: polygon(50% 0%, 79% 12%, 89% 39%, 80% 72%, 50% 100%, 20% 72%, 11% 39%, 21% 12%);
+  inset: 15% 16% 17% 14%;
+  clip-path: polygon(50% 0%, 81% 12%, 90% 39%, 79% 72%, 50% 100%, 19% 72%, 10% 39%, 20% 12%);
   background:
     radial-gradient(circle at 34% 28%, rgb(255 255 255 / 0.55) 0%, transparent 18%),
     radial-gradient(circle at 70% 74%, color-mix(in oklch, var(--color-accent) 36%, transparent) 0%, transparent 38%),
@@ -167,22 +188,22 @@
 }
 
 .orb-rim {
-  inset: 11%;
+  inset: 11% 10% 12% 9%;
   border-radius: 9999px;
   border: 1px solid rgb(255 255 255 / 0.16);
   opacity: 0.5;
 }
 
 .orb-rim--outer {
-  transform: rotate(12deg);
+  --rim-tilt: 16deg;
   animation: rim-rotate 18s linear infinite;
 }
 
 .orb-rim--inner {
-  inset: 18%;
+  inset: 18% 20% 17% 14%;
   border-style: dashed;
   border-color: rgb(255 255 255 / 0.1);
-  transform: rotate(-16deg);
+  --rim-tilt: -22deg;
   animation: rim-rotate 28s linear infinite reverse;
 }
 
@@ -196,13 +217,13 @@
 }
 
 .orb-spark--a {
-  top: 18%;
-  left: 12%;
+  top: 16%;
+  left: 10%;
 }
 
 .orb-spark--b {
-  right: 14%;
-  bottom: 18%;
+  right: 12%;
+  bottom: 16%;
   animation-delay: 900ms;
 }
 
@@ -218,11 +239,11 @@
 @keyframes orb-drift {
   0%,
   100% {
-    transform: scale(1) rotate(0deg);
+    transform: scale(1) rotate(var(--frame-tilt, 0deg));
     opacity: 0.5;
   }
   50% {
-    transform: scale(1.04) rotate(-4deg);
+    transform: scale(1.04) rotate(calc(var(--frame-tilt, 0deg) - 4deg));
     opacity: 0.72;
   }
 }
@@ -249,10 +270,10 @@
 
 @keyframes rim-rotate {
   from {
-    transform: rotate(0deg);
+    transform: rotate(var(--rim-tilt, 0deg));
   }
   to {
-    transform: rotate(360deg);
+    transform: rotate(calc(var(--rim-tilt, 0deg) + 360deg));
   }
 }
 
