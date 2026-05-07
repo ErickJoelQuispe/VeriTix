@@ -48,17 +48,17 @@ const isDisabled = computed(() => props.disabled || props.loading)
 const buttonClass = computed(() => {
   const sizeClass = {
     xs: 'px-3 py-1.5 text-xs',
-    sm: 'px-3.5 py-2 text-sm',
+    sm: 'px-3.5 py-2 text-xs',
     md: 'px-4 py-2.5 text-sm',
-    lg: 'px-4.5 py-3 text-base',
-    xl: 'px-5 py-3.5 text-base',
+    lg: 'px-5 py-3 text-sm',
+    xl: 'px-6 py-3.5 text-sm',
   }[props.size]
 
-  const sharedClass = 'inline-flex items-center justify-center gap-2 rounded-full border font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-60'
+  const sharedClass = 'inline-flex items-center justify-center gap-2 rounded-sm border font-medium uppercase leading-none tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-60'
 
   const kindClass: Record<ButtonKind, string> = {
-    primary: 'border-primary/55 bg-primary/18 text-highlighted shadow-sm focus-visible:ring-primary/35 hover:-translate-y-px hover:border-primary/70 hover:bg-primary/26',
-    secondary: 'border-default/60 bg-default/40 text-toned shadow-none focus-visible:ring-secondary/30 hover:-translate-y-px hover:border-secondary/28 hover:bg-secondary/12 hover:text-highlighted',
+    primary: 'border-default/60 bg-elevated/80 text-highlighted shadow-sm focus-visible:ring-primary/35 hover:-translate-y-0.5 hover:border-default/75 hover:bg-elevated/90',
+    secondary: 'border-default/55 bg-transparent text-toned shadow-none focus-visible:ring-default/35 hover:-translate-y-0.5 hover:border-default/75 hover:bg-default/10 hover:text-highlighted',
     tertiary: 'border-transparent bg-transparent text-toned shadow-none focus-visible:ring-primary/25 hover:border-default/55 hover:bg-default/10 hover:text-highlighted',
   }
 

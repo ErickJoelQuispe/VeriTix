@@ -47,19 +47,19 @@ function resolveDefaults(kind: BadgeKind, explicitColor?: BadgeColor): { color: 
 const badgeClass = computed(() => {
   switch (props.kind) {
     case 'status':
-      return 'rounded-full px-2.5 font-medium'
+      return 'rounded-full px-2.5 font-mono uppercase tracking-wider'
     case 'tag':
       return 'rounded-md px-2.5 py-1 text-xs font-semibold'
     case 'outline':
-      return 'rounded-full px-2.5'
+      return 'rounded-full px-2.5 font-mono uppercase tracking-wider'
     case 'info':
-      return 'rounded-full px-2.5'
+      return 'rounded-full px-2.5 font-mono uppercase tracking-wider'
     case 'role':
-      return 'rounded-full px-2 font-semibold'
+      return 'rounded-full px-2 font-mono uppercase tracking-wider'
     case 'price':
-      return 'rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase md:text-sm'
+      return 'rounded-full px-3 py-1 text-xs font-mono uppercase tracking-wider'
     case 'accent':
-      return 'rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase'
+      return 'rounded-full px-3 py-1 text-xs font-mono uppercase tracking-wider'
     default:
       return 'rounded-full px-2.5'
   }
@@ -77,27 +77,27 @@ const resolved = computed(() => {
 
 const toneClass = computed(() => {
   const colors: Record<BadgeColor, string> = {
-    primary: 'border-primary/20 bg-primary/12 text-primary',
-    secondary: 'border-secondary/20 bg-secondary/12 text-secondary',
-    success: 'border-success/20 bg-success/12 text-success',
-    info: 'border-info/20 bg-info/12 text-info',
-    warning: 'border-warning/20 bg-warning/12 text-warning',
-    error: 'border-error/20 bg-error/12 text-error',
-    neutral: 'border-default/55 bg-default/40 text-toned',
+    primary: 'border-primary/35 bg-primary/12 text-primary',
+    secondary: 'border-secondary/35 bg-secondary/12 text-secondary',
+    success: 'border-success/35 bg-success/12 text-success',
+    info: 'border-info/35 bg-info/12 text-info',
+    warning: 'border-warning/35 bg-warning/12 text-warning',
+    error: 'border-error/35 bg-error/12 text-error',
+    neutral: 'border-default/65 bg-elevated/50 text-toned',
   }
 
   const variants: Record<BadgeVariant, string> = {
-    soft: 'shadow-sm',
-    subtle: 'shadow-none',
+    soft: 'shadow-none',
+    subtle: 'bg-transparent',
     outline: 'bg-transparent',
   }
 
   const sizeClass: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', string> = {
-    xs: 'px-2 py-0.5 text-[0.7rem]',
+    xs: 'px-2 py-0.5 text-xs',
     sm: 'px-2.5 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
+    md: 'px-3 py-1 text-xs',
     lg: 'px-3.5 py-1.5 text-sm',
-    xl: 'px-4 py-1.5 text-base',
+    xl: 'px-4 py-1.5 text-sm',
   }
 
   return [colors[resolved.value.color], variants[resolved.value.variant], sizeClass[props.size], badgeClass.value]
@@ -107,7 +107,7 @@ const toneClass = computed(() => {
 <template>
   <span
     v-bind="attrs"
-    class="inline-flex items-center gap-1 border text-xs leading-none" :class="[toneClass]"
+    class="inline-flex items-center gap-1.5 border leading-none" :class="[toneClass]"
   >
     <BaseIcon v-if="icon && leading !== false" :name="icon" class="size-3.5" aria-hidden="true" />
     <slot />

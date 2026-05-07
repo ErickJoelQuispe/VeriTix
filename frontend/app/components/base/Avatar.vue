@@ -26,7 +26,7 @@ const avatarClass = computed(() => attrs.class)
 
 const sizeClass = computed(() => {
   const sizes = {
-    xs: 'size-6 text-[0.6rem]',
+    xs: 'size-6 text-xs',
     sm: 'size-8 text-xs',
     md: 'size-10 text-sm',
     lg: 'size-12 text-base',
@@ -40,7 +40,7 @@ const sizeClass = computed(() => {
 <template>
   <div
     v-bind="forwardedAttrs"
-    class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-default/60 bg-default/40 text-highlighted" :class="[sizeClass, avatarClass]"
+    class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-default/70 bg-elevated/55 text-highlighted shadow-sm" :class="[sizeClass, avatarClass]"
   >
     <img
       v-if="props.src"
@@ -48,7 +48,7 @@ const sizeClass = computed(() => {
       :alt="props.alt || props.text || 'Avatar'"
       class="size-full object-cover"
     >
-    <span v-else class="font-semibold uppercase tracking-wide">
+    <span v-else class="font-semibold uppercase leading-none tracking-wide">
       {{ props.text || (props.alt?.trim()?.charAt(0)?.toUpperCase() ?? '?') }}
     </span>
   </div>

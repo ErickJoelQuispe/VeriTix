@@ -18,8 +18,8 @@ const props = withDefaults(
 
 const panelClass = computed(() => {
   const toneClass = props.tone === 'strong'
-    ? 'border border-default/60 bg-elevated/60 shadow-xl backdrop-blur-lg'
-    : 'border border-default/60 bg-default/25 shadow-sm'
+    ? 'border border-default/70 bg-elevated/75 shadow-xl backdrop-blur-lg'
+    : 'border border-default/60 bg-default/20 shadow-sm backdrop-blur-sm'
 
   const radiusClass = {
     sm: 'rounded-lg',
@@ -35,7 +35,7 @@ const panelClass = computed(() => {
   }[props.padding]
 
   const interactiveClass = props.interactive
-    ? 'transition-all duration-200 hover:-translate-y-0.5 hover:border-default/75 hover:bg-elevated/70 focus-within:-translate-y-0.5 focus-within:border-default/75 focus-within:bg-elevated/70'
+    ? 'transition-all duration-200 hover:-translate-y-0.5 hover:border-default/75 hover:bg-elevated/80 focus-within:-translate-y-0.5 focus-within:border-default/75 focus-within:bg-elevated/80'
     : ''
 
   return [toneClass, radiusClass, paddingClass, interactiveClass]

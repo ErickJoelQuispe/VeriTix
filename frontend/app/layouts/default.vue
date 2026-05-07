@@ -5,6 +5,7 @@
     <BackgroundTexture />
 
     <div class="relative z-10 min-h-screen">
+      <LayoutHeader />
       <slot />
     </div>
   </div>

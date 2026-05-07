@@ -61,18 +61,6 @@ async function onSubmit() {
 
 <template>
   <div>
-    <header class="sticky top-0 z-50 flex items-center justify-between border-b border-default/70 bg-default/85 px-6 py-4 backdrop-blur md:px-16">
-      <div class="flex flex-col gap-1">
-        <div class="font-display text-2xl">
-          VeriTix
-        </div><div class="font-mono text-[0.68rem] tracking-[0.12em] text-muted uppercase">
-          Live events / ledger access
-        </div>
-      </div>
-      <BaseButton kind="secondary" to="/">
-        Home
-      </BaseButton>
-    </header>
     <main class="grid min-h-[calc(100vh-78px)] place-items-center px-6 py-14 md:px-16 md:py-24">
       <section class="w-full max-w-[520px] overflow-hidden rounded-[18px] border border-default/80 bg-elevated/75 shadow-[0_24px_70px_rgba(0,0,0,0.18)]">
         <div class="flex items-center justify-between border-b border-default/70 px-6 py-5">
