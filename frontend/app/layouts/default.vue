@@ -1,7 +1,7 @@
 <template>
   <div class="relative isolate min-h-screen text-default">
-    <BackgroundPageBackdrop />
-    <BackgroundPerspectiveGrid />
+    <BackdropsPageBackdrop />
+    <BackdropsPerspectiveGrid />
 
     <div class="relative z-10 min-h-screen">
       <LayoutHeader />
