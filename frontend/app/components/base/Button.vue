@@ -8,6 +8,7 @@ defineOptions({
 const props = withDefaults(
   defineProps<{
     label?: string
+    variant?: ButtonVariant
     kind?: ButtonKind
     to?: RouteLocationRaw
     href?: string
@@ -21,6 +22,7 @@ const props = withDefaults(
   }>(),
   {
     label: '',
+    variant: undefined,
     kind: 'primary',
     type: 'button',
     size: 'lg',
@@ -34,7 +36,14 @@ const props = withDefaults(
   },
 )
 
+type ButtonVariant = 'primary' | 'secondary' | 'outlined' | 'reversed'
 type ButtonKind = 'primary' | 'secondary' | 'tertiary'
+
+const kindToVariant: Record<ButtonKind, ButtonVariant> = {
+  primary: 'primary',
+  secondary: 'secondary',
+  tertiary: 'outlined',
+}
 
 const attrs = useAttrs()
 
@@ -45,6 +54,8 @@ const forwardedAttrs = computed(() => {
 
 const isDisabled = computed(() => props.disabled || props.loading)
 
+const effectiveVariant = computed<ButtonVariant>(() => props.variant ?? kindToVariant[props.kind])
+
 const buttonClass = computed(() => {
   const sizeClass = {
     xs: 'px-3 py-1.5 text-xs',
@@ -54,15 +65,16 @@ const buttonClass = computed(() => {
     xl: 'px-6 py-3.5 text-sm',
   }[props.size]
 
-  const sharedClass = 'inline-flex items-center justify-center gap-2 rounded-sm border font-medium uppercase leading-none tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-60'
+  const sharedClass = 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border font-medium uppercase leading-none tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-60'
 
-  const kindClass: Record<ButtonKind, string> = {
-    primary: 'border-default/60 bg-elevated/80 text-highlighted shadow-sm focus-visible:ring-primary/35 hover:-translate-y-0.5 hover:border-default/75 hover:bg-elevated/90',
-    secondary: 'border-default/55 bg-transparent text-toned shadow-none focus-visible:ring-default/35 hover:-translate-y-0.5 hover:border-default/75 hover:bg-default/10 hover:text-highlighted',
-    tertiary: 'border-transparent bg-transparent text-toned shadow-none focus-visible:ring-primary/25 hover:border-default/55 hover:bg-default/10 hover:text-highlighted',
+  const variantClass: Record<ButtonVariant, string> = {
+    primary: 'border-highlighted bg-highlighted text-default shadow-sm focus-visible:ring-highlighted/30 hover:-translate-y-0.5 hover:border-lavender hover:bg-lavender hover:text-white hover:font-semibold hover:shadow-[0_14px_28px_-18px_rgba(62,21,120,0.6)]',
+    secondary: 'border-default/55 bg-elevated/84 text-highlighted shadow-none focus-visible:ring-default/35 hover:-translate-y-0.5 hover:border-lavender/35 hover:bg-[color-mix(in_oklch,var(--color-lavender)_14%,var(--color-elevated))] hover:text-white hover:shadow-[0_10px_22px_-18px_rgba(86,29,164,0.22)]',
+    outlined: 'border-border-accented bg-transparent text-toned shadow-none focus-visible:ring-primary/25 hover:-translate-y-0.5 hover:border-lavender/40 hover:bg-[color-mix(in_oklch,var(--color-lavender)_10%,transparent)] hover:text-highlighted',
+    reversed: 'border-accent/40 bg-accent text-default shadow-sm focus-visible:ring-accent/30 hover:-translate-y-0.5 hover:border-accent/70 hover:bg-accent/90 hover:shadow-[0_14px_30px_-18px_rgba(166,102,255,0.6)]',
   }
 
-  return [sharedClass, sizeClass, kindClass[props.kind], attrs.class]
+  return [sharedClass, sizeClass, variantClass[effectiveVariant.value], attrs.class]
 })
 </script>
 
