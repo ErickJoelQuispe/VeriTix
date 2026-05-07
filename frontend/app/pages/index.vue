@@ -12,5 +12,6 @@ useSeoMeta({
   <div>
     <PagesHomeHeroSection />
     <PagesHomeFeaturedEventsSection />
+    <PagesHomeValueSection />
   </div>
 </template>
