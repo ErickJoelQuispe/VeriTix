@@ -9,7 +9,6 @@ const props = withDefaults(
   defineProps<{
     label?: string
     variant?: ButtonVariant
-    kind?: ButtonKind
     to?: RouteLocationRaw
     href?: string
     type?: 'button' | 'submit' | 'reset'
@@ -22,8 +21,7 @@ const props = withDefaults(
   }>(),
   {
     label: '',
-    variant: undefined,
-    kind: 'primary',
+    variant: 'primary',
     type: 'button',
     size: 'lg',
     block: false,
@@ -37,13 +35,6 @@ const props = withDefaults(
 )
 
 type ButtonVariant = 'primary' | 'secondary' | 'outlined' | 'reversed'
-type ButtonKind = 'primary' | 'secondary' | 'tertiary'
-
-const kindToVariant: Record<ButtonKind, ButtonVariant> = {
-  primary: 'primary',
-  secondary: 'secondary',
-  tertiary: 'outlined',
-}
 
 const attrs = useAttrs()
 
@@ -53,8 +44,6 @@ const forwardedAttrs = computed(() => {
 })
 
 const isDisabled = computed(() => props.disabled || props.loading)
-
-const effectiveVariant = computed<ButtonVariant>(() => props.variant ?? kindToVariant[props.kind])
 
 const buttonClass = computed(() => {
   const sizeClass = {
@@ -74,7 +63,7 @@ const buttonClass = computed(() => {
     reversed: 'border-accent/40 bg-accent text-default shadow-sm focus-visible:ring-accent/30 hover:-translate-y-0.5 hover:border-accent/70 hover:bg-accent/90 hover:shadow-[0_14px_30px_-18px_rgba(166,102,255,0.6)]',
   }
 
-  return [sharedClass, sizeClass, variantClass[effectiveVariant.value], attrs.class]
+  return [sharedClass, sizeClass, variantClass[props.variant], attrs.class]
 })
 </script>
 

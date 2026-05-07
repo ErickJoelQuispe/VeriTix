@@ -7,7 +7,7 @@ withDefaults(defineProps<{
   cancelLabel?: string
   pending?: boolean
   testId?: string
-  triggerKind?: 'primary' | 'secondary' | 'tertiary'
+  triggerVariant?: 'primary' | 'secondary' | 'outlined' | 'reversed'
   triggerClass?: string
 }>(), {
   title: 'Confirmar eliminación',
@@ -16,7 +16,7 @@ withDefaults(defineProps<{
   cancelLabel: 'Cancelar',
   pending: false,
   testId: '',
-  triggerKind: 'tertiary',
+  triggerVariant: 'outlined',
   triggerClass: '',
 })
 
@@ -35,7 +35,7 @@ function handleConfirm() {
 <template>
   <BasePopover v-model:open="open" :content="{ align: 'end', side: 'top', sideOffset: 10 }">
     <BaseButton
-      :kind="triggerKind"
+      :variant="triggerVariant"
       size="sm"
       :class="triggerClass || undefined"
       :disabled="pending"
@@ -60,10 +60,10 @@ function handleConfirm() {
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-          <BaseButton kind="tertiary" size="sm" :disabled="pending" @click="open = false">
+          <BaseButton variant="outlined" size="sm" :disabled="pending" @click="open = false">
             {{ cancelLabel }}
           </BaseButton>
-          <BaseButton kind="primary" size="sm" :loading="pending" :disabled="pending" @click="handleConfirm">
+          <BaseButton variant="primary" size="sm" :loading="pending" :disabled="pending" @click="handleConfirm">
             {{ confirmLabel }}
           </BaseButton>
         </div>

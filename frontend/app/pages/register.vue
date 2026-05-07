@@ -77,10 +77,10 @@ async function onSubmit() {
           <FormField v-model="state.phone" name="phone" label="Phone" placeholder="+34958123456" icon="i-lucide-phone" required />
           <FormPassword v-model="state.confirmPassword" name="confirmPassword" label="Confirm password" placeholder="Repeat password" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
           <div class="grid gap-3 pt-2">
-            <BaseButton kind="primary" type="submit" size="lg" block :loading="pending">
+            <BaseButton variant="primary" type="submit" size="lg" block :loading="pending">
               Create account
             </BaseButton>
-            <BaseButton kind="secondary" to="/login" size="lg" block>
+            <BaseButton variant="secondary" to="/login" size="lg" block>
               Already have an account?
             </BaseButton>
           </div>

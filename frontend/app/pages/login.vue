@@ -58,10 +58,10 @@ async function onSubmit() {
           <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="name@domain.com" icon="i-lucide-mail" :disabled="pending" required />
           <FormPassword v-model="state.password" name="password" label="Password" placeholder="Enter your password" icon="i-lucide-lock" :disabled="pending" required />
           <div class="grid gap-3 pt-2">
-            <BaseButton kind="primary" type="submit" size="lg" block :loading="pending">
+            <BaseButton variant="primary" type="submit" size="lg" block :loading="pending">
               Sign in
             </BaseButton>
-            <BaseButton kind="secondary" to="/register" size="lg" block>
+            <BaseButton variant="secondary" to="/register" size="lg" block>
               Create account
             </BaseButton>
           </div>

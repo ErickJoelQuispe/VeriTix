@@ -104,7 +104,7 @@ onMounted(() => {
         <FormInput v-model="filters.search" placeholder="Search venue or city" icon="i-lucide-search" :disabled="pending" />
         <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
         <FormInput v-model="filters.city" placeholder="City" icon="i-lucide-map-pin" :disabled="pending" />
-        <BaseButton kind="secondary" :loading="pending" @click="applyFilters">
+        <BaseButton variant="secondary" :loading="pending" @click="applyFilters">
           Search
         </BaseButton>
       </section>
@@ -117,10 +117,10 @@ onMounted(() => {
       >
         <template #actions>
           <div class="flex items-center gap-3 sm:self-center">
-            <BaseButton kind="tertiary" size="md" :disabled="pending" @click="resetFilters">
+            <BaseButton variant="outlined" size="md" :disabled="pending" @click="resetFilters">
               Resetear
             </BaseButton>
-            <BaseButton kind="primary" size="md" :loading="pending" @click="applyFilters">
+            <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
               Aplicar
             </BaseButton>
           </div>

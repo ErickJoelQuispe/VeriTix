@@ -254,7 +254,7 @@ watch(() => [
     />
 
     <div class="flex justify-end border-t border-default/55 pt-6">
-      <BaseButton kind="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting" data-testid="event-form-submit">
+      <BaseButton variant="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting" data-testid="event-form-submit">
         {{ submitLabel }}
       </BaseButton>
     </div>

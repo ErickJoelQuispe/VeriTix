@@ -20,7 +20,7 @@ const props = withDefaults(
     :size="props.size"
     class="rounded-lg px-3 py-1.5 text-xs font-semibold tracking-wide"
     :disabled="props.disabled"
-    :kind="props.active ? 'primary' : 'secondary'"
+    :variant="props.active ? 'primary' : 'secondary'"
   >
     {{ props.label }}
   </BaseButton>

@@ -42,7 +42,7 @@ withDefaults(
       <BaseButton
         v-if="actionTo && actionLabel"
         :to="actionTo"
-        kind="secondary"
+        variant="secondary"
         size="sm"
         trailing-icon="i-lucide-arrow-right"
         class="shrink-0 lg:ml-auto"

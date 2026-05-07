@@ -54,7 +54,7 @@ onMounted(async () => {
           No pudimos cerrar tu sesión. Volvé a intentarlo.
         </p>
         <BaseButton
-          kind="primary"
+          variant="primary"
           class="mt-8"
           @click="() => { router.push('/') }"
         >

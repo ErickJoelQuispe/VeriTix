@@ -35,7 +35,7 @@ function handleSelect(item: SegmentedControlItem) {
       v-for="item in items"
       :key="item.value"
       :to="item.to"
-      kind="tertiary"
+      variant="outlined"
       :size="size"
       :leading-icon="item.icon"
       :disabled="item.disabled"

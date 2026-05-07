@@ -63,7 +63,7 @@ function onSearch() {
 
               <!-- Submit Button - Subtle outline variant -->
               <BaseButton
-                kind="primary"
+                variant="primary"
                 type="submit"
                 size="md"
                 class="shrink-0 px-6"
@@ -85,7 +85,7 @@ function onSearch() {
             </p>
 
             <BaseButton
-              kind="secondary"
+              variant="secondary"
               to="#generos"
               size="sm"
               class="px-4"

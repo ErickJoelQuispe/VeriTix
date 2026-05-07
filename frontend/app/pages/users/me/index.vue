@@ -242,7 +242,7 @@ onMounted(() => {
               </span>
 
               <BaseButton
-                kind="primary"
+                variant="primary"
                 type="submit"
                 size="lg"
                 class="vtx-profile-submit px-6"
@@ -291,7 +291,7 @@ onMounted(() => {
 
               <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <BaseButton
-                  kind="secondary"
+                  variant="secondary"
                   to="/users/me/logout"
                   size="lg"
                   class="px-6"
@@ -300,7 +300,7 @@ onMounted(() => {
                 </BaseButton>
 
                 <BaseButton
-                  kind="primary"
+                  variant="primary"
                   type="submit"
                   size="lg"
                   class="vtx-profile-submit px-6"

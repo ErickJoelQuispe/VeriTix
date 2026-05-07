@@ -31,8 +31,6 @@ const valuePillars = [
           eyebrow="Principios del producto"
           title="Por qué VeriTix"
           description="Cada decisión visual busca reducir fricción, transmitir confianza y mantener una experiencia coherente de principio a fin."
-          action-label="Ver eventos"
-          action-to="/events"
         />
 
         <div class="mt-10 grid divide-y divide-default/60 md:grid-cols-3 md:divide-x md:divide-y-0">

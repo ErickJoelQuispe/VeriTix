@@ -102,7 +102,7 @@ function isBackofficeActive(path: string): boolean {
           </div>
         </NuxtLink>
 
-        <BaseButton kind="secondary" to="/" size="xs" class="px-3.5 text-xs tracking-wide uppercase">
+        <BaseButton variant="secondary" to="/" size="xs" class="px-3.5 text-xs tracking-wide uppercase">
           Home
         </BaseButton>
       </div>
@@ -140,7 +140,7 @@ function isBackofficeActive(path: string): boolean {
 
         <div class="flex shrink-0 items-center gap-3 justify-self-end">
           <span class="font-mono text-[0.68rem] tracking-[0.12em] text-muted uppercase">Admin</span>
-          <BaseButton kind="secondary" to="/" size="xs" class="px-3.5 text-xs tracking-wide uppercase">
+          <BaseButton variant="secondary" to="/" size="xs" class="px-3.5 text-xs tracking-wide uppercase">
             Exit
           </BaseButton>
         </div>
@@ -183,7 +183,7 @@ function isBackofficeActive(path: string): boolean {
               <template v-if="showGuestActions">
                 <BaseButton
                   to="/login"
-                  kind="tertiary"
+                  variant="outlined"
                   size="xs"
                   class="!rounded-full !border-0 !bg-transparent !px-3.5 !py-1.5 !shadow-none text-xs tracking-wide uppercase text-toned hover:!border-0 hover:!bg-default/10 hover:!text-highlighted hover:!shadow-none"
                 >
@@ -192,7 +192,7 @@ function isBackofficeActive(path: string): boolean {
 
                 <BaseButton
                   to="/register"
-                  kind="tertiary"
+                  variant="outlined"
                   size="xs"
                   class="!rounded-full !border !border-default/60 !bg-elevated/80 !px-3.5 !py-1.5 !shadow-sm text-xs tracking-wide uppercase text-highlighted hover:!border-default/75 hover:!bg-elevated/90 hover:!shadow-sm"
                 >

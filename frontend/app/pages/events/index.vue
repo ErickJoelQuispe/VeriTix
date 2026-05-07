@@ -195,7 +195,7 @@ async function handlePageChange(page: number) {
             <FormInput v-model="searchDraft" placeholder="Search artists, venues, or cities" icon="i-lucide-search" :disabled="isPending" />
             <FormInput v-model="artistNameDraft" placeholder="Artist" icon="i-lucide-mic-vocal" :disabled="isPending" />
             <FormSelect label="Location" name="city" :model-value="filters.city || '__all__'" :items="[{ label: 'Location: any', value: '__all__' }, ...cityOptions.map(city => ({ label: city, value: city }))]" :disabled="isPending" @update:model-value="updateFilters({ city: $event === '__all__' ? '' : String($event) })" />
-            <BaseButton kind="secondary" type="submit" :loading="isPending">
+            <BaseButton variant="secondary" type="submit" :loading="isPending">
               Search
             </BaseButton>
           </form>
@@ -222,7 +222,7 @@ async function handlePageChange(page: number) {
                   </p>
 
                   <BaseButton
-                    kind="tertiary"
+                    variant="outlined"
                     size="xs"
                     :disabled="isPending"
                     class="px-2.5"
@@ -252,7 +252,7 @@ async function handlePageChange(page: number) {
                       class="min-w-0"
                     />
 
-                    <BaseButton kind="primary" type="submit" size="sm" :loading="isPending" :disabled="isPending" block>
+                    <BaseButton variant="primary" type="submit" size="sm" :loading="isPending" :disabled="isPending" block>
                       Buscar
                     </BaseButton>
                   </form>
@@ -281,7 +281,7 @@ async function handlePageChange(page: number) {
 
                   <BaseButton
                     v-if="hiddenGenresCount > 0"
-                    kind="tertiary"
+                    variant="outlined"
                     size="xs"
                     class="mt-3 px-0"
                     :disabled="isPending"

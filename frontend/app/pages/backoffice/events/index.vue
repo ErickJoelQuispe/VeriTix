@@ -243,7 +243,7 @@ onMounted(() => {
         <FormInput v-model="filters.search" placeholder="Search title, venue, city" icon="i-lucide-search" :disabled="catalogPending || filtersPending" />
         <FormSelect label="Status" name="status" :model-value="catalogMode" :items="catalogModeItems.map(item => ({ label: item.label, value: item.value }))" :disabled="catalogPending || filtersPending" @update:model-value="setCatalogMode(String($event))" />
         <FormSelect label="Window" name="window" :model-value="quickWindow" :items="quickWindowItems" :disabled="catalogPending || filtersPending" @update:model-value="setQuickWindow(String($event))" />
-        <BaseButton kind="secondary" :loading="catalogPending || filtersPending" @click="applyCatalogFilters">
+        <BaseButton variant="secondary" :loading="catalogPending || filtersPending" @click="applyCatalogFilters">
           Search
         </BaseButton>
       </section>
@@ -256,7 +256,7 @@ onMounted(() => {
         <template #actions>
           <div class="flex items-center gap-3 sm:self-center">
             <BaseButton
-              kind="tertiary"
+              variant="outlined"
               size="md"
               :disabled="catalogPending || filtersPending"
               @click="resetCatalogFilters"
@@ -264,7 +264,7 @@ onMounted(() => {
               Resetear
             </BaseButton>
             <BaseButton
-              kind="primary"
+              variant="primary"
               size="md"
               :loading="catalogPending || filtersPending"
               @click="applyCatalogFilters"
@@ -390,13 +390,13 @@ onMounted(() => {
               </template>
 
               <template #actions>
-                <BaseButton kind="secondary" size="sm" class="!rounded-md border-default/55 bg-default/55 hover:bg-default/70" :to="event.to">
+                <BaseButton variant="secondary" size="sm" class="!rounded-md border-default/55 bg-default/55 hover:bg-default/70" :to="event.to">
                   Editar
                 </BaseButton>
                 <BackofficeDeleteAction
                   v-if="!event.isReview"
                   item-label="el evento"
-                  trigger-kind="secondary"
+                  trigger-variant="secondary"
                   trigger-class="!rounded-md border-error/35 text-error hover:border-error/50 hover:bg-error/12 hover:text-error"
                   :pending="deletingEventId === event.id"
                   @confirm="removeEvent(event.id)"

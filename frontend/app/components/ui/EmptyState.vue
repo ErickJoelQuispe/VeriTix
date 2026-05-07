@@ -26,7 +26,7 @@ withDefaults(defineProps<{
       </p>
     </div>
 
-    <BaseButton v-if="actionLabel && actionTo" kind="secondary" size="sm" :to="actionTo">
+    <BaseButton v-if="actionLabel && actionTo" variant="secondary" size="sm" :to="actionTo">
       {{ actionLabel }}
     </BaseButton>
   </div>

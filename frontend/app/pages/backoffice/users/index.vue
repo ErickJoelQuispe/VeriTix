@@ -198,7 +198,7 @@ onMounted(() => {
         <FormInput v-model="filters.search" placeholder="Search name or email" icon="i-lucide-search" :disabled="pending" />
         <FormSelect label="Role" name="role" :model-value="filters.role || '__all__'" :items="[{ label: 'Role: all', value: '__all__' }, ...roleFilterOptions.map(role => ({ label: role.name, value: role.id }))]" :disabled="pending" @update:model-value="filters.role = $event === '__all__' ? '' : String($event)" />
         <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
-        <BaseButton kind="secondary" :loading="pending" @click="applyFilters">
+        <BaseButton variant="secondary" :loading="pending" @click="applyFilters">
           Search
         </BaseButton>
       </section>
@@ -211,10 +211,10 @@ onMounted(() => {
       >
         <template #actions>
           <div class="flex items-center gap-3 sm:self-center">
-            <BaseButton kind="tertiary" size="md" :disabled="pending" @click="resetFilters">
+            <BaseButton variant="outlined" size="md" :disabled="pending" @click="resetFilters">
               Resetear
             </BaseButton>
-            <BaseButton kind="primary" size="md" :loading="pending" @click="applyFilters">
+            <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
               Aplicar
             </BaseButton>
           </div>
@@ -328,12 +328,12 @@ onMounted(() => {
                 </div>
 
                 <div class="mt-auto grid grid-cols-2 gap-2 border-t border-default/60 pt-3">
-                  <BaseButton kind="secondary" size="sm" block :to="`/backoffice/users/${user.id}/edit`">
+                  <BaseButton variant="secondary" size="sm" block :to="`/backoffice/users/${user.id}/edit`">
                     Editar
                   </BaseButton>
                   <BackofficeDeleteAction
                     item-label="el usuario"
-                    trigger-kind="tertiary"
+                    trigger-variant="outlined"
                     trigger-class="w-full justify-center text-error hover:bg-error/10"
                     :pending="deletingId === user.id"
                     @confirm="removeUser(user.id)"

@@ -43,9 +43,9 @@ async function onSubmit() {
           <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
             <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="name@domain.com" icon="i-lucide-mail" required />
             <div class="grid gap-3 pt-2">
-              <BaseButton kind="primary" type="submit" size="lg" block>
+              <BaseButton variant="primary" type="submit" size="lg" block>
                 Send reset link
-              </BaseButton><BaseButton kind="secondary" to="/login" size="lg" block>
+              </BaseButton><BaseButton variant="secondary" to="/login" size="lg" block>
                 Back to sign in
               </BaseButton>
             </div>

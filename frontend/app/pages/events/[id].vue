@@ -166,7 +166,7 @@ const eventErrorMessage = computed(() => {
                   </p>
                 </div>
 
-                <BaseButton kind="primary" size="lg" class="px-6">
+                <BaseButton variant="primary" size="lg" class="px-6">
                   Reservar
                 </BaseButton>
               </div>

@@ -73,7 +73,7 @@ function isActive(path: string): boolean {
               <BaseButton
                 v-if="primaryActionTo && primaryActionLabel"
                 :to="primaryActionTo"
-                kind="primary"
+                variant="primary"
                 size="sm"
                 leading-icon="i-lucide-plus"
               >

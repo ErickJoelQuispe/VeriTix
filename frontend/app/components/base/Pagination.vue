@@ -87,11 +87,11 @@ function goToPage(nextPage: number) {
 <template>
   <nav v-bind="forwardedAttrs" class="flex flex-col items-center gap-3 sm:flex-row" :class="[paginationClass]" aria-label="Pagination">
     <div v-if="showEdges" class="flex items-center gap-2">
-      <BaseButton kind="tertiary" :size="size" :disabled="disabled || currentPage === 1" @click="goToPage(1)">
+      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === 1" @click="goToPage(1)">
         <span class="sr-only">Primera página</span>
         «
       </BaseButton>
-      <BaseButton kind="tertiary" :size="size" :disabled="disabled || currentPage === 1" @click="goToPage(currentPage - 1)">
+      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === 1" @click="goToPage(currentPage - 1)">
         <span class="sr-only">Página anterior</span>
         ‹
       </BaseButton>
@@ -115,11 +115,11 @@ function goToPage(nextPage: number) {
     </div>
 
     <div v-if="showEdges" class="flex items-center gap-2">
-      <BaseButton kind="tertiary" :size="size" :disabled="disabled || currentPage === totalPages" @click="goToPage(currentPage + 1)">
+      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === totalPages" @click="goToPage(currentPage + 1)">
         <span class="sr-only">Página siguiente</span>
         ›
       </BaseButton>
-      <BaseButton kind="tertiary" :size="size" :disabled="disabled || currentPage === totalPages" @click="goToPage(totalPages)">
+      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === totalPages" @click="goToPage(totalPages)">
         <span class="sr-only">Última página</span>
         »
       </BaseButton>

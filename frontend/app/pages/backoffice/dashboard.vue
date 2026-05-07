@@ -93,13 +93,13 @@ const quickActions = [
   {
     label: 'Crear evento',
     to: '/backoffice/events/new',
-    kind: 'primary' as const,
+    variant: 'primary' as const,
     icon: 'i-lucide-calendar-plus',
   },
   {
     label: 'Ver catálogo',
     to: '/backoffice/events',
-    kind: 'secondary' as const,
+    variant: 'secondary' as const,
     icon: 'i-lucide-store',
   },
 ] as const
@@ -178,7 +178,7 @@ onMounted(() => {
         <FormInput placeholder="Search anything" icon="i-lucide-search" />
         <FormSelect label="Range" name="window" :items="[{ label: 'Range: 30 days', value: '30' }, { label: 'Range: 90 days', value: '90' }]" model-value="30" />
         <FormSelect label="Status" name="status" :items="[{ label: 'Status: all', value: 'all' }, { label: 'Status: active', value: 'active' }]" model-value="all" />
-        <BaseButton kind="secondary">
+        <BaseButton variant="secondary">
           Apply
         </BaseButton>
       </section>
@@ -223,7 +223,7 @@ onMounted(() => {
         <div class="space-y-6">
           <BackofficeOverviewPanel eyebrow="Activity" title="Recent changes." description="Tickets, transfers, and moderation queue.">
             <template #actions>
-              <BaseButton kind="tertiary" size="sm" to="/backoffice/events" trailing-icon="i-lucide-arrow-right">
+              <BaseButton variant="outlined" size="sm" to="/backoffice/events" trailing-icon="i-lucide-arrow-right">
                 Ver todos
               </BaseButton>
             </template>
@@ -320,7 +320,7 @@ onMounted(() => {
                     v-for="action in quickActions"
                     :key="action.to"
                     :to="action.to"
-                    :kind="action.kind"
+                    :variant="action.variant"
                     size="sm"
                     block
                     :leading-icon="action.icon"

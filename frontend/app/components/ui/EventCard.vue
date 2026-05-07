@@ -70,7 +70,7 @@ const cardPrice = computed(() => {
           <span class="text-sm font-medium text-highlighted">{{ cardPrice }}</span>
           <BaseButton
             :to="`/events/${event.id}`"
-            kind="primary"
+            variant="primary"
             size="sm"
             class="shrink-0 px-3.5"
           >
