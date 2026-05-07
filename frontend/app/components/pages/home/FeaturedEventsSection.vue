@@ -1,58 +1,38 @@
 <script setup lang="ts">
-import type { EventCatalogItem } from '~/types'
-
 const { results, pending } = useEventSearch()
 
 const featuredEvents = computed(() => {
   return results.value.slice(0, 6)
 })
-
-function toEventCatalogItem(value: unknown): EventCatalogItem {
-  return value as EventCatalogItem
-}
 </script>
 
 <template>
   <UiSectionContainer id="eventos">
     <UiSectionHeading
-      eyebrow="Cartel"
-      title="Eventos destacados"
-      description="Una selección viva del catálogo real. Misma lectura visual que en /events, pero más editorial para descubrir rápido qué merece tu atención."
+      eyebrow="Curated access"
+      title="Curated Transmissions"
+      description="Una lectura editorial del catálogo real, con imagen arriba e información clara debajo para descubrir rápido qué merece tu atención."
     />
 
     <div
       v-if="pending"
-      class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+      class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
     >
-      <BaseSkeleton
-        v-for="i in 3"
-        :key="`skeleton-${i}`"
-        class="h-105 rounded-2xl"
-      />
+      <div v-for="i in 3" :key="`skeleton-${i}`" class="space-y-4">
+        <BaseSkeleton class="h-96 rounded-sm" />
+        <BaseSkeleton class="h-4 w-28" />
+        <BaseSkeleton class="h-8 w-4/5" />
+        <BaseSkeleton class="h-4 w-3/5" />
+      </div>
     </div>
 
     <template v-else>
-      <div v-if="featuredEvents.length" class="mt-8 md:hidden">
-        <BaseCarousel
-          :items="featuredEvents"
-          arrows
-          dots
-          class="-ms-4"
-          :ui="{
-            item: 'basis-[86%] ps-4 sm:basis-[48%]',
-          }"
-        >
-          <template #default="{ item }">
-            <UiEventCard :event="toEventCatalogItem(item)" />
-          </template>
-        </BaseCarousel>
-      </div>
-
-      <div v-if="featuredEvents.length" class="mt-8 hidden grid-cols-2 gap-6 md:grid lg:grid-cols-3">
-        <UiEventCard
-          v-for="event in featuredEvents"
+      <div v-if="featuredEvents.length" class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <UiTransmissionCard
+          v-for="(event, index) in featuredEvents"
           :key="event.id"
           :event="event"
+          :index="index"
         />
       </div>
 
