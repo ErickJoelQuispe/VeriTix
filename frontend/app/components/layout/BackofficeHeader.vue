@@ -20,7 +20,9 @@ function isBackofficeActive(path: string): boolean {
           to="/backoffice"
           class="flex min-w-0 cursor-pointer items-center gap-3 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
         >
-          <span class="vtx-header-brand-mark" aria-hidden="true" />
+          <span class="vtx-header-brand-mark" aria-hidden="true">
+            <span class="vtx-header-brand-mark-letter">V</span>
+          </span>
 
           <div class="min-w-0">
             <p class="truncate font-display text-2xl leading-none tracking-wide text-highlighted">
