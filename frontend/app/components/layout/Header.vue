@@ -26,16 +26,16 @@ const isEventsRoute = computed(() => {
           <span class="vtx-header-brand-mark" aria-hidden="true" />
 
           <div class="min-w-0">
-            <p class="truncate font-display text-[1.45rem] leading-none tracking-wide text-highlighted">
-              Veritix
+            <p class="truncate font-display text-xl leading-none tracking-wide text-highlighted">
+              VeriTix
             </p>
             <UiMetaLabel as="p" class="truncate text-dimmed/90">
-              progressive live atlas
+              Atlas progresivo de conciertos
             </UiMetaLabel>
           </div>
         </NuxtLink>
 
-        <nav class="flex items-center justify-center px-3" aria-label="Navegacion principal">
+        <nav class="flex items-center justify-center px-3" aria-label="Navegación principal">
           <NuxtLink
             to="/events"
             class="vtx-nav-link"
@@ -64,13 +64,13 @@ const isEventsRoute = computed(() => {
                 size="xs"
                 class="px-3.5 text-xs tracking-wide uppercase"
               >
-                Registrarse
+              Registrarse
               </BaseButton>
             </template>
 
-            <template v-else-if="showAccountAction">
+            <ClientOnly v-else-if="isAuthenticated">
               <LayoutAccountMenu />
-            </template>
+            </ClientOnly>
 
             <template v-else />
           </div>
@@ -149,5 +149,4 @@ const isEventsRoute = computed(() => {
     padding-top: 0.25rem;
   }
 }
-
 </style>

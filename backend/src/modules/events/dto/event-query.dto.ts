@@ -60,5 +60,5 @@ export class EventQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsString()
-  artist?: string;
+  artistName?: string;
 }

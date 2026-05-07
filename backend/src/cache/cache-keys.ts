@@ -8,8 +8,8 @@ export const CACHE_KEYS = {
   FORMATS_LIST: 'formats:list',
   VENUES_LIST: 'venues:list',
   VENUES_DETAIL: (id: string) => `venues:${id}`,
-  ARTISTS_LIST: (page: number, limit: number) =>
-    `artists:list:${page}:${limit}`,
+  ARTISTS_LIST: (params: Record<string, unknown>) =>
+    `artists:list:${JSON.stringify(params)}`,
   ARTISTS_DETAIL: (id: string) => `artists:${id}`,
 
   // Eventos — TTL corto/medio

@@ -14,39 +14,25 @@ function buildAdminAuthHeaders(accessToken: string | null): HeadersInit {
 }
 
 export function useAdminApi() {
-  const { accessToken, user, ensureSession, isAuthenticated } = useAuth()
-  const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
-
-  const isAdmin = computed(() => user.value?.role === 'ADMIN')
-
-  async function ensureAdminSession(): Promise<void> {
-    await ensureSession()
-
-    if (!isAuthenticated.value) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Debes iniciar sesión para entrar al panel admin.',
-      })
-    }
-
-    if (!isAdmin.value) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Necesitas rol ADMIN para entrar al panel admin.',
-      })
-    }
-  }
+  const { accessToken } = useAuth()
+  const { getApiErrorMessage, getApiErrorStatus, isApiSessionExpiredError } = useApiErrorMessage()
 
   function requireAdminHeaders(): HeadersInit {
     return buildAdminAuthHeaders(accessToken.value)
   }
 
   function normalizeAdminError(error: unknown, fallback: string): never {
-    throw createError({
+    const normalizedError = createError({
       statusCode: getApiErrorStatus(error) ?? 500,
       statusMessage: getApiErrorMessage(error, fallback),
       data: error,
     })
+
+    if (isApiSessionExpiredError(error)) {
+      ;(normalizedError as Record<string, unknown>).__sessionExpired = true
+    }
+
+    throw normalizedError
   }
 
   const roleOptions: Array<{ value: UserRole, label: string }> = [
@@ -57,10 +43,7 @@ export function useAdminApi() {
   ]
 
   return {
-    user,
-    isAdmin,
     roleOptions,
-    ensureAdminSession,
     requireAdminHeaders,
     normalizeAdminError,
   }

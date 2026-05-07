@@ -22,7 +22,7 @@ const mockTx = {
 };
 
 const mockConfigService = {
-  getOrThrow: jest.fn().mockReturnValue('test-secret-key-32-chars-exactly!'),
+  getOrThrow: jest.fn().mockReturnValue('test-secret-key-32-chars-exactly'), // exactly 32 bytes
 };
 
 // ── Suite ─────────────────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ describe('TicketsGenerator', () => {
       expect(uniqueHashes.size).toBe(hashes.length);
     });
 
-    it('should generate non-empty hash and qrPayload strings', async () => {
+    it('should generate non-empty hash string', async () => {
       await generator.generateForOrder('uuid-order-1', mockTx as any);
 
       const { data } = mockTx.ticket.createMany.mock.calls[0][0];
@@ -107,18 +107,37 @@ describe('TicketsGenerator', () => {
       for (const ticket of data) {
         expect(typeof ticket.hash).toBe('string');
         expect(ticket.hash.length).toBeGreaterThan(0);
-        expect(ticket.qrPayload).toBe(ticket.hash);
       }
     });
 
-    it('should set qrPayload equal to hash (simple online mode)', async () => {
+    it('qrPayload es distinto del hash (cifrado AES-256-GCM)', async () => {
       await generator.generateForOrder('uuid-order-1', mockTx as any);
 
       const { data } = mockTx.ticket.createMany.mock.calls[0][0];
 
       for (const ticket of data) {
-        expect(ticket.qrPayload).toBe(ticket.hash);
+        expect(ticket.qrPayload).not.toBe(ticket.hash);
       }
+    });
+
+    it('qrPayload tiene formato iv:authTag:ciphertext en hex', async () => {
+      await generator.generateForOrder('uuid-order-1', mockTx as any);
+
+      const { data } = mockTx.ticket.createMany.mock.calls[0][0];
+
+      for (const ticket of data) {
+        expect(ticket.qrPayload).toMatch(/^[a-f0-9]+:[a-f0-9]+:[a-f0-9]+$/);
+      }
+    });
+
+    it('qrPayload es único por ticket (IV aleatorio garantiza unicidad)', async () => {
+      await generator.generateForOrder('uuid-order-1', mockTx as any);
+
+      const { data } = mockTx.ticket.createMany.mock.calls[0][0];
+      const payloads = data.map((t: any) => t.qrPayload);
+      const uniquePayloads = new Set(payloads);
+
+      expect(uniquePayloads.size).toBe(payloads.length);
     });
 
     it('should use the order data from the transaction client', async () => {

@@ -11,14 +11,14 @@ useSeoMeta({
 })
 
 const schema = z.object({
-  email: z.string().email('Introduce un email valido').min(1, 'El email es obligatorio'),
+  email: z.string().email('Ingresá un email válido').min(1, 'El email es obligatorio'),
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(50),
   lastName: z.string().min(2, 'El apellido debe tener al menos 2 caracteres').max(50),
-  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'El telefono debe estar en formato E.164 (ej: +34958123456)'),
-  password: z.string().min(8, 'La contrasena debe tener al menos 8 caracteres').regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, 'Debe incluir mayuscula, minuscula y numero'),
+  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'El teléfono debe estar en formato E.164 (ej: +34958123456)'),
+  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres').regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, 'Debe incluir mayúscula, minúscula y número'),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
-  message: 'Las contrasenas no coinciden',
+  message: 'Las contraseñas no coinciden',
   path: ['confirmPassword'],
 })
 
@@ -32,17 +32,14 @@ const state = reactive({
 })
 
 const form = useTemplateRef('form')
-const errorMessage = ref('')
 const showPassword = ref(false)
 const { register, pending } = useAuth()
-const { getApiErrorMessage } = useApiErrorMessage()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 
 async function onSubmit() {
   if (!form.value) {
     return
   }
-
-  errorMessage.value = ''
 
   try {
     await register({
@@ -53,10 +50,11 @@ async function onSubmit() {
       phone: state.phone.trim(),
     })
 
+    notifySuccess('Cuenta creada correctamente.', { id: 'auth-register-success' })
     await navigateTo('/')
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'Error al crear la cuenta. Por favor, intenta de nuevo.')
+    notifyApiError(error, 'Error al crear la cuenta. Por favor, intentá de nuevo.', { id: 'auth-register-error' })
   }
 }
 </script>
@@ -76,7 +74,7 @@ async function onSubmit() {
             </h1>
 
             <p class="mx-auto mt-3 max-w-md text-sm text-toned">
-              Unete a VeriTix y descubre tu proximo concierto
+              Unite a VeriTix y descubrí tu próximo concierto
             </p>
           </header>
 
@@ -95,20 +93,12 @@ async function onSubmit() {
             class="flex flex-col gap-4"
             @submit="onSubmit"
           >
-            <!-- Error message -->
-            <p
-              v-if="errorMessage"
-              class="rounded-xl border border-[color-mix(in_srgb,var(--ui-error)_50%,transparent)] bg-[color-mix(in_srgb,var(--ui-error)_10%,transparent)] px-4 py-3 text-sm text-error"
-            >
-              {{ errorMessage }}
-            </p>
-
             <!-- All fields stacked vertically with equal spacing -->
             <BaseFormField
               v-model="state.email"
               name="email"
               label="Email"
-              help="Te servira para iniciar sesion y recuperar acceso."
+              help="Te servirá para iniciar sesión y recuperar acceso."
               type="email"
               placeholder="tu@email.com"
               icon="i-lucide-mail"
@@ -131,7 +121,7 @@ async function onSubmit() {
                 v-model="state.lastName"
                 name="lastName"
                 label="Apellido"
-                placeholder="Garcia"
+                placeholder="García"
                 icon="i-lucide-user-round"
                 required
                 class="w-full"
@@ -141,7 +131,7 @@ async function onSubmit() {
             <BaseFormField
               v-model="state.phone"
               name="phone"
-              label="Telefono"
+              label="Teléfono"
               help="Formato internacional E.164. Ejemplo: +34958123456"
               type="tel"
               placeholder="+34958123456"
@@ -153,8 +143,8 @@ async function onSubmit() {
             <BasePasswordField
               v-model="state.password"
               name="password"
-              label="Contrasena"
-              help="Incluye mayuscula, minuscula y un numero."
+              label="Contraseña"
+              help="Incluye mayúscula, minúscula y un número."
               placeholder="Minimo 8 caracteres"
               icon="i-lucide-lock"
               :show="showPassword"
@@ -166,8 +156,8 @@ async function onSubmit() {
             <BasePasswordField
               v-model="state.confirmPassword"
               name="confirmPassword"
-              label="Confirmar contrasena"
-              placeholder="Repite tu contrasena"
+              label="Confirmar contraseña"
+              placeholder="Repetí tu contraseña"
               icon="i-lucide-lock"
               :show="showPassword"
               required
@@ -182,14 +172,14 @@ async function onSubmit() {
                 to="/terminos"
                 class="rounded-sm text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
               >
-                Terminos de Servicio
+                Términos de Servicio
               </NuxtLink>
               y
               <NuxtLink
                 to="/privacidad"
                 class="rounded-sm text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
               >
-                Politica de Privacidad
+                Política de Privacidad
               </NuxtLink>.
             </p>
 
@@ -206,18 +196,18 @@ async function onSubmit() {
             </BaseButton>
 
             <p class="text-center text-xs text-toned">
-              Tu cuenta se crea en segundos y podras gestionar eventos de inmediato.
+              Tu cuenta se crea en segundos y podrás gestionar eventos de inmediato.
             </p>
           </UForm>
 
           <footer class="pt-1">
             <p class="text-center text-sm text-muted">
-              ¿Ya tienes cuenta?
+              ¿Ya tenés cuenta?
               <NuxtLink
                 to="/login"
                 class="rounded-sm font-medium text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
               >
-                Inicia sesion
+                Iniciá sesión
               </NuxtLink>
             </p>
           </footer>

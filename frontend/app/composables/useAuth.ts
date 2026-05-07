@@ -1,4 +1,13 @@
-import type { AuthResponse, LoginRequest, RegisterRequest, UserProfile } from '~~/shared/types'
+import type {
+  AuthResponse,
+  ForgotPasswordRequest,
+  LoginRequest,
+  MessageResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ResetPasswordRequest,
+  UserProfile,
+} from '~~/shared/types'
 
 function buildAuthHeaders(accessToken: string | null): HeadersInit | undefined {
   if (!accessToken) {
@@ -72,12 +81,16 @@ export function useAuth() {
     pending.value = true
 
     try {
-      const response = await apiRequest<AuthResponse, RegisterRequest>('/auth/register', {
+      await apiRequest<RegisterResponse, RegisterRequest>('/auth/register', {
         method: 'POST',
         body: payload,
+        skipAuthRefresh: true,
       })
 
-      return applyAuth(response)
+      return await login({
+        email: payload.email,
+        password: payload.password,
+      })
     }
     finally {
       pending.value = false
@@ -91,6 +104,7 @@ export function useAuth() {
       const response = await apiRequest<AuthResponse, LoginRequest>('/auth/login', {
         method: 'POST',
         body: payload,
+        skipAuthRefresh: true,
       })
 
       return applyAuth(response)
@@ -105,6 +119,7 @@ export function useAuth() {
       const response = await apiRequest<AuthResponse>('/auth/refresh', {
         method: 'POST',
         headers: buildAuthHeaders(accessToken.value),
+        skipAuthRefresh: true,
       })
 
       return applyAuth(response)
@@ -123,12 +138,29 @@ export function useAuth() {
       await apiRequest<void>('/auth/logout', {
         method: 'POST',
         headers: buildAuthHeaders(accessToken.value),
+        skipAuthRefresh: true,
       })
     }
     finally {
       clearAuth()
       hydrated.value = true
     }
+  }
+
+  async function forgotPassword(email: string): Promise<MessageResponse> {
+    return apiRequest<MessageResponse, ForgotPasswordRequest>('/auth/forgot-password', {
+      method: 'POST',
+      body: { email },
+      skipAuthRefresh: true,
+    })
+  }
+
+  async function resetPassword(token: string, password: string): Promise<MessageResponse> {
+    return apiRequest<MessageResponse, ResetPasswordRequest>('/auth/reset-password', {
+      method: 'POST',
+      body: { token, password },
+      skipAuthRefresh: true,
+    })
   }
 
   return {
@@ -143,5 +175,7 @@ export function useAuth() {
     ensureSession,
     logout,
     clearAuth,
+    forgotPassword,
+    resetPassword,
   }
 }

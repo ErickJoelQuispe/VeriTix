@@ -4,23 +4,23 @@ definePageMeta({
 })
 
 useSeoMeta({
-  title: 'Cerrando sesion | VeriTix',
+  title: 'Cerrando sesión | VeriTix',
 })
 
 const { logout } = useAuth()
-const { getApiErrorMessage } = useApiErrorMessage()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 const router = useRouter()
 
-const errorMessage = ref('')
 const loggingOut = ref(true)
 
 onMounted(async () => {
   try {
     await logout()
+    notifySuccess('Sesión cerrada correctamente.', { id: 'auth-logout-success' })
     await router.push('/')
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'Error al cerrar sesion.')
+    notifyApiError(error, 'Error al cerrar sesión.', { id: 'auth-logout-error' })
     loggingOut.value = false
   }
 })
@@ -28,15 +28,15 @@ onMounted(async () => {
 
 <template>
   <UsersSettingsShell
-    title="Cerrando sesion"
-    description="Espera un momento mientras cerramos tu sesion de forma segura."
+    title="Cerrando sesión"
+    description="Espera un momento mientras cerramos tu sesión de forma segura."
     tone="minimal"
   >
     <div class="flex flex-col items-center justify-center py-20 text-center">
       <template v-if="loggingOut">
         <UIcon name="i-lucide-loader-2" class="size-10 animate-spin text-auric-400" />
         <p class="mt-6 text-lg font-medium text-highlighted">
-          Cerrando sesion...
+          Cerrando sesión...
         </p>
         <p class="mt-2 text-sm text-toned">
           Saliendo de VeriTix de forma segura.
@@ -51,7 +51,7 @@ onMounted(async () => {
           Ha ocurrido un problema
         </p>
         <p class="mt-2 text-sm text-toned">
-          {{ errorMessage }}
+          No pudimos cerrar tu sesión. Volvé a intentarlo.
         </p>
         <BaseButton
           kind="primary"

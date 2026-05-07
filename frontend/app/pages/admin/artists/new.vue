@@ -1,37 +1,36 @@
 <script setup lang="ts">
-import type { AdminArtistPayload, GenreOption } from '~/types'
+import type {
+  AdminArtistPayload,
+  GenreOption,
+} from '~/types'
+import { useAdminArtistsRepository } from '~/repositories/adminArtistsRepository'
+import { normalizeArtistPayload } from '~/utils/admin/formSafeRails'
 
 definePageMeta({ middleware: 'admin' })
+useSeoMeta({ title: 'Nuevo artista | Admin VeriTix' })
 
-useSeoMeta({ title: 'Nuevo artista admin | VeriTix' })
-
-const apiRequest = useApiRequest()
-const { ensureAdminSession, requireAdminHeaders } = useAdminApi()
-const { getApiErrorMessage } = useApiErrorMessage()
+const { createArtist: createAdminArtist, listGenres } = useAdminArtistsRepository()
+const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { notifyApiError, notifyError, notifySuccess } = useAppNotifications()
 
 const genres = ref<GenreOption[]>([])
 const loading = ref(true)
 const submitting = ref(false)
-const errorMessage = ref('')
+const isFormDirty = ref(false)
 
-const creationSurface = {
-  eyebrow: 'Ficha editorial',
-  title: 'Da de alta un artista con presencia',
-  description: 'Prepara una entrada sólida para el directorio con identidad, bio, visibilidad y vínculo con géneros relevantes.',
-  icon: 'i-lucide-badge-plus',
-  highlights: ['Nombre y slug', 'Bio y enlaces', 'Visibilidad', 'Géneros asociados'],
-} as const
+useUnsavedChangesGuard({
+  isDirty: isFormDirty,
+  isSubmitting: submitting,
+})
 
-async function loadPage() {
+async function loadGenres() {
   loading.value = true
-  errorMessage.value = ''
 
   try {
-    await ensureAdminSession()
-    genres.value = await apiRequest<GenreOption[]>('/genres', { method: 'GET' })
+    genres.value = await listGenres()
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos preparar el formulario de artista.')
+    notifyApiError(error, 'No pudimos cargar los géneros.', { id: 'admin-artists-load-genres-error' })
   }
   finally {
     loading.value = false
@@ -39,19 +38,27 @@ async function loadPage() {
 }
 
 async function createArtist(payload: AdminArtistPayload) {
+  if (submitting.value) {
+    return
+  }
+
+  const normalizedPayload = normalizeArtistPayload(payload)
+
   submitting.value = true
-  errorMessage.value = ''
 
   try {
-    const created = await apiRequest<{ id: string }, AdminArtistPayload>('/admin/artists', {
-      method: 'POST',
-      headers: requireAdminHeaders(),
-      body: payload,
-    })
-    await navigateTo(`/admin/artists/${created.id}/edit`)
+    await createAdminArtist(normalizedPayload)
+
+    notifySuccess('Artista creado correctamente.', { id: 'admin-artists-create-success' })
+    await navigateTo('/admin/artists')
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos crear el artista.')
+    if (getApiErrorStatus(error) === 409) {
+      notifyError('Ya existe un artista con ese slug.', { id: 'admin-artists-create-conflict' })
+      return
+    }
+
+    notifyApiError(error, 'No pudimos crear el artista.', { id: 'admin-artists-create-error' })
   }
   finally {
     submitting.value = false
@@ -59,31 +66,49 @@ async function createArtist(payload: AdminArtistPayload) {
 }
 
 onMounted(() => {
-  void loadPage()
+  void loadGenres()
 })
 </script>
 
 <template>
-  <AdminPageShell title="Crear artista" description="Alta editorial de artistas y su metadata pública.">
-    <div class="space-y-6">
-      <BaseStatusMessage v-if="errorMessage" :message="errorMessage" />
-
-      <div v-if="loading" class="space-y-4">
-        <USkeleton class="h-14 rounded-2xl" />
-        <USkeleton class="h-36 rounded-2xl" />
-      </div>
-
-      <AdminFormSurface
-        v-else
-        :eyebrow="creationSurface.eyebrow"
-        :title="creationSurface.title"
-        :description="creationSurface.description"
-        :icon="creationSurface.icon"
-        variant="success"
-        :highlights="creationSurface.highlights"
+  <AdminPageShell
+    title="Nuevo artista"
+    description="Crea un artista y dejalo listo para asociar a eventos."
+    primary-action-to="/admin/artists"
+    primary-action-label="Volver a artistas"
+  >
+    <div class="mx-auto max-w-5xl space-y-5">
+      <AdminOverviewPanel
+        title="Datos del artista"
+        description="Completa la ficha principal para catalogo y búsqueda."
+        tone="subtle"
       >
-        <AdminArtistForm :genres="genres" :submitting="submitting" submit-label="Crear artista" @submit="createArtist" />
-      </AdminFormSurface>
+        <template #actions>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ genres?.length || 0 }} géneros
+            </BaseBadge>
+          </div>
+        </template>
+
+        <template v-if="loading">
+          <div class="space-y-4">
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-24 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+          </div>
+        </template>
+
+        <AdminArtistForm
+          v-else
+          v-model:dirty="isFormDirty"
+          :genres="genres"
+          :submitting="submitting"
+          submit-label="Crear artista"
+          @submit="createArtist"
+        />
+      </AdminOverviewPanel>
     </div>
   </AdminPageShell>
 </template>

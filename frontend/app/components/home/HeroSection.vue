@@ -21,10 +21,10 @@ function onSearch() {
         </h1>
 
         <p class="max-w-2xl text-base leading-relaxed text-toned md:text-lg">
-          Explora el universo de conciertos visionarios con Veritix, tu atlas definitivo para descubrir eventos en vivo que desafían lo convencional.
+          Explorá el universo de conciertos visionarios con VeriTix, tu atlas definitivo para descubrir eventos en vivo que desafían lo convencional.
         </p>
         <p class="max-w-2xl text-base leading-relaxed text-toned md:text-lg">
-          Desde artistas emergentes hasta leyendas del escenario, encuentra tu próximo ritual musical con nuestro buscador intuitivo y sumérgete en experiencias sonoras únicas.
+          Desde artistas emergentes hasta leyendas del escenario, encontrá tu próximo ritual musical con nuestro buscador intuitivo y sumergite en experiencias sonoras únicas.
         </p>
 
         <form class="space-y-3" @submit.prevent="onSearch">
@@ -43,7 +43,7 @@ function onSearch() {
             <!-- Input using Nuxt UI UInput -->
             <UInput
               v-model="query"
-              placeholder="Busca artista, ciudad o género..."
+              placeholder="Buscá artista, ciudad o género..."
               color="neutral"
               variant="none"
               size="lg"
@@ -68,7 +68,7 @@ function onSearch() {
           <!-- Hint Text -->
           <p class="flex items-center gap-2 px-4 text-xs text-toned/90">
             <UIcon name="i-lucide-sparkles" class="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-            <span>Descubre conciertos progresivos y eventos únicos</span>
+            <span>Descubrí conciertos progresivos y eventos únicos</span>
           </p>
         </form>
 

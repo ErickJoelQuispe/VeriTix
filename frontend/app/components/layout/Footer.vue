@@ -9,7 +9,7 @@ function handleSubscribe() {
   const normalizedEmail = email.value.trim()
 
   if (!normalizedEmail) {
-    subscriptionError.value = 'Ingresa un correo para suscribirte.'
+    subscriptionError.value = 'Ingresá un correo para suscribirte.'
     subscribed.value = false
     return
   }
@@ -17,7 +17,7 @@ function handleSubscribe() {
   const isValidEmail = emailPattern.test(normalizedEmail)
 
   if (!isValidEmail) {
-    subscriptionError.value = 'Ingresa un correo valido.'
+    subscriptionError.value = 'Ingresá un correo válido.'
     subscribed.value = false
     return
   }
@@ -42,12 +42,12 @@ function handleSubscribe() {
               Cierre del ritual
             </UiMetaLabel>
             <p class="font-display text-3xl text-highlighted">
-              Veritix Newsletter
+              VeriTix Newsletter
             </p>
           </div>
 
           <p class="text-sm text-toned">
-            Enterate antes que nadie de nuevos conciertos, preventas y experiencias exclusivas con curaduria progresiva.
+            Enterate antes que nadie de nuevos conciertos, preventas y experiencias exclusivas con curaduría progresiva.
           </p>
 
           <form

@@ -44,12 +44,12 @@ const forwardedAttrs = computed(() => {
 })
 
 const buttonClass = computed(() => {
-  const sharedClass = 'justify-center gap-2 rounded-full border px-4 text-sm font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35'
+  const sharedClass = 'justify-center gap-2 rounded-full border px-4 text-sm font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2'
 
   const kindClass: Record<ButtonKind, string> = {
-    primary: 'border-primary/55 bg-primary/18 text-highlighted shadow-[0_12px_22px_-18px_rgba(239,170,71,0.35)] hover:-translate-y-px hover:border-primary/70 hover:bg-primary/26 active:translate-y-px',
-    secondary: 'border-default/70 bg-default/8 text-highlighted hover:-translate-y-px hover:border-secondary/28 hover:bg-default/14 active:translate-y-px',
-    tertiary: 'border-transparent bg-transparent text-toned shadow-none hover:border-default/55 hover:bg-default/10 hover:text-highlighted active:translate-y-px',
+    primary: 'border-primary/55 bg-primary/18 text-highlighted shadow-sm focus-visible:ring-primary/35 hover:-translate-y-px hover:border-primary/70 hover:bg-primary/26',
+    secondary: 'border-default/60 bg-default/40 text-toned shadow-none focus-visible:ring-secondary/30 hover:-translate-y-px hover:border-secondary/28 hover:bg-secondary/12 hover:text-highlighted',
+    tertiary: 'border-transparent bg-transparent text-toned shadow-none focus-visible:ring-primary/25 hover:border-default/55 hover:bg-default/10 hover:text-highlighted',
   }
 
   return [sharedClass, kindClass[props.kind], attrs.class]
@@ -58,6 +58,10 @@ const buttonClass = computed(() => {
 const buttonColor = computed(() => {
   if (props.kind === 'primary') {
     return 'primary'
+  }
+
+  if (props.kind === 'secondary') {
+    return 'secondary'
   }
 
   return 'neutral'
@@ -69,7 +73,7 @@ const buttonVariant = computed(() => {
   }
 
   if (props.kind === 'secondary') {
-    return 'outline'
+    return 'soft'
   }
 
   return 'ghost'

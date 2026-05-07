@@ -3,11 +3,7 @@ export default defineNuxtRouteMiddleware(async () => {
     return
   }
 
-  const { isAuthenticated, ensureSession } = useAuth()
+  const { redirectIfAuthenticated } = useRouteAccess()
 
-  await ensureSession()
-
-  if (isAuthenticated.value) {
-    return navigateTo('/users/me')
-  }
+  return redirectIfAuthenticated('/users/me')
 })

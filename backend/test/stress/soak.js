@@ -20,7 +20,7 @@ import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Rate, Trend } from 'k6/metrics';
 
-const BASE_URL = __ENV.BASE_URL || 'http://198.100.155.108:3001';
+const BASE_URL = __ENV.BASE_URL || 'https://cwtg.xyz/veriback';
 const API = `${BASE_URL}/api/v1`;
 const DURATION = __ENV.DURATION || '10m';
 
@@ -72,9 +72,9 @@ export default function (data) {
   });
 
   group('Authenticated — orders', () => {
-    const res = http.get(`${API}/orders`, authHeaders);
+    const res = http.get(`${API}/orders/my`, authHeaders);
     orderDuration.add(res.timings.duration);
-    const ok = check(res, { 'GET /orders → 200': (r) => r.status === 200 });
+    const ok = check(res, { 'GET /orders/my → 200': (r) => r.status === 200 });
     errorRate.add(!ok);
   });
 

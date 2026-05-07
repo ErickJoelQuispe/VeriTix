@@ -1,14 +1,32 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { createCipheriv, randomBytes } from 'node:crypto';
 import { JwtPayload } from '@common/interfaces';
 import { Role, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TicketPdfService } from '../queues/ticket-pdf.service';
+import { AccessStatsService } from './access-stats.service';
 import { TicketsRepository } from './tickets.repository';
 import { TicketsService } from './tickets.service';
+
+// ── Crypto helpers for tests ──────────────────────────────────────────────────
+
+const TEST_SECRET = 'test-secret-key-32-chars-exactly'; // exactly 32 bytes
+
+function encryptForTest(hash: string, secret: string = TEST_SECRET): string {
+  const key = Buffer.from(secret, 'utf8');
+  const iv = randomBytes(12);
+  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const encrypted = Buffer.concat([cipher.update(hash, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return [iv.toString('hex'), authTag.toString('hex'), encrypted.toString('hex')].join(':');
+}
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 
@@ -85,6 +103,19 @@ const mockTicketsRepository = {
 const mockPrismaService = {
   event: { findUnique: jest.fn() },
   user: { findUniqueOrThrow: jest.fn() },
+  ticket: { findUnique: jest.fn() },
+};
+
+const mockTicketPdfService = {
+  generatePdf: jest.fn(),
+};
+
+const mockAccessStatsService = {
+  emit: jest.fn().mockResolvedValue(undefined),
+};
+
+const mockConfigService = {
+  getOrThrow: jest.fn().mockReturnValue(TEST_SECRET), // exactly 32 bytes for AES-256
 };
 
 // ── Suite ─────────────────────────────────────────────────────────────────────
@@ -100,6 +131,9 @@ describe('TicketsService', () => {
         TicketsService,
         { provide: TicketsRepository, useValue: mockTicketsRepository },
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: TicketPdfService, useValue: mockTicketPdfService },
+        { provide: AccessStatsService, useValue: mockAccessStatsService },
       ],
     }).compile();
 
@@ -241,6 +275,7 @@ describe('TicketsService', () => {
 
   describe('validateTicket()', () => {
     const mockBuyerUser = { name: 'Ana', lastName: 'García' };
+    const HASH = 'a'.repeat(64);
 
     beforeEach(() => {
       repo.findByHash.mockResolvedValue(mockTicketDetail);
@@ -252,9 +287,11 @@ describe('TicketsService', () => {
       prisma.user.findUniqueOrThrow.mockResolvedValue(mockBuyerUser);
     });
 
-    it('should validate an ACTIVE ticket and return confirmation data', async () => {
-      const result = await service.validateTicket('a'.repeat(64), 'uuid-validator-1');
+    it('should decrypt the payload and validate an ACTIVE ticket', async () => {
+      const payload = encryptForTest(HASH);
+      const result = await service.validateTicket(payload, 'uuid-validator-1');
 
+      expect(repo.findByHash).toHaveBeenCalledWith(HASH);
       expect(repo.updateStatus).toHaveBeenCalledWith(
         'uuid-ticket-1',
         TicketStatus.USED,
@@ -267,14 +304,36 @@ describe('TicketsService', () => {
       expect(result.validatedAt).toBeInstanceOf(Date);
     });
 
-    it('should throw NotFoundException when hash does not exist', async () => {
+    it('should throw NotFoundException when decrypted hash does not exist', async () => {
       repo.findByHash.mockResolvedValue(null);
+      const payload = encryptForTest(HASH);
 
       await expect(
-        service.validateTicket('nonexistent_hash', 'uuid-validator-1'),
+        service.validateTicket(payload, 'uuid-validator-1'),
       ).rejects.toThrow(NotFoundException);
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when payload is malformed (no colons)', async () => {
+      await expect(
+        service.validateTicket('notavalidpayload', 'uuid-validator-1'),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(repo.findByHash).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when authTag is manipulated (GCM integrity check)', async () => {
+      const payload = encryptForTest(HASH);
+      const [iv, , ciphertext] = payload.split(':');
+      // Replace authTag with a fake one
+      const tampered = [iv, 'ff'.repeat(16), ciphertext].join(':');
+
+      await expect(
+        service.validateTicket(tampered, 'uuid-validator-1'),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(repo.findByHash).not.toHaveBeenCalled();
     });
 
     it('should throw ConflictException with specific message when ticket is USED', async () => {
@@ -284,7 +343,7 @@ describe('TicketsService', () => {
       });
 
       await expect(
-        service.validateTicket('a'.repeat(64), 'uuid-validator-1'),
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
       ).rejects.toThrow(new ConflictException('Este ticket ya fue utilizado'));
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
@@ -297,7 +356,7 @@ describe('TicketsService', () => {
       });
 
       await expect(
-        service.validateTicket('a'.repeat(64), 'uuid-validator-1'),
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
       ).rejects.toThrow(new ConflictException('Este ticket fue cancelado'));
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
@@ -310,14 +369,14 @@ describe('TicketsService', () => {
       });
 
       await expect(
-        service.validateTicket('a'.repeat(64), 'uuid-validator-1'),
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
       ).rejects.toThrow(new ConflictException('Este ticket fue reembolsado'));
 
       expect(repo.updateStatus).not.toHaveBeenCalled();
     });
 
     it('should pass the validatorId to updateStatus', async () => {
-      await service.validateTicket('a'.repeat(64), 'uuid-validator-99');
+      await service.validateTicket(encryptForTest(HASH), 'uuid-validator-99');
 
       expect(repo.updateStatus).toHaveBeenCalledWith(
         'uuid-ticket-1',
@@ -332,9 +391,102 @@ describe('TicketsService', () => {
         lastName: 'Martínez',
       });
 
-      const result = await service.validateTicket('a'.repeat(64), 'uuid-validator-1');
+      const result = await service.validateTicket(encryptForTest(HASH), 'uuid-validator-1');
 
       expect(result.buyerName).toBe('Carlos Martínez');
+    });
+
+    it('should call accessStatsService.emit() with the ticket eventId after validation', async () => {
+      const payload = encryptForTest(HASH);
+      await service.validateTicket(payload, 'uuid-validator-1');
+
+      expect(mockAccessStatsService.emit).toHaveBeenCalledWith(
+        'uuid-event-1',
+        expect.anything(), // PrismaService instance
+      );
+    });
+
+    it('should NOT call accessStatsService.emit() when ticket is not ACTIVE', async () => {
+      repo.findByHash.mockResolvedValue({
+        ...mockTicketDetail,
+        status: TicketStatus.USED,
+      });
+
+      await expect(
+        service.validateTicket(encryptForTest(HASH), 'uuid-validator-1'),
+      ).rejects.toThrow(ConflictException);
+
+      expect(mockAccessStatsService.emit).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── generateTicketPdf() ───────────────────────────────────────────────────
+
+  describe('generateTicketPdf()', () => {
+    const mockPdfTicket = {
+      id: 'uuid-ticket-1',
+      qrPayload: 'encrypted-qr-payload',
+      order: { buyerId: 'uuid-buyer-1' },
+      buyer: { name: 'Ana', lastName: 'García' },
+      event: {
+        name: 'Granada Indie Night 2026',
+        eventDate: new Date('2026-09-19T21:00:00Z'),
+        venue: { name: 'Sala X' },
+      },
+      ticketType: { name: 'Pista General' },
+    };
+
+    const mockPdfBuffer = Buffer.from('%PDF-1.4 mock');
+
+    beforeEach(() => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue(mockPdfTicket);
+      mockTicketPdfService.generatePdf.mockResolvedValue(mockPdfBuffer);
+    });
+
+    it('should return a PDF buffer when the user owns the ticket', async () => {
+      const result = await service.generateTicketPdf('uuid-ticket-1', 'uuid-buyer-1');
+
+      expect(result).toBe(mockPdfBuffer);
+      expect(mockTicketPdfService.generatePdf).toHaveBeenCalledWith({
+        ticketId: 'uuid-ticket-1',
+        qrPayload: 'encrypted-qr-payload',
+        buyerName: 'Ana García',
+        eventName: 'Granada Indie Night 2026',
+        eventDate: new Date('2026-09-19T21:00:00Z'),
+        venueName: 'Sala X',
+        ticketTypeName: 'Pista General',
+      });
+    });
+
+    it('should throw NotFoundException when ticket does not exist', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.generateTicketPdf('uuid-not-found', 'uuid-buyer-1'),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(mockTicketPdfService.generatePdf).not.toHaveBeenCalled();
+    });
+
+    it('should throw ForbiddenException when user is not the ticket owner', async () => {
+      await expect(
+        service.generateTicketPdf('uuid-ticket-1', 'uuid-other-user'),
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(mockTicketPdfService.generatePdf).not.toHaveBeenCalled();
+    });
+
+    it('should compose buyerName as name + lastName', async () => {
+      mockPrismaService.ticket.findUnique.mockResolvedValue({
+        ...mockPdfTicket,
+        buyer: { name: 'Carlos', lastName: 'López' },
+      });
+
+      await service.generateTicketPdf('uuid-ticket-1', 'uuid-buyer-1');
+
+      expect(mockTicketPdfService.generatePdf).toHaveBeenCalledWith(
+        expect.objectContaining({ buyerName: 'Carlos López' }),
+      );
     });
   });
 });

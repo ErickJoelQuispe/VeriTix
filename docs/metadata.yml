@@ -1,0 +1,41 @@
+---
+title: "VeriTix"
+subtitle: "Sistema de Gestión de Eventos y Tickets Digitales"
+project-type: "Proyecto Fin de Ciclo"
+cycle: "DAM/DAW"
+phase: "Fase 2: Ejecución del Proyecto y Pruebas"
+author:
+  - "Erick Quispe"
+  - "Juan Rangel"
+date: "2026"
+lang: es-ES
+
+# Pandoc PDF settings
+documentclass: report
+papersize: a4
+fontsize: 11pt
+linestretch: 1.15
+
+geometry:
+  - top=2.5cm
+  - bottom=2.5cm
+  - left=2.5cm
+  - right=2.5cm
+
+# Table of contents
+toc: true
+toc-depth: 3
+numbersections: true
+number-sections: true
+
+# Font (XeLaTeX)
+mainfont: "Liberation Serif"
+sansfont: "Liberation Sans"
+monofont: "Liberation Mono"
+
+# Hyperlinks
+colorlinks: true
+linkcolor: "focblue"
+urlcolor: "focblue"
+citecolor: "focblue"
+---

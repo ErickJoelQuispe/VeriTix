@@ -6,13 +6,13 @@ definePageMeta({
 })
 
 useSeoMeta({
-  title: 'Iniciar sesion | VeriTix',
+  title: 'Iniciar sesión | VeriTix',
   description: 'Accede a tu cuenta de VeriTix para gestionar tus reservas y descubrir nuevos eventos.',
 })
 
 const schema = z.object({
-  email: z.string().email('Introduce un email valido').min(1, 'El email es obligatorio'),
-  password: z.string().min(8, 'La contrasena debe tener al menos 8 caracteres'),
+  email: z.string().email('Ingresá un email válido').min(1, 'El email es obligatorio'),
+  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
 })
 
 const state = reactive({
@@ -21,16 +21,13 @@ const state = reactive({
 })
 
 const form = useTemplateRef('form')
-const errorMessage = ref('')
 const { login, pending } = useAuth()
-const { getApiErrorMessage } = useApiErrorMessage()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 
 async function onSubmit() {
   if (!form.value) {
     return
   }
-
-  errorMessage.value = ''
 
   try {
     await login({
@@ -38,10 +35,11 @@ async function onSubmit() {
       password: state.password,
     })
 
+    notifySuccess('Sesión iniciada correctamente.', { id: 'auth-login-success' })
     await navigateTo('/')
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'Credenciales incorrectas. Por favor, intenta de nuevo.')
+    notifyApiError(error, 'Credenciales incorrectas. Por favor, intentá de nuevo.', { id: 'auth-login-error' })
   }
 }
 </script>
@@ -61,7 +59,7 @@ async function onSubmit() {
             </h1>
 
             <p class="mx-auto mt-3 max-w-md text-sm text-toned">
-              Inicia sesion para acceder a tu cuenta
+              Iniciá sesión para acceder a tu cuenta
             </p>
           </header>
 
@@ -80,14 +78,6 @@ async function onSubmit() {
             class="flex flex-col gap-4"
             @submit="onSubmit"
           >
-            <!-- Error message -->
-            <p
-              v-if="errorMessage"
-              class="rounded-xl border border-[color-mix(in_srgb,var(--ui-error)_50%,transparent)] bg-[color-mix(in_srgb,var(--ui-error)_10%,transparent)] px-4 py-3 text-sm text-error"
-            >
-              {{ errorMessage }}
-            </p>
-
             <!-- Email -->
             <BaseFormField
               v-model="state.email"
@@ -105,8 +95,8 @@ async function onSubmit() {
             <BasePasswordField
               v-model="state.password"
               name="password"
-              label="Contrasena"
-              placeholder="Tu contrasena"
+              label="Contraseña"
+              placeholder="Tu contraseña"
               icon="i-lucide-lock"
               :disabled="pending"
               required
@@ -122,7 +112,7 @@ async function onSubmit() {
                 :aria-disabled="pending"
                 :tabindex="pending ? -1 : undefined"
               >
-                ¿Olvidaste tu contrasena?
+                ¿Olvidaste tu contraseña?
               </NuxtLink>
             </div>
 
@@ -135,11 +125,11 @@ async function onSubmit() {
               :loading="pending"
               class="mt-2"
             >
-              Iniciar sesion
+              Iniciar sesión
             </BaseButton>
 
             <p class="text-center text-xs text-toned">
-              Protegido con sesion segura y renovacion automatica de credenciales.
+              Protegido con sesión segura y renovación automática de credenciales.
             </p>
           </UForm>
 
@@ -150,7 +140,7 @@ async function onSubmit() {
                 to="/register"
                 class="rounded-sm font-medium text-auric-400 transition-colors duration-200 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
               >
-                Registrate aqui
+                Regístrate aquí
               </NuxtLink>
             </p>
           </footer>

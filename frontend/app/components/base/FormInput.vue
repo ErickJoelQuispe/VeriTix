@@ -3,10 +3,6 @@ defineOptions({
   inheritAttrs: false,
 })
 
-type InputColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
-type InputVariant = 'outline' | 'soft' | 'subtle' | 'ghost' | 'none'
-type InputSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-
 const props = withDefaults(defineProps<{
   color?: InputColor
   variant?: InputVariant
@@ -16,6 +12,9 @@ const props = withDefaults(defineProps<{
   variant: 'subtle',
   size: 'lg',
 })
+type InputColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
+type InputVariant = 'outline' | 'soft' | 'subtle' | 'ghost' | 'none'
+type InputSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 const modelValue = defineModel<string | number | undefined>()
 const attrs = useAttrs()

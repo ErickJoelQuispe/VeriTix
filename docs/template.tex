@@ -1,0 +1,335 @@
+% ============================================================
+%  VeriTix — Plantilla LaTeX estilo FOC
+%  Convenciones: documentación académica/técnica
+%  Motor: XeLaTeX  |  Pandoc template
+% ============================================================
+
+% ── Clase base ──────────────────────────────────────────────
+\documentclass[
+  $if(fontsize)$$fontsize$,$endif$
+  $if(papersize)$$papersize$paper,$endif$
+  twoside=false,
+  parskip=half               % espacio entre párrafos sin sangría (estilo técnico)
+]{scrreprt}                  % KOMA-Script: mejor base para docs académicos que 'report'
+
+% ── Codificación y tipografía ───────────────────────────────
+\usepackage{fontspec}        % fuentes OpenType/TrueType con XeLaTeX
+\usepackage{polyglossia}
+\setdefaultlanguage[variant=spanish]{spanish}
+\frenchspacing               % espaciado uniforme tras punto (norma española)
+
+$if(mainfont)$
+  \setmainfont{$mainfont$}
+$endif$
+$if(sansfont)$
+  \setsansfont{$sansfont$}
+$endif$
+$if(monofont)$
+  \setmonofont[Scale=0.85]{$monofont$}
+$endif$
+
+% ── Geometría ───────────────────────────────────────────────
+\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+
+% ── Colores institucionales FOC ─────────────────────────────
+\usepackage{xcolor}
+\definecolor{focblue}{HTML}{1B3A6B}    % azul oscuro FOC
+\definecolor{focmid}{HTML}{2E75B6}     % azul medio (subtítulos, links)
+\definecolor{foclight}{HTML}{BDD7EE}   % azul claro (filas alternas tablas)
+\definecolor{focgray}{HTML}{595959}    % gris oscuro (header página)
+\definecolor{focbg}{HTML}{F5F5F5}      % fondo bloques de código
+
+% ── Interlineado ────────────────────────────────────────────
+\usepackage{setspace}
+$if(linestretch)$\setstretch{$linestretch$}$endif$
+
+% ── Microtipoografía ────────────────────────────────────────
+\usepackage[final]{microtype}  % con XeLaTeX solo actúa sobre tracking
+
+% ── Citas y comillas (buena práctica académica) ─────────────
+\usepackage{csquotes}        % \enquote{} para citas tipográficamente correctas
+
+% ── Matemáticas básicas (requerido por pandoc para tablas con \real{}) ──
+\usepackage{calc}
+
+% ── Tablas (estilo académico con booktabs) ──────────────────
+\usepackage{booktabs}        % \toprule \midrule \bottomrule
+\usepackage{longtable}       % tablas multipágina (pandoc las usa)
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{colortbl}        % colores en celdas
+
+% Columnas con alineación y ancho definido
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+% Estilo de tablas: header azul oscuro texto blanco
+\newcommand{\foctheadrow}{\rowcolor{focblue}\color{white}\bfseries\sffamily}
+
+% ── Listas ──────────────────────────────────────────────────
+\usepackage{enumitem}
+\setlist[itemize,1]{label=\textcolor{focmid}{\textbullet}, leftmargin=1.8em, itemsep=0.2em}
+\setlist[itemize,2]{label=\textcolor{focmid}{--},          leftmargin=1.5em, itemsep=0.1em}
+\setlist[enumerate]{leftmargin=1.8em, itemsep=0.2em}
+
+% ── Gráficos y figuras ──────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{
+  font=small,
+  labelfont={bf,color=focblue},
+  textfont=it,
+  labelsep=period,
+}
+
+% ── Código fuente ───────────────────────────────────────────
+\usepackage{listings}
+\lstset{
+  basicstyle=\small\ttfamily,
+  breaklines=true,
+  breakatwhitespace=true,
+  frame=single,
+  rulecolor=\color{focmid},
+  backgroundcolor=\color{focbg},
+  commentstyle=\color{focgray}\itshape,
+  keywordstyle=\color{focblue}\bfseries,
+  stringstyle=\color{focmid},
+  numbers=left,
+  numberstyle=\tiny\color{focgray},
+  numbersep=8pt,
+  xleftmargin=12pt,
+  showstringspaces=false,
+}
+
+% Bloques Shaded de pandoc (```código```)
+\usepackage{framed}
+\definecolor{shadecolor}{HTML}{F5F5F5}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{
+  commandchars=\\\{\},
+  fontsize=\small,
+  frame=single,
+  rulecolor=\color{focmid},
+  fillcolor=\color{focbg},
+}
+
+% ── TikZ para portada ───────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+% ── Títulos de sección — KOMA-Script ────────────────────────
+\usepackage{scrlayer-scrpage}  % encabezados KOMA
+
+% Personalización de títulos con scrreprt
+\addtokomafont{chapter}{\color{focblue}\sffamily}
+\addtokomafont{section}{\color{focmid}\sffamily}
+\addtokomafont{subsection}{\color{focmid}\sffamily}
+\addtokomafont{subsubsection}{\sffamily\bfseries}
+\addtokomafont{chapterprefix}{\color{focblue}}
+
+% Línea decorativa bajo cada chapter
+\usepackage{titlesec}
+\titleformat{\chapter}[block]
+  {\color{focblue}\bfseries\Large\sffamily}
+  {\thechapter.}{0.6em}{}
+  [{\color{focblue}\vspace{2pt}\hrule height 0.5pt}]
+
+\titlespacing*{\chapter}{0pt}{0.5em}{1.2em}
+
+\titleformat{\section}[block]
+  {\color{focmid}\bfseries\large\sffamily}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{1em}{0.5em}
+
+\titleformat{\subsection}[block]
+  {\color{focmid}\bfseries\normalsize\sffamily}
+  {\thesubsection.}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{0.8em}{0.3em}
+
+\titleformat{\subsubsection}[block]
+  {\bfseries\normalsize\sffamily}
+  {}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{0.6em}{0.2em}
+
+% ── Encabezado y pie de página ──────────────────────────────
+\clearpairofpagestyles
+\ohead{\small\color{focgray}\sffamily FOMENTO OCUPACIONAL FOC \textregistered}
+\ihead{}
+\ofoot{\small\color{focblue}\bfseries\sffamily PÁGINA \pagemark}
+\ifoot{\small\color{focgray}\sffamily Erick Quispe -- Juan Rangel \textbar{} DAW/DAM}
+\KOMAoptions{headsepline=0.4pt}
+\addtokomafont{headsepline}{\color{focgray}}
+\pagestyle{scrheadings}
+
+% Capítulos sin header pero sí footer
+\renewcommand*{\chapterpagestyle}{plain.scrheadings}
+
+% ── Índice ──────────────────────────────────────────────────
+\usepackage{tocloft}
+\renewcommand{\cfttoctitlefont}{\Large\bfseries\color{focblue}\sffamily}
+\renewcommand{\cftchapfont}{\bfseries\color{focblue}\sffamily}
+\renewcommand{\cftchappagefont}{\bfseries\color{focblue}\sffamily}
+\renewcommand{\cftsecfont}{\color{focmid}\sffamily}
+\renewcommand{\cftsecpagefont}{\color{focmid}\sffamily}
+\renewcommand{\cftsubsecfont}{\sffamily}
+\setlength{\cftbeforetoctitleskip}{0pt}
+
+% ── Utilidades pandoc ───────────────────────────────────────
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% ── hyperref — SIEMPRE AL FINAL del preámbulo ───────────────
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks  = true,
+  linkcolor   = focblue,
+  urlcolor    = focmid,
+  citecolor   = focmid,
+  pdfauthor   = {Erick Quispe -- Juan Rangel},
+  pdftitle    = {VeriTix -- Proyecto Fin de Ciclo},
+  pdfsubject  = {DAM/DAW -- Fomento Ocupacional FOC},
+  pdfkeywords = {VeriTix, tickets, eventos, NestJS, Nuxt},
+  pdfcreator  = {XeLaTeX + Pandoc},
+}
+\usepackage{bookmark}        % mejor manejo de bookmarks PDF (carga después de hyperref)
+
+% ── PORTADA con TikZ ────────────────────────────────────────
+\newcommand{\makefoccover}{%
+  \begin{titlepage}
+    \thispagestyle{empty}
+    \newgeometry{margin=0pt}   % portada sin márgenes para control total
+
+    \begin{tikzpicture}[remember picture, overlay]
+
+      % Fondo blanco completo
+      \fill[white] (current page.south west) rectangle (current page.north east);
+
+      % ── Ondas FOC: U suave, tres capas bien diferenciadas ──
+      % Extremos altos, handles bajos → curva real hacia abajo en el centro.
+      % Cada capa tiene sus extremos y handles calibrados independientemente.
+
+      % Capa 1: azul oscuro — la que más se ve, extremos ~9cm, baja al centro a ~5cm
+      \fill[focblue]
+        ($$(current page.south west)+(0,9)$$)
+        .. controls
+           ($$(current page.south west)+(6,5)$$) and
+           ($$(current page.south east)+(-6,5)$$) ..
+           ($$(current page.south east)+(0,9)$$)
+        -- (current page.south east)
+        -- (current page.south west)
+        -- cycle;
+
+      % Capa 2: azul medio — extremos ~7cm, baja al centro a ~3.5cm
+      \fill[focmid]
+        ($$(current page.south west)+(0,7)$$)
+        .. controls
+           ($$(current page.south west)+(6,3.5)$$) and
+           ($$(current page.south east)+(-6,3.5)$$) ..
+           ($$(current page.south east)+(0,7)$$)
+        -- (current page.south east)
+        -- (current page.south west)
+        -- cycle;
+
+      % Capa 3: azul claro — extremos ~5cm, baja al centro a ~2cm
+      \fill[foclight]
+        ($$(current page.south west)+(0,5)$$)
+        .. controls
+           ($$(current page.south west)+(6,2)$$) and
+           ($$(current page.south east)+(-6,2)$$) ..
+           ($$(current page.south east)+(0,5)$$)
+        -- (current page.south east)
+        -- (current page.south west)
+        -- cycle;
+
+      % ── Logo FOC — arriba izquierda, más grande ──
+      \node[anchor=north west, inner sep=0pt]
+        at ($$(current page.north west)+(1.5cm,-1.2cm)$$) {
+          \includegraphics[width=5cm]{docs/assets/foc-logo.png}
+        };
+
+      % ── "PROYECTO FIN DE CICLO / DAM/DAW" — derecha, alineado al borde inferior del logo ──
+      \node[anchor=east, inner sep=0pt, align=right]
+        at ($$(current page.north east)+(-1.5cm,-4.8cm)$$) {
+          \color{focblue}\bfseries\Large\sffamily PROYECTO FIN DE CICLO\\[0.4em]
+          \color{focblue}\bfseries\Large\sffamily DAM/DAW
+        };
+
+      % ── Título "VeriTix" — centrado, mitad superior ──
+      \node[anchor=center]
+        at ($$(current page.center)+(0,4cm)$$) {
+          \color{focblue}\fontsize{64}{68}\selectfont\bfseries\sffamily VeriTix
+        };
+
+      % ── Fase y autores — azul oscuro, ENCIMA de las ondas en zona blanca ──
+      \node[anchor=center, inner sep=0pt, align=center]
+        at ($$(current page.south)+(0,11cm)$$) {
+          \color{focblue}\bfseries\LARGE\sffamily
+          $if(phase)$$phase$$endif$\\[0.7em]
+          \color{focblue}\bfseries\LARGE\sffamily
+          $for(author)$$author$$sep$ -- $endfor$
+        };
+
+    \end{tikzpicture}
+
+    \restoregeometry
+  \end{titlepage}
+}
+
+% ── Página de aviso legal ────────────────────────────────────
+\newcommand{\makelegaldisclaimer}{%
+  \thispagestyle{empty}
+  \vspace*{\fill}
+  \begin{small}\itshape
+  Los documentos, elementos gráficos, vídeos, transparencias y otros recursos didácticos
+  incluidos en este contenido pueden contener imprecisiones técnicas o errores tipográficos.
+  Periódicamente se realizan cambios en el contenido. Fomento Ocupacional FOC SL puede
+  realizar en cualquier momento, sin previo aviso, mejoras y/o cambios en el contenido.
+
+  \vspace{0.8em}
+  Es responsabilidad del usuario el cumplimiento de todas las leyes de derechos de autor
+  aplicables. Ningún elemento de este contenido, ni parte de este contenido puede ser
+  reproducida, almacenada o introducida en un sistema de recuperación, ni transmitida de
+  ninguna forma ni por ningún medio, sin la previa autorización por escrito de Fomento
+  Ocupacional FOC SL.
+
+  \vspace{0.8em}
+  Este contenido está protegido por la ley de propiedad intelectual e industrial. Pertenecen
+  a Fomento Ocupacional FOC SL los derechos de autor y los demás derechos de propiedad
+  intelectual e industrial sobre este contenido.
+
+  \vspace{0.8em}
+  Sin perjuicio de los casos en que la ley aplicable prohíbe la exclusión de la
+  responsabilidad por daños, Fomento Ocupacional FOC SL no se responsabiliza en ningún
+  caso de daños indirectos que se deriven del uso de este contenido.
+
+  \vspace{0.8em}
+  \textcopyright{} 2026 Fomento Ocupacional FOC SL todos los derechos reservados.
+  \end{small}
+  \vspace*{\fill}
+  \newpage
+}
+
+% ════════════════════════════════════════════════════════════
+%  DOCUMENTO
+% ════════════════════════════════════════════════════════════
+\begin{document}
+
+\makefoccover
+\makelegaldisclaimer
+
+% Índice
+{
+  \hypersetup{linkcolor=focblue}
+  \tableofcontents
+  \newpage
+}
+
+% Contenido generado por pandoc
+$body$
+
+\end{document}

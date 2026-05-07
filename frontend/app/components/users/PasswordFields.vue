@@ -5,7 +5,6 @@ const confirmPasswordModel = defineModel<string>('confirmPassword', { default: '
 const showCurrentPasswordModel = defineModel<boolean>('showCurrentPassword', { default: false })
 const showNewPasswordModel = defineModel<boolean>('showNewPassword', { default: false })
 const showConfirmPasswordModel = defineModel<boolean>('showConfirmPassword', { default: false })
-
 </script>
 
 <template>
@@ -16,20 +15,20 @@ const showConfirmPasswordModel = defineModel<boolean>('showConfirmPassword', { d
           Seguridad
         </UiMetaLabel>
         <h3 class="mt-3 text-2xl font-semibold text-highlighted">
-          Cambiar contrasena
+          Cambiar contraseña
         </h3>
       </div>
 
       <p class="text-sm leading-relaxed text-toned">
-        Usa una clave nueva con al menos 8 caracteres, una mayuscula y un numero.
+        Usá una clave nueva con al menos 8 caracteres, una mayúscula y un número.
       </p>
     </div>
 
     <BasePasswordField
       v-model="currentPasswordModel"
       name="currentPassword"
-      label="Contrasena actual"
-      placeholder="Contrasena actual"
+      label="Contraseña actual"
+      placeholder="Contraseña actual"
       icon="i-lucide-lock"
       :show="showCurrentPasswordModel"
       required
@@ -40,9 +39,9 @@ const showConfirmPasswordModel = defineModel<boolean>('showConfirmPassword', { d
       <BasePasswordField
         v-model="newPasswordModel"
         name="newPassword"
-        label="Nueva contrasena"
-        help="8+ caracteres · mayuscula · minuscula · numero"
-        placeholder="Nueva contrasena"
+        label="Nueva contraseña"
+        help="8+ caracteres · mayúscula · minúscula · número"
+        placeholder="Nueva contraseña"
         icon="i-lucide-shield"
         :show="showNewPasswordModel"
         required
@@ -52,8 +51,8 @@ const showConfirmPasswordModel = defineModel<boolean>('showConfirmPassword', { d
       <BasePasswordField
         v-model="confirmPasswordModel"
         name="confirmPassword"
-        label="Confirmar contrasena"
-        placeholder="Confirmar contrasena"
+        label="Confirmar contraseña"
+        placeholder="Confirmar contraseña"
         icon="i-lucide-check-check"
         :show="showConfirmPasswordModel"
         required

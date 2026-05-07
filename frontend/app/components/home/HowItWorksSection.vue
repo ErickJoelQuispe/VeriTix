@@ -3,23 +3,23 @@ const steps = [
   {
     id: 1,
     title: 'Sintoniza',
-    description: 'Abre el portal con artista, ciudad o genero y activa una primera lectura del cartel en segundos.',
+    description: 'Abrí el portal con artista, ciudad o género y activá una primera lectura del cartel en segundos.',
     cue: 'Entrada',
-    motif: 'Prisma de busqueda',
+    motif: 'Prisma de búsqueda',
     toneClass: 'vtx-flow-node--nebula',
   },
   {
     id: 2,
     title: 'Traza',
-    description: 'Navega por geometria de generos, alterna filtros y ordena el mapa segun tu ruta sonora.',
-    cue: 'Navegacion',
+    description: 'Navegá por geometría de géneros, alterná filtros y ordená el mapa según tu ruta sonora.',
+    cue: 'Navegación',
     motif: 'Reticula fractal',
     toneClass: 'vtx-flow-node--auric',
   },
   {
     id: 3,
     title: 'Reserva',
-    description: 'Confirma tu entrada con contexto claro de precio y disponibilidad para cerrar el ritual sin friccion.',
+    description: 'Confirmá tu entrada con contexto claro de precio y disponibilidad para cerrar el ritual sin fricción.',
     cue: 'Cierre',
     motif: 'Sello escarlata',
     toneClass: 'vtx-flow-node--crimson',
@@ -32,7 +32,7 @@ const steps = [
     <UiSectionHeading
       eyebrow="Flujo ritual"
       title="Del hallazgo al escenario"
-      description="Un recorrido redisenado para mantener orientacion, contraste y velocidad en cada paso."
+      description="Un recorrido rediseñado para mantener orientación, contraste y velocidad en cada paso."
       :center="true"
     />
 
@@ -43,10 +43,10 @@ const steps = [
         class="vtx-flow-node"
         :class="step.toneClass"
       >
-          <div class="space-y-3">
-            <UiMetaLabel>
-              {{ step.cue }}
-            </UiMetaLabel>
+        <div class="space-y-3">
+          <UiMetaLabel>
+            {{ step.cue }}
+          </UiMetaLabel>
 
           <div class="flex items-center justify-between gap-3">
             <span class="vtx-flow-index">

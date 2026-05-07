@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import type { AdminArtistPayload, AdminArtistRecord, GenreOption } from '~/types'
+import type {
+  AdminArtistPayload,
+  AdminArtistRecord,
+  GenreOption,
+} from '~/types'
 import { z } from 'zod'
+import { normalizeArtistPayload } from '~/utils/admin/formSafeRails'
 
 const props = withDefaults(defineProps<{
   initialValue?: Partial<AdminArtistRecord>
@@ -17,14 +22,17 @@ const emit = defineEmits<{
   submit: [payload: AdminArtistPayload]
 }>()
 
+const dirty = defineModel<boolean>('dirty', { default: false })
+
 const schema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
-  slug: z.string().min(1, 'El slug es obligatorio'),
+  slug: z.string()
+    .min(1, 'El slug es obligatorio')
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Solo minúsculas, números y guiones'),
   bio: z.string().optional(),
   imageUrl: z.string().optional(),
   country: z.string().optional(),
   website: z.string().optional(),
-  isActive: z.boolean(),
   genreIds: z.array(z.string()).optional(),
 })
 
@@ -35,13 +43,40 @@ const state = reactive({
   imageUrl: '',
   country: '',
   website: '',
-  isActive: true,
   genreIds: [] as string[],
 })
 
 const genreOptions = computed(() => {
-  return props.genres.map(genre => ({ label: genre.name, value: genre.id }))
+  return props.genres.map(genre => ({
+    label: genre.name,
+    value: genre.id,
+  }))
 })
+
+const initialSnapshot = ref<AdminArtistPayload | null>(null)
+
+function buildCurrentPayload(): AdminArtistPayload {
+  return normalizeArtistPayload({
+    name: state.name,
+    slug: state.slug,
+    bio: state.bio,
+    imageUrl: state.imageUrl,
+    country: state.country,
+    website: state.website,
+    genreIds: state.genreIds,
+    isActive: props.initialValue?.isActive,
+  })
+}
+
+function hasDirtyChanges() {
+  const currentPayload = buildCurrentPayload()
+
+  if (!initialSnapshot.value) {
+    return false
+  }
+
+  return JSON.stringify(currentPayload) !== JSON.stringify(initialSnapshot.value)
+}
 
 function applyInitialValue() {
   state.name = props.initialValue?.name ?? ''
@@ -50,56 +85,80 @@ function applyInitialValue() {
   state.imageUrl = props.initialValue?.imageUrl ?? ''
   state.country = props.initialValue?.country ?? ''
   state.website = props.initialValue?.website ?? ''
-  state.isActive = props.initialValue?.isActive ?? true
   state.genreIds = props.initialValue?.genres?.map(genre => genre.id) ?? []
+
+  initialSnapshot.value = buildCurrentPayload()
+  dirty.value = false
 }
 
 function handleSubmit() {
-  emit('submit', {
+  if (props.submitting) {
+    return
+  }
+
+  emit('submit', normalizeArtistPayload({
     name: state.name.trim(),
     slug: state.slug.trim(),
     bio: state.bio.trim() || undefined,
     imageUrl: state.imageUrl.trim() || undefined,
     country: state.country.trim() || undefined,
     website: state.website.trim() || undefined,
-    isActive: state.isActive,
     genreIds: state.genreIds.length > 0 ? state.genreIds : undefined,
-  })
+  }))
 }
 
 watch(() => props.initialValue, applyInitialValue, { immediate: true })
+watch(() => state, () => {
+  dirty.value = hasDirtyChanges()
+}, { deep: true })
 </script>
 
 <template>
   <UForm :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
     <div class="grid gap-5 lg:grid-cols-2">
       <BaseFormField v-model="state.name" name="name" label="Nombre" required />
-      <BaseFormField v-model="state.slug" name="slug" label="Slug" placeholder="artist-name" required />
+      <BaseFormField
+        v-model="state.slug"
+        name="slug"
+        label="Slug"
+        placeholder="los-planetas"
+        required
+      />
     </div>
 
-    <UFormField name="bio" label="Bio">
-      <UTextarea v-model="state.bio" :rows="5" placeholder="Historia, sonido, referencias..." />
+    <UFormField name="bio" label="Biografía">
+      <BaseFormTextarea v-model="state.bio" placeholder="Describí al artista" />
     </UFormField>
 
     <div class="grid gap-5 lg:grid-cols-3">
-      <BaseFormField v-model="state.country" name="country" label="País" />
-      <BaseFormField v-model="state.website" name="website" label="Website" type="url" placeholder="https://..." />
-      <BaseFormField v-model="state.imageUrl" name="imageUrl" label="Imagen" type="url" placeholder="https://..." />
+      <BaseFormField
+        v-model="state.imageUrl"
+        name="imageUrl"
+        label="Imagen"
+        type="url"
+        placeholder="https://..."
+      />
+      <BaseFormField
+        v-model="state.country"
+        name="country"
+        label="País"
+        placeholder="ES"
+      />
+      <BaseFormField
+        v-model="state.website"
+        name="website"
+        label="Web"
+        type="url"
+        placeholder="https://..."
+      />
     </div>
-
-    <UCheckbox
-      v-model="state.isActive"
-      label="Artista activo"
-      description="Determina si sigue visible para operaciones admin"
-      variant="card"
-    />
 
     <UFormField name="genreIds" label="Géneros">
       <USelect
         v-model="state.genreIds"
         :items="genreOptions"
         multiple
-        placeholder="Selecciona géneros"
+        placeholder="Seleccioná géneros"
       />
     </UFormField>
 

@@ -1,48 +1,44 @@
 <script setup lang="ts">
-import type { AdminEventPayload, AdminOption, GenreOption, PaginatedResponse, VenueOption } from '~/types'
+import type {
+  AdminEventPayload,
+  AdminOption,
+  GenreOption,
+  VenueOption,
+} from '~/types'
+import { useAdminEventsRepository } from '~/repositories/adminEventsRepository'
+import { normalizeEventPayload } from '~/utils/admin/formSafeRails'
 
 definePageMeta({ middleware: 'admin' })
+useSeoMeta({ title: 'Nuevo evento | Admin VeriTix' })
 
-useSeoMeta({ title: 'Nuevo evento admin | VeriTix' })
-
-const apiRequest = useApiRequest()
-const { ensureAdminSession, requireAdminHeaders } = useAdminApi()
+const { createEvent: createAdminEvent, getFormOptions } = useAdminEventsRepository()
 const { getApiErrorMessage } = useApiErrorMessage()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 
-const genres = ref<GenreOption[]>([])
 const venues = ref<VenueOption[]>([])
+const genres = ref<GenreOption[]>([])
 const formats = ref<AdminOption[]>([])
 const loading = ref(true)
 const submitting = ref(false)
-const errorMessage = ref('')
+const isFormDirty = ref(false)
 
-const creationSurface = {
-  eyebrow: 'Nuevo registro',
-  title: 'Diseña el próximo evento',
-  description: 'Construye la ficha operativa con contexto visual, datos de venta y metadatos curatoriales en una sola superficie.',
-  icon: 'i-lucide-calendar-plus-2',
-  variant: 'warning',
-  highlights: ['Venue y aforo', 'Venta y timing', 'Imagen y géneros', 'Salida directa a edición'],
-} as const
+useUnsavedChangesGuard({
+  isDirty: isFormDirty,
+  isSubmitting: submitting,
+})
 
 async function loadOptions() {
   loading.value = true
-  errorMessage.value = ''
 
   try {
-    await ensureAdminSession()
-    const [genresResponse, venuesResponse, formatsResponse] = await Promise.all([
-      apiRequest<GenreOption[]>('/genres', { method: 'GET' }),
-      apiRequest<PaginatedResponse<VenueOption>>('/venues', { method: 'GET' }),
-      apiRequest<PaginatedResponse<AdminOption>>('/concert-formats', { method: 'GET' }),
-    ])
+    const options = await getFormOptions()
 
-    genres.value = genresResponse
-    venues.value = venuesResponse.data
-    formats.value = formatsResponse.data
+    venues.value = options.venues ?? []
+    genres.value = options.genres ?? []
+    formats.value = options.formats ?? []
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos cargar las opciones del formulario.')
+    notifyApiError(error, 'No pudimos cargar las opciones del evento.', { id: 'admin-events-load-options-error' })
   }
   finally {
     loading.value = false
@@ -50,20 +46,22 @@ async function loadOptions() {
 }
 
 async function createEvent(payload: AdminEventPayload) {
+  if (submitting.value) {
+    return
+  }
+
+  const normalizedPayload = normalizeEventPayload(payload)
+
   submitting.value = true
-  errorMessage.value = ''
 
   try {
-    const created = await apiRequest<{ id: string }, AdminEventPayload>('/admin/events', {
-      method: 'POST',
-      headers: requireAdminHeaders(),
-      body: payload,
-    })
+    await createAdminEvent(normalizedPayload)
 
-    await navigateTo(`/admin/events/${created.id}/edit`)
+    notifySuccess('Evento creado correctamente.', { id: 'admin-events-create-success' })
+    await navigateTo('/admin/events')
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos crear el evento.')
+    notifyApiError(error, 'No pudimos crear el evento.', { id: 'admin-events-create-error' })
   }
   finally {
     submitting.value = false
@@ -77,36 +75,51 @@ onMounted(() => {
 
 <template>
   <AdminPageShell
-    title="Crear evento"
-    description="Alta operativa de un nuevo evento con venue, formato y géneros."
+    title="Nuevo evento"
+    description="Crea un evento y dejalo listo para publicar."
+    primary-action-to="/admin/events"
+    primary-action-label="Volver a eventos"
   >
-    <div class="space-y-6">
-      <BaseStatusMessage v-if="errorMessage" :message="errorMessage" />
-
-      <div v-if="loading" class="space-y-4">
-        <USkeleton class="h-14 rounded-2xl" />
-        <USkeleton class="h-36 rounded-2xl" />
-        <USkeleton class="h-14 rounded-2xl" />
-      </div>
-
-      <AdminFormSurface
-        v-else
-        :eyebrow="creationSurface.eyebrow"
-        :title="creationSurface.title"
-        :description="creationSurface.description"
-        :icon="creationSurface.icon"
-        :variant="creationSurface.variant"
-        :highlights="creationSurface.highlights"
+    <div class="mx-auto max-w-5xl space-y-5">
+      <AdminOverviewPanel
+        title="Datos del evento"
+        description="Completa los campos principales para crear la ficha."
+        tone="subtle"
       >
+        <template #actions>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ venues?.length || 0 }} venues
+            </BaseBadge>
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ formats?.length || 0 }} formatos
+            </BaseBadge>
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ genres?.length || 0 }} generos
+            </BaseBadge>
+          </div>
+        </template>
+
+        <template v-if="loading">
+          <div class="space-y-4">
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-24 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+          </div>
+        </template>
+
         <AdminEventForm
-          :genres="genres"
+          v-else
+          v-model:dirty="isFormDirty"
           :venues="venues"
+          :genres="genres"
           :formats="formats"
           :submitting="submitting"
           submit-label="Crear evento"
           @submit="createEvent"
         />
-      </AdminFormSurface>
+      </AdminOverviewPanel>
     </div>
   </AdminPageShell>
 </template>

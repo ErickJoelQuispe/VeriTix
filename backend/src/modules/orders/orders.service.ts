@@ -209,22 +209,13 @@ export class OrdersService {
       });
     }
 
-    // 5. Crear Order + decrementar stock en transacción atómica
-    // El decrement es condicional (where: availableQuantity >= quantity) para evitar
-    // race conditions TOCTOU: si dos requests concurrentes pasan la validación previa,
-    // solo uno logra el update — el otro recibe count=0 y falla con 422.
+    // 5. Crear Order + decrementar stock en transacción (reserva optimista)
     const order = await this.prisma.$transaction(async (tx) => {
       for (const item of dto.items) {
-        const tt = ticketTypeMap.get(item.ticketTypeId)!;
-        const updated = await tx.ticketType.updateMany({
-          where: { id: item.ticketTypeId, availableQuantity: { gte: item.quantity } },
+        await tx.ticketType.update({
+          where: { id: item.ticketTypeId },
           data: { availableQuantity: { decrement: item.quantity } },
         });
-        if (updated.count === 0) {
-          throw new UnprocessableEntityException(
-            `Stock insuficiente para "${tt.name}". Ya no hay entradas disponibles`,
-          );
-        }
       }
 
       return tx.order.create({
@@ -385,27 +376,17 @@ export class OrdersService {
       );
     }
 
-    // Cancelación atómica: el update de status es condicional (where: status=PENDING)
-    // para evitar que dos requests concurrentes cancelen la misma orden dos veces.
-    // Si el update afecta 0 filas, otro request ya canceló primero.
     await this.prisma.$transaction(async (tx) => {
-      const cancelled = await tx.order.updateMany({
-        where: { id, status: OrderStatus.PENDING },
-        data: { status: OrderStatus.CANCELLED },
-      });
-
-      if (cancelled.count === 0) {
-        throw new BadRequestException(
-          'Solo se pueden cancelar órdenes en estado PENDING',
-        );
-      }
-
       for (const item of order.items) {
         await tx.ticketType.update({
           where: { id: item.ticketType.id },
           data: { availableQuantity: { increment: item.quantity } },
         });
       }
+      await tx.order.update({
+        where: { id },
+        data: { status: OrderStatus.CANCELLED },
+      });
     });
   }
 

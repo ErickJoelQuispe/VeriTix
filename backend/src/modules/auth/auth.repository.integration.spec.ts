@@ -211,4 +211,66 @@ describe('AuthRepository (integration)', () => {
       expect(updated!.verificationTokenExp).toBeNull();
     });
   });
+
+  // ── reset token ──────────────────────────────────────────────────────────────
+
+  describe('saveResetToken()', () => {
+    it('persiste el token y su expiración en el usuario', async () => {
+      const user = await repo.create(makeUser());
+      const token = uid();
+      const exp = new Date(Date.now() + 60 * 60 * 1000);
+
+      await repo.saveResetToken(user.id, token, exp);
+
+      const updated = await prisma.user.findUnique({ where: { id: user.id } });
+      expect(updated!.resetToken).toBe(token);
+      expect(updated!.resetTokenExp?.toISOString()).toBe(exp.toISOString());
+    });
+
+    it('sobrescribe un token existente (idempotente)', async () => {
+      const user = await repo.create(makeUser());
+      const token1 = uid();
+      const token2 = uid();
+      const exp = new Date(Date.now() + 60 * 60 * 1000);
+
+      await repo.saveResetToken(user.id, token1, exp);
+      await repo.saveResetToken(user.id, token2, exp);
+
+      const updated = await prisma.user.findUnique({ where: { id: user.id } });
+      expect(updated!.resetToken).toBe(token2);
+    });
+  });
+
+  describe('findUserByResetToken()', () => {
+    it('devuelve el usuario cuando el token coincide', async () => {
+      const user = await repo.create(makeUser());
+      const token = uid();
+      await repo.saveResetToken(user.id, token, new Date(Date.now() + 60_000));
+
+      const found = await repo.findUserByResetToken(token);
+
+      expect(found).not.toBeNull();
+      expect(found!.id).toBe(user.id);
+    });
+
+    it('devuelve null cuando el token no existe', async () => {
+      const found = await repo.findUserByResetToken('token-inexistente-reset');
+
+      expect(found).toBeNull();
+    });
+  });
+
+  describe('clearResetToken()', () => {
+    it('limpia resetToken y resetTokenExp del usuario', async () => {
+      const user = await repo.create(makeUser());
+      const token = uid();
+      await repo.saveResetToken(user.id, token, new Date(Date.now() + 60_000));
+
+      await repo.clearResetToken(user.id);
+
+      const updated = await prisma.user.findUnique({ where: { id: user.id } });
+      expect(updated!.resetToken).toBeNull();
+      expect(updated!.resetTokenExp).toBeNull();
+    });
+  });
 });

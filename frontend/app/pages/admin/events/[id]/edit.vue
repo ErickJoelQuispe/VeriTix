@@ -1,61 +1,74 @@
 <script setup lang="ts">
-import type { AdminEventDetail, AdminEventPayload, AdminOption, GenreOption, PaginatedResponse, VenueOption } from '~/types'
+import type {
+  AdminEventDetail,
+  AdminEventPayload,
+  AdminOption,
+  GenreOption,
+  VenueOption,
+} from '~/types'
+import { useAdminEventsRepository } from '~/repositories/adminEventsRepository'
+import { hasEventSemanticChanges, normalizeEventPayload } from '~/utils/admin/formSafeRails'
 
 definePageMeta({ middleware: 'admin' })
-
-useSeoMeta({ title: 'Editar evento admin | VeriTix' })
+useSeoMeta({ title: 'Editar evento | Admin VeriTix' })
 
 const route = useRoute()
-const apiRequest = useApiRequest()
-const { ensureAdminSession, requireAdminHeaders } = useAdminApi()
-const { getApiErrorMessage } = useApiErrorMessage()
-
 const eventId = computed(() => String(route.params.id || ''))
+
+const { getFormOptions, getEvent: getAdminEvent, updateEvent: updateAdminEvent } = useAdminEventsRepository()
+const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { notifyApiError, notifyInfo, notifySuccess } = useAppNotifications()
+
 const event = ref<AdminEventDetail | null>(null)
-const genres = ref<GenreOption[]>([])
 const venues = ref<VenueOption[]>([])
+const genres = ref<GenreOption[]>([])
 const formats = ref<AdminOption[]>([])
 const loading = ref(true)
 const submitting = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
+const isFormDirty = ref(false)
 
-const editingSurface = computed(() => ({
-  eyebrow: event.value?.status === 'DRAFT' ? 'Sesión en borrador' : 'Edición en vivo',
-  title: event.value?.name ?? 'Ajusta este evento',
-  description: 'Refina el contenido, la logística y la lectura visual del evento sin salir de una única superficie operativa.',
-  icon: 'i-lucide-sliders-horizontal',
-  highlights: [
-    event.value?.venue.name ? `${event.value.venue.name} · ${event.value.venue.city}` : 'Venue operativo',
-    event.value?.format?.name ?? 'Sin formato específico',
-    `${event.value?.maxCapacity ?? 0} plazas`,
-    event.value?.status ?? 'Sin estado',
-  ],
-}))
+useUnsavedChangesGuard({
+  isDirty: isFormDirty,
+  isSubmitting: submitting,
+})
 
-async function loadPage() {
+function getStatusTone(status: string) {
+  if (status === 'PUBLISHED') {
+    return 'success'
+  }
+  if (status === 'DRAFT') {
+    return 'warning'
+  }
+  if (status === 'CANCELLED') {
+    return 'error'
+  }
+
+  return 'neutral'
+}
+
+async function loadOptions() {
+  const options = await getFormOptions()
+
+  venues.value = options.venues
+  genres.value = options.genres
+  formats.value = options.formats
+}
+
+async function loadEvent() {
   loading.value = true
-  errorMessage.value = ''
 
   try {
-    await ensureAdminSession()
-    const [eventResponse, genresResponse, venuesResponse, formatsResponse] = await Promise.all([
-      apiRequest<AdminEventDetail>(`/admin/events/${eventId.value}`, {
-        method: 'GET',
-        headers: requireAdminHeaders(),
-      }),
-      apiRequest<GenreOption[]>('/genres', { method: 'GET' }),
-      apiRequest<PaginatedResponse<VenueOption>>('/venues', { method: 'GET' }),
-      apiRequest<PaginatedResponse<AdminOption>>('/concert-formats', { method: 'GET' }),
-    ])
-
-    event.value = eventResponse
-    genres.value = genresResponse
-    venues.value = venuesResponse.data
-    formats.value = formatsResponse.data
+    event.value = await getAdminEvent(eventId.value)
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos cargar el evento.')
+    if (getApiErrorStatus(error) === 404) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Evento no encontrado.',
+      })
+    }
+
+    notifyApiError(error, 'No pudimos cargar el evento.', { id: 'admin-events-load-error-edit' })
   }
   finally {
     loading.value = false
@@ -63,20 +76,26 @@ async function loadPage() {
 }
 
 async function updateEvent(payload: AdminEventPayload) {
+  if (submitting.value || !event.value) {
+    return
+  }
+
+  const normalizedPayload = normalizeEventPayload(payload)
+
+  if (!hasEventSemanticChanges(event.value, normalizedPayload)) {
+    notifyInfo('No hay cambios para guardar.', { id: 'admin-events-no-changes' })
+    return
+  }
+
   submitting.value = true
-  successMessage.value = ''
-  errorMessage.value = ''
 
   try {
-    event.value = await apiRequest<AdminEventDetail, AdminEventPayload>(`/admin/events/${eventId.value}`, {
-      method: 'PATCH',
-      headers: requireAdminHeaders(),
-      body: payload,
-    })
-    successMessage.value = 'Evento actualizado.'
+    event.value = await updateAdminEvent(eventId.value, normalizedPayload)
+
+    notifySuccess('Evento actualizado correctamente.', { id: 'admin-events-update-success' })
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos actualizar el evento.')
+    notifyApiError(error, 'No pudimos actualizar el evento.', { id: 'admin-events-update-error' })
   }
   finally {
     submitting.value = false
@@ -84,41 +103,58 @@ async function updateEvent(payload: AdminEventPayload) {
 }
 
 onMounted(() => {
-  void loadPage()
+  void Promise.all([loadOptions(), loadEvent()])
 })
 </script>
 
 <template>
-  <AdminPageShell title="Editar evento" description="Ajusta contenido, fechas y configuración operativa del evento.">
-    <div class="space-y-6">
-      <BaseStatusMessage v-if="errorMessage" :message="errorMessage" />
-      <BaseStatusMessage v-if="successMessage" tone="success" :message="successMessage" />
-
-      <div v-if="loading" class="space-y-4">
-        <USkeleton class="h-14 rounded-2xl" />
-        <USkeleton class="h-36 rounded-2xl" />
-        <USkeleton class="h-14 rounded-2xl" />
-      </div>
-
-      <AdminFormSurface
-        v-else-if="event"
-        variant="warning"
-        :eyebrow="editingSurface.eyebrow"
-        :title="editingSurface.title"
-        :description="editingSurface.description"
-        :icon="editingSurface.icon"
-        :highlights="editingSurface.highlights"
+  <AdminPageShell
+    title="Editar evento"
+    description="Actualiza la ficha del evento y su configuración operativa."
+    primary-action-to="/admin/events"
+    primary-action-label="Volver a eventos"
+  >
+    <div class="mx-auto max-w-5xl space-y-5">
+      <AdminOverviewPanel
+        title="Datos del evento"
+        description="Edita los campos principales del evento seleccionado."
+        tone="subtle"
       >
+        <template #actions>
+          <div v-if="event" class="flex flex-wrap items-center gap-2.5">
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ venues?.length || 0 }} venues
+            </BaseBadge>
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ formats?.length || 0 }} formatos
+            </BaseBadge>
+            <BaseBadge kind="status" :color="getStatusTone(event.status)" size="sm" class="min-w-24 justify-center">
+              {{ event.status }}
+            </BaseBadge>
+          </div>
+        </template>
+
+        <template v-if="loading">
+          <div class="space-y-4">
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-24 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+          </div>
+        </template>
+
         <AdminEventForm
+          v-else-if="event"
+          v-model:dirty="isFormDirty"
           :initial-value="event"
-          :genres="genres"
           :venues="venues"
+          :genres="genres"
           :formats="formats"
           :submitting="submitting"
           submit-label="Guardar cambios"
           @submit="updateEvent"
         />
-      </AdminFormSurface>
+      </AdminOverviewPanel>
     </div>
   </AdminPageShell>
 </template>

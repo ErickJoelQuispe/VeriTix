@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
       formatId: typeof query.formatId === 'string' ? query.formatId : undefined,
       dateFrom: typeof query.dateFrom === 'string' ? query.dateFrom : undefined,
       dateTo: typeof query.dateTo === 'string' ? query.dateTo : undefined,
+      artistName: typeof query.artistName === 'string' ? query.artistName : undefined,
     },
   })
 })

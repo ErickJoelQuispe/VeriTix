@@ -13,10 +13,18 @@ const props = withDefaults(defineProps<{
 const iconBoxClass = computed(() => {
   const base = 'flex size-10 items-center justify-center rounded-lg border'
 
-  if (props.tone === 'warning') { return `${base} border-warning/20 bg-warning/10 text-warning` }
-  if (props.tone === 'success') { return `${base} border-success/20 bg-success/10 text-success` }
-  if (props.tone === 'primary') { return `${base} border-primary/20 bg-primary/10 text-primary` }
-  if (props.tone === 'error') { return `${base} border-error/20 bg-error/10 text-error` }
+  if (props.tone === 'warning') {
+    return `${base} border-warning/20 bg-warning/10 text-warning`
+  }
+  if (props.tone === 'success') {
+    return `${base} border-success/20 bg-success/10 text-success`
+  }
+  if (props.tone === 'primary') {
+    return `${base} border-primary/20 bg-primary/10 text-primary`
+  }
+  if (props.tone === 'error') {
+    return `${base} border-error/20 bg-error/10 text-error`
+  }
 
   return `${base} border-default bg-default/60 text-muted`
 })

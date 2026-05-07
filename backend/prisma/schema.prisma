@@ -3,6 +3,27 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
+generator erd_overview {
+  provider = "prisma-erd-generator"
+  output   = "../../docs/latex/build/assets/er-overview.pdf"
+  theme    = "default"
+  tableOnly = true
+  disabled = true
+  mermaidConfig = "./prisma/mermaidConfig.js"
+  mmdcPath = "./prisma"
+}
+
+generator erd_core {
+  provider      = "prisma-erd-generator"
+  output        = "../../docs/latex/build/assets/er-core-transaccional.pdf"
+  theme         = "default"
+  tableOnly     = true
+  disabled      = true
+  ignorePattern = "Venue,ConcertFormat,Genre,Artist,EventArtist,RefreshToken"
+  mermaidConfig = "./prisma/mermaidConfig.js"
+  mmdcPath = "./prisma"
+}
+
 datasource db {
   provider = "postgresql"
 }
@@ -193,7 +214,7 @@ model Event {
   maxCapacity   Int         @map("max_capacity")
   status        EventStatus @default(DRAFT)
   imageUrl      String?     @map("image_url")
-  currency      String      @default("MXN")
+  currency      String      @default("EUR")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 

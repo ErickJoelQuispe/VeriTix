@@ -7,6 +7,8 @@ withDefaults(defineProps<{
   cancelLabel?: string
   pending?: boolean
   testId?: string
+  triggerKind?: 'primary' | 'secondary' | 'tertiary'
+  triggerClass?: string
 }>(), {
   title: 'Confirmar eliminación',
   description: 'Esta acción no se puede deshacer.',
@@ -14,6 +16,8 @@ withDefaults(defineProps<{
   cancelLabel: 'Cancelar',
   pending: false,
   testId: '',
+  triggerKind: 'tertiary',
+  triggerClass: '',
 })
 
 const emit = defineEmits<{
@@ -30,7 +34,13 @@ function handleConfirm() {
 
 <template>
   <UPopover v-model:open="open" :content="{ align: 'end', side: 'top', sideOffset: 10 }">
-    <BaseButton kind="tertiary" size="sm" :disabled="pending" :data-testid="testId || undefined">
+    <BaseButton
+      :kind="triggerKind"
+      size="sm"
+      :class="triggerClass || undefined"
+      :disabled="pending"
+      :data-testid="testId || undefined"
+    >
       <slot>
         Eliminar
       </slot>

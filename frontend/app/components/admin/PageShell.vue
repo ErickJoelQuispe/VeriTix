@@ -1,22 +1,45 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
+interface AdminPageNavigationItem {
+  label: string
+  to: string
+  icon: string
+}
+
+const props = withDefaults(defineProps<{
   title: string
   description: string
   primaryActionTo?: string
   primaryActionLabel?: string
+  navigationItems?: AdminPageNavigationItem[]
 }>(), {
   primaryActionTo: '',
   primaryActionLabel: '',
 })
 
-const route = useRoute()
-
-const navigationItems = [
+const DEFAULT_NAVIGATION_ITEMS: AdminPageNavigationItem[] = [
   { label: 'Dashboard', to: '/admin', icon: 'i-lucide-layout-dashboard' },
   { label: 'Eventos', to: '/admin/events', icon: 'i-lucide-calendar-range' },
   { label: 'Usuarios', to: '/admin/users', icon: 'i-lucide-users' },
-  { label: 'Artistas', to: '/admin/artists', icon: 'i-lucide-mic-vocal' },
-] as const
+  { label: 'Artistas', to: '/admin/artists', icon: 'i-lucide-mic-2' },
+]
+
+const route = useRoute()
+
+const navigationItems = computed(() => {
+  return props.navigationItems ?? DEFAULT_NAVIGATION_ITEMS
+})
+
+const navigationSegments = computed(() => {
+  return navigationItems.value.map(item => ({
+    ...item,
+    value: item.to,
+    testId: `admin-nav-${item.label.toLowerCase()}`,
+  }))
+})
+
+const activeNavigation = computed(() => {
+  return navigationItems.value.find(item => isActive(item.to))?.to ?? '/admin'
+})
 
 function isActive(path: string): boolean {
   if (path === '/admin') {
@@ -40,7 +63,7 @@ function isActive(path: string): boolean {
 
               <div class="space-y-1.5">
                 <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">
-                {{ title }}
+                  {{ title }}
                 </h1>
                 <p class="max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
                   {{ description }}
@@ -64,19 +87,11 @@ function isActive(path: string): boolean {
 
           <!-- Navigation -->
           <nav class="flex flex-wrap gap-2" aria-label="Navegación admin">
-            <UButton
-              v-for="item in navigationItems"
-              :key="item.to"
-              :to="item.to"
+            <AdminSegmentedControl
+              :items="navigationSegments"
+              :active-value="activeNavigation"
               size="sm"
-              :icon="item.icon"
-              color="neutral"
-              :variant="isActive(item.to) ? 'soft' : 'ghost'"
-              class="rounded-lg px-3"
-              :data-testid="`admin-nav-${item.label.toLowerCase()}`"
-            >
-              {{ item.label }}
-            </UButton>
+            />
           </nav>
         </header>
 

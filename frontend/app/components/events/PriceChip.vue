@@ -12,7 +12,7 @@ const formatted = computed(() => {
 </script>
 
 <template>
-  <UBadge color="primary" variant="soft" size="sm" class="rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase md:text-sm">
+  <BaseBadge kind="price" size="sm">
     Desde {{ formatted }}
-  </UBadge>
+  </BaseBadge>
 </template>

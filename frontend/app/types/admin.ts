@@ -57,6 +57,60 @@ export interface AdminEventPayload {
   genreIds?: string[]
 }
 
+export interface AdminUpcomingEventRecord {
+  id: string
+  name: string
+  eventDate: string
+  venue: EventVenueSummary
+  ticketsSold: number
+  totalCapacity: number
+}
+
+export interface AdminRequiresAttentionRecord {
+  id: string
+  name: string
+  status: string
+  eventDate: string | null
+  issues: string[]
+}
+
+export interface AdminTopEventRecord extends AdminUpcomingEventRecord {
+  revenue: number
+}
+
+export interface AdminEventMetricsTicketType {
+  name: string
+  sold: number
+  revenue: number
+}
+
+export interface AdminEventMetrics {
+  eventId: string
+  eventName: string
+  status: string
+  capacity: {
+    total: number
+    sold: number
+    available: number
+    occupancyRate: number
+  }
+  revenue: {
+    total: number
+    byTicketType: AdminEventMetricsTicketType[]
+  }
+  orders: {
+    total: number
+    completed: number
+    pending: number
+    cancelled: number
+    refunded: number
+  }
+  topTicketType: {
+    name: string
+    sold: number
+  } | null
+}
+
 export interface AdminUserRecord {
   id: string
   email: string

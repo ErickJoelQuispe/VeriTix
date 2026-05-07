@@ -13,17 +13,6 @@ const emit = defineEmits<{
   change: [page: number]
 }>()
 
-const itemRangeLabel = computed(() => {
-  if (props.totalItems === 0) {
-    return '0 resultados'
-  }
-
-  const start = (props.page - 1) * props.pageSize + 1
-  const end = Math.min(props.page * props.pageSize, props.totalItems)
-
-  return `${start}-${end} de ${props.totalItems}`
-})
-
 function goToPage(page: number) {
   if (props.pending || page < 1 || page > props.totalPages || page === props.page) {
     return
@@ -34,42 +23,32 @@ function goToPage(page: number) {
 </script>
 
 <template>
-  <div class="vtx-admin-pagination">
-    <div>
-      <UiMetaLabel>
-        Navegación
-      </UiMetaLabel>
-      <p class="mt-2 text-sm text-toned">
-        {{ itemRangeLabel }}
-      </p>
-    </div>
-
-    <div class="flex flex-wrap items-center justify-end">
+  <div class="admin-pagination flex rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+    <div class="flex w-full flex-wrap items-center justify-center">
       <UPagination
         :page="page"
         :total="totalItems"
         :items-per-page="pageSize"
         :disabled="pending"
-        size="sm"
+        size="lg"
         color="neutral"
         variant="outline"
-        active-variant="soft"
-        show-edges
+        active-color="primary"
+        active-variant="solid"
+        :sibling-count="1"
+        show-controls
+        :show-edges="totalPages > 5"
+        :ui="{
+          list: 'gap-1',
+          label: 'min-w-10 text-center',
+          item: 'rounded-sm! border-default/60',
+          first: 'rounded-sm! border-default/60',
+          prev: 'rounded-sm! border-default/60',
+          next: 'rounded-sm! border-default/60',
+          last: 'rounded-sm! border-default/60',
+        }"
         @update:page="goToPage"
       />
     </div>
   </div>
 </template>
-
-<style scoped>
-@reference "@/assets/css/main.css";
-
-.vtx-admin-pagination {
-  @apply flex flex-col gap-4 rounded-[1.6rem] border p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5;
-  border-color: color-mix(in srgb, var(--ui-border-accented) 18%, transparent);
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015)),
-    color-mix(in srgb, var(--ui-bg-elevated) 54%, transparent);
-}
-
-</style>

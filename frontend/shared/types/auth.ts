@@ -17,3 +17,20 @@ export interface AuthResponse {
   accessToken: string
   user: UserProfile
 }
+
+export interface RegisterResponse {
+  message: string
+}
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
+  password: string
+}
+
+export interface MessageResponse {
+  message: string
+}

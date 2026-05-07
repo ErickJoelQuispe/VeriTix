@@ -20,9 +20,8 @@ logs
 
 # Local env files
 .env
-.env.*
-!.env.example
+.env.prod
 
 AGENTS.md
-.agents
-.sisyphus
+
+.atl/

@@ -14,19 +14,19 @@ useSeoMeta({
 const profileSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
   lastName: z.string().min(1, 'El apellido es obligatorio'),
-  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'El telefono debe estar en formato E.164 (ej: +34958123456)').or(z.literal('')),
-  avatarUrl: z.string().url('Introduce una URL valida').or(z.literal('')),
+  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'El teléfono debe estar en formato E.164 (ej: +34958123456)').or(z.literal('')),
+  avatarUrl: z.string().url('Ingresá una URL válida').or(z.literal('')),
 })
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(1, 'La contrasena actual es obligatoria'),
-  newPassword: z.string().min(8, 'La nueva contrasena debe tener al menos 8 caracteres').regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, 'Debe incluir mayuscula, minuscula y numero'),
-  confirmPassword: z.string().min(1, 'Confirma la nueva contrasena'),
+  currentPassword: z.string().min(1, 'La contraseña actual es obligatoria'),
+  newPassword: z.string().min(8, 'La nueva contraseña debe tener al menos 8 caracteres').regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, 'Debe incluir mayúscula, minúscula y número'),
+  confirmPassword: z.string().min(1, 'Confirmá la nueva contraseña'),
 }).refine(data => data.newPassword === data.confirmPassword, {
-  message: 'Las contrasenas no coinciden',
+  message: 'Las contraseñas no coinciden',
   path: ['confirmPassword'],
 }).refine(data => data.currentPassword !== data.newPassword, {
-  message: 'La nueva contrasena debe ser distinta a la actual',
+  message: 'La nueva contraseña debe ser distinta a la actual',
   path: ['newPassword'],
 })
 
@@ -43,10 +43,6 @@ const passwordState = reactive({
   confirmPassword: '',
 })
 
-const profileErrorMessage = ref('')
-const profileSuccessMessage = ref('')
-const securityErrorMessage = ref('')
-const securitySuccessMessage = ref('')
 const initialized = ref(false)
 const profileSubmitting = ref(false)
 const passwordSubmitting = ref(false)
@@ -55,13 +51,13 @@ const showNewPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const { user, fetchProfile, updateProfile, changePassword } = useProfile()
-const { getApiErrorMessage } = useApiErrorMessage()
+const { notifyApiError, notifyInfo, notifySuccess } = useAppNotifications()
 
 const roleViews: Record<UserRole, { title: string, capabilities: string[] }> = {
   BUYER: {
     title: 'Acceso de comprador',
     capabilities: [
-      'Datos para compras y facturacion',
+      'Datos para compras y facturación',
       'Historial y uso de entradas',
       'Avisos relacionados con eventos',
     ],
@@ -70,23 +66,23 @@ const roleViews: Record<UserRole, { title: string, capabilities: string[] }> = {
     title: 'Acceso de creador',
     capabilities: [
       'Identidad comercial visible',
-      'Gestion de eventos publicados',
+      'Gestión de eventos publicados',
       'Soporte operativo del perfil',
     ],
   },
   VALIDATOR: {
     title: 'Acceso de validador',
     capabilities: [
-      'Asignacion operativa del perfil',
-      'Herramientas de validacion',
-      'Permisos segun operacion',
+      'Asignación operativa del perfil',
+      'Herramientas de validación',
+      'Permisos según la operación',
     ],
   },
   ADMIN: {
     title: 'Acceso de administrador',
     capabilities: [
       'Control de cuenta y seguridad',
-      'Paneles internos de gestion',
+      'Paneles internos de gestión',
       'Permisos ampliados de soporte',
     ],
   },
@@ -131,14 +127,12 @@ function applyProfileState() {
 }
 
 async function loadProfile() {
-  profileErrorMessage.value = ''
-
   try {
     await fetchProfile()
     applyProfileState()
   }
   catch (error) {
-    profileErrorMessage.value = getApiErrorMessage(error, 'No pudimos cargar la cuenta.')
+    notifyApiError(error, 'No pudimos cargar la cuenta.', { id: 'profile-load-error' })
   }
   finally {
     initialized.value = true
@@ -147,11 +141,10 @@ async function loadProfile() {
 
 async function submitProfile() {
   if (!hasProfileChanges.value) {
+    notifyInfo('No hay cambios para guardar.', { id: 'profile-no-changes' })
     return
   }
 
-  profileErrorMessage.value = ''
-  profileSuccessMessage.value = ''
   profileSubmitting.value = true
 
   try {
@@ -163,10 +156,10 @@ async function submitProfile() {
     })
 
     applyProfileState()
-    profileSuccessMessage.value = 'Perfil actualizado.'
+    notifySuccess('Perfil actualizado correctamente.', { id: 'profile-update-success' })
   }
   catch (error) {
-    profileErrorMessage.value = getApiErrorMessage(error, 'No pudimos guardar el perfil.')
+    notifyApiError(error, 'No pudimos guardar el perfil.', { id: 'profile-update-error' })
   }
   finally {
     profileSubmitting.value = false
@@ -174,8 +167,6 @@ async function submitProfile() {
 }
 
 async function submitPassword() {
-  securityErrorMessage.value = ''
-  securitySuccessMessage.value = ''
   passwordSubmitting.value = true
 
   try {
@@ -187,10 +178,10 @@ async function submitPassword() {
     passwordState.currentPassword = ''
     passwordState.newPassword = ''
     passwordState.confirmPassword = ''
-    securitySuccessMessage.value = 'Contrasena actualizada.'
+    notifySuccess('Contraseña actualizada correctamente.', { id: 'security-update-success' })
   }
   catch (error) {
-    securityErrorMessage.value = getApiErrorMessage(error, 'No pudimos actualizar la contrasena.')
+    notifyApiError(error, 'No pudimos actualizar la contraseña.', { id: 'security-update-error' })
   }
   finally {
     passwordSubmitting.value = false
@@ -218,16 +209,16 @@ onMounted(() => {
       </div>
 
       <div v-else class="space-y-6">
-        <article class="rounded-[1.8rem] border border-default bg-elevated/40 p-5 sm:p-7">
+        <article class="rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
           <div class="space-y-2 border-b border-default/55 pb-5">
             <UiMetaLabel>
               Perfil
             </UiMetaLabel>
-            <h2 class="text-2xl font-semibold text-highlighted sm:text-[1.9rem]">
+            <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
               Datos personales
             </h2>
             <p class="max-w-2xl text-sm leading-relaxed text-toned">
-              Revisa la información visible de tu cuenta y mantén al día tus datos de contacto.
+              Revisá la información visible de tu cuenta y mantené al día tus datos de contacto.
             </p>
           </div>
 
@@ -238,9 +229,6 @@ onMounted(() => {
             class="space-y-6 pt-6"
             @submit="submitProfile"
           >
-            <BaseStatusMessage v-if="profileErrorMessage" :message="profileErrorMessage" />
-            <BaseStatusMessage v-if="profileSuccessMessage" tone="success" :message="profileSuccessMessage" />
-
             <UsersProfileFields
               v-model:name="profileState.name"
               v-model:last-name="profileState.lastName"
@@ -250,7 +238,7 @@ onMounted(() => {
 
             <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
               <span class="text-sm text-toned">
-                Datos visibles y de contacto.
+              Datos visibles y de contacto.
               </span>
 
               <BaseButton
@@ -267,16 +255,16 @@ onMounted(() => {
           </UForm>
         </article>
 
-        <article id="seguridad" class="scroll-mt-28 rounded-[1.8rem] border border-default bg-elevated/40 p-5 sm:p-7">
+        <article id="seguridad" class="scroll-mt-28 rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
           <div class="space-y-2 border-b border-default/55 pb-5">
             <UiMetaLabel>
               Seguridad
             </UiMetaLabel>
-            <h2 class="text-2xl font-semibold text-highlighted sm:text-[1.9rem]">
+            <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
               Acceso a la cuenta
             </h2>
             <p class="max-w-2xl text-sm leading-relaxed text-toned">
-              Cambia tu contrasena y gestiona el cierre de sesion desde el mismo bloque de seguridad.
+              Cambiá tu contraseña y gestioná el cierre de sesión desde el mismo bloque de seguridad.
             </p>
           </div>
 
@@ -287,9 +275,6 @@ onMounted(() => {
             class="space-y-6 pt-6"
             @submit="submitPassword"
           >
-            <BaseStatusMessage v-if="securityErrorMessage" :message="securityErrorMessage" />
-            <BaseStatusMessage v-if="securitySuccessMessage" tone="success" :message="securitySuccessMessage" />
-
             <UsersPasswordFields
               v-model:current-password="passwordState.currentPassword"
               v-model:new-password="passwordState.newPassword"
@@ -301,7 +286,7 @@ onMounted(() => {
 
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span class="text-sm text-toned">
-                Acceso y proteccion de la cuenta.
+                Acceso y protección de la cuenta.
               </span>
 
               <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -311,7 +296,7 @@ onMounted(() => {
                   size="lg"
                   class="px-6"
                 >
-                  Cerrar sesion
+                  Cerrar sesión
                 </BaseButton>
 
                 <BaseButton
@@ -321,7 +306,7 @@ onMounted(() => {
                   class="vtx-profile-submit px-6"
                   :loading="passwordSubmitting"
                 >
-                  Actualizar contrasena
+                  Actualizar contraseña
                 </BaseButton>
               </div>
             </div>

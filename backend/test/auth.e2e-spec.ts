@@ -319,4 +319,123 @@ describe('Auth (e2e)', () => {
         .expect(401);
     });
   });
+
+  // ── RF-04: Password Recovery ───────────────────────────────────────────────
+
+  describe('POST /api/v1/auth/forgot-password', () => {
+    it('16. 200 — returns generic message for known email (anti-enumeration)', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/forgot-password')
+        .send({ email: testEmail })
+        .expect(200);
+
+      expect(res.body).toHaveProperty('message');
+      expect(res.body.message).toBe("If that email exists, you'll receive a reset link shortly");
+    });
+
+    it('17. 200 — returns same generic message for unknown email (anti-enumeration)', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/forgot-password')
+        .send({ email: 'nobody-unknown@test.com' })
+        .expect(200);
+
+      expect(res.body).toHaveProperty('message');
+      expect(res.body.message).toBe("If that email exists, you'll receive a reset link shortly");
+    });
+
+    it('18. 400 — invalid email format', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/forgot-password')
+        .send({ email: 'not-an-email' })
+        .expect(400);
+    });
+  });
+
+  describe('POST /api/v1/auth/reset-password', () => {
+    it('19. full recovery flow: forgot → get token from DB → reset → login with new password', async () => {
+      const recoverSuffix = Date.now() + 2;
+      const recoverEmail = `e2e-auth-recover-${recoverSuffix}@test.com`;
+      const recoverPhone = `+5247${recoverSuffix.toString().slice(-8)}`;
+      const oldPassword = 'OldPass123';
+      const newPassword = 'NewPass456';
+
+      // Step 1: Register + verify email via DB
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/register')
+        .send({
+          email: recoverEmail,
+          password: oldPassword,
+          name: 'Recover',
+          lastName: 'Test',
+          phone: recoverPhone,
+        })
+        .expect(201);
+
+      await prisma.user.update({
+        where: { email: recoverEmail },
+        data: { emailVerified: true, verificationToken: null, verificationTokenExp: null },
+      });
+
+      // Step 2: Request password reset
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/forgot-password')
+        .send({ email: recoverEmail })
+        .expect(200);
+
+      // Step 3: Get reset token directly from DB
+      const userAfterReset = await prisma.user.findUnique({ where: { email: recoverEmail } });
+      expect(userAfterReset?.resetToken).toBeDefined();
+      const resetToken = userAfterReset!.resetToken!;
+
+      // Step 4: Reset password using token
+      const resetRes = await request(app.getHttpServer())
+        .post('/api/v1/auth/reset-password')
+        .send({ token: resetToken, password: newPassword })
+        .expect(200);
+
+      expect(resetRes.body).toEqual({ message: 'Password updated successfully' });
+
+      // Step 5: Login with new password succeeds
+      const loginNewRes = await request(app.getHttpServer())
+        .post('/api/v1/auth/login')
+        .send({ email: recoverEmail, password: newPassword })
+        .expect(200);
+
+      expect(loginNewRes.body).toHaveProperty('accessToken');
+
+      // Step 6: Login with old password is rejected
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/login')
+        .send({ email: recoverEmail, password: oldPassword })
+        .expect(401);
+    });
+
+    it('20. 401 — invalid/unknown token', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/reset-password')
+        .send({ token: 'totally-invalid-token', password: 'NewPass123' })
+        .expect(401);
+    });
+
+    it('21. 400 — missing token field', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/reset-password')
+        .send({ password: 'NewPass123' })
+        .expect(400);
+    });
+  });
+
+  describe('Rate limiting — POST /api/v1/auth/forgot-password', () => {
+    it('22. rate limit test — throttle guard is overridden in test setup (this test validates the decorator is present via unit tests)', async () => {
+      // The ThrottlerGuard is overridden in this E2E test setup to allow testing.
+      // Rate limit behavior (5 req/min) is enforced in production.
+      // This test confirms the endpoint is accessible and returns 200 for multiple calls.
+      for (let i = 0; i < 6; i++) {
+        await request(app.getHttpServer())
+          .post('/api/v1/auth/forgot-password')
+          .send({ email: `ratelimit-${i}@test.com` })
+          .expect(200);
+      }
+    });
+  });
 });

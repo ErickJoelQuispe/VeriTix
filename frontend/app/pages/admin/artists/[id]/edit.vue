@@ -1,49 +1,57 @@
 <script setup lang="ts">
-import type { AdminArtistPayload, AdminArtistRecord, GenreOption } from '~/types'
+import type {
+  AdminArtistPayload,
+  AdminArtistRecord,
+  GenreOption,
+} from '~/types'
+import { useAdminArtistsRepository } from '~/repositories/adminArtistsRepository'
+import { hasArtistSemanticChanges, normalizeArtistPayload } from '~/utils/admin/formSafeRails'
 
 definePageMeta({ middleware: 'admin' })
-
-useSeoMeta({ title: 'Editar artista admin | VeriTix' })
+useSeoMeta({ title: 'Editar artista | Admin VeriTix' })
 
 const route = useRoute()
-const apiRequest = useApiRequest()
-const { ensureAdminSession, requireAdminHeaders } = useAdminApi()
-const { getApiErrorMessage } = useApiErrorMessage()
-
 const artistId = computed(() => String(route.params.id || ''))
+
+const { getArtist: getAdminArtist, listGenres, updateArtist: updateAdminArtist } = useAdminArtistsRepository()
+const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { notifyApiError, notifyError, notifyInfo, notifySuccess } = useAppNotifications()
+
 const artist = ref<AdminArtistRecord | null>(null)
 const genres = ref<GenreOption[]>([])
 const loading = ref(true)
 const submitting = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
+const isFormDirty = ref(false)
 
-const editSurface = {
-  eyebrow: 'Edición editorial',
-  title: 'Modifica los datos del artista',
-  description: 'Mantén el perfil actualizado con identidad, bio, visibilidad y vínculo con géneros relevantes.',
-  icon: 'i-lucide-badge-check',
-  highlights: ['Nombre y slug', 'Bio y enlaces', 'Visibilidad', 'Géneros asociados'],
-} as const
+useUnsavedChangesGuard({
+  isDirty: isFormDirty,
+  isSubmitting: submitting,
+})
 
-async function loadPage() {
+async function loadGenres() {
+  try {
+    genres.value = await listGenres()
+  }
+  catch {
+    genres.value = []
+  }
+}
+
+async function loadArtist() {
   loading.value = true
-  errorMessage.value = ''
 
   try {
-    await ensureAdminSession()
-    const [artistResponse, genresResponse] = await Promise.all([
-      apiRequest<AdminArtistRecord>(`/admin/artists/${artistId.value}`, {
-        method: 'GET',
-        headers: requireAdminHeaders(),
-      }),
-      apiRequest<GenreOption[]>('/genres', { method: 'GET' }),
-    ])
-    artist.value = artistResponse
-    genres.value = genresResponse
+    artist.value = await getAdminArtist(artistId.value)
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos cargar el artista.')
+    if (getApiErrorStatus(error) === 404) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Artista no encontrado.',
+      })
+    }
+
+    notifyApiError(error, 'No pudimos cargar el artista.', { id: 'admin-artists-load-error-edit' })
   }
   finally {
     loading.value = false
@@ -51,20 +59,31 @@ async function loadPage() {
 }
 
 async function updateArtist(payload: AdminArtistPayload) {
+  if (submitting.value || !artist.value) {
+    return
+  }
+
+  const normalizedPayload = normalizeArtistPayload(payload)
+
+  if (!hasArtistSemanticChanges(artist.value, normalizedPayload)) {
+    notifyInfo('No hay cambios para guardar.', { id: 'admin-artists-no-changes' })
+    return
+  }
+
   submitting.value = true
-  successMessage.value = ''
-  errorMessage.value = ''
 
   try {
-    artist.value = await apiRequest<AdminArtistRecord, AdminArtistPayload>(`/admin/artists/${artistId.value}`, {
-      method: 'PATCH',
-      headers: requireAdminHeaders(),
-      body: payload,
-    })
-    successMessage.value = 'Artista actualizado.'
+    artist.value = await updateAdminArtist(artistId.value, normalizedPayload)
+
+    notifySuccess('Artista actualizado correctamente.', { id: 'admin-artists-update-success' })
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos actualizar el artista.')
+    if (getApiErrorStatus(error) === 409) {
+      notifyError('Ya existe un artista con ese slug.', { id: 'admin-artists-update-conflict' })
+      return
+    }
+
+    notifyApiError(error, 'No pudimos actualizar el artista.', { id: 'admin-artists-update-error' })
   }
   finally {
     submitting.value = false
@@ -72,32 +91,53 @@ async function updateArtist(payload: AdminArtistPayload) {
 }
 
 onMounted(() => {
-  void loadPage()
+  void Promise.all([loadGenres(), loadArtist()])
 })
 </script>
 
 <template>
-  <AdminPageShell title="Editar artista" description="Mantén actualizado el perfil editorial del artista.">
-    <div class="space-y-6">
-      <BaseStatusMessage v-if="errorMessage" :message="errorMessage" />
-      <BaseStatusMessage v-if="successMessage" tone="success" :message="successMessage" />
-
-      <div v-if="loading" class="space-y-4">
-        <USkeleton class="h-14 rounded-2xl" />
-        <USkeleton class="h-36 rounded-2xl" />
-      </div>
-
-      <AdminFormSurface
-        v-else-if="artist"
-        :eyebrow="editSurface.eyebrow"
-        :title="editSurface.title"
-        :description="editSurface.description"
-        :icon="editSurface.icon"
-        variant="success"
-        :highlights="editSurface.highlights"
+  <AdminPageShell
+    title="Editar artista"
+    description="Actualiza la ficha del artista y su información pública."
+    primary-action-to="/admin/artists"
+    primary-action-label="Volver a artistas"
+  >
+    <div class="mx-auto max-w-5xl space-y-5">
+      <AdminOverviewPanel
+        title="Datos del artista"
+        description="Edita identidad, metadata y clasificación por género."
+        tone="subtle"
       >
-        <AdminArtistForm :initial-value="artist" :genres="genres" :submitting="submitting" submit-label="Guardar cambios" @submit="updateArtist" />
-      </AdminFormSurface>
+        <template #actions>
+          <div v-if="artist" class="flex flex-wrap items-center gap-2.5">
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ genres?.length || 0 }} géneros
+            </BaseBadge>
+            <BaseBadge kind="status" :color="artist.isActive ? 'success' : 'neutral'" size="sm" class="min-w-24 justify-center">
+              {{ artist.isActive ? 'ACTIVO' : 'INACTIVO' }}
+            </BaseBadge>
+          </div>
+        </template>
+
+        <template v-if="loading">
+          <div class="space-y-4">
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+            <USkeleton class="h-24 w-full rounded-xl" />
+            <USkeleton class="h-12 w-full rounded-xl" />
+          </div>
+        </template>
+
+        <AdminArtistForm
+          v-else-if="artist"
+          v-model:dirty="isFormDirty"
+          :initial-value="artist"
+          :genres="genres"
+          :submitting="submitting"
+          submit-label="Guardar cambios"
+          @submit="updateArtist"
+        />
+      </AdminOverviewPanel>
     </div>
   </AdminPageShell>
 </template>

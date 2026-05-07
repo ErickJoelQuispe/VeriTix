@@ -13,7 +13,7 @@ withDefaults(defineProps<{
 
 <template>
   <UiGlassPanel :tone="tone" radius="md" padding="lg">
-    <div class="flex flex-col gap-4 border-b border-default/55 pb-5 sm:flex-row sm:items-start sm:justify-between">
+    <div class="flex flex-col gap-4 border-b border-default/55 pb-5 sm:flex-row sm:items-center sm:justify-between">
       <div class="space-y-2">
         <UiMetaLabel v-if="eyebrow" tone="accent">
           {{ eyebrow }}
@@ -29,7 +29,7 @@ withDefaults(defineProps<{
         </div>
       </div>
 
-      <div v-if="$slots.actions" class="shrink-0">
+      <div v-if="$slots.actions" class="shrink-0 sm:self-center">
         <slot name="actions" />
       </div>
     </div>

@@ -19,14 +19,20 @@ export function useProfile() {
   const pending = useState<boolean>('profile-pending', () => false)
 
   const apiRequest = useApiRequest()
-  const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+  const { getApiErrorMessage, getApiErrorStatus, isApiSessionExpiredError } = useApiErrorMessage()
 
   function normalizeProfileError(error: unknown, fallback: string): never {
-    throw createError({
+    const normalizedError = createError({
       statusCode: getApiErrorStatus(error) ?? 500,
       statusMessage: getApiErrorMessage(error, fallback),
       data: error,
     })
+
+    if (isApiSessionExpiredError(error)) {
+      ;(normalizedError as Record<string, unknown>).__sessionExpired = true
+    }
+
+    throw normalizedError
   }
 
   async function fetchProfile(): Promise<UserProfile> {

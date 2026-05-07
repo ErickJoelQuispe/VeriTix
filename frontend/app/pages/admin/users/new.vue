@@ -1,95 +1,150 @@
 <script setup lang="ts">
-import type { AdminCreateUserPayload, AdminUpdateUserPayload } from '~/types'
+import type {
+  AdminCreateUserPayload,
+  AdminUpdateUserPayload,
+} from '~/types'
+import { useAdminUsersRepository } from '~/repositories/adminUsersRepository'
+import { normalizeCreateUserPayload } from '~/utils/admin/formSafeRails'
 
 definePageMeta({ middleware: 'admin' })
+useSeoMeta({ title: 'Nuevo usuario | Admin VeriTix' })
 
-useSeoMeta({ title: 'Nuevo usuario admin | VeriTix' })
+const { createUser: createAdminUser, isEmailTaken } = useAdminUsersRepository()
+const { roleOptions } = useAdminApi()
+const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { notifyApiError, notifyError, notifySuccess } = useAppNotifications()
 
-const apiRequest = useApiRequest()
-const { ensureAdminSession, requireAdminHeaders } = useAdminApi()
-const { getApiErrorMessage } = useApiErrorMessage()
-
-const loading = ref(true)
 const submitting = ref(false)
-const errorMessage = ref('')
+const isFormDirty = ref(false)
+const totalRoles = computed(() => roleOptions.length)
 
-const creationSurface = {
-  eyebrow: 'Alta manual',
-  title: 'Abre una cuenta con criterio operativo',
-  description: 'Crea usuarios nuevos con rol inicial, datos de acceso y una presentación más clara para el equipo admin.',
-  icon: 'i-lucide-user-round-plus',
-  variant: 'primary',
-  highlights: ['Identidad completa', 'Rol inicial', 'Acceso seguro', 'Paso directo a edición'],
-} as const
+useUnsavedChangesGuard({
+  isDirty: isFormDirty,
+  isSubmitting: submitting,
+})
 
-async function loadPage() {
-  loading.value = true
+function resolveUserConflictMessage(error: unknown) {
+  const status = getApiErrorStatus(error)
+
+  if (status !== 409) {
+    return ''
+  }
+
+  const normalizedMessage = getApiErrorMessage(error, '').toLowerCase()
+
+  if (normalizedMessage.includes('phone') || normalizedMessage.includes('tel')) {
+    return 'Ya existe un usuario con ese teléfono.'
+  }
+
+  if (normalizedMessage.includes('email') || normalizedMessage.includes('correo')) {
+    return 'Ya existe un usuario con ese correo.'
+  }
+
+  return 'Ya existe un usuario con el mismo correo o teléfono.'
+}
+
+async function validateEmailAvailability(email: string) {
+  const normalizedEmail = email.trim()
+
+  if (!normalizedEmail) {
+    return true
+  }
+
+  const emailExists = await isEmailTaken(normalizedEmail)
+
+  if (emailExists) {
+    notifyError('Ya existe un usuario con ese correo.', { id: 'admin-users-email-conflict' })
+    return false
+  }
+
+  return true
+}
+
+async function handleEmailBlur(email: string) {
+  if (submitting.value) {
+    return
+  }
 
   try {
-    await ensureAdminSession()
+    await validateEmailAvailability(email)
   }
-  catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos abrir el alta de usuario.')
-  }
-  finally {
-    loading.value = false
+  catch {
   }
 }
 
 async function createUser(payload: AdminCreateUserPayload | AdminUpdateUserPayload) {
+  if (submitting.value) {
+    return
+  }
+
   submitting.value = true
-  errorMessage.value = ''
 
   try {
     if (!('password' in payload)) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'La creación de usuarios requiere contraseña.',
-      })
+      throw new Error('Payload inválido para crear usuario.')
     }
 
-    const created = await apiRequest<{ id: string }, AdminCreateUserPayload>('/admin/users', {
-      method: 'POST',
-      headers: requireAdminHeaders(),
-      body: payload,
-    })
+    const hasAvailableEmail = await validateEmailAvailability(payload.email)
 
-    await navigateTo(`/admin/users/${created.id}/edit`)
+    if (!hasAvailableEmail) {
+      return
+    }
+
+    await createAdminUser(normalizeCreateUserPayload(payload))
+
+    notifySuccess('Usuario creado correctamente.', { id: 'admin-users-create-success' })
+    await navigateTo('/admin/users')
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos crear el usuario.')
+    const conflictMessage = resolveUserConflictMessage(error)
+
+    if (conflictMessage) {
+      notifyError(conflictMessage, { id: 'admin-users-create-conflict' })
+      return
+    }
+
+    notifyApiError(error, 'No pudimos crear el usuario.', { id: 'admin-users-create-error' })
   }
   finally {
     submitting.value = false
   }
 }
-
-onMounted(() => {
-  void loadPage()
-})
 </script>
 
 <template>
-  <AdminPageShell title="Crear usuario" description="Alta manual de cuentas y asignación inicial de rol.">
-    <div class="space-y-6">
-      <BaseStatusMessage v-if="errorMessage" :message="errorMessage" />
-
-      <div v-if="loading" class="space-y-4">
-        <USkeleton class="h-14 rounded-2xl" />
-        <USkeleton class="h-36 rounded-2xl" />
-      </div>
-
-      <AdminFormSurface
-        v-else
-        :eyebrow="creationSurface.eyebrow"
-        :title="creationSurface.title"
-        :description="creationSurface.description"
-        :icon="creationSurface.icon"
-        :variant="creationSurface.variant"
-        :highlights="creationSurface.highlights"
+  <AdminPageShell
+    title="Nuevo usuario"
+    description="Crea una cuenta y asigna su rol operativo."
+    primary-action-to="/admin/users"
+    primary-action-label="Volver a usuarios"
+  >
+    <div class="mx-auto max-w-5xl space-y-5">
+      <AdminOverviewPanel
+        title="Datos del usuario"
+        description="Completa identidad, contacto, rol y contraseña inicial."
+        tone="subtle"
       >
-        <AdminUserForm mode="create" :submitting="submitting" submit-label="Crear usuario" @submit="createUser" />
-      </AdminFormSurface>
+        <template #actions>
+          <div class="flex flex-wrap items-center gap-2.5">
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              {{ totalRoles }} roles
+            </BaseBadge>
+            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+              acceso inicial
+            </BaseBadge>
+          </div>
+        </template>
+
+        <AdminUserForm
+          v-model:dirty="isFormDirty"
+          :role-options="roleOptions"
+          :submitting="submitting"
+          submit-label="Crear usuario"
+          :include-password="true"
+          @email-blur="handleEmailBlur"
+          @submit="createUser"
+        />
+      </AdminOverviewPanel>
     </div>
   </AdminPageShell>
 </template>

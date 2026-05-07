@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -5,14 +6,19 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  app: {
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+  },
+
   runtimeConfig: {
-    backendApiBase: 'http://localhost:3001/api/v1',
+    backendApiBase: process.env.NUXT_BACKEND_API_BASE || 'http://localhost:3001/api/v1',
     public: {
-      apiBase: '/api',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || `${process.env.NUXT_APP_BASE_URL || '/'}api`,
+      apiTimeoutMs: Number(process.env.NUXT_PUBLIC_API_TIMEOUT_MS || 8000),
     },
   },
 
-  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', '@nuxt/fonts'],
+  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', '@nuxt/fonts', '@nuxt/test-utils/module'],
 
   ui: {
     colorMode: false,
@@ -32,15 +38,12 @@ export default defineNuxtConfig({
   css: ['./app/assets/css/main.css'],
 
   vite: {
-    plugins: [
-      tailwindcss(),
-    ],
+    plugins: [tailwindcss()],
     optimizeDeps: {
-      include: [
-        '@vue/devtools-core',
-        '@vue/devtools-kit',
-        'zod',
-      ],
+      include: ['@vue/devtools-core', '@vue/devtools-kit', 'zod'],
+    },
+    server: {
+      allowedHosts: ['cwtg.xyz', 'localhost'],
     },
   },
 
@@ -49,5 +52,4 @@ export default defineNuxtConfig({
       standalone: false,
     },
   },
-
 })

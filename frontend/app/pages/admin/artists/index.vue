@@ -1,320 +1,271 @@
 <script setup lang="ts">
-import type { AdminArtistRecord, PaginatedResponse } from '~/types'
+import type {
+  AdminArtistRecord,
+  AdminOption,
+  GenreOption,
+  PaginatedMeta,
+} from '~/types'
+import { useAdminArtistsRepository } from '~/repositories/adminArtistsRepository'
+import { PAGE_SIZE_OPTIONS } from '~/utils/admin/pagination'
 
 definePageMeta({ middleware: 'admin' })
-useSeoMeta({ title: 'Admin artistas | VeriTix' })
+useSeoMeta({ title: 'Artistas | Admin VeriTix' })
 
-const apiRequest = useApiRequest()
-const { ensureAdminSession, requireAdminHeaders } = useAdminApi()
-const { getApiErrorMessage } = useApiErrorMessage()
+const { deleteArtist: deleteAdminArtist, listArtists, listGenres } = useAdminArtistsRepository()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 
 const artists = ref<AdminArtistRecord[]>([])
+const genres = ref<GenreOption[]>([])
 const pending = ref(true)
-const errorMessage = ref('')
-const deletingArtistId = ref('')
-const search = ref('')
-const filterStatus = ref<'all' | 'active' | 'inactive'>('all')
+const deletingId = ref('')
 
-const statusOptions = [
-  { value: 'all', label: 'Todos' },
-  { value: 'active', label: 'Activos' },
-  { value: 'inactive', label: 'Inactivos' },
-] as const
+const page = ref(1)
+const pageSize = ref(12)
+const pageSizeOptions = PAGE_SIZE_OPTIONS
 
-const filteredArtists = computed(() => {
-  let result = artists.value
-
-  if (search.value.trim()) {
-    const term = search.value.toLowerCase()
-    result = result.filter(a =>
-      a.name.toLowerCase().includes(term)
-      || a.country?.toLowerCase().includes(term)
-      || a.genres.some(g => g.name.toLowerCase().includes(term)),
-    )
-  }
-
-  if (filterStatus.value !== 'all') {
-    result = result.filter(a =>
-      filterStatus.value === 'active' ? a.isActive : !a.isActive,
-    )
-  }
-
-  return result
+const meta = ref<PaginatedMeta>({
+  total: 0,
+  page: 1,
+  limit: 12,
+  totalPages: 1,
 })
 
-const metrics = computed(() => {
-  const active = artists.value.filter(a => a.isActive).length
-  const inactive = artists.value.length - active
-  const withCountry = artists.value.filter(a => a.country).length
+const statusOptions: AdminOption[] = [
+  { id: 'true', name: 'Activo' },
+  { id: 'false', name: 'Inactivo' },
+]
 
-  return [
-    {
-      label: 'Total artistas',
-      value: artists.value.length,
-      icon: 'i-lucide-mic',
-      variant: 'success' as const,
-    },
-    {
-      label: 'Activos',
-      value: active,
-      icon: 'i-lucide-circle-play',
-      variant: 'success' as const,
-    },
-    {
-      label: 'Inactivos',
-      value: inactive,
-      icon: 'i-lucide-circle-pause',
-      variant: inactive > 0 ? 'warning' as const : 'default' as const,
-    },
-    {
-      label: 'Completos',
-      value: withCountry,
-      hint: 'con país',
-      icon: 'i-lucide-check-circle',
-      variant: 'primary' as const,
-    },
-  ]
+const filters = reactive({
+  search: '',
+  genreId: '',
+  isActive: '',
 })
 
-async function loadArtists() {
-  pending.value = true
-  errorMessage.value = ''
+const genreFilterOptions = computed<AdminOption[]>(() => {
+  return genres.value.map(genre => ({
+    id: genre.id,
+    name: genre.name,
+  }))
+})
+
+function artistInitials(artist: AdminArtistRecord) {
+  const initials = artist.name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(part => part.charAt(0).toUpperCase())
+    .join('')
+
+  return initials || 'A'
+}
+
+async function loadGenres() {
   try {
-    await ensureAdminSession()
-    const response = await apiRequest<PaginatedResponse<AdminArtistRecord>>('/admin/artists', {
-      method: 'GET',
-      headers: requireAdminHeaders(),
-      query: { page: 1, limit: 100 },
+    genres.value = await listGenres()
+  }
+  catch {
+    genres.value = []
+  }
+}
+
+async function loadArtists(targetPage = page.value) {
+  pending.value = true
+
+  try {
+    const response = await listArtists({
+      pageValue: targetPage,
+      pageSize: pageSize.value,
+      search: filters.search,
+      genreId: filters.genreId,
+      isActive: filters.isActive,
     })
+
     artists.value = response.data
+    meta.value = response.meta
+    page.value = response.meta.page
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos cargar los artistas.')
+    notifyApiError(error, 'No pudimos cargar los artistas.', { id: 'admin-artists-load-error' })
   }
   finally {
     pending.value = false
   }
 }
 
+function applyFilters() {
+  page.value = 1
+  void loadArtists(1)
+}
+
+function resetFilters() {
+  filters.search = ''
+  filters.genreId = ''
+  filters.isActive = ''
+  page.value = 1
+  void loadArtists(1)
+}
+
+function goToPage(nextPage: number) {
+  void loadArtists(nextPage)
+}
+
 async function removeArtist(artistId: string) {
-  deletingArtistId.value = artistId
+  deletingId.value = artistId
+
   try {
-    await apiRequest(`/admin/artists/${artistId}`, { method: 'DELETE', headers: requireAdminHeaders() })
-    await loadArtists()
+    await deleteAdminArtist(artistId)
+
+    notifySuccess('Artista eliminado correctamente.', { id: `admin-artists-delete-${artistId}` })
+    await loadArtists(page.value)
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos eliminar el artista.')
+    notifyApiError(error, 'No pudimos eliminar el artista.', { id: `admin-artists-delete-error-${artistId}` })
   }
   finally {
-    deletingArtistId.value = ''
+    deletingId.value = ''
   }
-}
-
-function getInitials(name: string) {
-  return name.charAt(0).toUpperCase()
-}
-
-function setFilterStatus(value: 'all' | 'active' | 'inactive') {
-  filterStatus.value = value
 }
 
 onMounted(() => {
-  void loadArtists()
+  void Promise.all([loadGenres(), loadArtists()])
 })
 </script>
 
 <template>
   <AdminPageShell
-    title="Directorio de artistas"
-    description="Gestiona el catálogo de artistas, sus géneros y visibilidad."
+    title="Artistas"
+    description="Gestioná el catálogo de artistas, el estado de publicación y los metadatos curatoriales."
     primary-action-to="/admin/artists/new"
     primary-action-label="Nuevo artista"
   >
-    <div class="max-w-7xl mx-auto space-y-6">
-      <!-- Error -->
-      <UAlert
-        v-if="errorMessage"
-        color="error"
-        variant="soft"
-        :title="errorMessage"
-        icon="i-lucide-alert-circle"
-      />
-
-      <!-- Metrics Grid -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <template v-if="pending">
-          <div v-for="i in 4" :key="i" class="p-6 rounded-2xl border border-default bg-default shadow-sm">
-            <USkeleton class="size-10 rounded-lg mb-4" />
-            <USkeleton class="h-8 w-16 mb-2" />
-            <USkeleton class="h-4 w-24" />
+    <div class="mx-auto max-w-7xl space-y-8" data-testid="admin-artists-page">
+      <AdminOverviewPanel
+        eyebrow="Catálogo"
+        title="Directorio de artistas"
+        description="Buscá por nombre y filtrá por género o estado para mantener limpio el lineup."
+        tone="subtle"
+      >
+        <template #actions>
+          <div class="flex items-center gap-3 sm:self-center">
+            <BaseButton kind="tertiary" size="md" :disabled="pending" @click="resetFilters">
+              Resetear
+            </BaseButton>
+            <BaseButton kind="primary" size="md" :loading="pending" @click="applyFilters">
+              Aplicar
+            </BaseButton>
           </div>
         </template>
-        <template v-else>
-          <AdminMetric
-            v-for="metric in metrics"
-            :key="metric.label"
-            :label="metric.label"
-            :value="metric.value"
-            :hint="metric.hint"
-            :icon="metric.icon"
-            :variant="metric.variant"
+
+        <div class="space-y-6">
+          <AdminFiltersBar
+            v-model:search="filters.search"
+            v-model:page-size="pageSize"
+            v-model:genre-id="filters.genreId"
+            v-model:format-id="filters.isActive"
+            :page-size-options="pageSizeOptions"
+            :genres="genreFilterOptions"
+            :formats="statusOptions"
+            :visible-filters="['pageSize', 'genre', 'format']"
+            search-label="Buscar artista"
+            search-placeholder="Nombre del artista"
+            genre-label="Género"
+            genre-name="genreId"
+            format-label="Estado"
+            format-name="isActive"
+            :loading="pending"
+            class="w-full"
           />
-        </template>
-      </div>
 
-      <!-- Main Section -->
-      <AdminCard padding="none" class="flex flex-col overflow-hidden">
-        <!-- Filters Bar -->
-        <div class="p-4 sm:p-5 border-b border-default bg-elevated flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
-          <div class="flex-1 max-w-md">
-            <UInput
-              v-model="search"
-              placeholder="Buscar por nombre, país o género..."
-              icon="i-lucide-search"
-              size="md"
-              class="w-full"
-              :ui="{ icon: { trailing: { pointer: '' } }, wrapper: 'relative w-full' }"
-            />
-          </div>
-          <div class="flex items-center gap-1.5 p-1 rounded-lg bg-elevated border border-default self-start sm:self-auto">
-            <UButton
-              v-for="option in statusOptions"
-              :key="option.value"
-              size="xs"
-              class="rounded-md"
-              :color="filterStatus === option.value ? 'primary' : 'neutral'"
-              :variant="filterStatus === option.value ? 'soft' : 'ghost'"
-              @click="setFilterStatus(option.value)"
-            >
-              {{ option.label }}
-            </UButton>
-          </div>
-        </div>
+          <AdminPaginationBar
+            :page="meta.page"
+            :total-pages="meta.totalPages"
+            :total-items="meta.total"
+            :page-size="meta.limit"
+            :pending="pending"
+            @change="goToPage"
+          />
 
-        <!-- Results Info -->
-        <div class="px-5 py-3 border-b border-default bg-default flex items-center justify-between text-sm text-muted">
-          <p class="font-medium">
-            <span class="text-default">{{ filteredArtists.length }}</span> artista{{ filteredArtists.length !== 1 ? 's' : '' }}
-          </p>
-          <p v-if="search || filterStatus !== 'all'" class="text-warning font-medium flex items-center gap-1.5">
-            <UIcon name="i-lucide-filter" class="size-4" />
-            Filtros aplicados
-          </p>
-        </div>
-
-        <!-- List Area -->
-        <div class="bg-elevated min-h-[400px] p-4 sm:p-6 lg:p-8">
-          <!-- Loading State -->
-          <div v-if="pending" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <div v-for="i in 8" :key="i" class="p-6 rounded-2xl border border-default bg-default h-[220px]">
-              <div class="flex items-start justify-between mb-4">
-                <USkeleton class="size-16 rounded-full" />
-              </div>
-              <USkeleton class="h-5 w-3/4 mb-2" />
-              <USkeleton class="h-4 w-1/2 mb-4" />
-              <div class="flex gap-2">
-                <USkeleton class="h-6 w-16 rounded-full" />
-                <USkeleton class="h-6 w-20 rounded-full" />
-              </div>
-            </div>
+          <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <USkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
           </div>
 
-          <!-- Empty State -->
-          <div v-else-if="filteredArtists.length === 0" class="flex flex-col items-center justify-center h-full py-24 text-center">
-            <div class="p-4 rounded-full bg-elevated mb-4 ring-1 ring-default">
-              <UIcon name="i-lucide-mic-off" class="size-8 text-muted" />
-            </div>
-            <h3 class="text-lg font-semibold text-default mb-1">
-              No se encontraron artistas
-            </h3>
-            <p class="text-muted text-sm max-w-sm">
-              {{ search ? 'Intenta con otros términos de búsqueda o cambia los filtros activos.' : 'Actualmente no hay artistas registrados en el catálogo.' }}
-            </p>
-            <UButton v-if="search || filterStatus !== 'all'" color="neutral" variant="soft" class="mt-6 font-medium" @click="search = ''; filterStatus = 'all'">
-              Limpiar filtros
-            </UButton>
-          </div>
+          <AdminEmptyState
+            v-else-if="artists.length === 0"
+            icon="i-lucide-mic-2"
+            title="Sin artistas"
+            description="No encontramos artistas para estos filtros."
+            action-label="Crear artista"
+            action-to="/admin/artists/new"
+          />
 
-          <!-- Artists Grid -->
-          <div v-else class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <AdminCard
-              v-for="artist in filteredArtists"
+<div v-else class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div
+              v-for="artist in artists"
               :key="artist.id"
-              hover
-              class="group relative flex flex-col h-full !p-6"
+              class="group relative block"
             >
-              <div class="flex items-start justify-between mb-5">
-                <div class="size-16 rounded-full bg-success/10 border border-success/20 text-success flex items-center justify-center text-xl font-bold shrink-0 group-hover:scale-105 transition-transform duration-300">
-                  {{ getInitials(artist.name) }}
+              <NuxtLink
+                :to="`/admin/artists/${artist.id}/edit`"
+                class="block"
+              >
+                <div class="aspect-square overflow-hidden rounded-xl bg-elevated/30">
+                  <img
+                    v-if="artist.imageUrl"
+                    :src="artist.imageUrl"
+                    :alt="artist.name"
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  >
+                  <div
+                    v-else
+                    class="flex h-full items-center justify-center bg-gradient-to-br from-toned/25 to-toned/10"
+                  >
+                    <UAvatar
+                      :text="artistInitials(artist)"
+                      size="xl"
+                      class="!size-16"
+                    />
+                  </div>
+
+                  <!-- Status -->
+                  <div
+                    class="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider opacity-80"
+                    :class="artist.isActive ? 'bg-black/60 text-white' : 'bg-black/40 text-muted'"
+                  >
+                    {{ artist.isActive ? 'Activo' : 'Inactivo' }}
+                  </div>
                 </div>
-                <div class="flex items-center gap-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm p-1 rounded-lg">
-                  <UButton
-                    :to="`/admin/artists/${artist.id}/edit`"
-                    color="neutral"
-                    variant="soft"
-                    size="sm"
-                    icon="i-lucide-pencil"
-                    class="hover:bg-elevated"
-                  />
-                  <AdminDeleteAction
-                    :item-label="artist.name"
-                    :pending="deletingArtistId === artist.id"
-                    @confirm="removeArtist(artist.id)"
-                  />
+
+                <div class="mt-2">
+                  <h3 class="truncate text-sm font-medium text-highlighted">
+                    {{ artist.name }}
+                  </h3>
+                  <p v-if="artist.genres.length" class="truncate text-xs text-toned">
+                    {{ artist.genres.map(g => g.name).join(', ') }}
+                  </p>
                 </div>
-              </div>
+              </NuxtLink>
 
-              <h3 class="font-semibold text-lg text-default mb-1.5 truncate group-hover:text-success transition-colors">
-                <NuxtLink :to="`/admin/artists/${artist.id}/edit`" class="focus:outline-none focus:ring-2 focus:ring-success/40 rounded-sm">
-                  <span class="absolute inset-0" aria-hidden="true" />
-                  {{ artist.name }}
-                </NuxtLink>
-              </h3>
-
-              <div class="flex items-center gap-2 text-sm font-medium text-muted mb-4">
-                <UIcon name="i-lucide-map-pin" class="size-4 shrink-0" />
-                <span class="truncate">{{ artist.country || 'País no especificado' }}</span>
-              </div>
-
-              <div class="flex flex-wrap gap-2 mb-6">
-                <UBadge
-                  v-for="genre in artist.genres.slice(0, 3)"
-                  :key="genre.id"
-                  color="neutral"
-                  variant="subtle"
-                  size="xs"
-                  class="relative z-10 rounded-md px-2.5 py-1 text-xs font-semibold"
-                >
-                  {{ genre.name }}
-                </UBadge>
-                <UBadge
-                  v-if="artist.genres.length > 3"
-                  color="neutral"
-                  variant="outline"
-                  size="xs"
-                  class="relative z-10 rounded-md px-2.5 py-1 text-xs font-semibold"
-                >
-                  +{{ artist.genres.length - 3 }}
-                </UBadge>
-              </div>
-
-              <div class="mt-auto flex items-center justify-between pt-4 border-t border-default relative z-10">
-                <UBadge
-                  :color="artist.isActive ? 'success' : 'neutral'"
-                  variant="soft"
-                  size="xs"
-                  class="text-xs font-semibold tracking-wide uppercase"
-                >
-                  {{ artist.isActive ? 'Activo' : 'Inactivo' }}
-                </UBadge>
-                <span class="text-xs font-medium text-muted truncate max-w-[100px] hover:text-toned transition-colors" :title="artist.slug">
-                  {{ artist.slug }}
-                </span>
-              </div>
-            </AdminCard>
+              <!-- Delete action -->
+              <AdminDeleteAction
+                item-label="el artista"
+                trigger-kind="tertiary"
+                trigger-class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity"
+                :pending="deletingId === artist.id"
+                @confirm="removeArtist(artist.id)"
+              />
+            </div>
           </div>
+
+          <AdminPaginationBar
+            :page="meta.page"
+            :total-pages="meta.totalPages"
+            :total-items="meta.total"
+            :page-size="meta.limit"
+            :pending="pending"
+            @change="goToPage"
+          />
         </div>
-      </AdminCard>
+      </AdminOverviewPanel>
     </div>
   </AdminPageShell>
 </template>

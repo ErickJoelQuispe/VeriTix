@@ -5,6 +5,7 @@ import { generateVerificationEmail } from './templates/verification.template';
 import { generateOrderConfirmationEmail } from './templates/order-confirmation.template';
 import { generateRefundEmail } from './templates/refund.template';
 import { generateEventReminderEmail } from './templates/event-reminder.template';
+import { generatePasswordResetEmail } from './templates/password-reset.template';
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {
@@ -90,6 +91,20 @@ export class NotificationsService implements OnModuleInit {
       });
     } catch (error) {
       this.logger.error(`Failed to send event reminder to ${to} for event "${eventName}"`, error);
+    }
+  }
+
+  async sendPasswordResetEmail(to: string, name: string, token: string): Promise<void> {
+    const resetUrl = `${this.config.get<string>('FRONTEND_URL')}/reset-password?token=${token}`;
+    try {
+      await this.resend.emails.send({
+        from: this.fromEmail,
+        to,
+        subject: 'Reset your VeriTix password',
+        html: generatePasswordResetEmail(name, resetUrl),
+      });
+    } catch (error) {
+      this.logger.error(`Failed to send password reset email to ${to}`, error);
     }
   }
 }

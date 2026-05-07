@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class ValidateTicketDto {
   @ApiProperty({
-    example: 'a3f8e1d2b4c7f9a2e6d1b8f3c5a7e9d4b2f6a1c8e3d7b5f2a9c4e6d8b1f7a3c5',
-    description: 'Hash SHA256 del ticket a validar (64 caracteres hexadecimales).',
+    example: '24a9f1b3e7c0d2f5:8ab3c12ef4d56789abcdef01:a3f8e1d2b4c7f9a2e6d1b8f3',
+    description:
+      'Payload cifrado AES-256-GCM del QR del ticket. Formato: iv:authTag:ciphertext (todo en hex, separado por ":").',
   })
   @IsString()
-  @Length(64, 64, { message: 'El hash debe tener exactamente 64 caracteres' })
-  hash: string;
+  payload: string;
 }
 
 export class ValidateTicketResponseDto {

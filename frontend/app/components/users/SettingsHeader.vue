@@ -45,7 +45,7 @@ function isActive(path: string) {
       </div>
     </div>
 
-    <nav class="flex flex-wrap gap-3" aria-label="Navegacion de ajustes de cuenta">
+    <nav class="flex flex-wrap gap-3" aria-label="Navegación de ajustes de cuenta">
       <NuxtLink
         v-for="item in navigationItems"
         :key="item.to"

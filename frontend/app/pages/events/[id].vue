@@ -95,16 +95,14 @@ const eventErrorMessage = computed(() => {
         <div class="space-y-8">
           <div class="space-y-5 border-b border-default/55 pb-7">
             <div class="flex flex-wrap gap-2">
-              <UBadge
+              <BaseBadge
                 v-for="genre in event.genres"
                 :key="genre.id"
-                color="neutral"
-                variant="subtle"
+                kind="tag"
                 size="xs"
-                class="rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase"
               >
                 {{ genre.name }}
-              </UBadge>
+              </BaseBadge>
             </div>
 
             <div class="space-y-3">
@@ -187,7 +185,7 @@ const eventErrorMessage = computed(() => {
             No pudimos preparar esta vista.
           </p>
           <p class="text-sm leading-relaxed text-toned">
-            Intenta recargar la página en unos segundos.
+            Intentá recargar la página en unos segundos.
           </p>
         </div>
       </div>

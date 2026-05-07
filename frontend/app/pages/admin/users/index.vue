@@ -1,130 +1,173 @@
 <script setup lang="ts">
-import type { AdminUserRecord, PaginatedResponse } from '~/types'
+import type {
+  AdminOption,
+  AdminUserRecord,
+  PaginatedMeta,
+} from '~/types'
+import { useAdminUsersRepository } from '~/repositories/adminUsersRepository'
+import { PAGE_SIZE_OPTIONS } from '~/utils/admin/pagination'
 
 definePageMeta({ middleware: 'admin' })
-useSeoMeta({ title: 'Admin usuarios | VeriTix' })
+useSeoMeta({ title: 'Usuarios | Admin VeriTix' })
 
-const apiRequest = useApiRequest()
-const { ensureAdminSession, requireAdminHeaders } = useAdminApi()
-const { getApiErrorMessage } = useApiErrorMessage()
+const { listUsers, deleteUser } = useAdminUsersRepository()
+const { roleOptions } = useAdminApi()
+const { isApiAuthError } = useApiErrorMessage()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 
 const users = ref<AdminUserRecord[]>([])
 const pending = ref(true)
-const errorMessage = ref('')
-const deletingUserId = ref('')
-const search = ref('')
-const filterStatus = ref<'all' | 'active' | 'inactive'>('all')
+const deletingId = ref('')
 
-const statusOptions = [
-  { value: 'all', label: 'Todos' },
-  { value: 'active', label: 'Activos' },
-  { value: 'inactive', label: 'Inactivos' },
-] as const
+const page = ref(1)
+const pageSize = ref(12)
+const pageSizeOptions = PAGE_SIZE_OPTIONS
 
-const filteredUsers = computed(() => {
-  let result = users.value
-
-  if (search.value.trim()) {
-    const term = search.value.toLowerCase()
-    result = result.filter(u =>
-      u.name.toLowerCase().includes(term)
-      || u.lastName.toLowerCase().includes(term)
-      || u.email.toLowerCase().includes(term),
-    )
-  }
-
-  if (filterStatus.value !== 'all') {
-    result = result.filter(u =>
-      filterStatus.value === 'active' ? u.isActive : !u.isActive,
-    )
-  }
-
-  return result
+const meta = ref<PaginatedMeta>({
+  total: 0,
+  page: 1,
+  limit: 12,
+  totalPages: 1,
 })
 
-const metrics = computed(() => {
-  const active = users.value.filter(u => u.isActive).length
-  const inactive = users.value.length - active
-  const admins = users.value.filter(u => u.role === 'ADMIN').length
+const statusOptions: AdminOption[] = [
+  { id: 'true', name: 'Activo' },
+  { id: 'false', name: 'Inactivo' },
+]
 
-  return [
-    {
-      label: 'Total usuarios',
-      value: users.value.length,
-      icon: 'i-lucide-users',
-      variant: 'primary' as const,
-    },
-    {
-      label: 'Activos',
-      value: active,
-      icon: 'i-lucide-user-check',
-      variant: 'success' as const,
-    },
-    {
-      label: 'Inactivos',
-      value: inactive,
-      icon: 'i-lucide-user-x',
-      variant: inactive > 0 ? 'warning' as const : 'default' as const,
-    },
-    {
-      label: 'Administradores',
-      value: admins,
-      icon: 'i-lucide-shield',
-      variant: 'primary' as const,
-    },
-  ]
+const filters = reactive({
+  search: '',
+  role: '',
+  isActive: '',
 })
 
-async function loadUsers() {
+const roleFilterOptions = computed(() => {
+  return roleOptions.map(option => ({
+    id: option.value,
+    name: option.label,
+  }))
+})
+
+function userInitials(user: AdminUserRecord) {
+  const initials = [user.name, user.lastName]
+    .map(value => value?.trim()?.charAt(0)?.toUpperCase() ?? '')
+    .join('')
+
+  if (initials) {
+    return initials
+  }
+
+  return user.email?.trim()?.charAt(0)?.toUpperCase() || 'U'
+}
+
+function roleLabel(role: string) {
+  if (role === 'ADMIN') {
+    return 'Administrador'
+  }
+  if (role === 'CREATOR') {
+    return 'Creador'
+  }
+  if (role === 'VALIDATOR') {
+    return 'Validador'
+  }
+
+  return 'Usuario'
+}
+
+function roleBadgeColor(role: string) {
+  if (role === 'ADMIN') {
+    return 'primary'
+  }
+  if (role === 'CREATOR') {
+    return 'secondary'
+  }
+  if (role === 'VALIDATOR') {
+    return 'info'
+  }
+
+  return 'neutral'
+}
+
+function roleBadgeIcon(role: string) {
+  if (role === 'ADMIN') {
+    return 'i-lucide-shield'
+  }
+  if (role === 'CREATOR') {
+    return 'i-lucide-wand-sparkles'
+  }
+  if (role === 'VALIDATOR') {
+    return 'i-lucide-badge-check'
+  }
+
+  return 'i-lucide-user'
+}
+
+async function loadUsers(targetPage = page.value) {
   pending.value = true
-  errorMessage.value = ''
+
   try {
-    await ensureAdminSession()
-    const response = await apiRequest<PaginatedResponse<AdminUserRecord>>('/admin/users', {
-      method: 'GET',
-      headers: requireAdminHeaders(),
-      query: { page: 1, limit: 100 },
+    const response = await listUsers({
+      pageValue: targetPage,
+      pageSize: pageSize.value,
+      search: filters.search,
+      role: filters.role,
+      isActive: filters.isActive,
     })
+
     users.value = response.data
+    meta.value = response.meta
+    page.value = response.meta.page
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos cargar los usuarios.')
+    if (isApiAuthError(error)) {
+      await navigateTo('/login')
+      return
+    }
+
+    notifyApiError(error, 'No pudimos cargar los usuarios.', { id: 'admin-users-load-error' })
   }
   finally {
     pending.value = false
   }
 }
 
+function applyFilters() {
+  page.value = 1
+  void loadUsers(1)
+}
+
+function resetFilters() {
+  filters.search = ''
+  filters.role = ''
+  filters.isActive = ''
+  page.value = 1
+  void loadUsers(1)
+}
+
+function goToPage(nextPage: number) {
+  void loadUsers(nextPage)
+}
+
 async function removeUser(userId: string) {
-  deletingUserId.value = userId
+  deletingId.value = userId
+
   try {
-    await apiRequest(`/admin/users/${userId}`, { method: 'DELETE', headers: requireAdminHeaders() })
-    await loadUsers()
+    await deleteUser(userId)
+
+    notifySuccess('Usuario eliminado correctamente.', { id: `admin-users-delete-${userId}` })
+    await loadUsers(page.value)
   }
   catch (error) {
-    errorMessage.value = getApiErrorMessage(error, 'No pudimos eliminar el usuario.')
+    if (isApiAuthError(error)) {
+      await navigateTo('/login')
+      return
+    }
+
+    notifyApiError(error, 'No pudimos eliminar el usuario.', { id: `admin-users-delete-error-${userId}` })
   }
   finally {
-    deletingUserId.value = ''
+    deletingId.value = ''
   }
-}
-
-function getInitials(user: AdminUserRecord) {
-  return `${user.name.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
-}
-
-function getAvatarColor(user: AdminUserRecord) {
-  if (user.role === 'ADMIN') {
-    return 'bg-primary/10 text-primary border-primary/20'
-  }
-  if (user.isActive) {
-    return 'bg-success/10 text-success border-success/20'
-  }
-  return 'bg-default text-muted border-default'
-}
-
-function setFilterStatus(value: 'all' | 'active' | 'inactive') {
-  filterStatus.value = value
 }
 
 onMounted(() => {
@@ -134,171 +177,157 @@ onMounted(() => {
 
 <template>
   <AdminPageShell
-    title="Gestión de usuarios"
-    description="Administra cuentas, roles y permisos de acceso al sistema."
+    title="Usuarios"
+    description="Gestioná cuentas, roles y estado de acceso del equipo y de los compradores."
     primary-action-to="/admin/users/new"
     primary-action-label="Nuevo usuario"
   >
-    <div class="max-w-6xl mx-auto space-y-6">
-      <!-- Error -->
-      <UAlert
-        v-if="errorMessage"
-        color="error"
-        variant="soft"
-        :title="errorMessage"
-        icon="i-lucide-alert-circle"
-      />
-
-      <!-- Metrics Grid -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <template v-if="pending">
-          <div v-for="i in 4" :key="i" class="p-6 rounded-2xl border border-default bg-default shadow-sm">
-            <USkeleton class="size-10 rounded-lg mb-4" />
-            <USkeleton class="h-8 w-16 mb-2" />
-            <USkeleton class="h-4 w-24" />
+    <div class="mx-auto max-w-7xl space-y-8" data-testid="admin-users-page">
+      <AdminOverviewPanel
+        eyebrow="Administración"
+        title="Directorio de usuarios"
+        description="Busca por nombre o correo, filtra por rol y controla quién mantiene acceso activo."
+        tone="subtle"
+      >
+        <template #actions>
+          <div class="flex items-center gap-3 sm:self-center">
+            <BaseButton kind="tertiary" size="md" :disabled="pending" @click="resetFilters">
+              Resetear
+            </BaseButton>
+            <BaseButton kind="primary" size="md" :loading="pending" @click="applyFilters">
+              Aplicar
+            </BaseButton>
           </div>
         </template>
-        <template v-else>
-          <AdminMetric
-            v-for="metric in metrics"
-            :key="metric.label"
-            :label="metric.label"
-            :value="metric.value"
-            :icon="metric.icon"
-            :variant="metric.variant"
+
+        <div class="space-y-6">
+          <AdminFiltersBar
+            v-model:search="filters.search"
+            v-model:page-size="pageSize"
+            v-model:genre-id="filters.role"
+            v-model:format-id="filters.isActive"
+            :page-size-options="pageSizeOptions"
+            :genres="roleFilterOptions"
+            :formats="statusOptions"
+            :visible-filters="['pageSize', 'genre', 'format']"
+            search-label="Buscar usuario"
+            search-placeholder="Nombre o correo"
+            genre-label="Rol"
+            genre-all-label="Todos los roles"
+            genre-name="role"
+            format-label="Estado"
+            format-name="isActive"
+            :loading="pending"
+            class="w-full"
           />
-        </template>
-      </div>
 
-      <!-- Main Section -->
-      <AdminCard padding="none" class="flex flex-col">
-        <!-- Filters Bar -->
-        <div class="p-4 sm:p-5 border-b border-default bg-elevated flex flex-col sm:flex-row sm:items-center gap-4 justify-between rounded-t-2xl">
-          <div class="flex-1 max-w-md">
-            <UInput
-              v-model="search"
-              placeholder="Buscar por nombre o email..."
-              icon="i-lucide-search"
-              size="md"
-              class="w-full"
-              :ui="{ icon: { trailing: { pointer: '' } }, wrapper: 'relative w-full' }"
-            />
-          </div>
-          <div class="flex items-center gap-1.5 p-1 rounded-lg bg-elevated border border-default self-start sm:self-auto">
-            <UButton
-              v-for="option in statusOptions"
-              :key="option.value"
-              size="xs"
-              :color="filterStatus === option.value ? 'primary' : 'neutral'"
-              :variant="filterStatus === option.value ? 'soft' : 'ghost'"
-              class="rounded-md"
-              @click="setFilterStatus(option.value)"
-            >
-              {{ option.label }}
-            </UButton>
-          </div>
-        </div>
+          <AdminPaginationBar
+            :page="meta.page"
+            :total-pages="meta.totalPages"
+            :total-items="meta.total"
+            :page-size="meta.limit"
+            :pending="pending"
+            @change="goToPage"
+          />
 
-        <!-- Results Info -->
-        <div class="px-5 py-3 border-b border-default bg-default flex items-center justify-between text-sm text-muted">
-          <p class="font-medium">
-            <span class="text-default">{{ filteredUsers.length }}</span> usuario{{ filteredUsers.length !== 1 ? 's' : '' }}
-          </p>
-          <p v-if="search || filterStatus !== 'all'" class="text-warning font-medium flex items-center gap-1.5">
-            <UIcon name="i-lucide-filter" class="size-4" />
-            Filtros aplicados
-          </p>
-        </div>
-
-        <!-- List Area -->
-        <div class="bg-elevated min-h-100 p-4 sm:p-5 rounded-b-2xl">
-          <!-- Loading State -->
-          <div v-if="pending" class="space-y-3">
-            <USkeleton v-for="i in 5" :key="i" class="h-20 w-full rounded-2xl" />
+          <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <USkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
           </div>
 
-          <!-- Empty State -->
-          <div v-else-if="filteredUsers.length === 0" class="flex flex-col items-center justify-center h-full py-16 text-center">
-            <div class="p-4 rounded-full bg-elevated mb-4 ring-1 ring-default">
-              <UIcon name="i-lucide-users" class="size-8 text-muted" />
-            </div>
-            <h3 class="text-lg font-semibold text-default mb-1">
-              No se encontraron usuarios
-            </h3>
-            <p class="text-muted text-sm max-w-sm">
-              {{ search ? 'Intenta con otros términos de búsqueda o cambia los filtros activos.' : 'Actualmente no hay usuarios registrados en la plataforma.' }}
-            </p>
-            <UButton v-if="search || filterStatus !== 'all'" color="neutral" variant="soft" class="mt-6 font-medium" @click="search = ''; filterStatus = 'all'">
-              Limpiar filtros
-            </UButton>
-          </div>
+          <AdminEmptyState
+            v-else-if="users.length === 0"
+            icon="i-lucide-users"
+            title="Sin usuarios"
+            description="No encontramos usuarios para estos filtros."
+            action-label="Crear usuario"
+            action-to="/admin/users/new"
+          />
 
-          <!-- Users List -->
-          <div v-else class="space-y-3">
+          <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             <AdminCard
-              v-for="user in filteredUsers"
+              v-for="user in users"
               :key="user.id"
-              hover
-              padding="compact"
-              class="group flex flex-col sm:flex-row sm:items-center gap-4"
+              class="h-full border-default/65 bg-elevated/20"
             >
-              <!-- Avatar -->
-              <div
-                class="size-11 rounded-full border flex items-center justify-center text-sm font-bold shrink-0 transition-colors"
-                :class="getAvatarColor(user)"
-              >
-                {{ getInitials(user) }}
-              </div>
+              <div class="flex h-full flex-col gap-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <UAvatar
+                      :src="user.avatarUrl || undefined"
+                      :alt="`${user.name} ${user.lastName}`.trim() || user.email"
+                      :text="userInitials(user)"
+                      size="xl"
+                      class="ring-1 ring-default/60"
+                    />
 
-              <!-- Info -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <p class="font-semibold text-default truncate group-hover:text-primary transition-colors">
-                    {{ user.name }} {{ user.lastName }}
-                  </p>
-                  <UBadge v-if="user.role === 'ADMIN'" color="primary" variant="soft" size="xs" class="font-semibold rounded-full px-2">
-                    ADMIN
-                  </UBadge>
-                </div>
-                <div class="flex items-center gap-3 text-sm text-muted">
-                  <span class="flex items-center gap-1.5 truncate">
-                    <UIcon name="i-lucide-mail" class="size-3.5 shrink-0" />
-                    <span class="truncate">{{ user.email }}</span>
-                  </span>
-                </div>
-              </div>
+                    <div class="min-w-0 space-y-1">
+                      <p class="truncate text-base font-semibold text-highlighted">
+                        {{ user.name }} {{ user.lastName }}
+                      </p>
+                      <p class="truncate text-sm text-toned">
+                        {{ user.email }}
+                      </p>
+                    </div>
+                  </div>
 
-              <!-- Status & Actions -->
-              <div class="flex items-center justify-between sm:justify-end gap-6 sm:w-64 mt-3 sm:mt-0 pt-3 sm:pt-0 border-t border-default sm:border-t-0">
-                <UBadge
-                  :color="user.isActive ? 'success' : 'neutral'"
-                  variant="subtle"
-                  size="xs"
-                  class="rounded-full px-2.5"
-                >
-                  {{ user.isActive ? 'Activo' : 'Inactivo' }}
-                </UBadge>
-
-                <div class="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                  <UButton
-                    :to="`/admin/users/${user.id}/edit`"
-                    color="neutral"
-                    variant="soft"
+                  <BaseBadge
+                    kind="role"
                     size="sm"
-                    icon="i-lucide-pencil"
-                    class="hover:bg-elevated"
-                  />
+                    :color="roleBadgeColor(user.role)"
+                    :icon="roleBadgeIcon(user.role)"
+                    leading
+                  >
+                    {{ roleLabel(user.role) }}
+                  </BaseBadge>
+                </div>
+
+                <div class="space-y-2 text-sm">
+                  <div class="flex items-center justify-between border-b border-default/60 pb-2">
+                    <span class="text-muted">Teléfono</span>
+                    <span class="truncate text-toned">{{ user.phone }}</span>
+                  </div>
+
+                  <div class="flex items-center justify-between border-b border-default/60 pb-2">
+                    <span class="text-muted">Estado</span>
+                    <span :class="user.isActive ? 'text-success' : 'text-muted'" class="font-medium">
+                      {{ user.isActive ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-muted">Email</span>
+                    <span :class="user.emailVerified ? 'text-success' : 'text-warning'" class="font-medium">
+                      {{ user.emailVerified ? 'Verificado' : 'Pendiente' }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="mt-auto grid grid-cols-2 gap-2 border-t border-default/60 pt-3">
+                  <BaseButton kind="secondary" size="sm" block :to="`/admin/users/${user.id}/edit`">
+                    Editar
+                  </BaseButton>
                   <AdminDeleteAction
-                    :item-label="`${user.name} ${user.lastName}`.trim()"
-                    :pending="deletingUserId === user.id"
+                    item-label="el usuario"
+                    trigger-kind="tertiary"
+                    trigger-class="w-full justify-center text-error hover:bg-error/10"
+                    :pending="deletingId === user.id"
                     @confirm="removeUser(user.id)"
                   />
                 </div>
               </div>
             </AdminCard>
           </div>
+
+          <AdminPaginationBar
+            :page="meta.page"
+            :total-pages="meta.totalPages"
+            :total-items="meta.total"
+            :page-size="meta.limit"
+            :pending="pending"
+            @change="goToPage"
+          />
         </div>
-      </AdminCard>
+      </AdminOverviewPanel>
     </div>
   </AdminPageShell>
 </template>

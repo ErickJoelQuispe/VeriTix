@@ -26,7 +26,6 @@ export const ORDER_LIST_SELECT = {
 
 export const ORDER_DETAIL_SELECT = {
   id: true,
-  buyerId: true,
   totalAmount: true,
   status: true,
   createdAt: true,
@@ -84,7 +83,6 @@ export type OrderListItem = {
 
 export type OrderDetail = {
   id: string;
-  buyerId: string;
   totalAmount: unknown; // Prisma Decimal — convertir con Number()
   status: OrderStatus;
   createdAt: Date;

@@ -1,7 +1,9 @@
+import { getQueueToken } from '@nestjs/bullmq';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderStatus, PaymentStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { TICKET_EMAIL_QUEUE } from '../queues/constants/queue-names';
 import { ReminderScheduler } from '../queues/reminder.scheduler';
 import { TicketsGenerator } from '../tickets/tickets.generator';
 import { StripeWebhookService } from './stripe-webhook.service';
@@ -11,6 +13,7 @@ import { StripeWebhookService } from './stripe-webhook.service';
 const mockPayment = {
   id: 'uuid-payment-1',
   orderId: 'uuid-order-1',
+  status: PaymentStatus.PENDING,
 };
 
 const mockOrderForConfirmation = {
@@ -71,6 +74,10 @@ const mockReminderScheduler = {
   scheduleReminders: jest.fn(),
 };
 
+const mockTicketEmailQueue = {
+  add: jest.fn(),
+};
+
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
 describe('StripeWebhookService', () => {
@@ -86,6 +93,7 @@ describe('StripeWebhookService', () => {
         { provide: TicketsGenerator, useValue: mockTicketsGenerator },
         { provide: NotificationsService, useValue: mockNotificationsService },
         { provide: ReminderScheduler, useValue: mockReminderScheduler },
+        { provide: getQueueToken(TICKET_EMAIL_QUEUE), useValue: mockTicketEmailQueue },
       ],
     }).compile();
 
@@ -115,6 +123,7 @@ describe('StripeWebhookService', () => {
       mockTicketsGenerator.generateForOrder.mockResolvedValue(undefined);
       mockNotificationsService.sendOrderConfirmation.mockResolvedValue(undefined);
       mockReminderScheduler.scheduleReminders.mockResolvedValue(undefined);
+      mockTicketEmailQueue.add.mockResolvedValue(undefined);
       // $transaction callback — ejecuta con tx mock
       prisma.$transaction.mockImplementation(async (cb: any) => {
         const tx = {
@@ -130,9 +139,21 @@ describe('StripeWebhookService', () => {
 
       expect(prisma.payment.findUnique).toHaveBeenCalledWith({
         where: { providerSessionId: 'cs_test_session_1' },
-        select: { id: true, orderId: true },
+        select: { id: true, orderId: true, status: true },
       });
       expect(prisma.$transaction).toHaveBeenCalled();
+    });
+
+    it('should skip processing when payment is already COMPLETED (idempotency guard)', async () => {
+      prisma.payment.findUnique.mockResolvedValue({
+        ...mockPayment,
+        status: PaymentStatus.COMPLETED,
+      });
+
+      await service.handleCheckoutSessionCompleted(sessionData);
+
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(ticketsGenerator.generateForOrder).not.toHaveBeenCalled();
     });
 
     it('should call generateForOrder inside the transaction', async () => {
@@ -246,7 +267,7 @@ describe('StripeWebhookService', () => {
 
       expect(prisma.payment.findUnique).toHaveBeenCalledWith({
         where: { providerSessionId: 'cs_test_session_1' },
-        select: { id: true, orderId: true },
+        select: { id: true, orderId: true, status: true },
       });
       expect(prisma.orderItem.findMany).toHaveBeenCalledWith({
         where: { orderId: 'uuid-order-1' },
@@ -322,6 +343,18 @@ describe('StripeWebhookService', () => {
       });
     });
 
+    it('should skip processing when payment is already FAILED (idempotency guard)', async () => {
+      prisma.payment.findUnique.mockResolvedValue({
+        ...mockPayment,
+        status: PaymentStatus.FAILED,
+      });
+
+      await service.handleCheckoutSessionExpired(sessionData);
+
+      expect(prisma.orderItem.findMany).not.toHaveBeenCalled();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
     it('should do nothing if Payment not found (idempotent)', async () => {
       prisma.payment.findUnique.mockResolvedValue(null);
 
@@ -349,7 +382,7 @@ describe('StripeWebhookService', () => {
 
       expect(prisma.payment.findUnique).toHaveBeenCalledWith({
         where: { providerPaymentId: 'pi_test_intent_1' },
-        select: { id: true, orderId: true },
+        select: { id: true, orderId: true, status: true },
       });
       expect(prisma.payment.update).toHaveBeenCalledWith({
         where: { id: 'uuid-payment-1' },
@@ -385,6 +418,39 @@ describe('StripeWebhookService', () => {
           failureReason: 'Pago rechazado por el procesador',
         },
       });
+    });
+
+    it('should skip processing when payment is already FAILED (idempotency guard)', async () => {
+      prisma.payment.findUnique.mockResolvedValue({
+        ...mockPayment,
+        status: PaymentStatus.FAILED,
+      });
+
+      await service.handlePaymentIntentFailed(intentData);
+
+      expect(prisma.payment.update).not.toHaveBeenCalled();
+    });
+
+    it('should skip processing when payment is already COMPLETED (idempotency guard)', async () => {
+      prisma.payment.findUnique.mockResolvedValue({
+        ...mockPayment,
+        status: PaymentStatus.COMPLETED,
+      });
+
+      await service.handlePaymentIntentFailed(intentData);
+
+      expect(prisma.payment.update).not.toHaveBeenCalled();
+    });
+
+    it('should skip processing when payment is already REFUNDED (idempotency guard)', async () => {
+      prisma.payment.findUnique.mockResolvedValue({
+        ...mockPayment,
+        status: PaymentStatus.REFUNDED,
+      });
+
+      await service.handlePaymentIntentFailed(intentData);
+
+      expect(prisma.payment.update).not.toHaveBeenCalled();
     });
 
     it('should do nothing if Payment not found (idempotent)', async () => {
@@ -424,7 +490,7 @@ describe('StripeWebhookService', () => {
 
       expect(prisma.payment.findUnique).toHaveBeenCalledWith({
         where: { providerPaymentId: 'pi_test_intent_1' },
-        select: { id: true, orderId: true },
+        select: { id: true, orderId: true, status: true },
       });
       expect(prisma.orderItem.findMany).toHaveBeenCalledWith({
         where: { orderId: 'uuid-order-1' },
@@ -529,6 +595,18 @@ describe('StripeWebhookService', () => {
 
       await expect(service.handleChargeRefunded(chargeData)).resolves.toBeUndefined();
       expect(prisma.$transaction).toHaveBeenCalled();
+    });
+
+    it('should skip processing when payment is already REFUNDED (idempotency guard)', async () => {
+      prisma.payment.findUnique.mockResolvedValue({
+        ...mockPayment,
+        status: PaymentStatus.REFUNDED,
+      });
+
+      await service.handleChargeRefunded(chargeData);
+
+      expect(prisma.orderItem.findMany).not.toHaveBeenCalled();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
     });
 
     it('should do nothing when payment_intent is null', async () => {

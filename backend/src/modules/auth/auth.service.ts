@@ -113,6 +113,35 @@ export class AuthService {
     }
   }
 
+  async requestPasswordReset(email: string): Promise<void> {
+    const user = await this.authRepository.findByEmail(email);
+    if (!user) {
+      // Anti-enumeration: silently return without indicating whether email exists
+      return;
+    }
+
+    const token = randomUUID();
+    const exp = new Date(Date.now() + 3_600_000); // 1 hour
+    await this.authRepository.saveResetToken(user.id, token, exp);
+    await this.notificationsService.sendPasswordResetEmail(user.email, user.name, token);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.authRepository.findUserByResetToken(token);
+
+    if (!user) {
+      throw new UnauthorizedException('El token de restablecimiento es inválido o expiró');
+    }
+
+    if (!user.resetTokenExp || user.resetTokenExp <= new Date()) {
+      throw new UnauthorizedException('El token de restablecimiento es inválido o expiró');
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 12);
+
+    await this.authRepository.resetPasswordAtomic(user.id, hashed);
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   private async buildTokenPair(

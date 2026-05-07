@@ -54,7 +54,7 @@ const featuredEvents = computed(() => {
         v-if="!featuredEvents.length"
         class="mt-8 rounded-2xl border border-default/75 bg-muted/50 px-6 py-8 text-center text-sm text-muted"
       >
-        No encontramos conciertos para tu busqueda actual.
+        No encontramos conciertos para tu búsqueda actual.
       </p>
     </template>
   </UiSectionContainer>

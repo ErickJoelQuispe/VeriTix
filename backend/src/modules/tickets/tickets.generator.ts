@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto';
+import { createCipheriv, createHash, randomBytes, randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -8,6 +8,27 @@ import { PrismaService } from '../../prisma/prisma.service';
 export type PrismaTransactionClient = Parameters<
   Parameters<PrismaService['$transaction']>[0]
 >[0];
+
+// ── Crypto ────────────────────────────────────────────────────────────────────
+
+export function encryptPayload(hash: string, secret: string): string {
+  const key = Buffer.from(secret, 'utf8'); // 32 bytes = AES-256
+  const iv = randomBytes(12);              // 12 bytes estándar para GCM
+
+  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const encrypted = Buffer.concat([
+    cipher.update(hash, 'utf8'),
+    cipher.final(),
+  ]);
+  const authTag = cipher.getAuthTag(); // 16 bytes
+
+  // Formato: iv:authTag:ciphertext — todo en hex, separado por ':'
+  return [
+    iv.toString('hex'),
+    authTag.toString('hex'),
+    encrypted.toString('hex'),
+  ].join(':');
+}
 
 // ── Generator ─────────────────────────────────────────────────────────────────
 
@@ -70,7 +91,7 @@ export class TicketsGenerator {
         ticketsToCreate.push({
           id,
           hash,
-          qrPayload: hash, // simple + online: el QR contiene el hash
+          qrPayload: encryptPayload(hash, secret), // AES-256-GCM: el QR contiene el payload cifrado
           eventId: order.eventId,
           buyerId: order.buyerId,
           ticketTypeId: item.ticketTypeId,

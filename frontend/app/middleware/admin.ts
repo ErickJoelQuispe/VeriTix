@@ -3,15 +3,7 @@ export default defineNuxtRouteMiddleware(async () => {
     return
   }
 
-  const { ensureSession, isAuthenticated, user } = useAuth()
+  const { requireAdmin } = useRouteAccess()
 
-  await ensureSession()
-
-  if (!isAuthenticated.value) {
-    return navigateTo('/login')
-  }
-
-  if (user.value?.role !== 'ADMIN') {
-    return navigateTo('/users/me')
-  }
+  return requireAdmin()
 })

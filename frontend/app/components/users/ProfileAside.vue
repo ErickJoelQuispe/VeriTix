@@ -19,8 +19,8 @@ const accountMenuItems = computed(() => {
 
   if (props.isAdmin) {
     items.push({
-      label: 'Admin dashboard',
-      description: 'Gestion de eventos, usuarios y artistas',
+      label: 'Panel admin',
+      description: 'Gestión de eventos, usuarios y artistas',
       to: '/admin',
       icon: 'i-lucide-shield-check',
     })
@@ -33,8 +33,8 @@ const accountMenuItems = computed(() => {
     icon: 'i-lucide-settings-2',
   })
 
-  items.push({
-    label: 'Cerrar sesion',
+    items.push({
+    label: 'Cerrar sesión',
     description: 'Salir de VeriTix de forma segura',
     to: '/users/me/logout',
     icon: 'i-lucide-log-out',
@@ -129,7 +129,7 @@ const accountMenuItems = computed(() => {
 
         <div class="vtx-profile-signal">
           <UiMetaLabel>
-            Telefono
+            Teléfono
           </UiMetaLabel>
           <p class="mt-2 text-sm font-semibold text-highlighted">
             {{ phone || 'Pendiente' }}

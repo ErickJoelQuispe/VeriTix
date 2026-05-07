@@ -81,7 +81,7 @@ function toggleVisibility() {
       <template #trailing>
         <button
           type="button"
-          :aria-label="isVisible ? 'Ocultar contrasena' : 'Mostrar contrasena'"
+          :aria-label="isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'"
           :aria-pressed="isVisible"
           class="cursor-pointer rounded-md p-0.5 text-muted transition-colors duration-150 hover:bg-white/6 hover:text-auric-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
           @click="toggleVisibility"

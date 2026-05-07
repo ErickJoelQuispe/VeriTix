@@ -52,7 +52,7 @@ const avatarUrlModel = defineModel<string>('avatarUrl', { default: '' })
         <BaseFormField
           v-model="phoneModel"
           name="phone"
-          label="Telefono"
+          label="Teléfono"
           help="Opcional · formato E.164"
           type="tel"
           placeholder="+34958123456"

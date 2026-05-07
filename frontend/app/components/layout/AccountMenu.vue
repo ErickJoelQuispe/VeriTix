@@ -11,7 +11,7 @@ const accountMenuItems = computed(() => {
 
   if (user.value?.role === 'ADMIN') {
     items.push({
-      label: 'Admin dashboard',
+      label: 'Panel admin',
       description: 'Eventos, usuarios y artistas',
       to: '/admin',
       icon: 'i-lucide-shield-check',
@@ -25,8 +25,8 @@ const accountMenuItems = computed(() => {
     icon: 'i-lucide-settings-2',
   })
 
-  items.push({
-    label: 'Cerrar sesion',
+    items.push({
+    label: 'Cerrar sesión',
     description: 'Salir de VeriTix de forma segura',
     to: '/users/me/logout',
     icon: 'i-lucide-log-out',
@@ -66,7 +66,7 @@ const accountDisplayName = computed(() => {
 })
 
 const accountSubtitle = computed(() => {
-  return user.value?.email || 'Gestiona tu perfil y ajustes'
+  return user.value?.email || 'Gestioná tu perfil y ajustes'
 })
 </script>
 
@@ -75,7 +75,7 @@ const accountSubtitle = computed(() => {
     <button
       type="button"
       class="vtx-account-trigger"
-      :aria-label="`Abrir menu de ${accountAvatarAlt}`"
+      :aria-label="`Abrir menú de ${accountAvatarAlt}`"
     >
       <UAvatar
         :src="user?.avatarUrl || undefined"

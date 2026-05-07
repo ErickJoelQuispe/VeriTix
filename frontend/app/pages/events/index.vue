@@ -20,7 +20,7 @@ function readQueryPage(value: unknown): number {
 
 useSeoMeta({
   title: 'Eventos | VeriTix',
-  description: 'Explora conciertos y experiencias en vivo con filtros por género y ciudad.',
+  description: 'Explorá conciertos y experiencias en vivo con filtros por género y ciudad.',
 })
 
 const searchDraft = ref(readQueryValue(route.query.search))
@@ -102,7 +102,7 @@ const resultsContext = computed(() => {
   ].filter(Boolean)
 
   if (segments.length === 0) {
-    return 'Explora la cartelera disponible y encuentra el plan adecuado.'
+    return 'Explorá la cartelera disponible y encontrá el plan adecuado.'
   }
 
   return segments.join(' · ')
@@ -177,7 +177,7 @@ async function handlePageChange(page: number) {
             Eventos en vivo
           </h1>
           <p class="mt-2.5 max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-            Descubre la cartelera y encuentra rápido lo que quieres ver.
+            Descubrí la cartelera y encontrá rápido lo que querés ver.
           </p>
         </div>
       </header>
