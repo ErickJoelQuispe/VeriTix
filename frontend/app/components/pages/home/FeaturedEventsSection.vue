@@ -33,7 +33,7 @@ const featuredEvents = computed(() => {
 
       <template v-else>
         <div v-if="featuredEvents.length" class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          <UiTransmissionCard
+          <PagesHomeTransmissionCard
             v-for="(event, index) in featuredEvents"
             :key="event.id"
             :event="event"

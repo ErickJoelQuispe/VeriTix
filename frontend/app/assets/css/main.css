@@ -8,6 +8,7 @@
   --container-content: 84rem;
 
   --color-primary: oklch(0.75 0.2 40);
+  --color-accent: oklch(0.74 0.16 300);
   --color-secondary: oklch(0.65 0.18 200);
   --color-success: oklch(0.71 0.16 160);
   --color-info: oklch(0.65 0.18 240);
@@ -31,11 +32,6 @@
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 50% 8%, color-mix(in oklch, var(--color-error) 18%, transparent) 0%, transparent 38%),
-    radial-gradient(circle at 76% 14%, color-mix(in oklch, var(--color-primary) 5%, transparent) 0%, transparent 28%),
-    radial-gradient(circle at 22% 24%, color-mix(in oklch, var(--color-info) 5%, transparent) 0%, transparent 24%),
-    var(--color-default);
   color: var(--color-highlighted);
 }
 
