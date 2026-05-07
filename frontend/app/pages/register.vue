@@ -91,12 +91,5 @@ async function onSubmit() {
         </template>
       </AuthPanel>
     </main>
-    <footer class="mx-auto flex w-full max-w-[1400px] items-center justify-between border-t border-default px-6 pb-10 pt-7 text-sm text-muted md:px-16">
-      <div class="font-display text-2xl text-highlighted">
-        VeriTix
-      </div><p class="font-mono text-[0.68rem] tracking-[0.12em] uppercase">
-        © 2024 VERITIX INFRASTRUCTURE
-      </p>
-    </footer>
   </div>
 </template>

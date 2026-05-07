@@ -14,7 +14,7 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
           frequency.
         </h3>
 
-        <div v-if="isBackofficeRoute" class="grid flex-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-16">
+        <div v-if="isBackofficeRoute" class="grid gap-10 sm:grid-cols-2 lg:ml-auto lg:grid-cols-3 lg:gap-16">
           <div>
             <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
               Backoffice
@@ -73,7 +73,7 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
           </div>
         </div>
 
-        <div v-else class="grid flex-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-16">
+        <div v-else class="grid gap-10 sm:grid-cols-2 lg:ml-auto lg:grid-cols-3 lg:gap-16">
           <div>
             <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
               Discover
