@@ -1,15 +1,15 @@
 import type {
   BackofficeVenueListQuery,
   BackofficeVenueRecord,
-  PaginatedResponse,
-} from '~/types'
+} from '~~/shared/types/backoffice'
+import type { PaginatedResponse as ApiPaginatedResponse } from '~~/shared/types/api'
 
 export function useBackofficeVenuesRepository() {
   const apiRequest = useApiRequest()
   const { requireBackofficeHeaders } = useBackofficeApi()
 
-  async function listVenues(query: BackofficeVenueListQuery): Promise<PaginatedResponse<BackofficeVenueRecord>> {
-    return apiRequest<PaginatedResponse<BackofficeVenueRecord>>('/admin/venues', {
+  async function listVenues(query: BackofficeVenueListQuery): Promise<ApiPaginatedResponse<BackofficeVenueRecord>> {
+    return apiRequest<ApiPaginatedResponse<BackofficeVenueRecord>>('/admin/venues', {
       method: 'GET',
       headers: requireBackofficeHeaders(),
       query: {

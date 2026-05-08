@@ -1,4 +1,4 @@
-import type { UserRole } from '~~/shared/types'
+import type { UserRole } from './user'
 import type {
   CurrencyCode,
   EventFormatDetail,

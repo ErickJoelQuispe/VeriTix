@@ -1,4 +1,4 @@
-import type { CurrencyCode } from '~/types'
+import type { CurrencyCode } from '~~/shared/types/domain'
 
 export function formatMoney(
   amount: number,

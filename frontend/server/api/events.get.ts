@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import type { EventCatalogItem, PaginatedResponse } from '~/types'
+import type { EventCatalogItem, PaginatedResponse } from '~~/shared/types/domain'
 import { getQuery } from 'h3'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'

@@ -1,4 +1,4 @@
-import type { BackofficeOption } from '~/types'
+import type { BackofficeOption } from '~~/shared/types/backoffice'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'
 import { createStaticPublicApiPolicy } from '~~/server/utils/cache/policies/public-api'

@@ -1,8 +1,8 @@
 import type {
   BackofficeEventRecord,
   BackofficeRequiresAttentionRecord,
-  PaginatedMeta,
-} from '~/types'
+} from '~~/shared/types/backoffice'
+import type { PaginatedMeta as DomainPaginatedMeta } from '~~/shared/types/domain'
 
 export type QuickWindow = 'all' | 'upcoming' | 'thisMonth' | 'past'
 export type EventBadgeColor = 'success' | 'warning' | 'error' | 'neutral'
@@ -182,7 +182,7 @@ export function buildCatalogSummary({
 }: {
   catalogMode: CatalogMode
   requiresAttentionCount: number
-  meta: PaginatedMeta
+  meta: DomainPaginatedMeta
 }) {
   if (catalogMode === 'review') {
     if (requiresAttentionCount === 0) {

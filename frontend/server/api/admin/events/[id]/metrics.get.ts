@@ -1,4 +1,4 @@
-import type { BackofficeEventMetrics } from '~/types'
+import type { BackofficeEventMetrics } from '~~/shared/types/backoffice'
 import { requireRouteId } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 

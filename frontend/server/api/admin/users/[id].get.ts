@@ -1,4 +1,4 @@
-import type { BackofficeUserRecord } from '~/types'
+import type { BackofficeUserRecord } from '~~/shared/types/backoffice'
 import { requireRouteId } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 

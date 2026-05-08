@@ -6,7 +6,7 @@ import type {
   GenreOption,
   PaginatedResponse,
   VenueOption,
-} from '~/types'
+} from '~~/shared/types/domain'
 import { usePublicEventsRepository } from '../repositories/publicEventsRepository'
 
 export { buildEventFallbackImage, buildFallbackImage, mapEventDetail, mapEventListItem, normalizeCurrencyCode, toIsoString } from '../repositories/publicEventsRepository'

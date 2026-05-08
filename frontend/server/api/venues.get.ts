@@ -1,4 +1,4 @@
-import type { PaginatedResponse, VenueOption } from '~/types'
+import type { PaginatedResponse, VenueOption } from '~~/shared/types/domain'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'
 import { createStaticPublicApiPolicy } from '~~/server/utils/cache/policies/public-api'

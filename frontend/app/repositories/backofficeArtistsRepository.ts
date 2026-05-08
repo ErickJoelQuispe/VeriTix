@@ -1,9 +1,9 @@
 import type {
   BackofficeArtistPayload,
   BackofficeArtistRecord,
-  GenreOption,
-  PaginatedResponse,
-} from '~/types'
+} from '~~/shared/types/backoffice'
+import type { GenreOption } from '~~/shared/types/domain'
+import type { PaginatedResponse } from '~~/shared/types/api'
 
 export function useBackofficeArtistsRepository() {
   const apiRequest = useApiRequest()

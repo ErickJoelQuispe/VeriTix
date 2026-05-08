@@ -4,10 +4,10 @@ import type {
   BackofficeEventRecord,
   BackofficeOption,
   BackofficeRequiresAttentionRecord,
-  GenreOption,
-  PaginatedResponse,
-  VenueOption,
-} from '~/types'
+} from '~~/shared/types/backoffice'
+import type { PaginatedResponse as ApiPaginatedResponse } from '~~/shared/types/api'
+import type { PaginatedResponse as DomainPaginatedResponse } from '~~/shared/types/domain'
+import type { GenreOption, VenueOption } from '~~/shared/types/domain'
 import type { CatalogFilters, QuickWindow } from '~/utils/backoffice/eventsCatalog'
 import { buildCatalogQuery } from '~/utils/backoffice/eventsCatalog'
 
@@ -21,7 +21,7 @@ export function useBackofficeEventsRepository() {
     formats: BackofficeOption[]
   }> {
     const [venuesResponse, genresResponse, formatsResponse] = await Promise.all([
-      apiRequest<PaginatedResponse<VenueOption>>('/venues', { method: 'GET' }),
+      apiRequest<DomainPaginatedResponse<VenueOption>>('/venues', { method: 'GET' }),
       apiRequest<GenreOption[]>('/genres', { method: 'GET' }),
       apiRequest<BackofficeOption[]>('/concert-formats', { method: 'GET' }),
     ])
@@ -43,8 +43,8 @@ export function useBackofficeEventsRepository() {
     pageSize: number
     filters: CatalogFilters
     quickWindow: QuickWindow
-  }): Promise<PaginatedResponse<BackofficeEventRecord>> {
-    return apiRequest<PaginatedResponse<BackofficeEventRecord>>('/admin/events', {
+  }): Promise<ApiPaginatedResponse<BackofficeEventRecord>> {
+    return apiRequest<ApiPaginatedResponse<BackofficeEventRecord>>('/admin/events', {
       method: 'GET',
       headers: requireBackofficeHeaders(),
       query: buildCatalogQuery({

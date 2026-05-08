@@ -1,4 +1,5 @@
-import type { BackofficeUserRecord, PaginatedResponse } from '~/types'
+import type { BackofficeUserRecord } from '~~/shared/types/backoffice'
+import type { PaginatedResponse } from '~~/shared/types/api'
 import { readBooleanQuery, readLimitQuery, readOptionalStringQuery, readPageQuery, withDefinedQuery } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 
