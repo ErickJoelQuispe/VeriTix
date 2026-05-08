@@ -8,14 +8,14 @@ previo.
 
 ## Riesgos principales
 
-| ID  | Riesgo                                                                     | Probabilidad | Impacto  |
-| :-: | -------------------------------------------------------------------------- | :----------: | :------: |
-| R01 | Desalineación entre funcionalidades backend y frontend                     |    Media     |   Alto   |
-| R02 | Errores en flujos de pago/webhook con efectos en órdenes y tickets         |    Media     |   Alto   |
-| R03 | Defectos de seguridad en autenticación o manejo de secretos                |     Baja     | Muy alto |
-| R04 | Degradación bajo concurrencia en compra de tickets                         |    Media     |   Alto   |
-| R05 | Desactualización documental respecto al código real                        |     Alta     |  Medio   |
-| R06 | Merge o despliegue a `main` con fallos que terminen afectando a producción |     Baja     | Muy alto |
+|  ID   | Riesgo                                                                     | Probabilidad | Impacto  |
+| :---: | -------------------------------------------------------------------------- | :----------: | :------: |
+|  R01  | Desalineación entre funcionalidades backend y frontend                     |    Media     |   Alto   |
+|  R02  | Errores en flujos de pago/webhook con efectos en órdenes y tickets         |    Media     |   Alto   |
+|  R03  | Defectos de seguridad en autenticación o manejo de secretos                |     Baja     | Muy alto |
+|  R04  | Degradación bajo concurrencia en compra de tickets                         |    Media     |   Alto   |
+|  R05  | Desactualización documental respecto al código real                        |     Alta     |  Medio   |
+|  R06  | Merge o despliegue a `main` con fallos que terminen afectando a producción |     Baja     | Muy alto |
 
 ## Medidas preventivas y de mitigación
 

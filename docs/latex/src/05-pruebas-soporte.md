@@ -31,20 +31,20 @@ scanner QR no está integrado en UI en el estado actual.
 
 ## Registro de pruebas
 
-| ID  | Evidencia (resumen)                                               |   Estado   |
-| :-: | ----------------------------------------------------------------- | :--------: |
-| T01 | Unitaria backend: backend/src/.../tickets.generator.spec.ts       | Disponible |
-| T02 | Unitaria backend: backend/src/.../tickets.service.spec.ts         | Disponible |
-| T03 | Integración/e2e auth: backend/test/auth.e2e-spec.ts               | Disponible |
-| T04 | Integración/e2e events: backend/test/events.e2e-spec.ts           | Disponible |
-| T05 | Integración/e2e orders: backend/test/orders.e2e-spec.ts           | Disponible |
-| T06 | Integración/e2e tickets: backend/test/tickets.e2e-spec.ts         | Disponible |
-| T07 | Concurrencia: backend/test/concurrency/orders.concurrency.spec.ts | Disponible |
-| T08 | Seguridad config: backend/src/config/env.validation.ts            | Disponible |
-| T09 | Frontend tests: scripts Vitest en frontend/package.json           | Disponible |
-| T10 | Compra E2E UI: sin rutas frontend de órdenes/tickets              | Pendiente  |
-| T11 | Ticket PDF UI: flujo frontend no implementado                     | Pendiente  |
-| T12 | Scanner QR UI: pantalla/flujo final no integrado                  | Pendiente  |
+|  ID   | Evidencia (resumen)                                               |   Estado   |
+| :---: | ----------------------------------------------------------------- | :--------: |
+|  T01  | Unitaria backend: backend/src/.../tickets.generator.spec.ts       | Disponible |
+|  T02  | Unitaria backend: backend/src/.../tickets.service.spec.ts         | Disponible |
+|  T03  | Integración/e2e auth: backend/test/auth.e2e-spec.ts               | Disponible |
+|  T04  | Integración/e2e events: backend/test/events.e2e-spec.ts           | Disponible |
+|  T05  | Integración/e2e orders: backend/test/orders.e2e-spec.ts           | Disponible |
+|  T06  | Integración/e2e tickets: backend/test/tickets.e2e-spec.ts         | Disponible |
+|  T07  | Concurrencia: backend/test/concurrency/orders.concurrency.spec.ts | Disponible |
+|  T08  | Seguridad config: backend/src/config/env.validation.ts            | Disponible |
+|  T09  | Frontend tests: scripts Vitest en frontend/package.json           | Disponible |
+|  T10  | Compra E2E UI: sin rutas frontend de órdenes/tickets              | Pendiente  |
+|  T11  | Ticket PDF UI: flujo frontend no implementado                     | Pendiente  |
+|  T12  | Scanner QR UI: pantalla/flujo final no integrado                  | Pendiente  |
 
 ## Evaluación de cumplimiento de objetivos
 
