@@ -6,7 +6,7 @@ import type {
   GenreOption,
   PaginatedResponse,
   VenueOption,
-} from '~~/shared/types/domain'
+} from '~~/shared/types'
 import { usePublicEventsRepository } from '../repositories/publicEventsRepository'
 
 export { buildEventFallbackImage, buildFallbackImage, mapEventDetail, mapEventListItem, normalizeCurrencyCode, toIsoString } from '../repositories/publicEventsRepository'
@@ -42,6 +42,8 @@ export function usePublicEvents(filters?: MaybeRef<Partial<EventCatalogFilters> 
           page: 1,
           limit: 24,
           totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
         },
       }),
       watch: [normalizedFilters],

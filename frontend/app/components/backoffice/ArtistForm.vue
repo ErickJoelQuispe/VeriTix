@@ -3,9 +3,9 @@ import type {
   BackofficeArtistPayload,
   BackofficeArtistRecord,
   GenreOption,
-} from '~/types'
+} from '~~/shared/types'
 import { z } from 'zod'
-import { normalizeArtistPayload } from '~/utils/backoffice/formSafeRails'
+import { normalizeArtistPayload } from '@/utils/backoffice/formSafeRails'
 
 const props = withDefaults(defineProps<{
   initialValue?: Partial<BackofficeArtistRecord>

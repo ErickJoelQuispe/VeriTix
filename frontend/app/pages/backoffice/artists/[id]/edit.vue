@@ -3,9 +3,9 @@ import type {
   BackofficeArtistPayload,
   BackofficeArtistRecord,
   GenreOption,
-} from '~/types'
-import { useBackofficeArtistsRepository } from '~/repositories/backofficeArtistsRepository'
-import { hasArtistSemanticChanges, normalizeArtistPayload } from '~/utils/backoffice/formSafeRails'
+} from '~~/shared/types'
+import { useBackofficeArtistsRepository } from '@/repositories/backofficeArtistsRepository'
+import { hasArtistSemanticChanges, normalizeArtistPayload } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar artista | Backoffice VeriTix' })

@@ -2,9 +2,9 @@
 import type {
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
-} from '~/types'
-import { useBackofficeUsersRepository } from '~/repositories/backofficeUsersRepository'
-import { hasUserSemanticChanges, normalizeUpdateUserPayload } from '~/utils/backoffice/formSafeRails'
+} from '~~/shared/types'
+import { useBackofficeUsersRepository } from '@/repositories/backofficeUsersRepository'
+import { hasUserSemanticChanges, normalizeUpdateUserPayload } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar usuario | Backoffice VeriTix' })

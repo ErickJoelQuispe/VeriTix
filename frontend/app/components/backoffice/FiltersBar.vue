@@ -5,7 +5,7 @@ import type {
   BackofficeFilterOption,
   BackofficeFilterSelectControl,
   BackofficeFilterVisibility,
-} from '~/types/backoffice'
+} from '~~/shared/types'
 import { computed } from 'vue'
 
 interface Props {

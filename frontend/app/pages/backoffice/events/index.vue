@@ -4,14 +4,14 @@ import type {
   BackofficeOption,
   BackofficeRequiresAttentionRecord,
   GenreOption,
-  PaginatedMeta,
-} from '~/types'
+  PaginationMeta,
+} from '~~/shared/types'
 import type {
   CatalogEventListItem,
   CatalogMode,
   QuickWindow,
-} from '~/utils/backoffice/eventsCatalog'
-import { useBackofficeEventsRepository } from '~/repositories/backofficeEventsRepository'
+} from '@/utils/backoffice/eventsCatalog'
+import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
 import {
   buildCatalogSummary,
   CATALOG_MODE_ITEMS,
@@ -20,7 +20,7 @@ import {
   isCatalogMode,
   isQuickWindow,
   QUICK_WINDOW_OPTIONS,
-} from '~/utils/backoffice/eventsCatalog'
+} from '@/utils/backoffice/eventsCatalog'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Operaciones de eventos | VeriTix' })
@@ -43,11 +43,13 @@ const page = ref(1)
 const pageSize = ref(12)
 const quickWindow = ref<QuickWindow>('all')
 
-const meta = ref<PaginatedMeta>({
+const meta = ref<PaginationMeta>({
   total: 0,
   page: 1,
   limit: 12,
   totalPages: 1,
+  hasNext: false,
+  hasPrev: false,
 })
 
 const filters = reactive({

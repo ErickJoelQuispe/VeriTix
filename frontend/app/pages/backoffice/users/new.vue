@@ -2,9 +2,9 @@
 import type {
   BackofficeCreateUserPayload,
   BackofficeUpdateUserPayload,
-} from '~/types'
-import { useBackofficeUsersRepository } from '~/repositories/backofficeUsersRepository'
-import { normalizeCreateUserPayload } from '~/utils/backoffice/formSafeRails'
+} from '~~/shared/types'
+import { useBackofficeUsersRepository } from '@/repositories/backofficeUsersRepository'
+import { normalizeCreateUserPayload } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo usuario | Backoffice VeriTix' })

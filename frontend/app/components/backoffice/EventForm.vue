@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { BackofficeEventDetail, BackofficeEventPayload, BackofficeOption, CurrencyCode, GenreOption, VenueOption } from '~/types'
+import type { BackofficeEventDetail, BackofficeEventPayload, BackofficeOption, CurrencyCode, GenreOption, VenueOption } from '~~/shared/types'
 import { z } from 'zod'
-import { normalizeEventPayload } from '~/utils/backoffice/formSafeRails'
+import { normalizeEventPayload } from '@/utils/backoffice/formSafeRails'
 
 const props = withDefaults(defineProps<{
   initialValue?: Partial<BackofficeEventDetail>

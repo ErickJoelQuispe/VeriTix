@@ -1,5 +1,5 @@
 import type { UserRole } from '~~/shared/types'
-import { buildAuthHeaders } from '~/utils/apiAuth'
+import { buildAuthHeaders } from '@/utils/apiAuth'
 
 export function useBackofficeApi() {
   const { accessToken } = useAuth()

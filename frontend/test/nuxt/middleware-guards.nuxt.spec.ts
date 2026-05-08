@@ -2,9 +2,9 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import authMiddleware from '~/middleware/auth'
-import backofficeMiddleware from '~/middleware/backoffice'
-import guestMiddleware from '~/middleware/guest'
+import authMiddleware from '@/middleware/auth'
+import backofficeMiddleware from '@/middleware/backoffice'
+import guestMiddleware from '@/middleware/guest'
 
 const { navigateToMock, useAuthMock } = vi.hoisted(() => {
   return {

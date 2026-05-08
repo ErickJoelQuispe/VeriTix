@@ -2,8 +2,8 @@ import type {
   BackofficeCreateUserPayload,
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
-} from '~~/shared/types/backoffice'
-import type { PaginatedResponse } from '~~/shared/types/api'
+  PaginatedResponse,
+} from '~~/shared/types'
 
 export function useBackofficeUsersRepository() {
   const apiRequest = useApiRequest()

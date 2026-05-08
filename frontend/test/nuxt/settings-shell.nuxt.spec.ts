@@ -1,7 +1,7 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { describe, expect, it } from 'vitest'
 
-import UsersSettingsShell from '~/components/users/SettingsShell.vue'
+import UsersSettingsShell from '@/components/users/SettingsShell.vue'
 
 describe('users settings shell', () => {
   it('renderiza contenido base y CTA opcional', async () => {

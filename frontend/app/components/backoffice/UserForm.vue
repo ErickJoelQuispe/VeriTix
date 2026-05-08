@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import type { UserRole } from '~~/shared/types'
-import type {
-  BackofficeCreateUserPayload,
-  BackofficeUpdateUserPayload,
-  BackofficeUserRecord,
-} from '~/types'
+import type { BackofficeCreateUserPayload, BackofficeUpdateUserPayload, BackofficeUserRecord, UserRole } from '~~/shared/types'
 import { z } from 'zod'
-import { normalizeCreateUserPayload, normalizeUpdateUserPayload } from '~/utils/backoffice/formSafeRails'
+import { normalizeCreateUserPayload, normalizeUpdateUserPayload } from '@/utils/backoffice/formSafeRails'
 
 interface RoleOption {
   value: UserRole

@@ -243,7 +243,9 @@ function submitDemoForm() {
                       <BaseBadge kind="outline" color="secondary" icon="i-lucide-sparkles">
                         Open
                       </BaseBadge>
-                      <BaseBadge kind="tag">Contextual</BaseBadge>
+                      <BaseBadge kind="tag">
+                        Contextual
+                      </BaseBadge>
                     </div>
                   </UiGlassPanel>
                 </template>
@@ -301,13 +303,21 @@ function submitDemoForm() {
 
               <div class="grid gap-4 md:grid-cols-2">
                 <UiGlassPanel tone="subtle" padding="sm" radius="md">
-                  <p class="text-sm font-medium text-highlighted">Subtle panel</p>
-                  <p class="mt-1 text-sm text-toned">Lower contrast for nested content.</p>
+                  <p class="text-sm font-medium text-highlighted">
+                    Subtle panel
+                  </p>
+                  <p class="mt-1 text-sm text-toned">
+                    Lower contrast for nested content.
+                  </p>
                 </UiGlassPanel>
 
                 <UiGlassPanel tone="strong" padding="lg" radius="xl" interactive>
-                  <p class="text-sm font-medium text-highlighted">Interactive panel</p>
-                  <p class="mt-1 text-sm text-toned">Hover and focus states are built in.</p>
+                  <p class="text-sm font-medium text-highlighted">
+                    Interactive panel
+                  </p>
+                  <p class="mt-1 text-sm text-toned">
+                    Hover and focus states are built in.
+                  </p>
                 </UiGlassPanel>
               </div>
             </UiGlassPanel>
@@ -344,7 +354,7 @@ function submitDemoForm() {
                   placeholder="Seleccioná un rol"
                   help="Selects share the same form context and error surface."
                 />
-                <FormTextarea v-model="demoForm.notes" name="notes" label="Notas" help="Use it for longer copy, comments, and descriptions." rows="4" />
+                <FormTextarea v-model="demoForm.notes" name="notes" label="Notas" help="Use it for longer copy, comments, and descriptions." :rows="4" />
 
                 <BaseButton type="submit" variant="primary" leading-icon="i-lucide-send">
                   Submit demo
@@ -366,7 +376,7 @@ function submitDemoForm() {
                 <FormInput v-model="rawInput" name="rawInput" placeholder="FormInput with icon" icon="i-lucide-search" />
                 <FormInput v-model="rawInputOutline" name="rawInputOutline" variant="outline" placeholder="Outline variant" />
                 <FormPassword v-model="rawPassword" name="rawPassword" label="Password control" />
-                <FormTextarea v-model="rawNotes" name="rawNotes" placeholder="Textarea without a label" rows="4" />
+                <FormTextarea v-model="rawNotes" name="rawNotes" placeholder="Textarea without a label" :rows="4" />
                 <FormSelect v-model="rawRole" name="rawRole" label="Select control" :items="formRoleItems" />
               </div>
             </UiGlassPanel>

@@ -1,5 +1,4 @@
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
@@ -26,10 +25,6 @@ export default defineNuxtConfig({
       pathPrefix: true,
     },
   ],
-
-  alias: {
-    '@': fileURLToPath(new URL('./app', import.meta.url)),
-  },
 
   css: ['./app/assets/css/main.css'],
 

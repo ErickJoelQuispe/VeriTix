@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { BackofficeOption, BackofficeVenueRecord, PaginatedMeta } from '~/types'
-import { useBackofficeVenuesRepository } from '~/repositories/backofficeVenuesRepository'
+import type { BackofficeOption, BackofficeVenueRecord, PaginationMeta } from '~~/shared/types'
+import { useBackofficeVenuesRepository } from '@/repositories/backofficeVenuesRepository'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Venues | Backoffice VeriTix' })
@@ -15,7 +15,7 @@ const integrationStatus = ref<'connected' | 'pending'>('connected')
 const page = ref(1)
 const pageSize = ref(12)
 
-const meta = ref<PaginatedMeta>({ total: 0, page: 1, limit: 12, totalPages: 1 })
+const meta = ref<PaginationMeta>({ total: 0, page: 1, limit: 12, totalPages: 1, hasNext: false, hasPrev: false })
 
 const statusOptions: BackofficeOption[] = [
   { id: 'true', name: 'Activo' },
@@ -60,7 +60,7 @@ async function loadVenues(targetPage = page.value) {
     if (statusCode === 404 || statusCode === 501) {
       integrationStatus.value = 'pending'
       venues.value = []
-      meta.value = { total: 0, page: 1, limit: pageSize.value, totalPages: 1 }
+      meta.value = { total: 0, page: 1, limit: pageSize.value, totalPages: 1, hasNext: false, hasPrev: false }
       page.value = 1
       return
     }

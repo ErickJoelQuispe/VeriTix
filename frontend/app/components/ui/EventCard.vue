@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { EventCatalogItem } from '~/types'
-import { formatEventDate } from '~/utils/date-formatters'
+import type { EventCatalogItem } from '~~/shared/types'
+import { formatEventDate } from '@/utils/date-formatters'
 
 const props = defineProps<{
   event: EventCatalogItem

@@ -4,16 +4,16 @@ export interface ApiErrorPayload {
   error?: string
 }
 
-export interface PaginatedMeta {
+export interface PaginationMeta {
   page: number
   limit: number
-  totalItems: number
+  total: number
   totalPages: number
-  hasNextPage: boolean
-  hasPrevPage: boolean
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 export interface PaginatedResponse<TData> {
   data: TData[]
-  meta: PaginatedMeta
+  meta: PaginationMeta
 }

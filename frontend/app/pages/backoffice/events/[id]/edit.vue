@@ -5,9 +5,9 @@ import type {
   BackofficeOption,
   GenreOption,
   VenueOption,
-} from '~/types'
-import { useBackofficeEventsRepository } from '~/repositories/backofficeEventsRepository'
-import { hasEventSemanticChanges, normalizeEventPayload } from '~/utils/backoffice/formSafeRails'
+} from '~~/shared/types'
+import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
+import { hasEventSemanticChanges, normalizeEventPayload } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar evento | Backoffice VeriTix' })

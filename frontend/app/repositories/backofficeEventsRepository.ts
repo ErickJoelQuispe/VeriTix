@@ -2,14 +2,15 @@ import type {
   BackofficeEventDetail,
   BackofficeEventPayload,
   BackofficeEventRecord,
+  BackofficeFormatRecord,
   BackofficeOption,
   BackofficeRequiresAttentionRecord,
-} from '~~/shared/types/backoffice'
-import type { PaginatedResponse as ApiPaginatedResponse } from '~~/shared/types/api'
-import type { PaginatedResponse as DomainPaginatedResponse } from '~~/shared/types/domain'
-import type { GenreOption, VenueOption } from '~~/shared/types/domain'
-import type { CatalogFilters, QuickWindow } from '~/utils/backoffice/eventsCatalog'
-import { buildCatalogQuery } from '~/utils/backoffice/eventsCatalog'
+  GenreOption,
+  PaginatedResponse,
+  VenueOption,
+} from '~~/shared/types'
+import type { CatalogFilters, QuickWindow } from '@/utils/backoffice/eventsCatalog'
+import { buildCatalogQuery } from '@/utils/backoffice/eventsCatalog'
 
 export function useBackofficeEventsRepository() {
   const apiRequest = useApiRequest()
@@ -21,15 +22,15 @@ export function useBackofficeEventsRepository() {
     formats: BackofficeOption[]
   }> {
     const [venuesResponse, genresResponse, formatsResponse] = await Promise.all([
-      apiRequest<DomainPaginatedResponse<VenueOption>>('/venues', { method: 'GET' }),
+      apiRequest<PaginatedResponse<VenueOption>>('/venues', { method: 'GET' }),
       apiRequest<GenreOption[]>('/genres', { method: 'GET' }),
-      apiRequest<BackofficeOption[]>('/concert-formats', { method: 'GET' }),
+      apiRequest<BackofficeFormatRecord[]>('/concert-formats', { method: 'GET' }),
     ])
 
     return {
       venues: venuesResponse?.data ?? [],
       genres: genresResponse ?? [],
-      formats: formatsResponse ?? [],
+      formats: (formatsResponse ?? []).map(format => ({ id: format.id, name: format.name })),
     }
   }
 
@@ -43,8 +44,8 @@ export function useBackofficeEventsRepository() {
     pageSize: number
     filters: CatalogFilters
     quickWindow: QuickWindow
-  }): Promise<ApiPaginatedResponse<BackofficeEventRecord>> {
-    return apiRequest<ApiPaginatedResponse<BackofficeEventRecord>>('/admin/events', {
+  }): Promise<PaginatedResponse<BackofficeEventRecord>> {
+    return apiRequest<PaginatedResponse<BackofficeEventRecord>>('/admin/events', {
       method: 'GET',
       headers: requireBackofficeHeaders(),
       query: buildCatalogQuery({

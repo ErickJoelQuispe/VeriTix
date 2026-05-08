@@ -1,4 +1,4 @@
-import type { BackofficeUpcomingEventRecord } from '~~/shared/types/backoffice'
+import type { BackofficeUpcomingEventRecord } from '~~/shared/types'
 import { readLimitQuery } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 

@@ -1,4 +1,4 @@
-import type { BackofficeCreateUserPayload, BackofficeUserRecord } from '~~/shared/types/backoffice'
+import type { BackofficeCreateUserPayload, BackofficeUserRecord } from '~~/shared/types'
 import { readRequiredBodyObject } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 

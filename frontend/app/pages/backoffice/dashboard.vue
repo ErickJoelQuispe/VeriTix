@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type {
-  BackofficeEventRecord,
-} from '~/types'
-import { useBackofficeEventsRepository } from '~/repositories/backofficeEventsRepository'
+import type { BackofficeEventRecord } from '~~/shared/types'
+import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
 
 definePageMeta({
   layout: 'backoffice',

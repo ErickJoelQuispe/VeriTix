@@ -1,4 +1,4 @@
-import type { BackofficeArtistRecord } from '~~/shared/types/backoffice'
+import type { BackofficeArtistRecord } from '~~/shared/types'
 import { requireRouteId } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 

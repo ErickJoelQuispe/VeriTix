@@ -6,7 +6,7 @@ import type {
   GenreOption,
   PaginatedResponse,
   VenueOption,
-} from '~~/shared/types/domain'
+} from '~~/shared/types'
 
 interface EventListApiItem {
   id: string

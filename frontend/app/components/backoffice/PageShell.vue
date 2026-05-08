@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BACKOFFICE_NAV_ITEMS } from '~/utils/navigation/ia'
+import { BACKOFFICE_NAV_ITEMS } from '@/utils/navigation/ia'
 
 interface BackofficePageNavigationItem {
   label: string

@@ -6,7 +6,7 @@ import type {
   BackofficeEventPayload,
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
-} from '~~/shared/types/backoffice'
+} from '~~/shared/types'
 
 function normalizeRequiredString(value: string | null | undefined): string {
   return (value ?? '').trim()

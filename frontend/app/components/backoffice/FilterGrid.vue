@@ -3,7 +3,7 @@ import type {
   BackofficeFilterControl,
   BackofficeFilterFieldControl,
   BackofficeFilterSelectControl,
-} from '~/types/backoffice'
+} from '~~/shared/types'
 
 defineProps<{
   items: BackofficeFilterControl[]

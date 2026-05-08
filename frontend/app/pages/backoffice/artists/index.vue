@@ -3,10 +3,10 @@ import type {
   BackofficeArtistRecord,
   BackofficeOption,
   GenreOption,
-  PaginatedMeta,
-} from '~/types'
-import { useBackofficeArtistsRepository } from '~/repositories/backofficeArtistsRepository'
-import { PAGE_SIZE_OPTIONS } from '~/utils/backoffice/pagination'
+  PaginationMeta,
+} from '~~/shared/types'
+import { useBackofficeArtistsRepository } from '@/repositories/backofficeArtistsRepository'
+import { PAGE_SIZE_OPTIONS } from '@/utils/backoffice/pagination'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Artistas | Backoffice VeriTix' })
@@ -23,11 +23,13 @@ const page = ref(1)
 const pageSize = ref(12)
 const pageSizeOptions = PAGE_SIZE_OPTIONS
 
-const meta = ref<PaginatedMeta>({
+const meta = ref<PaginationMeta>({
   total: 0,
   page: 1,
   limit: 12,
   totalPages: 1,
+  hasNext: false,
+  hasPrev: false,
 })
 
 const statusOptions: BackofficeOption[] = [

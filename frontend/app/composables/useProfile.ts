@@ -1,6 +1,6 @@
 import type { ChangePasswordRequest, UpdateProfileRequest, UserProfile } from '~~/shared/types'
-import { buildAuthHeaders } from '~/utils/apiAuth'
-import { normalizeApiError } from '~/utils/apiError'
+import { buildAuthHeaders } from '@/utils/apiAuth'
+import { normalizeApiError } from '@/utils/apiError'
 
 export function useProfile() {
   const accessToken = useState<string | null>('auth-access-token', () => null)

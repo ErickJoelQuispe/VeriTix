@@ -1,4 +1,6 @@
-import type { UserProfile } from './user'
+import type { UserIdentity } from './user'
+
+export interface AuthUser extends UserIdentity {}
 
 export interface LoginRequest {
   email: string
@@ -15,7 +17,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   accessToken: string
-  user: UserProfile
+  user: AuthUser
 }
 
 export interface RegisterResponse {

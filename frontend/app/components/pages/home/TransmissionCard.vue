@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from 'vue-router'
-import type { EventCatalogItem } from '~/types'
-import { formatEventDate } from '~/utils/date-formatters'
+import type { EventCatalogItem } from '~~/shared/types'
+import { formatEventDate } from '@/utils/date-formatters'
 
 defineOptions({
   inheritAttrs: false,

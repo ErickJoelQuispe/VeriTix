@@ -1,4 +1,4 @@
-import type { EventCatalogDetail } from '~~/shared/types/domain'
+import type { EventCatalogDetail } from '~~/shared/types'
 import { createError, getRouterParam } from 'h3'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'

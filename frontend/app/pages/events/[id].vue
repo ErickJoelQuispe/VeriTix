@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { formatEventDate } from '~/utils/date-formatters'
+import { formatEventDate } from '@/utils/date-formatters'
 
 const route = useRoute()
 const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MAIN_NAV_ITEMS } from '~/utils/navigation/ia'
+import { MAIN_NAV_ITEMS } from '@/utils/navigation/ia'
 
 const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()

@@ -1,12 +1,11 @@
-import type { UserRole } from './user'
 import type {
   CurrencyCode,
   EventFormatDetail,
   EventGenreSummary,
   EventVenueDetail,
   EventVenueSummary,
-  GenreOption,
 } from './domain'
+import type { UserRole } from './user'
 
 export interface BackofficeOption {
   id: string
@@ -71,6 +70,8 @@ export interface BackofficeEventDetail {
   imageUrl: string | null
   currency: CurrencyCode
   creatorId: string
+  createdAt: string
+  updatedAt: string
   venue: EventVenueDetail
   format: EventFormatDetail | null
   genres: EventGenreSummary[]
@@ -190,7 +191,15 @@ export interface BackofficeArtistRecord {
   isActive: boolean
   createdAt: string
   updatedAt: string
-  genres: GenreOption[]
+  genres: EventGenreSummary[]
+}
+
+export interface BackofficeFormatRecord {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  icon: string | null
 }
 
 export interface BackofficeArtistPayload {
@@ -207,10 +216,17 @@ export interface BackofficeArtistPayload {
 export interface BackofficeVenueRecord {
   id: string
   name: string
+  slug: string
+  address: string
   city: string
+  state: string | null
   country: string
   capacity: number | null
+  type: string
   isActive: boolean
+  imageUrl: string | null
+  website: string | null
+  createdAt: string
   updatedAt: string
 }
 

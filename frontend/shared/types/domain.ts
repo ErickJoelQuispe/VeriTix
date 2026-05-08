@@ -13,18 +13,6 @@ export interface Genre {
   accent: string
 }
 
-export interface PaginatedMeta {
-  total: number
-  page: number
-  limit: number
-  totalPages: number
-}
-
-export interface PaginatedResponse<T> {
-  data: T[]
-  meta: PaginatedMeta
-}
-
 export interface EventVenueSummary {
   id: string
   name: string
