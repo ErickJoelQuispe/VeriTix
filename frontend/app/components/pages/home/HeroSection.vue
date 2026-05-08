@@ -25,20 +25,8 @@ function onSearch() {
           </h1>
 
           <p class="max-w-2xl text-base leading-relaxed text-toned md:text-lg">
-            The pristine way to discover, filter, and book live events with a single visual language.
+            The pristine way to discover, filter, and book live events.
           </p>
-
-          <div class="flex flex-wrap gap-2.5">
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-default/70 bg-elevated/45 px-3 py-1.5 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
-              <strong class="text-highlighted">Live</strong> catalog
-            </span>
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-default/70 bg-elevated/45 px-3 py-1.5 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
-              <strong class="text-highlighted">Synced</strong> filters
-            </span>
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-default/70 bg-elevated/45 px-3 py-1.5 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
-              <strong class="text-highlighted">Secure</strong> session
-            </span>
-          </div>
 
           <form class="space-y-3" @submit.prevent="onSearch">
             <!-- Search Field Container -->
