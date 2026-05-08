@@ -55,8 +55,6 @@
 4. **Cache key incompleta para artistas**
    - `CACHE_KEYS.ARTISTS_LIST` solo usa página/límite y no filtros (`backend/src/cache/cache-keys.ts`, `backend/src/modules/artists/artists.service.ts`)
 
-## Futuro (solo explícito en `docs/markdown/tfg.md`)
+## Futuro
 
-- Flujo real de recuperación de contraseña por email (RF-04).
-- Flujo completo de validación QR en UI de scanner (RF-16 a RF-19).
-- Descarga de tickets en PDF para usuario final (RF-15).
+Ver `REQUIREMENTS.md` para el mapa canónico de pendientes y brechas por RF.

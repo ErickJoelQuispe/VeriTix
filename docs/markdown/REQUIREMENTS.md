@@ -2,6 +2,8 @@
 
 Base de alcance: `docs/markdown/tfg.md`.
 
+Este documento es la fuente canónica para el estado de cada RF. Para snapshot de implementación y desalineaciones actuales, ver `STATUS.md`.
+
 ## Criterio
 
 - **Implementado**: existe evidencia en código ejecutable (backend/frontend).

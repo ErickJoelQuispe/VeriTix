@@ -1,5 +1,10 @@
 # ARCHITECHTURE — VeriTix (estado implementado)
 
+Relacionado:
+
+- `STATUS.md` para snapshot actual y desalineaciones.
+- `REQUIREMENTS.md` para trazabilidad de RF implementado / pendiente.
+
 ## 1) Vista general
 
 VeriTix es un monorepo con dos apps:
