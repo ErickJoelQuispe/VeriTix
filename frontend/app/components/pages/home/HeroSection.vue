@@ -14,12 +14,37 @@ function onSearch() {
   >
     <BaseContainer>
       <div class="relative grid items-center gap-10 lg:grid-cols-[1.15fr_.85fr] lg:gap-12">
-        <div class="pointer-events-none absolute -left-6 top-6 hidden h-24 w-24 rotate-45 border border-secondary/35 lg:block" />
-
         <div class="space-y-8 animate-hero-reveal">
-          <h1 class="font-display text-6xl leading-[0.9] text-highlighted md:text-7xl lg:text-8xl">
-            Veritix
-            <span class="vtx-prismatic-text mt-2 block text-4xl md:text-5xl lg:text-6xl">
+          <h1 class="space-y-3 font-display text-6xl leading-[0.9] text-highlighted md:text-7xl lg:text-8xl">
+            <span class="relative inline-block">
+              <svg class="vtx-hero-diamond absolute -left-17 top-1/2 hidden h-20 w-20 -translate-y-1/2 opacity-96 md:-left-20 md:h-22 md:w-22 lg:block" viewBox="0 0 64 64" aria-hidden="true">
+                <defs>
+                  <linearGradient id="vtx-hero-diamond-fill" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="color-mix(in oklch, var(--color-lavender) 70%, white)" />
+                    <stop offset="64%" stop-color="var(--color-accent)" />
+                    <stop offset="100%" stop-color="color-mix(in oklch, var(--color-info) 56%, white)" />
+                  </linearGradient>
+                  <linearGradient id="vtx-hero-diamond-face" x1="18" y1="12" x2="46" y2="52" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="rgb(255 255 255 / 0.9)" />
+                    <stop offset="100%" stop-color="rgb(255 255 255 / 0.1)" />
+                  </linearGradient>
+                </defs>
+
+                <path
+                  d="M24 8 53 24 45 54 24 58 11 24Z"
+                  fill="url(#vtx-hero-diamond-fill)"
+                  stroke="rgb(255 255 255 / 0.1)"
+                  stroke-width="0.8"
+                  stroke-linejoin="round"
+                />
+                <path d="M24 13 39 24 34 45 24 50 16 24Z" fill="url(#vtx-hero-diamond-face)" opacity="0.58" />
+                <path d="M24 13 32 24 24 35 16 24Z" fill="rgb(255 255 255 / 0.62)" opacity="0.42" />
+                <path d="M16 24 24 35 17 46 12 39Z" fill="color-mix(in oklch, var(--color-lavender) 20%, transparent)" opacity="0.36" />
+                <path d="M39 24 32 24 24 35 34 45Z" fill="rgb(255 255 255 / 0.08)" opacity="0.3" />
+              </svg>
+              <span class="relative">Veritix</span>
+            </span>
+            <span class="vtx-prismatic-text block text-4xl md:text-5xl lg:text-6xl">
               The Pure Experience
             </span>
           </h1>
@@ -103,6 +128,10 @@ function onSearch() {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+.vtx-hero-diamond {
+  filter: drop-shadow(0 0 12px color-mix(in oklch, var(--color-lavender) 10%, transparent));
 }
 
 .animate-hero-reveal {

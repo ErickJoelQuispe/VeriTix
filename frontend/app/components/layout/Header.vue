@@ -68,32 +68,6 @@ function isMainNavActive(path: string): boolean {
           to="/"
           class="vtx-header-brand-link flex min-w-0 cursor-pointer items-center gap-2 rounded-2xl px-2 py-1.5 outline-none transition-transform duration-200 hover:-translate-y-px focus-visible:ring-2 focus-visible:ring-primary/35"
         >
-          <svg class="vtx-header-brand-prism h-9 w-9 shrink-0" viewBox="0 0 64 64" aria-hidden="true">
-            <defs>
-              <linearGradient id="vtx-header-brand-prism-fill" x1="14" y1="10" x2="52" y2="56" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="color-mix(in oklch, var(--color-accent) 68%, white)" />
-                <stop offset="52%" stop-color="color-mix(in oklch, var(--color-secondary) 70%, var(--color-accent))" />
-                <stop offset="100%" stop-color="color-mix(in oklch, var(--color-primary) 34%, var(--color-accent))" />
-              </linearGradient>
-              <linearGradient id="vtx-header-brand-prism-face" x1="18" y1="12" x2="46" y2="50" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="rgb(255 255 255 / 0.88)" />
-                <stop offset="100%" stop-color="rgb(255 255 255 / 0.1)" />
-              </linearGradient>
-            </defs>
-
-            <path
-              d="M32 5 53 17 59 35 48 55 32 60 16 55 5 35 11 17Z"
-              fill="url(#vtx-header-brand-prism-fill)"
-              stroke="rgb(255 255 255 / 0.22)"
-              stroke-width="1.25"
-              stroke-linejoin="round"
-            />
-            <path d="M32 5 53 17 32 29 11 17Z" fill="url(#vtx-header-brand-prism-face)" />
-            <path d="M11 17 32 29 32 60 16 55 5 35Z" fill="rgb(255 255 255 / 0.08)" />
-            <path d="M53 17 59 35 48 55 32 60 32 29Z" fill="rgb(255 255 255 / 0.14)" />
-            <path d="M32 29 44 35 32 60 20 35Z" fill="rgb(255 255 255 / 0.12)" />
-          </svg>
-
           <p class="truncate font-display text-3xl leading-none tracking-wide text-highlighted sm:text-4xl">
             VeriTix
           </p>
