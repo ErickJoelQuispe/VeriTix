@@ -33,7 +33,7 @@ withDefaults(
     <div class="vtx-auth-panel-body">
       <span
         v-if="eyebrow"
-        class="mb-3 block font-mono text-xs tracking-[0.1em] text-muted uppercase"
+        class="mb-3 block font-mono text-xs tracking-widest text-muted uppercase"
       >
         {{ eyebrow }}
       </span>
@@ -64,7 +64,7 @@ withDefaults(
 @reference "@/assets/css/main.css";
 
 .vtx-auth-panel {
-  @apply w-full max-w-[520px] overflow-hidden rounded-[18px] border border-default/80 bg-elevated/75 shadow-[0_24px_70px_rgba(0,0,0,0.18)] backdrop-blur-sm;
+  @apply w-full max-w-130 overflow-hidden rounded-panel border border-default/80 bg-elevated/75 shadow-[0_24px_70px_rgba(0,0,0,0.18)] backdrop-blur-sm;
   background:
     radial-gradient(circle at 50% 0%, color-mix(in oklch, var(--color-error) 9%, transparent) 0%, transparent 42%),
     linear-gradient(180deg, color-mix(in oklch, var(--color-elevated) 84%, transparent), color-mix(in oklch, var(--color-default) 82%, transparent));

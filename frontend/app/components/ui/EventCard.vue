@@ -66,7 +66,7 @@ const cardPrice = computed(() => {
 
       <div class="mt-auto border-t border-white/10 pt-3 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
         <div class="flex items-center justify-between gap-3">
-          <span class="text-xs tracking-[0.1em] text-muted uppercase">{{ eventTime }}</span>
+          <span class="text-xs tracking-widest text-muted uppercase">{{ eventTime }}</span>
           <span class="text-sm font-medium text-highlighted">{{ cardPrice }}</span>
           <BaseButton
             :to="`/events/${event.id}`"

@@ -107,7 +107,7 @@ function isMainNavActive(path: string): boolean {
                   to="/login"
                   variant="outlined"
                   size="xs"
-                  class="!rounded-full !px-4 !py-1.5 !text-[0.7rem] !tracking-[0.12em]"
+                  class="rounded-full! px-4! py-1.5! text-[0.7rem]! tracking-[0.12em]!"
                 >
                   Iniciar sesión
                 </BaseButton>
@@ -116,7 +116,7 @@ function isMainNavActive(path: string): boolean {
                   to="/register"
                   variant="reversed"
                   size="xs"
-                  class="!rounded-full !px-4 !py-1.5 !text-[0.7rem] !tracking-[0.12em]"
+                  class="rounded-full! px-4! py-1.5! text-[0.7rem]! tracking-[0.12em]!"
                 >
                   Registrarse
                 </BaseButton>
