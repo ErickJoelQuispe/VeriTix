@@ -182,6 +182,17 @@ const triggerAvatarSize = computed(() => props.triggerSize)
   color: var(--color-highlighted);
 }
 
+.vtx-account-trigger.is-open {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.11), rgb(255 255 255 / 0.05)),
+    color-mix(in srgb, var(--color-elevated) 84%, black);
+  border-color: color-mix(in srgb, var(--color-accent) 22%, rgb(255 255 255 / 0.06));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent),
+    0 20px 34px -26px rgb(0 0 0 / 0.8);
+}
+
 .vtx-account-trigger:focus-visible {
   outline: none;
   box-shadow:
@@ -222,18 +233,21 @@ const triggerAvatarSize = computed(() => props.triggerSize)
   width: min(24rem, calc(100vw - 1rem));
   overflow: hidden;
   border-radius: 1.5rem;
-  border: 1px solid rgb(255 255 255 / 0.08);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 12%, rgb(255 255 255 / 0.08));
   background:
+    radial-gradient(circle at 82% 12%, color-mix(in oklch, var(--color-accent) 14%, transparent) 0%, transparent 28%),
+    radial-gradient(circle at 18% 96%, color-mix(in oklch, var(--color-secondary) 10%, transparent) 0%, transparent 34%),
     linear-gradient(180deg, rgb(255 255 255 / 0.03), rgb(255 255 255 / 0.01)),
     color-mix(in srgb, var(--color-elevated) 94%, black);
   box-shadow:
-    0 28px 60px -40px rgb(0 0 0 / 0.84),
+    0 30px 64px -44px rgb(0 0 0 / 0.86),
     inset 0 1px 0 rgb(255 255 255 / 0.045);
   backdrop-filter: blur(20px) saturate(1.04);
 }
 
 .vtx-account-panel-hero {
   @apply flex items-start gap-3 border-b border-default/50 px-4 pb-4 pt-4;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.02), transparent);
 }
 
 .vtx-account-panel-avatar {
@@ -261,18 +275,18 @@ const triggerAvatarSize = computed(() => props.triggerSize)
 .vtx-account-panel-links {
   display: grid;
   overflow: hidden;
-  border-radius: 1.2rem;
-  background: rgb(255 255 255 / 0.024);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.03), rgb(255 255 255 / 0.015));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.045);
 }
 
 .vtx-account-panel-link {
   @apply flex w-full cursor-pointer items-center no-underline;
   gap: 0.72rem;
-  padding: 0.84rem 0.96rem;
+  padding: 0.88rem 1rem;
   border-radius: 0;
   border: 0;
-  border-bottom: 1px solid rgb(255 255 255 / 0.06);
+  border-bottom: 1px solid rgb(255 255 255 / 0.05);
   background: transparent;
   transition:
     background-color 0.12s ease-out,
@@ -285,7 +299,7 @@ const triggerAvatarSize = computed(() => props.triggerSize)
 }
 
 .vtx-account-panel-link:hover {
-  background: rgb(255 255 255 / 0.05);
+  background: linear-gradient(90deg, color-mix(in oklch, var(--color-accent) 8%, transparent), rgb(255 255 255 / 0.05));
   transform: translateX(1px);
 }
 
@@ -305,8 +319,8 @@ const triggerAvatarSize = computed(() => props.triggerSize)
   width: 0.92rem;
   height: 0.92rem;
   flex: none;
-  color: color-mix(in srgb, var(--color-primary) 86%, white);
-  opacity: 0.78;
+  color: color-mix(in srgb, var(--color-accent) 82%, white);
+  opacity: 0.84;
 }
 
 .vtx-account-panel-link-title {
@@ -332,6 +346,6 @@ const triggerAvatarSize = computed(() => props.triggerSize)
 .vtx-account-panel-link:hover .vtx-account-panel-link-arrow {
   transform: translateX(3px);
   opacity: 1;
-  color: var(--color-highlighted);
+  color: color-mix(in srgb, var(--color-accent) 72%, var(--color-highlighted));
 }
 </style>
