@@ -1,9 +1,10 @@
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   BackofficeCreateUserPayload,
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
-  PaginatedResponse,
 } from '~~/shared/types'
+import { compactQuery, trimToUndefined } from '~~/shared/query'
 
 export function useBackofficeUsersRepository() {
   const apiRequest = useApiRequest()
@@ -25,13 +26,13 @@ export function useBackofficeUsersRepository() {
     return apiRequest<PaginatedResponse<BackofficeUserRecord>>('/admin/users', {
       method: 'GET',
       headers: requireBackofficeHeaders(),
-      query: {
+      query: compactQuery({
         page: pageValue,
         limit: pageSize,
-        search: search.trim() || undefined,
-        role: role || undefined,
-        isActive: isActive || undefined,
-      },
+        search,
+        role,
+        isActive,
+      }),
     })
   }
 
@@ -66,23 +67,17 @@ export function useBackofficeUsersRepository() {
   }
 
   async function findUserByEmail(email: string): Promise<BackofficeUserRecord | null> {
-    const normalizedEmail = email.trim().toLowerCase()
+    const normalizedEmail = trimToUndefined(email.toLowerCase())
 
     if (!normalizedEmail) {
       return null
     }
 
-    const response = await listUsers({
-      pageValue: 1,
-      pageSize: 50,
-      search: normalizedEmail,
-      role: '',
-      isActive: '',
+    return apiRequest<BackofficeUserRecord | null>('/admin/users/by-email', {
+      method: 'GET',
+      headers: requireBackofficeHeaders(),
+      query: { email: normalizedEmail },
     })
-
-    const users = response?.data ?? []
-
-    return users.find(user => user.email.trim().toLowerCase() === normalizedEmail) ?? null
   }
 
   async function isEmailTaken(email: string, excludeUserId?: string): Promise<boolean> {

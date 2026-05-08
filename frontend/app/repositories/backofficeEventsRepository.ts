@@ -1,3 +1,4 @@
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   BackofficeEventDetail,
   BackofficeEventPayload,
@@ -6,7 +7,6 @@ import type {
   BackofficeOption,
   BackofficeRequiresAttentionRecord,
   GenreOption,
-  PaginatedResponse,
   VenueOption,
 } from '~~/shared/types'
 import type { CatalogFilters, QuickWindow } from '@/utils/backoffice/eventsCatalog'
@@ -30,7 +30,7 @@ export function useBackofficeEventsRepository() {
     return {
       venues: venuesResponse?.data ?? [],
       genres: genresResponse ?? [],
-      formats: (formatsResponse ?? []).map(format => ({ id: format.id, name: format.name })),
+      formats: (formatsResponse ?? []).map((format: BackofficeFormatRecord) => ({ id: format.id, name: format.name })),
     }
   }
 

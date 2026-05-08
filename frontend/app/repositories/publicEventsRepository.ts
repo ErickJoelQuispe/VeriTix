@@ -1,67 +1,14 @@
+import type { PublicEventDetailApiItem, PublicEventListApiItem } from '~~/shared/api/public-events'
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   CurrencyCode,
   EventCatalogDetail,
   EventCatalogFilters,
   EventCatalogItem,
   GenreOption,
-  PaginatedResponse,
   VenueOption,
 } from '~~/shared/types'
-
-interface EventListApiItem {
-  id: string
-  name: string
-  eventDate: string | Date
-  imageUrl: string | null
-  currency: string
-  venue: {
-    id: string
-    name: string
-    city: string
-  }
-  format: {
-    id: string
-    name: string
-  } | null
-}
-
-interface EventDetailApiItem {
-  id: string
-  name: string
-  description: string | null
-  eventDate: string | Date
-  doorsOpenTime: string | Date | null
-  startSale: string | Date | null
-  endSale: string | Date | null
-  maxCapacity: number
-  imageUrl: string | null
-  currency: string
-  creatorId: string
-  venue: {
-    id: string
-    name: string
-    slug: string
-    address: string
-    city: string
-    state: string | null
-    country: string
-    capacity: number | null
-    type: string
-    imageUrl: string | null
-  }
-  format: {
-    id: string
-    name: string
-    slug: string
-    description: string | null
-    icon: string | null
-  } | null
-  genres: Array<{
-    id: string
-    name: string
-    slug: string
-  }>
-}
+import { compactQuery } from '~~/shared/query'
 
 export function toIsoString(value: string | Date | null | undefined): string | null {
   if (!value) {
@@ -87,7 +34,7 @@ export function normalizeCurrencyCode(value: string): CurrencyCode {
   return 'EUR'
 }
 
-export function mapEventListItem(item: EventListApiItem): EventCatalogItem {
+export function mapEventListItem(item: PublicEventListApiItem): EventCatalogItem {
   return {
     id: item.id,
     name: item.name,
@@ -99,7 +46,7 @@ export function mapEventListItem(item: EventListApiItem): EventCatalogItem {
   }
 }
 
-export function mapEventDetail(item: EventDetailApiItem): EventCatalogDetail {
+export function mapEventDetail(item: PublicEventDetailApiItem): EventCatalogDetail {
   return {
     id: item.id,
     name: item.name,
@@ -122,15 +69,15 @@ export function usePublicEventsRepository() {
   const apiRequest = useApiRequest()
 
   async function listEvents(filters: EventCatalogFilters): Promise<PaginatedResponse<EventCatalogItem>> {
-    const response = await apiRequest<PaginatedResponse<EventListApiItem>>('/events', {
+    const response = await apiRequest<PaginatedResponse<PublicEventListApiItem>>('/events', {
       method: 'GET',
-      query: {
+      query: compactQuery({
         page: filters.page,
         limit: 24,
-        city: filters.city || undefined,
-        genreId: filters.genreId || undefined,
-        search: filters.search || undefined,
-      },
+        city: filters.city,
+        genreId: filters.genreId,
+        search: filters.search,
+      }),
     })
 
     return {
@@ -140,7 +87,7 @@ export function usePublicEventsRepository() {
   }
 
   async function getEvent(id: string): Promise<EventCatalogDetail> {
-    const response = await apiRequest<EventDetailApiItem>(`/events/${id}`, {
+    const response = await apiRequest<PublicEventDetailApiItem>(`/events/${id}`, {
       method: 'GET',
     })
 

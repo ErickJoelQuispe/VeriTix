@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { PaginationMeta } from '~~/shared/api/types'
 import type {
   BackofficeArtistRecord,
   BackofficeOption,
   GenreOption,
-  PaginationMeta,
 } from '~~/shared/types'
 import { useBackofficeArtistsRepository } from '@/repositories/backofficeArtistsRepository'
 import { PAGE_SIZE_OPTIONS } from '@/utils/backoffice/pagination'

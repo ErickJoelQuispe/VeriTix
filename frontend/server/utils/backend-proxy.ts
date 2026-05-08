@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import type { ApiErrorPayload } from '~~/shared/types'
+import type { ApiErrorPayload } from '~~/shared/api/types'
 import { appendResponseHeader, createError, getHeader, setCookie, setResponseStatus } from 'h3'
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'

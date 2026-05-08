@@ -1,4 +1,6 @@
-import type { BackofficeEventRecord, BackofficeRequiresAttentionRecord, PaginationMeta } from '~~/shared/types'
+import type { PaginationMeta } from '~~/shared/api/types'
+import type { BackofficeEventRecord, BackofficeRequiresAttentionRecord } from '~~/shared/types'
+import { compactQuery } from '~~/shared/query'
 
 export type QuickWindow = 'all' | 'upcoming' | 'thisMonth' | 'past'
 export type EventBadgeColor = 'success' | 'warning' | 'error' | 'neutral'
@@ -99,16 +101,16 @@ export function buildCatalogQuery({
     ? getQuickWindowRange(quickWindow)
     : {}
 
-  return {
+  return compactQuery({
     page: pageValue,
     limit: pageSize,
-    search: filters.search.trim() || undefined,
-    city: filters.city.trim() || undefined,
-    genreId: filters.genreId || undefined,
-    formatId: filters.formatId || undefined,
+    search: filters.search,
+    city: filters.city,
+    genreId: filters.genreId,
+    formatId: filters.formatId,
     dateFrom: toStartOfDayIso(filters.dateFrom) ?? quickRange.dateFrom,
     dateTo: toEndOfDayIso(filters.dateTo) ?? quickRange.dateTo,
-  }
+  })
 }
 
 export function getEventStatusColor(status: string): EventBadgeColor {

@@ -1,4 +1,4 @@
-import type { ApiErrorPayload } from '~~/shared/types'
+import type { ApiErrorPayload } from '~~/shared/api/types'
 
 interface FetchLikeError {
   name?: string

@@ -1,10 +1,10 @@
-import type { EventCatalogDetail } from '~~/shared/types'
+import type { PublicEventDetailApiItem } from '~~/shared/api/public-events'
 import { createError, getRouterParam } from 'h3'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'
 import { createRouteParamPublicApiPolicy } from '~~/server/utils/cache/policies/public-api'
 
-const eventDetailCachePolicy = createRouteParamPublicApiPolicy<EventCatalogDetail>({
+const eventDetailCachePolicy = createRouteParamPublicApiPolicy<PublicEventDetailApiItem>({
   prefix: 'event',
   param: 'id',
   maxAge: 120,
@@ -18,7 +18,7 @@ export default createCachedHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Falta el identificador del evento.' })
   }
 
-  return proxyBackendRequest<EventCatalogDetail>(event, `/events/${id}`, {
+  return proxyBackendRequest<PublicEventDetailApiItem>(event, `/events/${id}`, {
     method: 'GET',
   })
 }, eventDetailCachePolicy)

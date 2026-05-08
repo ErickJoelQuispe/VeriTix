@@ -1,9 +1,10 @@
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   BackofficeArtistPayload,
   BackofficeArtistRecord,
   GenreOption,
-  PaginatedResponse,
 } from '~~/shared/types'
+import { compactQuery } from '~~/shared/query'
 
 export function useBackofficeArtistsRepository() {
   const apiRequest = useApiRequest()
@@ -31,13 +32,13 @@ export function useBackofficeArtistsRepository() {
     return apiRequest<PaginatedResponse<BackofficeArtistRecord>>('/admin/artists', {
       method: 'GET',
       headers: requireBackofficeHeaders(),
-      query: {
+      query: compactQuery({
         page: pageValue,
         limit: pageSize,
-        search: search.trim() || undefined,
-        genreId: genreId || undefined,
-        isActive: isActive || undefined,
-      },
+        search,
+        genreId,
+        isActive,
+      }),
     })
   }
 

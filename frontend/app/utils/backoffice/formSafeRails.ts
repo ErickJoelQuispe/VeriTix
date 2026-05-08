@@ -7,64 +7,14 @@ import type {
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
 } from '~~/shared/types'
-
-function normalizeRequiredString(value: string | null | undefined): string {
-  return (value ?? '').trim()
-}
-
-function normalizeOptionalString(value: string | null | undefined): string | undefined {
-  const normalized = normalizeRequiredString(value)
-
-  return normalized || undefined
-}
-
-function normalizeOptionalIsoDateTime(value: string | null | undefined): string | undefined {
-  const normalized = normalizeOptionalString(value)
-
-  if (!normalized) {
-    return undefined
-  }
-
-  const date = new Date(normalized)
-
-  if (Number.isNaN(date.getTime())) {
-    return undefined
-  }
-
-  return date.toISOString()
-}
-
-function normalizeRequiredIsoDateTime(value: string | null | undefined): string {
-  return normalizeOptionalIsoDateTime(value) ?? ''
-}
-
-function normalizeStringArray(values?: Array<string | null | undefined>): string[] | undefined {
-  if (!values?.length) {
-    return undefined
-  }
-
-  const normalizedValues = values
-    .map(value => normalizeOptionalString(value))
-    .filter((value): value is string => Boolean(value))
-
-  if (!normalizedValues.length) {
-    return undefined
-  }
-
-  return [...new Set(normalizedValues)].sort()
-}
-
-function areStringArraysEqual(left?: string[], right?: string[]): boolean {
-  if (!left?.length && !right?.length) {
-    return true
-  }
-
-  if (!left || !right || left.length !== right.length) {
-    return false
-  }
-
-  return left.every((value, index) => value === right[index])
-}
+import {
+  areStringArraysEqual,
+  normalizeOptionalIsoDateTime,
+  normalizeOptionalString,
+  normalizeRequiredIsoDateTime,
+  normalizeRequiredString,
+  normalizeStringArray,
+} from './formNormalizers'
 
 export function normalizeEventPayload(payload: BackofficeEventPayload): BackofficeEventPayload {
   return {

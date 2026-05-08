@@ -1,8 +1,9 @@
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   BackofficeVenueListQuery,
   BackofficeVenueRecord,
-  PaginatedResponse,
 } from '~~/shared/types'
+import { compactQuery } from '~~/shared/query'
 
 export function useBackofficeVenuesRepository() {
   const apiRequest = useApiRequest()
@@ -12,13 +13,13 @@ export function useBackofficeVenuesRepository() {
     return apiRequest<PaginatedResponse<BackofficeVenueRecord>>('/admin/venues', {
       method: 'GET',
       headers: requireBackofficeHeaders(),
-      query: {
+      query: compactQuery({
         page: query.pageValue,
         limit: query.pageSize,
-        search: query.search.trim() || undefined,
-        city: query.city.trim() || undefined,
-        isActive: query.isActive || undefined,
-      },
+        search: query.search,
+        city: query.city,
+        isActive: query.isActive,
+      }),
     })
   }
 

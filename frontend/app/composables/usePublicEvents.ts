@@ -1,10 +1,10 @@
 import type { MaybeRef } from 'vue'
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   EventCatalogDetail,
   EventCatalogFilters,
   EventCatalogItem,
   GenreOption,
-  PaginatedResponse,
   VenueOption,
 } from '~~/shared/types'
 import { usePublicEventsRepository } from '../repositories/publicEventsRepository'

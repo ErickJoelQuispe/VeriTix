@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import type { PaginationMeta } from '~~/shared/api/types'
 import type {
   BackofficeEventRecord,
   BackofficeOption,
   BackofficeRequiresAttentionRecord,
   GenreOption,
-  PaginationMeta,
 } from '~~/shared/types'
 import type {
   CatalogEventListItem,

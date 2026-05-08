@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { PaginationMeta } from '~~/shared/api/types'
 import type {
   BackofficeOption,
   BackofficeUserRecord,
-  PaginationMeta,
 } from '~~/shared/types'
 import { useBackofficeUsersRepository } from '@/repositories/backofficeUsersRepository'
 import { PAGE_SIZE_OPTIONS } from '@/utils/backoffice/pagination'

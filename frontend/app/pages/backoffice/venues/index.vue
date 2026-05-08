@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { BackofficeOption, BackofficeVenueRecord, PaginationMeta } from '~~/shared/types'
+import type { PaginationMeta } from '~~/shared/api/types'
+import type { BackofficeOption, BackofficeVenueRecord } from '~~/shared/types'
 import { useBackofficeVenuesRepository } from '@/repositories/backofficeVenuesRepository'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
