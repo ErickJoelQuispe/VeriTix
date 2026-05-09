@@ -420,7 +420,7 @@ function submitDemoForm() {
                     Hover and focus states are built in.
                   </p>
                 </UiPanel>
-            </div>
+              </div>
             </UiPanel>
           </div>
         </section>

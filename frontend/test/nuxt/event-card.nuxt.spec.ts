@@ -51,7 +51,10 @@ describe('ui event card', () => {
     expect(footer.classes()).toContain('mt-auto')
 
     expect(wrapper.text()).toContain('24 may')
+    expect(wrapper.text()).not.toContain('Luna Arena')
     expect(wrapper.text()).not.toContain('Price ·')
     expect(wrapper.text()).not.toContain('20:30')
+
+    expect(wrapper.get('a').classes()).toContain('w-full')
   })
 })

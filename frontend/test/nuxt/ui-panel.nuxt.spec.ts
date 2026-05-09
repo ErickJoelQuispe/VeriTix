@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import UiPanel from '@/components/ui/Panel.vue'
 
-describe('UiPanel', () => {
+describe('ui panel', () => {
   it('renders the default solid surface with shared sizing', async () => {
     const wrapper = await mountSuspended(UiPanel, {
       props: {

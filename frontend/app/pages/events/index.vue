@@ -175,21 +175,21 @@ async function handlePageChange(page: number) {
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer class="relative">
       <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
-        <header class="space-y-4 border-b border-default/55 pb-8">
-          <UiMetaLabel tone="accent">
-            Cartelera
-          </UiMetaLabel>
+        <div class="space-y-8">
+          <UiPageHeading
+            eyebrow="Cartelera"
+            title="Curated Transmissions."
+            description="Explorá la cartelera, refiná por género o ciudad, y pasá del descubrimiento al ticket en pocos pasos."
+          />
 
-          <div>
-            <h1 class="font-display text-3xl text-highlighted sm:text-4xl lg:text-5xl">
-              Curated Transmissions.
-            </h1>
-            <p class="mt-2.5 max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-              Explorá la cartelera, refiná por género o ciudad, y pasá del descubrimiento al ticket en pocos pasos.
-            </p>
-          </div>
-
-          <UiPanel as="form" variant="glass" radius="xl" padding="md" class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto]" @submit.prevent="submitSearch">
+          <UiPanel
+            as="form"
+            variant="glass"
+            radius="xl"
+            padding="md"
+            class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto]"
+            @submit.prevent="submitSearch"
+          >
             <FormInput
               v-model="searchDraft"
               placeholder="Buscar eventos o artistas"
@@ -198,7 +198,13 @@ async function handlePageChange(page: number) {
               :disabled="isPending"
             />
 
-            <BaseButton variant="primary" type="submit" size="md" :loading="isPending" leading-icon="i-lucide-search">
+            <BaseButton
+              variant="primary"
+              type="submit"
+              size="md"
+              :loading="isPending"
+              leading-icon="i-lucide-search"
+            >
               Buscar
             </BaseButton>
 
@@ -214,7 +220,7 @@ async function handlePageChange(page: number) {
               Limpiar
             </BaseButton>
           </UiPanel>
-        </header>
+        </div>
 
         <section class="grid gap-8 xl:grid-cols-[292px_minmax(0,1fr)] xl:items-start xl:gap-10">
           <aside class="xl:sticky xl:top-24">
@@ -300,25 +306,14 @@ async function handlePageChange(page: number) {
           </aside>
 
           <section class="space-y-7">
-            <div class="border-b border-default/50 pb-4 sm:pb-5">
-              <div class="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between md:gap-6">
-                <div class="space-y-1">
-                  <UiMetaLabel>
-                    Resultados
-                  </UiMetaLabel>
-                  <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
-                    {{ resultsHeading }}
-                  </h2>
-                </div>
+            <UiSectionHeading
+              eyebrow="Resultados"
+              :title="resultsHeading"
+              :description="resultsContext"
+            />
 
-                <p class="max-w-2xl text-sm leading-relaxed text-toned/88 md:text-right">
-                  {{ resultsContext }}
-                </p>
-              </div>
-
-              <div class="mt-3">
-                <BackofficeToolbarChips :items="resultsChips" />
-              </div>
+            <div class="mt-3">
+              <BackofficeToolbarChips :items="resultsChips" />
             </div>
 
             <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">

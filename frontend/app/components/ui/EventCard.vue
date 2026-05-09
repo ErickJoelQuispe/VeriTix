@@ -41,27 +41,21 @@ const eventDate = computed(() => {
         </span>
       </div>
 
-      <div class="space-y-2">
-        <div class="flex items-center justify-between gap-3 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
-          <span class="min-w-0 truncate">{{ event.venue.name }}</span>
-        </div>
+      <h3 class="line-clamp-2 text-base font-semibold leading-tight text-highlighted transition-colors duration-300 group-hover:text-white sm:text-lg">
+        {{ event.name }}
+      </h3>
 
-        <h3 class="line-clamp-2 text-base font-semibold leading-tight text-highlighted transition-colors duration-300 group-hover:text-white sm:text-lg">
-          {{ event.name }}
-        </h3>
-      </div>
-
-      <div data-test="event-card-footer" class="mt-auto flex items-end justify-between gap-4 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
+      <div data-test="event-card-footer" class="mt-auto flex flex-col gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55 sm:flex-row sm:items-end sm:justify-between">
         <div class="min-w-0">
           <span class="block text-xs tracking-widest text-muted uppercase">{{ eventDate }}</span>
         </div>
 
-        <div class="shrink-0">
+        <div class="shrink-0 sm:ml-auto">
           <BaseButton
             :to="`/events/${event.id}`"
             variant="primary"
             size="sm"
-            class="px-3.5"
+            class="w-full px-3.5 sm:w-auto"
           >
             Reservar
           </BaseButton>
