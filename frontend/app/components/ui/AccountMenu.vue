@@ -16,14 +16,14 @@ const props = withDefaults(defineProps<{
   side?: 'top' | 'bottom'
   sideOffset?: number
   triggerLabel?: string
-  triggerSize?: 'md' | 'lg'
+  triggerSize?: 'lg' | 'xl'
 }>(), {
   avatarSrc: undefined,
   align: 'end',
   side: 'bottom',
   sideOffset: 12,
   triggerLabel: '',
-  triggerSize: 'md',
+  triggerSize: 'lg',
 })
 
 const attrs = useAttrs()
@@ -222,7 +222,6 @@ const triggerAvatarSize = computed(() => props.triggerSize)
 }
 
 .vtx-account-avatar {
-  background: linear-gradient(135deg, color-mix(in oklch, var(--color-accent) 72%, white), color-mix(in oklch, var(--color-secondary) 58%, var(--color-accent)));
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 0.08),
     0 8px 18px -14px rgb(0 0 0 / 0.85);

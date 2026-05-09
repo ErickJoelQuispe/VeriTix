@@ -64,10 +64,8 @@ const badgeSizeVariants = [
 ] as const
 
 const avatarVariants = [
-  { text: 'VT', size: 'xs' },
-  { text: 'VT', size: 'sm' },
-  { text: 'VT', size: 'md' },
   { text: 'VT', size: 'lg' },
+  { text: 'VT', size: 'xl' },
 ] as const
 
 const iconVariants = [
