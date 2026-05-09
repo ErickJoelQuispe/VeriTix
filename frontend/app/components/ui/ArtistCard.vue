@@ -84,17 +84,28 @@ const featuredGenres = computed(() => props.artist.genres.slice(0, 3))
           {{ artist.genres.length }} género{{ artist.genres.length === 1 ? '' : 's' }} asociado{{ artist.genres.length === 1 ? '' : 's' }}
         </p>
 
-        <BaseButton
-          v-if="artist.website"
-          :href="artist.website"
-          variant="outlined"
-          size="sm"
-          target="_blank"
-          rel="noreferrer"
-          trailing-icon="i-lucide-arrow-up-right"
-        >
-          Web
-        </BaseButton>
+        <div class="flex items-center gap-2">
+          <BaseButton
+            :to="`/artists/${artist.id}`"
+            variant="secondary"
+            size="sm"
+            trailing-icon="i-lucide-arrow-right"
+          >
+            Perfil
+          </BaseButton>
+
+          <BaseButton
+            v-if="artist.website"
+            :href="artist.website"
+            variant="outlined"
+            size="sm"
+            target="_blank"
+            rel="noreferrer"
+            trailing-icon="i-lucide-arrow-up-right"
+          >
+            Web
+          </BaseButton>
+        </div>
       </div>
     </div>
   </UiPanel>

@@ -46,20 +46,17 @@ async function onSubmit() {
 
 <template>
   <div>
-    <PageBackdrop :intensity="0.85" />
-
     <main class="relative grid min-h-[calc(100vh-78px)] place-items-center overflow-hidden px-4 py-12 sm:px-6 md:px-10 lg:px-16">
       <AuthPanel
-        panel-title="Acceso seguro"
         kicker="Sesión"
-        eyebrow="Iniciar sesión"
+        eyebrow="Bienvenido"
         title="Entrá a VeriTix."
         description="Retomá tus reservas, tickets y eventos guardados en un solo lugar."
       >
-        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
+        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
           <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" :disabled="pending" required />
           <FormPassword v-model="state.password" name="password" label="Contraseña" placeholder="Ingresá tu contraseña" icon="i-lucide-lock" :disabled="pending" required />
-          <div class="grid gap-3 pt-2">
+          <div class="grid gap-4 pt-6">
             <BaseButton variant="primary" type="submit" size="lg" block :loading="pending">
               Entrar
             </BaseButton>
@@ -73,7 +70,6 @@ async function onSubmit() {
           <NuxtLink to="/forgot-password" class="hover:text-primary">
             ¿Olvidaste tu contraseña?
           </NuxtLink>
-          <span>Tu acceso, sin ruido.</span>
         </template>
       </AuthPanel>
     </main>

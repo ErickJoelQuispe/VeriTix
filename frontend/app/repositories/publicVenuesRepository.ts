@@ -1,4 +1,4 @@
-import type { PublicVenueListApiItem } from '~~/shared/api/public-venues'
+import type { PublicVenueDetailApiItem, PublicVenueListApiItem } from '~~/shared/api/public-venues'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { VenueCatalogFilters } from '~~/shared/types'
 import { compactQuery } from '../../shared/query'
@@ -22,7 +22,14 @@ export function usePublicVenuesRepository() {
     })
   }
 
+  async function getVenue(id: string): Promise<PublicVenueDetailApiItem> {
+    return apiRequest<PublicVenueDetailApiItem>(`/venues/${id}`, {
+      method: 'GET',
+    })
+  }
+
   return {
     listVenues,
+    getVenue,
   }
 }

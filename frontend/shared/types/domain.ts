@@ -79,6 +79,8 @@ export interface EventCatalogFilters {
   venueName: string
   genreId: string
   city: string
+  dateFrom?: string
+  dateTo?: string
   page: number
 }
 

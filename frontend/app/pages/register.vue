@@ -61,23 +61,21 @@ async function onSubmit() {
 
 <template>
   <div>
-    <PageBackdrop :intensity="0.85" />
-
     <main class="relative grid min-h-[calc(100vh-78px)] place-items-center overflow-hidden px-4 py-12 sm:px-6 md:px-10 lg:px-16">
       <AuthPanel
-        panel-title="Cuenta nueva"
         kicker="Registro"
-        eyebrow="Crear cuenta"
+        eyebrow="Creá tu cuenta"
         title="Unite a VeriTix."
+        description="Creá tu perfil en segundos y empezá a seguir artistas, venues y eventos."
       >
-        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
+        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
           <FormField v-model="state.name" name="name" label="Nombre" placeholder="Tu nombre" icon="i-lucide-user" required />
           <FormField v-model="state.lastName" name="lastName" label="Apellido" placeholder="Tu apellido" icon="i-lucide-user-round" required />
           <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" required />
           <FormField v-model="state.phone" name="phone" label="Teléfono" placeholder="+34958123456" icon="i-lucide-phone" required />
           <FormPassword v-model="state.password" name="password" label="Contraseña" placeholder="Creá una contraseña" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
           <FormPassword v-model="state.confirmPassword" name="confirmPassword" label="Confirmar contraseña" placeholder="Repetí la contraseña" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
-          <div class="grid gap-3 pt-2">
+          <div class="grid gap-4 pt-6">
             <BaseButton variant="primary" type="submit" size="lg" block :loading="pending">
               Crear cuenta
             </BaseButton>

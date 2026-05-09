@@ -30,20 +30,17 @@ async function onSubmit() {
 
 <template>
   <div>
-    <PageBackdrop :intensity="0.85" />
-
     <main class="relative grid min-h-[calc(100vh-78px)] place-items-center overflow-hidden px-4 py-12 sm:px-6 md:px-10 lg:px-16">
       <AuthPanel
-        panel-title="Recuperación"
         kicker="Acceso"
-        eyebrow="Olvidé mi contraseña"
-        title="Recuperá tu cuenta."
-        description="Te enviaremos un enlace de un solo uso al email para volver a entrar con seguridad."
+        eyebrow="Recuperá tu acceso"
+        title="Volvé a entrar."
+        description="Te enviaremos un enlace de un solo uso al email para volver a entrar con seguridad. Recuerda revisar tu carpeta de spam."
       >
-        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
+        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
           <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" required />
 
-          <div class="grid gap-3 pt-2">
+          <div class="grid gap-4 pt-6">
             <BaseButton variant="primary" type="submit" size="lg" block>
               Enviar enlace
             </BaseButton>
@@ -52,13 +49,6 @@ async function onSubmit() {
             </BaseButton>
           </div>
         </FormRoot>
-
-        <template #meta>
-          <span>Revisá spam si no llega enseguida.</span>
-          <p v-if="submitted" class="text-primary">
-            Revisá tu correo: si existe una cuenta, ya te mandamos el enlace.
-          </p>
-        </template>
       </AuthPanel>
     </main>
   </div>

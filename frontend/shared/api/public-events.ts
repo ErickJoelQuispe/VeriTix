@@ -52,3 +52,18 @@ export interface PublicEventDetailApiItem {
     slug: string
   }>
 }
+
+export interface PublicEventArtistApiItem {
+  id: string
+  role: string
+  performanceOrder: number
+  performanceTime: string | Date | null
+  eventId: string
+  artist: {
+    id: string
+    name: string
+    slug: string
+    imageUrl: string | null
+    country: string | null
+  }
+}

@@ -7,6 +7,7 @@ import type {
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
+import type { PublicEventArtistApiItem } from '~~/shared/api/public-events'
 import { usePublicEventsRepository } from '../repositories/publicEventsRepository'
 
 export {
@@ -22,6 +23,8 @@ export function normalizeFilters(
   raw?: Partial<EventCatalogFilters>,
 ): EventCatalogFilters {
   return {
+    dateFrom: raw?.dateFrom?.trim() ?? '',
+    dateTo: raw?.dateTo?.trim() ?? '',
     search: raw?.search?.trim() ?? '',
     artistName: raw?.artistName?.trim() ?? '',
     venueName: raw?.venueName?.trim() ?? '',
@@ -60,6 +63,22 @@ export function usePublicEvents(
         },
       }),
       watch: [normalizedFilters],
+      server: true,
+    },
+  )
+}
+
+export function usePublicEventArtists(eventId: MaybeRef<string>) {
+  const { listEventArtists } = usePublicEventsRepository()
+
+  const normalizedEventId = computed(() => unref(eventId).trim())
+
+  return useAsyncData<PublicEventArtistApiItem[]>(
+    () => `veritix-public-event-artists:${normalizedEventId.value}`,
+    async () => listEventArtists(normalizedEventId.value),
+    {
+      default: () => [],
+      watch: [normalizedEventId],
       server: true,
     },
   )

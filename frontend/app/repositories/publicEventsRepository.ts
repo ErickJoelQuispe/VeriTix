@@ -1,4 +1,5 @@
 import type {
+  PublicEventArtistApiItem,
   PublicEventDetailApiItem,
   PublicEventListApiItem,
 } from '~~/shared/api/public-events'
@@ -93,6 +94,8 @@ export function usePublicEventsRepository() {
         search: filters.search,
         artistName: filters.artistName,
         venueName: filters.venueName,
+        dateFrom: filters.dateFrom,
+        dateTo: filters.dateTo,
       }),
     })
 
@@ -139,10 +142,19 @@ export function usePublicEventsRepository() {
     }))
   }
 
+  async function listEventArtists(
+    eventId: string,
+  ): Promise<PublicEventArtistApiItem[]> {
+    return apiRequest<PublicEventArtistApiItem[]>(`/events/${eventId}/artists`, {
+      method: 'GET',
+    })
+  }
+
   return {
     listEvents,
     getEvent,
     listGenres,
     listVenues,
+    listEventArtists,
   }
 }

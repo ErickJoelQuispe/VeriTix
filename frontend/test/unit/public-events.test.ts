@@ -12,6 +12,8 @@ import {
 describe('normalizeFilters', () => {
   it('devuelve defaults estables cuando no recibe nada', () => {
     expect(normalizeFilters()).toEqual({
+      dateFrom: '',
+      dateTo: '',
       search: '',
       artistName: '',
       venueName: '',
@@ -29,9 +31,13 @@ describe('normalizeFilters', () => {
         venueName: '  Movistar Arena ',
         genreId: ' genre-1 ',
         city: '  Medellín ',
+        dateFrom: ' 2026-09-01 ',
+        dateTo: ' 2026-09-30 ',
         page: 0,
       }),
     ).toEqual({
+      dateFrom: '2026-09-01',
+      dateTo: '2026-09-30',
       search: 'porcupine tree',
       artistName: 'Steven Wilson',
       venueName: 'Movistar Arena',

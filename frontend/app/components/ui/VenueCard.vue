@@ -83,17 +83,28 @@ const venueTypeLabel = computed(() => venueTypeLabels[props.venue.type] ?? props
           {{ venue.state ? venue.state : 'Sin estado/provincia' }}
         </p>
 
-        <BaseButton
-          v-if="venue.website"
-          :href="venue.website"
-          variant="outlined"
-          size="sm"
-          target="_blank"
-          rel="noreferrer"
-          trailing-icon="i-lucide-arrow-up-right"
-        >
-          Web
-        </BaseButton>
+        <div class="flex items-center gap-2">
+          <BaseButton
+            :to="`/venues/${venue.id}`"
+            variant="secondary"
+            size="sm"
+            trailing-icon="i-lucide-arrow-right"
+          >
+            Ver venue
+          </BaseButton>
+
+          <BaseButton
+            v-if="venue.website"
+            :href="venue.website"
+            variant="outlined"
+            size="sm"
+            target="_blank"
+            rel="noreferrer"
+            trailing-icon="i-lucide-arrow-up-right"
+          >
+            Web
+          </BaseButton>
+        </div>
       </div>
     </div>
   </UiPanel>
