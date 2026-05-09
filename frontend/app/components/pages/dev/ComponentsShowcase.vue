@@ -23,13 +23,44 @@ const buttonVariants = [
   { label: 'Secondary', variant: 'secondary', icon: 'i-lucide-diamond' },
   { label: 'Outlined', variant: 'outlined', icon: 'i-lucide-orbit' },
   { label: 'Reversed', variant: 'reversed', icon: 'i-lucide-arrow-right' },
+  { label: 'Warning', variant: 'warning', icon: 'i-lucide-sun-medium' },
+  { label: 'Danger', variant: 'danger', icon: 'i-lucide-triangle-alert' },
 ] as const
 
-const badgeVariants = [
-  { label: 'Success', kind: 'status', color: 'success', icon: 'i-lucide-badge-check' },
-  { label: 'Neutral', kind: 'tag', color: 'neutral', icon: 'i-lucide-tag' },
+const buttonSizeVariants = [
+  { label: 'XS', size: 'xs' },
+  { label: 'SM', size: 'sm' },
+  { label: 'MD', size: 'md' },
+  { label: 'LG', size: 'lg' },
+  { label: 'XL', size: 'xl' },
+] as const
+
+const badgeKindVariants = [
+  { label: 'Status', kind: 'status', color: 'success', icon: 'i-lucide-activity' },
+  { label: 'Tag', kind: 'tag', color: 'neutral', icon: 'i-lucide-tag' },
+  { label: 'Outline', kind: 'outline', color: 'info', icon: 'i-lucide-circle-dashed' },
   { label: 'Info', kind: 'info', color: 'info', icon: 'i-lucide-info' },
+  { label: 'Role', kind: 'role', color: 'primary', icon: 'i-lucide-shield-check' },
+  { label: 'Price', kind: 'price', color: 'warning', icon: 'i-lucide-ticket' },
   { label: 'Accent', kind: 'accent', color: 'primary', icon: 'i-lucide-sparkles' },
+] as const
+
+const badgeColorVariants = [
+  { label: 'Primary', color: 'primary' },
+  { label: 'Secondary', color: 'secondary' },
+  { label: 'Success', color: 'success' },
+  { label: 'Info', color: 'info' },
+  { label: 'Warning', color: 'warning' },
+  { label: 'Error', color: 'error' },
+  { label: 'Neutral', color: 'neutral' },
+] as const
+
+const badgeSizeVariants = [
+  { label: 'XS', size: 'xs' },
+  { label: 'SM', size: 'sm' },
+  { label: 'MD', size: 'md' },
+  { label: 'LG', size: 'lg' },
+  { label: 'XL', size: 'xl' },
 ] as const
 
 const avatarVariants = [
@@ -108,45 +139,134 @@ function submitDemoForm() {
           </p>
         </header>
 
-        <section class="space-y-6">
+        <nav aria-label="Component sections" class="flex flex-wrap gap-2">
+          <a href="#base" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
+            Base
+          </a>
+          <a href="#shared-ui" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
+            Shared UI
+          </a>
+          <a href="#forms" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
+            Forms
+          </a>
+          <a href="#notifications" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
+            Notifications
+          </a>
+        </nav>
+
+        <section id="base" class="space-y-6 scroll-mt-24">
           <UiSectionHeading
             eyebrow="Base"
             title="Primitives base."
             description="Buttons, badges, avatars, icons, skeletons, pagination, and popovers from the shared foundation layer."
           />
 
-          <div class="grid gap-6 xl:grid-cols-2">
-            <UiGlassPanel class="space-y-5">
+          <div class="grid gap-6 lg:grid-cols-2">
+            <UiGlassPanel class="space-y-6 lg:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
-                  Buttons and badges
+                  Buttons
                 </p>
                 <p class="text-sm leading-relaxed text-toned">
-                  Core actions and status chips used throughout the app.
+                  Full reference of button kinds/variants used across screens and flows.
                 </p>
               </div>
 
-              <div class="flex flex-wrap gap-3">
-                <BaseButton
-                  v-for="button in buttonVariants"
-                  :key="button.label"
-                  :variant="button.variant"
-                  :leading-icon="button.icon"
-                >
-                  {{ button.label }}
-                </BaseButton>
+              <div class="space-y-3">
+                <p class="text-xs font-medium tracking-wide text-toned uppercase">
+                  All kinds
+                </p>
+
+                <div class="flex flex-wrap gap-3">
+                  <BaseButton
+                    v-for="button in buttonVariants"
+                    :key="button.label"
+                    :variant="button.variant"
+                    :leading-icon="button.icon"
+                  >
+                    {{ button.label }}
+                  </BaseButton>
+                </div>
               </div>
 
-              <div class="flex flex-wrap gap-2">
-                <BaseBadge
-                  v-for="badge in badgeVariants"
-                  :key="badge.label"
-                  :kind="badge.kind"
-                  :color="badge.color"
-                  :icon="badge.icon"
-                >
-                  {{ badge.label }}
-                </BaseBadge>
+              <div class="space-y-3">
+                <p class="text-xs font-medium tracking-wide text-toned uppercase">
+                  All sizes
+                </p>
+
+                <div class="flex flex-wrap items-center gap-3">
+                  <BaseButton
+                    v-for="button in buttonSizeVariants"
+                    :key="`button-size-${button.size}`"
+                    variant="secondary"
+                    :size="button.size"
+                  >
+                    Size {{ button.label }}
+                  </BaseButton>
+                </div>
+              </div>
+            </UiGlassPanel>
+
+            <UiGlassPanel class="space-y-6 lg:col-span-2">
+              <div class="space-y-2">
+                <p class="text-sm font-semibold text-highlighted">
+                  Badges
+                </p>
+                <p class="text-sm leading-relaxed text-toned">
+                  Full reference for badge kinds, colors, and sizing options.
+                </p>
+              </div>
+
+              <div class="grid gap-5 lg:grid-cols-3">
+                <div class="space-y-3">
+                  <p class="text-xs font-medium tracking-wide text-toned uppercase">
+                    All kinds
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <BaseBadge
+                      v-for="badge in badgeKindVariants"
+                      :key="`kind-${badge.kind}`"
+                      :kind="badge.kind"
+                      :color="badge.color"
+                      :icon="badge.icon"
+                    >
+                      {{ badge.label }}
+                    </BaseBadge>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <p class="text-xs font-medium tracking-wide text-toned uppercase">
+                    All colors
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    <BaseBadge
+                      v-for="badge in badgeColorVariants"
+                      :key="`color-${badge.color}`"
+                      kind="accent"
+                      :color="badge.color"
+                    >
+                      {{ badge.label }}
+                    </BaseBadge>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <p class="text-xs font-medium tracking-wide text-toned uppercase">
+                    All sizes
+                  </p>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <BaseBadge
+                      v-for="badge in badgeSizeVariants"
+                      :key="`size-${badge.size}`"
+                      kind="accent"
+                      color="primary"
+                      :size="badge.size"
+                    >
+                      Size {{ badge.label }}
+                    </BaseBadge>
+                  </div>
+                </div>
               </div>
             </UiGlassPanel>
 
@@ -192,8 +312,6 @@ function submitDemoForm() {
               </div>
 
               <div class="space-y-3">
-                <BaseSkeleton class="h-4 w-3/4" />
-                <BaseSkeleton class="h-4 w-1/2" />
                 <BaseSkeleton class="h-24 w-full" />
               </div>
 
@@ -254,7 +372,7 @@ function submitDemoForm() {
           </div>
         </section>
 
-        <section class="space-y-6">
+        <section id="shared-ui" class="space-y-6 scroll-mt-24">
           <UiSectionHeading
             eyebrow="Shared UI"
             title="Reusable blocks."
@@ -324,7 +442,7 @@ function submitDemoForm() {
           </div>
         </section>
 
-        <section class="space-y-6">
+        <section id="forms" class="space-y-6 scroll-mt-24">
           <UiSectionHeading
             eyebrow="Forms"
             title="Form primitives."
@@ -383,7 +501,7 @@ function submitDemoForm() {
           </div>
         </section>
 
-        <section class="space-y-6">
+        <section id="notifications" class="space-y-6 scroll-mt-24">
           <UiSectionHeading
             eyebrow="Notifications"
             title="Toast example."
