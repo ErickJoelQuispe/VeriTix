@@ -302,7 +302,7 @@ async function handlePageChange(page: number) {
                 </label>
               </div>
 
-              <div class="grid gap-4 lg:grid-cols-[repeat(2,minmax(0,1fr))]">
+              <div class="grid gap-4 lg:grid-cols-2">
                 <FormSelect
                   label="Género"
                   name="genreId"
