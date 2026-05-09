@@ -521,11 +521,13 @@ function submitDemoForm() {
           />
 
           <div class="grid gap-6 lg:grid-cols-[1fr_auto]">
-            <UiGlassPanel class="space-y-4">
+            <UiGlassPanel class="space-y-3">
+              <UiMetaLabel tone="accent">
+                Live feedback
+              </UiMetaLabel>
               <p class="text-sm leading-relaxed text-toned">
-                Tap any action to enqueue a toast. The host renders at the bottom-right of the app shell.
+                Toasts are useful for ephemeral confirmations, warnings, and inline status updates.
               </p>
-
               <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <BaseButton
                   v-for="preset in toastPresets"
@@ -537,15 +539,6 @@ function submitDemoForm() {
                   {{ preset.title }}
                 </BaseButton>
               </div>
-            </UiGlassPanel>
-
-            <UiGlassPanel class="space-y-3">
-              <UiMetaLabel tone="accent">
-                Live feedback
-              </UiMetaLabel>
-              <p class="text-sm leading-relaxed text-toned">
-                Toasts are useful for ephemeral confirmations, warnings, and inline status updates.
-              </p>
             </UiGlassPanel>
           </div>
         </section>
