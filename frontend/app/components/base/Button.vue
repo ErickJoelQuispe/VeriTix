@@ -34,7 +34,7 @@ const props = withDefaults(
   },
 )
 
-type ButtonVariant = 'primary' | 'secondary' | 'outlined' | 'reversed'
+type ButtonVariant = 'primary' | 'secondary' | 'outlined' | 'reversed' | 'warning' | 'danger'
 
 const attrs = useAttrs()
 
@@ -61,6 +61,8 @@ const buttonClass = computed(() => {
     secondary: 'border-default/55 bg-elevated/84 text-highlighted shadow-none focus-visible:ring-default/35 hover:-translate-y-0.5 hover:border-lavender/35 hover:bg-[color-mix(in_oklch,var(--color-lavender)_14%,var(--color-elevated))] hover:text-white hover:shadow-[0_10px_22px_-18px_rgba(86,29,164,0.22)]',
     outlined: 'border-border-accented bg-transparent text-toned shadow-none focus-visible:ring-primary/25 hover:-translate-y-0.5 hover:border-lavender/40 hover:bg-[color-mix(in_oklch,var(--color-lavender)_10%,transparent)] hover:text-highlighted',
     reversed: 'border-accent/40 bg-accent text-default shadow-sm focus-visible:ring-accent/30 hover:-translate-y-0.5 hover:border-accent/70 hover:bg-accent/90 hover:shadow-[0_14px_30px_-18px_rgba(166,102,255,0.6)]',
+    warning: 'border-warning/55 bg-warning text-default shadow-sm focus-visible:ring-warning/35 hover:-translate-y-0.5 hover:border-warning/70 hover:bg-warning/90 hover:shadow-[0_14px_28px_-18px_rgba(245,158,11,0.55)]',
+    danger: 'border-error/55 bg-error text-default shadow-sm focus-visible:ring-error/35 hover:-translate-y-0.5 hover:border-error/70 hover:bg-error/90 hover:shadow-[0_14px_28px_-18px_rgba(236,104,92,0.58)]',
   }
 
   return [sharedClass, sizeClass, variantClass[props.variant], attrs.class]

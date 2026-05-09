@@ -14,7 +14,7 @@
   --color-success: oklch(0.71 0.16 160);
   --color-info: oklch(0.65 0.18 240);
   --color-warning: oklch(0.78 0.16 72);
-  --color-error: oklch(0.7 0.22 340);
+  --color-error: oklch(0.74 0.15 24);
 
   --color-default: oklch(0.16 0.015 270);
   --color-elevated: oklch(0.21 0.015 270);
