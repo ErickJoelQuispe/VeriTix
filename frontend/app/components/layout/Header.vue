@@ -14,10 +14,7 @@ const showAccountMenu = computed(() => {
 })
 
 const accountAvatarAlt = computed(() => {
-  const fullName = [user.value?.name, user.value?.lastName]
-    .filter(Boolean)
-    .join(' ')
-    .trim()
+  const fullName = [user.value?.name, user.value?.lastName].filter(Boolean).join(' ').trim()
 
   return fullName || user.value?.email || 'Mi cuenta'
 })
@@ -35,10 +32,7 @@ const accountInitials = computed(() => {
 })
 
 const accountDisplayName = computed(() => {
-  const fullName = [user.value?.name, user.value?.lastName]
-    .filter(Boolean)
-    .join(' ')
-    .trim()
+  const fullName = [user.value?.name, user.value?.lastName].filter(Boolean).join(' ').trim()
 
   return fullName || 'Mi cuenta'
 })
@@ -80,9 +74,7 @@ function isMainNavActive(path: string): boolean {
               :key="item.to"
               :to="item.to"
               class="group inline-flex items-center py-2 text-base font-medium tracking-wide transition-all duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-default"
-              :class="isMainNavActive(item.to)
-                ? 'text-highlighted'
-                : 'text-muted hover:text-highlighted'"
+              :class="isMainNavActive(item.to) ? 'text-highlighted' : 'text-muted hover:text-highlighted'"
             >
               <span class="relative pb-1">
                 {{ item.label }}
@@ -97,42 +89,61 @@ function isMainNavActive(path: string): boolean {
           </div>
         </nav>
 
-        <div class="flex shrink-0 items-center gap-3 justify-self-end">
-          <div class="inline-flex items-center gap-2 rounded-full border border-default/55 bg-elevated/35 p-1 backdrop-blur-sm">
-            <ClientOnly>
-              <template v-if="showGuestActions">
-                <BaseButton
-                  to="/login"
-                  variant="primary"
-                  size="xs"
-                  class="rounded-full! px-4! py-1.5! text-[0.7rem]! tracking-[0.12em]!"
+        <div class="flex h-16 shrink-0 items-center gap-3 justify-self-end">
+          <ClientOnly>
+            <template v-if="showGuestActions">
+              <BaseButton
+                to="/login"
+                variant="primary"
+                size="md"
+                class="rounded-full! px-5! py-3! text-[0.72rem]! tracking-[0.12em]!"
+              >
+                Iniciar sesión
+              </BaseButton>
+
+              <BaseButton
+                to="/register"
+                variant="reversed"
+                size="md"
+                class="rounded-full! px-5! py-3! text-[0.72rem]! tracking-[0.12em]!"
+              >
+                Registrarse
+              </BaseButton>
+            </template>
+
+            <template v-else-if="showAccountMenu">
+              <UiAccountMenu
+                :title="accountDisplayName"
+                :subtitle="accountSubtitle"
+                :items="accountMenuItems"
+                :avatar-alt="accountAvatarAlt"
+                :avatar-initials="accountInitials"
+                :avatar-src="user?.avatarUrl || undefined"
+              />
+            </template>
+
+            <div
+              v-else
+              class="inline-flex items-center gap-2.5 rounded-full px-3 py-2"
+              aria-hidden="true"
+            >
+              <div
+                class="inline-flex size-12 items-center justify-center rounded-full bg-elevated/45 ring-1 ring-default/55"
+              >
+                <BaseIcon name="i-lucide-loader-2" class="size-4 animate-spin text-muted" />
+              </div>
+              <div class="hidden min-w-0 flex-1 space-y-1 sm:block">
+                <div class="h-3 w-28 rounded bg-elevated/45" />
+                <div class="h-2.5 w-36 rounded bg-elevated/40" />
+              </div>
+              <div class="size-4 rounded-full bg-elevated/45" />
+            </div>
+
+            <template #fallback>
+              <div class="inline-flex items-center gap-2.5 rounded-full px-3 py-2" aria-hidden="true">
+                <div
+                  class="inline-flex size-12 items-center justify-center rounded-full bg-elevated/45 ring-1 ring-default/55"
                 >
-                  Iniciar sesión
-                </BaseButton>
-
-                <BaseButton
-                  to="/register"
-                  variant="reversed"
-                  size="xs"
-                  class="rounded-full! px-4! py-1.5! text-[0.7rem]! tracking-[0.12em]!"
-                >
-                  Registrarse
-                </BaseButton>
-              </template>
-
-              <template v-else-if="showAccountMenu">
-                <UiAccountMenu
-                  :title="accountDisplayName"
-                  :subtitle="accountSubtitle"
-                  :items="accountMenuItems"
-                  :avatar-alt="accountAvatarAlt"
-                  :avatar-initials="accountInitials"
-                  :avatar-src="user?.avatarUrl || undefined"
-                />
-              </template>
-
-              <div v-else class="inline-flex items-center gap-2.5 rounded-full px-3 py-2" aria-hidden="true">
-                <div class="inline-flex size-12 items-center justify-center rounded-full bg-elevated/45 ring-1 ring-default/55">
                   <BaseIcon name="i-lucide-loader-2" class="size-4 animate-spin text-muted" />
                 </div>
                 <div class="hidden min-w-0 flex-1 space-y-1 sm:block">
@@ -141,21 +152,8 @@ function isMainNavActive(path: string): boolean {
                 </div>
                 <div class="size-4 rounded-full bg-elevated/45" />
               </div>
-
-              <template #fallback>
-                <div class="inline-flex items-center gap-2.5 rounded-full px-3 py-2" aria-hidden="true">
-                  <div class="inline-flex size-12 items-center justify-center rounded-full bg-elevated/45 ring-1 ring-default/55">
-                    <BaseIcon name="i-lucide-loader-2" class="size-4 animate-spin text-muted" />
-                  </div>
-                  <div class="hidden min-w-0 flex-1 space-y-1 sm:block">
-                    <div class="h-3 w-28 rounded bg-elevated/45" />
-                    <div class="h-2.5 w-36 rounded bg-elevated/40" />
-                  </div>
-                  <div class="size-4 rounded-full bg-elevated/45" />
-                </div>
-              </template>
-            </ClientOnly>
-          </div>
+            </template>
+          </ClientOnly>
         </div>
       </div>
     </BaseContainer>
@@ -164,6 +162,6 @@ function isMainNavActive(path: string): boolean {
 
 <style scoped>
 .vtx-header-brand-link:hover .vtx-header-brand-prism {
-  filter: drop-shadow(0 0 14px color-mix(in oklch, var(--color-accent) 34%, transparent));
+    filter: drop-shadow(0 0 14px color-mix(in oklch, var(--color-accent) 34%, transparent));
 }
 </style>
