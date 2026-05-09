@@ -126,6 +126,11 @@ export function useAuth() {
         skipAuthRefresh: true,
       })
     }
+    catch (error) {
+      if (!isApiAuthError(error)) {
+        throw error
+      }
+    }
     finally {
       clearAuth()
       sessionStatus.value = 'anonymous'

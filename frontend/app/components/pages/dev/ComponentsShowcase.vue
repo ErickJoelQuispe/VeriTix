@@ -137,33 +137,6 @@ function submitDemoForm() {
   <main class="py-16 sm:py-20">
     <BaseContainer>
       <div class="space-y-16">
-        <header class="max-w-3xl space-y-4">
-          <p class="vtx-eyebrow">
-            UI / Components
-          </p>
-          <h1 class="font-display text-5xl leading-none text-highlighted sm:text-6xl">
-            Primitives and reusable blocks.
-          </h1>
-          <p class="text-base leading-relaxed text-toned sm:text-lg">
-            A living playground for base primitives, shared UI blocks, form controls, and toast states.
-          </p>
-        </header>
-
-        <nav aria-label="Component sections" class="flex flex-wrap gap-2">
-          <a href="#base" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
-            Base
-          </a>
-          <a href="#shared-ui" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
-            Shared UI
-          </a>
-          <a href="#forms" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
-            Forms
-          </a>
-          <a href="#notifications" class="inline-flex items-center rounded-full border border-default/65 bg-default/20 px-3 py-1.5 text-xs font-medium text-toned transition hover:border-primary/50 hover:text-highlighted">
-            Notifications
-          </a>
-        </nav>
-
         <section id="base" class="space-y-6 scroll-mt-24">
           <UiSectionHeading
             eyebrow="Base"
