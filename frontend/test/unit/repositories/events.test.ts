@@ -15,27 +15,33 @@ describe('arquitectura de repositorios', () => {
     const files = await readdir(repoDir)
 
     expect(files).toContain('publicEventsRepository.ts')
-    expect(files).toContain('adminEventsRepository.ts')
-    expect(files).toContain('adminUsersRepository.ts')
-    expect(files).toContain('adminArtistsRepository.ts')
+    expect(files).toContain('publicArtistsRepository.ts')
+    expect(files).toContain('publicVenuesRepository.ts')
+    expect(files).toContain('backofficeEventsRepository.ts')
+    expect(files).toContain('backofficeUsersRepository.ts')
+    expect(files).toContain('backofficeArtistsRepository.ts')
   })
 
   it('cada repositorio exporta su función factory', async () => {
     const checks = await Promise.all([
       readFile(join(appDir, 'repositories/publicEventsRepository.ts'), 'utf-8'),
-      readFile(join(appDir, 'repositories/adminEventsRepository.ts'), 'utf-8'),
-      readFile(join(appDir, 'repositories/adminUsersRepository.ts'), 'utf-8'),
-      readFile(join(appDir, 'repositories/adminArtistsRepository.ts'), 'utf-8'),
+      readFile(join(appDir, 'repositories/publicArtistsRepository.ts'), 'utf-8'),
+      readFile(join(appDir, 'repositories/publicVenuesRepository.ts'), 'utf-8'),
+      readFile(join(appDir, 'repositories/backofficeEventsRepository.ts'), 'utf-8'),
+      readFile(join(appDir, 'repositories/backofficeUsersRepository.ts'), 'utf-8'),
+      readFile(join(appDir, 'repositories/backofficeArtistsRepository.ts'), 'utf-8'),
     ])
 
     expect(checks[0]).toContain('export function usePublicEventsRepository()')
-    expect(checks[1]).toContain('export function useAdminEventsRepository()')
-    expect(checks[2]).toContain('export function useAdminUsersRepository()')
-    expect(checks[3]).toContain('export function useAdminArtistsRepository()')
+    expect(checks[1]).toContain('export function usePublicArtistsRepository()')
+    expect(checks[2]).toContain('export function usePublicVenuesRepository()')
+    expect(checks[3]).toContain('export function useBackofficeEventsRepository()')
+    expect(checks[4]).toContain('export function useBackofficeUsersRepository()')
+    expect(checks[5]).toContain('export function useBackofficeArtistsRepository()')
   })
 
   it('repo de eventos tiene las funciones crud', async () => {
-    const content = await readFile(join(appDir, 'repositories/adminEventsRepository.ts'), 'utf-8')
+    const content = await readFile(join(appDir, 'repositories/backofficeEventsRepository.ts'), 'utf-8')
 
     expect(content).toContain('listCatalog')
     expect(content).toContain('getEvent')
@@ -45,7 +51,7 @@ describe('arquitectura de repositorios', () => {
   })
 
   it('repo de users tiene las funciones crud', async () => {
-    const content = await readFile(join(appDir, 'repositories/adminUsersRepository.ts'), 'utf-8')
+    const content = await readFile(join(appDir, 'repositories/backofficeUsersRepository.ts'), 'utf-8')
 
     expect(content).toContain('listUsers')
     expect(content).toContain('getUser')
@@ -55,7 +61,7 @@ describe('arquitectura de repositorios', () => {
   })
 
   it('repo de artists tiene las funciones crud', async () => {
-    const content = await readFile(join(appDir, 'repositories/adminArtistsRepository.ts'), 'utf-8')
+    const content = await readFile(join(appDir, 'repositories/backofficeArtistsRepository.ts'), 'utf-8')
 
     expect(content).toContain('listArtists')
     expect(content).toContain('getArtist')
@@ -71,7 +77,7 @@ describe('arquitectura de route access', () => {
 
     expect(content).toContain('export function useRouteAccess()')
     expect(content).toContain('requireAuthenticated')
-    expect(content).toContain('requireAdmin')
+    expect(content).toContain('requireBackofficeAccess')
     expect(content).toContain('redirectIfAuthenticated')
   })
 })

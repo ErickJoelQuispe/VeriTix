@@ -82,6 +82,22 @@ export interface EventCatalogFilters {
   page: number
 }
 
+export interface ArtistCatalogFilters {
+  search: string
+  genreId: string
+  country: string
+  isActive: string
+  page: number
+}
+
+export interface VenueCatalogFilters {
+  search: string
+  city: string
+  type: string
+  isActive: string
+  page: number
+}
+
 export interface GenreOption {
   id: string
   name: string

@@ -2,6 +2,7 @@ import type {
   PublicEventDetailApiItem,
   PublicEventListApiItem,
 } from '~~/shared/api/public-events'
+import type { PublicVenueListApiItem } from '~~/shared/api/public-venues'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   CurrencyCode,
@@ -119,14 +120,23 @@ export function usePublicEventsRepository() {
   }
 
   async function listVenues(): Promise<VenueOption[]> {
-    const response = await apiRequest<PaginatedResponse<VenueOption>>(
+    const response = await apiRequest<PaginatedResponse<PublicVenueListApiItem>>(
       '/venues',
       {
         method: 'GET',
+        query: compactQuery({
+          page: 1,
+          limit: 100,
+          isActive: true,
+        }),
       },
     )
 
-    return response.data
+    return response.data.map(venue => ({
+      id: venue.id,
+      name: venue.name,
+      city: venue.city,
+    }))
   }
 
   return {
