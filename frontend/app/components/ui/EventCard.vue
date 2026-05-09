@@ -9,23 +9,15 @@ const props = defineProps<{
 const eventDate = computed(() => {
   return formatEventDate(props.event.dateISO)
 })
-
-const eventTime = computed(() => {
-  return new Date(props.event.dateISO).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
-})
-
-const cardPrice = computed(() => {
-  return `Price · ${props.event.currency}`
-})
 </script>
 
 <template>
-  <UiPanel as="article" interactive radius="md" class="group flex h-full flex-col overflow-hidden">
-    <div class="relative overflow-hidden rounded-xl border border-white/10 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
+  <UiPanel as="article" interactive radius="md" padding="none" class="group flex h-full flex-col overflow-hidden">
+    <div data-test="event-card-media" class="relative w-full overflow-hidden border-b border-white/10 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
       <NuxtImg
         :src="event.imageUrl ?? undefined"
         :alt="`Imagen de ${event.name}`"
-        class="h-36 w-full object-cover transition duration-500"
+        class="h-40 w-full object-cover transition duration-500 sm:h-44"
         loading="lazy"
         width="900"
         height="1200"
@@ -36,8 +28,8 @@ const cardPrice = computed(() => {
       <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/65 via-black/10 to-transparent transition-opacity duration-300 group-hover:opacity-90 group-focus-within:opacity-90" />
     </div>
 
-    <div class="flex flex-1 flex-col pt-3 sm:px-1">
-      <div class="flex min-h-8 flex-wrap items-center gap-2">
+    <div data-test="event-card-content" class="flex flex-1 flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5">
+      <div class="flex flex-wrap gap-2">
         <span class="inline-flex items-center gap-1.5 rounded-full border border-default/60 bg-default/40 px-2 py-1 text-xs font-medium text-toned transition-colors duration-200 group-hover:border-default/80 group-hover:bg-default/60 group-focus-within:border-default/80 group-focus-within:bg-default/60">
           <BaseIcon name="i-lucide-map-pin" class="size-3.5 text-primary/70" />
           <span class="leading-none">{{ event.venue.city }}</span>
@@ -49,10 +41,9 @@ const cardPrice = computed(() => {
         </span>
       </div>
 
-      <div class="mt-3 min-h-20 space-y-2">
-        <div class="flex items-center justify-between text-[0.68rem] tracking-[0.11em] text-muted uppercase">
-          <span>{{ eventDate }}</span>
-          <span class="truncate">{{ event.venue.name }}</span>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-3 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
+          <span class="min-w-0 truncate">{{ event.venue.name }}</span>
         </div>
 
         <h3 class="line-clamp-2 text-base font-semibold leading-tight text-highlighted transition-colors duration-300 group-hover:text-white sm:text-lg">
@@ -60,15 +51,17 @@ const cardPrice = computed(() => {
         </h3>
       </div>
 
-      <div class="mt-auto border-t border-white/10 pt-3 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
-        <div class="flex items-center justify-between gap-3">
-          <span class="text-xs tracking-widest text-muted uppercase">{{ eventTime }}</span>
-          <span class="text-sm font-medium text-highlighted">{{ cardPrice }}</span>
+      <div data-test="event-card-footer" class="mt-auto flex items-end justify-between gap-4 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
+        <div class="min-w-0">
+          <span class="block text-xs tracking-widest text-muted uppercase">{{ eventDate }}</span>
+        </div>
+
+        <div class="shrink-0">
           <BaseButton
             :to="`/events/${event.id}`"
             variant="primary"
             size="sm"
-            class="shrink-0 px-3.5"
+            class="px-3.5"
           >
             Reservar
           </BaseButton>

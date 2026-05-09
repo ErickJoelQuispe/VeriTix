@@ -3,7 +3,7 @@ const props = withDefaults(
   defineProps<{
     as?: string
     variant?: 'solid' | 'glass'
-    padding?: 'sm' | 'md' | 'lg'
+    padding?: 'none' | 'sm' | 'md' | 'lg'
     radius?: 'sm' | 'md' | 'lg' | 'xl'
     interactive?: boolean
   }>(),
@@ -29,6 +29,7 @@ const panelClass = computed(() => {
   }[props.radius]
 
   const paddingClass = {
+    none: '',
     sm: 'p-3',
     md: 'p-4 sm:p-5',
     lg: 'p-5 sm:p-6',
