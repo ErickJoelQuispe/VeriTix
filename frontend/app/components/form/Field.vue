@@ -39,6 +39,20 @@ const errorMessage = computed(() => {
   return formContext?.errors[props.name] ?? ''
 })
 
+const helpId = computed(() => `${props.name}-help`)
+const errorId = computed(() => `${props.name}-error`)
+const describedBy = computed(() => {
+  if (errorMessage.value) {
+    return errorId.value
+  }
+
+  if (props.help) {
+    return helpId.value
+  }
+
+  return undefined
+})
+
 watch(modelValue, () => {
   formContext?.clearError(props.name)
 })
@@ -46,10 +60,10 @@ watch(modelValue, () => {
 
 <template>
   <label class="space-y-2" :class="[fieldClass]">
-    <div class="flex items-center gap-2 text-sm font-medium text-highlighted">
+    <span class="flex items-center gap-2 text-sm font-medium text-highlighted">
       <span>{{ props.label }}</span>
       <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
-    </div>
+    </span>
 
     <FormInput
       v-model="modelValue"
@@ -59,6 +73,9 @@ watch(modelValue, () => {
       :placeholder="props.placeholder"
       :icon="props.icon"
       :required="props.required"
+      :aria-invalid="errorMessage ? 'true' : undefined"
+      :aria-describedby="describedBy"
+      :aria-errormessage="errorMessage ? errorId : undefined"
     >
       <template v-if="$slots.leading" #leading>
         <slot name="leading" />
@@ -69,12 +86,12 @@ watch(modelValue, () => {
       </template>
     </FormInput>
 
-    <p v-if="props.help && !errorMessage" class="text-xs text-toned">
-      {{ props.help }}
+    <p v-if="errorMessage" :id="errorId" class="text-xs font-medium text-error" role="alert">
+      {{ errorMessage }}
     </p>
 
-    <p v-if="errorMessage" class="text-xs font-medium text-error" role="alert">
-      {{ errorMessage }}
+    <p v-else-if="props.help" :id="helpId" class="text-xs text-toned">
+      {{ props.help }}
     </p>
   </label>
 </template>

@@ -250,8 +250,8 @@ onBeforeUnmount(() => {
             role="option"
             :disabled="item.disabled"
             :aria-selected="selectedItem && String(selectedItem.value) === String(item.value) ? 'true' : 'false'"
-            class="block w-full px-4 py-2.5 text-left text-sm text-highlighted transition-colors hover:bg-[color-mix(in_oklch,var(--color-lavender)_14%,var(--color-elevated))] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-            :class="selectedItem && String(selectedItem.value) === String(item.value) ? 'bg-[color-mix(in_oklch,var(--color-lavender)_18%,var(--color-elevated))] font-medium text-white' : ''"
+            class="relative block w-full bg-default/45 py-2.5 pl-4 pr-4 text-left text-sm text-highlighted transition-colors hover:bg-[color-mix(in_oklch,var(--color-lavender)_12%,var(--color-elevated))] hover:text-highlighted disabled:cursor-not-allowed disabled:opacity-50"
+            :class="selectedItem && String(selectedItem.value) === String(item.value) ? 'bg-[color-mix(in_oklch,var(--color-lavender)_16%,var(--color-default))] font-medium text-highlighted ring-1 ring-inset ring-lavender/25 shadow-[inset_3px_0_0_var(--color-lavender)]' : ''"
             @click="selectItem(item.value)"
           >
             {{ item.label }}
