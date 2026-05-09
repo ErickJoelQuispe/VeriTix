@@ -1,4 +1,13 @@
-import type { AuthResponse, LoginRequest, RegisterRequest, RegisterResponse, UserProfile } from '~~/shared/types'
+import type {
+  AuthResponse,
+  ForgotPasswordRequest,
+  LoginRequest,
+  MessageResponse,
+  RegisterRequest,
+  RegisterResponse,
+  ResetPasswordRequest,
+  UserProfile,
+} from '~~/shared/types'
 
 export function useAuth() {
   const accessToken = useState<string | null>('auth-access-token', () => null)
@@ -137,6 +146,22 @@ export function useAuth() {
     }
   }
 
+  async function forgotPassword(email: string): Promise<MessageResponse> {
+    return apiRequest<MessageResponse, ForgotPasswordRequest>('/auth/forgot-password', {
+      method: 'POST',
+      body: { email },
+      skipAuthRefresh: true,
+    })
+  }
+
+  async function resetPassword(token: string, password: string): Promise<MessageResponse> {
+    return apiRequest<MessageResponse, ResetPasswordRequest>('/auth/reset-password', {
+      method: 'POST',
+      body: { token, password },
+      skipAuthRefresh: true,
+    })
+  }
+
   return {
     accessToken,
     user,
@@ -150,5 +175,7 @@ export function useAuth() {
     ensureSession,
     logout,
     clearAuth,
+    forgotPassword,
+    resetPassword,
   }
 }

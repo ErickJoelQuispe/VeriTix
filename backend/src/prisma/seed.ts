@@ -6,9 +6,33 @@ import {
   PaymentStatus,
   PrismaClient,
   Role,
+  TicketStatus,
   VenueType,
 } from '../generated/prisma/client';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+
+/** Genera un hash SHA-256 corto para el ticket (hex, 32 chars) */
+function makeHash(): string {
+  return crypto.randomBytes(16).toString('hex');
+}
+
+/**
+ * Genera un qrPayload cifrado simulado (AES-256-GCM).
+ * En producción esto lo hace QrEncryptionService; aquí simulamos
+ * el formato: iv:authTag:ciphertext en base64 separados por ':'
+ */
+function makeQrPayload(ticketId: string): string {
+  const key = crypto.randomBytes(32);
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const payload = JSON.stringify({ ticketId, ts: Date.now() });
+  const encrypted = Buffer.concat([cipher.update(payload, 'utf8'), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return [iv.toString('base64'), authTag.toString('base64'), encrypted.toString('base64')].join(':');
+}
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -420,6 +444,22 @@ async function main() {
     },
   });
 
+  // Validator de prueba — para RF-20 SSE y escaneo de QR
+  await prisma.user.upsert({
+    where: { email: 'validator@veritix.app' },
+    update: {},
+    create: {
+      email: 'validator@veritix.app',
+      phone: '+34958000004',
+      name: 'Validator',
+      lastName: 'Demo',
+      password: userPassword,
+      role: Role.VALIDATOR,
+      isActive: true,
+      emailVerified: true,
+    },
+  });
+
   // Buyers adicionales para poblar órdenes de eventos FINISHED
   const extraBuyers = [
     {
@@ -517,6 +557,9 @@ async function main() {
   });
   const creatorUser = await prisma.user.findUniqueOrThrow({
     where: { email: 'creator@veritix.app' },
+  });
+  const validatorUser = await prisma.user.findUniqueOrThrow({
+    where: { email: 'validator@veritix.app' },
   });
   const buyerUser = await prisma.user.findUniqueOrThrow({
     where: { email: 'user@veritix.app' },
@@ -1699,11 +1742,88 @@ async function main() {
 
   void allBuyers;
 
+  // ── TICKETS para órdenes COMPLETED ────────────────────────────────────────
+  // Genera tickets reales con hash + qrPayload para poder probar:
+  //   RF-14 (QR cifrado), RF-15 (PDF download), RF-20 (SSE stats)
+
+  // Helper: crea tickets para todos los OrderItems de una orden
+  async function createTicketsForOrder(
+    orderId: string,
+    eventId: string,
+    buyerId: string,
+    validatedById?: string,
+    forceStatus?: TicketStatus,
+  ) {
+    const items = await prisma.orderItem.findMany({ where: { orderId } });
+    for (const item of items) {
+      for (let i = 0; i < item.quantity; i++) {
+        const ticketId = crypto.randomUUID();
+        const isUsed = forceStatus === TicketStatus.USED;
+        await prisma.ticket.create({
+          data: {
+            id: ticketId,
+            hash: makeHash(),
+            qrPayload: makeQrPayload(ticketId),
+            status: forceStatus ?? TicketStatus.ACTIVE,
+            purchaseDate: new Date(),
+            validatedAt: isUsed ? new Date('2025-09-20T21:30:00.000+02:00') : undefined,
+            eventId,
+            buyerId,
+            ticketTypeId: item.ticketTypeId,
+            orderId,
+            orderItemId: item.id,
+            validatedById: isUsed ? validatedById : undefined,
+          },
+        });
+      }
+    }
+  }
+
+  // Órdenes COMPLETED del buyerUser principal en eventos FINISHED
+  // (los loops de indieOrders/rockOrders solo crean órdenes sin tickets)
+  // Buscamos las órdenes del buyerUser en los eventos finished para crear sus tickets
+  const buyerFinishedOrders = await prisma.order.findMany({
+    where: {
+      buyerId: buyerUser.id,
+      status: OrderStatus.COMPLETED,
+      eventId: { in: [finishedIndie.id, finishedRock.id] },
+    },
+  });
+
+  for (const ord of buyerFinishedOrders) {
+    await createTicketsForOrder(ord.id, ord.eventId, buyerUser.id, undefined, TicketStatus.USED);
+  }
+
+  // También tickets para los otros buyers en finishedIndie (algunos USED, mayoría ACTIVE→USED ya que el evento terminó)
+  const otherBuyerFinishedOrders = await prisma.order.findMany({
+    where: {
+      buyerId: { in: [buyer1.id, buyer2.id, buyer3.id, buyer4.id] },
+      status: OrderStatus.COMPLETED,
+      eventId: { in: [finishedIndie.id, finishedRock.id] },
+    },
+  });
+
+  for (const ord of otherBuyerFinishedOrders) {
+    const buyer = [buyer1, buyer2, buyer3, buyer4].find((b) => b.id === ord.buyerId)!;
+    await createTicketsForOrder(ord.id, ord.eventId, buyer.id, validatorUser.id, TicketStatus.USED);
+  }
+
+  // Orden COMPLETED del buyerUser en evento PUBLISHED (indieNight) — tickets ACTIVE
+  // para poder probar RF-15 (PDF download) con un evento futuro
+  await createTicketsForOrder(
+    completedOrder.id,
+    indieNight.id,
+    buyerUser.id,
+    undefined,
+    TicketStatus.ACTIVE,
+  );
+
   console.log('✅ Seed completado:');
-  console.log('   - 7 usuarios (admin, creator, user, 4 buyers)');
+  console.log('   - 8 usuarios (admin, creator, validator, user, 4 buyers)');
   console.log('   - 15 artistas, 8 venues, 7 formatos, 27 géneros');
   console.log('   - 33 eventos (25 PUBLISHED, 4 DRAFT, 2 FINISHED, 2 CANCELLED)');
   console.log('   - 22 órdenes con pagos para analytics (10 indie 2025 + 12 rock 2025)');
+  console.log('   - Tickets reales: USED en eventos FINISHED, ACTIVE en evento PUBLISHED');
 }
 
 main()

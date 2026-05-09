@@ -1,7 +1,9 @@
+import { getQueueToken } from '@nestjs/bullmq';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OrderStatus, PaymentStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { TICKET_EMAIL_QUEUE } from '../queues/constants/queue-names';
 import { ReminderScheduler } from '../queues/reminder.scheduler';
 import { TicketsGenerator } from '../tickets/tickets.generator';
 import { StripeWebhookService } from './stripe-webhook.service';
@@ -72,6 +74,10 @@ const mockReminderScheduler = {
   scheduleReminders: jest.fn(),
 };
 
+const mockTicketEmailQueue = {
+  add: jest.fn(),
+};
+
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
 describe('StripeWebhookService', () => {
@@ -87,6 +93,7 @@ describe('StripeWebhookService', () => {
         { provide: TicketsGenerator, useValue: mockTicketsGenerator },
         { provide: NotificationsService, useValue: mockNotificationsService },
         { provide: ReminderScheduler, useValue: mockReminderScheduler },
+        { provide: getQueueToken(TICKET_EMAIL_QUEUE), useValue: mockTicketEmailQueue },
       ],
     }).compile();
 
@@ -116,6 +123,7 @@ describe('StripeWebhookService', () => {
       mockTicketsGenerator.generateForOrder.mockResolvedValue(undefined);
       mockNotificationsService.sendOrderConfirmation.mockResolvedValue(undefined);
       mockReminderScheduler.scheduleReminders.mockResolvedValue(undefined);
+      mockTicketEmailQueue.add.mockResolvedValue(undefined);
       // $transaction callback — ejecuta con tx mock
       prisma.$transaction.mockImplementation(async (cb: any) => {
         const tx = {

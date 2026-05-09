@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ReminderScheduler } from './reminder.scheduler';
+import { EVENT_REMINDERS_QUEUE, TICKET_EMAIL_QUEUE } from './constants/queue-names';
 import { ReminderProcessor } from './reminder.processor';
+import { ReminderScheduler } from './reminder.scheduler';
+import { TicketEmailProcessor } from './ticket-email.processor';
+import { TicketPdfService } from './ticket-pdf.service';
 
 @Module({
   imports: [
@@ -17,9 +20,10 @@ import { ReminderProcessor } from './reminder.processor';
         },
       }),
     }),
-    BullModule.registerQueue({ name: 'event-reminders' }),
+    BullModule.registerQueue({ name: EVENT_REMINDERS_QUEUE }),
+    BullModule.registerQueue({ name: TICKET_EMAIL_QUEUE }),
   ],
-  providers: [ReminderScheduler, ReminderProcessor],
+  providers: [ReminderScheduler, ReminderProcessor, TicketPdfService, TicketEmailProcessor],
   exports: [ReminderScheduler],
 })
 export class QueuesModule {}

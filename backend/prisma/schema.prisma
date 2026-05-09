@@ -214,7 +214,7 @@ model Event {
   maxCapacity   Int         @map("max_capacity")
   status        EventStatus @default(DRAFT)
   imageUrl      String?     @map("image_url")
-  currency      String      @default("MXN")
+  currency      String      @default("EUR")
   createdAt     DateTime    @default(now()) @map("created_at")
   updatedAt     DateTime    @updatedAt @map("updated_at")
 

@@ -39,7 +39,7 @@ export class ArtistsService {
   async findAll(
     query: ArtistQueryDto,
   ): Promise<PaginatedResponse<ArtistResponseDto>> {
-    const key = CACHE_KEYS.ARTISTS_LIST(query.page, query.limit);
+    const key = CACHE_KEYS.ARTISTS_LIST(query as unknown as Record<string, unknown>);
     return this.cache.getOrSet(
       key,
       () =>

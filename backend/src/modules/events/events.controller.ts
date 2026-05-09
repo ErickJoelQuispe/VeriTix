@@ -2,14 +2,17 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
+  MessageEvent,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
   Query,
+  Sse,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,10 +25,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Observable, map } from 'rxjs';
 import { CurrentUser, Public, Roles } from '@common/decorators';
 import { PaginationQueryDto } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import { Role } from '../../generated/prisma/enums';
+import { AccessStatsService } from '../tickets/access-stats.service';
 import {
   CreateEventDto,
   EventDetailResponseDto,
@@ -44,7 +49,10 @@ import { EventsService } from './events.service';
 @ApiTags('Eventos')
 @Controller('events')
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly accessStatsService: AccessStatsService,
+  ) {}
 
   @Post()
   @Roles(Role.ADMIN, Role.CREATOR)
@@ -120,6 +128,33 @@ export class EventsController {
     @Query() query: TopEventsQueryDto,
   ): Promise<TopEventResponseDto[]> {
     return this.eventsService.getTopEvents(query);
+  }
+
+  @Get(':id/access-stats/stream')
+  @Sse()
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: 'Stream SSE de estadísticas de acceso en tiempo real (admin o creator)',
+  })
+  @ApiOkResponse({
+    description:
+      'Stream SSE con snapshots de acceso: total, validados, pendientes, porcentaje.',
+  })
+  @ApiForbiddenResponse({ description: 'Acceso restringido a administradores y creadores.' })
+  streamAccessStats(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Observable<MessageEvent> {
+    if (user.role !== Role.ADMIN && user.role !== Role.CREATOR) {
+      throw new ForbiddenException(
+        'Solo administradores y creadores pueden ver las estadísticas de acceso',
+      );
+    }
+
+    return this.accessStatsService.getStream(id).pipe(
+      map((snapshot) => ({ data: snapshot }) as MessageEvent),
+    );
   }
 
   @Get(':id')

@@ -82,6 +82,9 @@ const mockPrismaService = {
   venue: {
     findUnique: jest.fn(),
   },
+  ticketType: {
+    findFirst: jest.fn(),
+  },
 };
 
 const mockCacheService = {
@@ -355,6 +358,73 @@ describe('EventsService', () => {
         service.update('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dtoWithVenue),
       ).rejects.toThrow(NotFoundException);
       expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    // ── sale-started restriction ───────────────────────────────────────────
+
+    it('should throw ForbiddenException when CREATOR edits event with saleStartDate in the past', async () => {
+      repo.findById.mockResolvedValue(mockEventDetail);
+      (prisma as any).ticketType.findFirst.mockResolvedValue({ id: 'uuid-tt-1' });
+
+      await expect(
+        service.update('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto),
+      ).rejects.toThrow(ForbiddenException);
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it('should NOT throw when CREATOR edits event with saleStartDate only in the future', async () => {
+      repo.findById.mockResolvedValue(mockEventDetail);
+      (prisma as any).ticketType.findFirst.mockResolvedValue(null); // no past saleStartDate
+      repo.update.mockResolvedValue(updatedEvent);
+
+      const result = await service.update('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto);
+
+      expect(result).toEqual(updatedEvent);
+      expect(repo.update).toHaveBeenCalledWith('uuid-event-1', dto);
+    });
+
+    it('should NOT throw when event has no ticket types with saleStartDate and CREATOR edits', async () => {
+      repo.findById.mockResolvedValue(mockEventDetail);
+      (prisma as any).ticketType.findFirst.mockResolvedValue(null); // no ticket types matched
+      repo.update.mockResolvedValue(updatedEvent);
+
+      const result = await service.update('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto);
+
+      expect(result).toEqual(updatedEvent);
+    });
+
+    it('should allow ADMIN to edit event even when saleStartDate is in the past', async () => {
+      repo.findById.mockResolvedValue(mockEventDetail);
+      // ticketType.findFirst should NOT be called for ADMIN
+      repo.update.mockResolvedValue(updatedEvent);
+
+      const result = await service.update('uuid-event-1', 'uuid-admin', Role.ADMIN, dto);
+
+      expect(result).toEqual(updatedEvent);
+      expect((prisma as any).ticketType.findFirst).not.toHaveBeenCalled();
+    });
+
+    // ── CANCELLED status restriction ────────────────────────────────────────
+
+    it('should throw ForbiddenException when CREATOR edits a CANCELLED event', async () => {
+      const cancelledEvent = { ...mockEventDetail, status: EventStatus.CANCELLED };
+      repo.findById.mockResolvedValue(cancelledEvent);
+      (prisma as any).ticketType.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.update('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto),
+      ).rejects.toThrow(ForbiddenException);
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it('should allow ADMIN to edit a CANCELLED event', async () => {
+      const cancelledEvent = { ...mockEventDetail, status: EventStatus.CANCELLED };
+      repo.findById.mockResolvedValue(cancelledEvent);
+      repo.update.mockResolvedValue(updatedEvent);
+
+      const result = await service.update('uuid-event-1', 'uuid-admin', Role.ADMIN, dto);
+
+      expect(result).toEqual(updatedEvent);
     });
   });
 

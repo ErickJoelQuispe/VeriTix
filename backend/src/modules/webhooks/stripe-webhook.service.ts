@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { OrderStatus, PaymentStatus, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { TICKET_EMAIL_QUEUE } from '../queues/constants/queue-names';
 import { ReminderScheduler } from '../queues/reminder.scheduler';
 import { TicketsGenerator } from '../tickets/tickets.generator';
 
@@ -38,6 +41,7 @@ export class StripeWebhookService {
     private readonly ticketsGenerator: TicketsGenerator,
     private readonly notificationsService: NotificationsService,
     private readonly reminderScheduler: ReminderScheduler,
+    @InjectQueue(TICKET_EMAIL_QUEUE) private readonly ticketEmailQueue: Queue,
   ) {}
 
   // ── checkout.session.completed ───────────────────────────────────────────
@@ -120,6 +124,7 @@ export class StripeWebhookService {
           totalAmount.toNumber(),
           _count.tickets,
         );
+        await this.ticketEmailQueue.add('send-ticket-email', { orderId: payment.orderId });
         await this.reminderScheduler.scheduleReminders(
           payment.orderId,
           buyer.email,
