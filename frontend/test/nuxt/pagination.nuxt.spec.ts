@@ -28,6 +28,13 @@ describe('base pagination', () => {
     expect(edgeIcon.exists()).toBe(true)
     expect(edgeIcon.classes()).toContain('size-5')
 
+    expect(buttons[1].classes()).toContain('bg-elevated/55')
+    expect(buttons[1].classes()).toContain('border-default/65')
+
+    const activeButton = wrapper.get('[aria-current="page"]')
+    expect(activeButton.classes()).toContain('bg-lavender/24')
+    expect(activeButton.classes()).toContain('border-lavender/65')
+
     expect(wrapper.text()).toContain('5')
     expect(wrapper.classes()).toContain('flex')
   })

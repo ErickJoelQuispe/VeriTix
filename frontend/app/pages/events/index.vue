@@ -128,6 +128,10 @@ const eventsErrorMessage = computed(() => {
   return getApiErrorMessage(error.value, 'No pudimos cargar los eventos en este momento.')
 })
 
+const showPagination = computed(() => {
+  return !eventsErrorMessage.value && events.value.length > 0 && meta.value.totalPages > 1
+})
+
 const hasActiveFilters = computed(() => {
   return Boolean(filters.value.search || filters.value.genreId || filters.value.city)
 })
@@ -178,7 +182,7 @@ async function handlePageChange(page: number) {
         <div class="space-y-8">
           <UiPageHeading
             eyebrow="Cartelera"
-            title="Curated Transmissions."
+            title="Eventos "
             description="Explorá la cartelera, refiná por género o ciudad, y pasá del descubrimiento al ticket en pocos pasos."
           />
 
@@ -192,10 +196,10 @@ async function handlePageChange(page: number) {
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div class="space-y-1">
                 <UiMetaLabel tone="accent">
-                  Controles
+                  Control de filtros
                 </UiMetaLabel>
                 <p class="text-sm leading-relaxed text-toned">
-                  Buscá y refiná la cartelera desde un único bloque.
+                  Buscá y refiná la cartelera a tu gusto.
                 </p>
               </div>
 
@@ -313,6 +317,23 @@ async function handlePageChange(page: number) {
             </div>
           </div>
 
+          <div v-if="showPagination" class="flex justify-center pt-1 pb-1">
+            <BasePagination
+              :page="filters.page"
+              :total="meta.total"
+              :items-per-page="meta.limit"
+              :disabled="isPending"
+              :sibling-count="1"
+              size="sm"
+              color="neutral"
+              variant="ghost"
+              active-color="primary"
+              active-variant="soft"
+              show-edges
+              @update:page="handlePageChange"
+            />
+          </div>
+
           <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
             <BaseSkeleton v-for="index in 6" :key="index" class="h-104 rounded-2xl" />
           </div>
@@ -345,7 +366,7 @@ async function handlePageChange(page: number) {
             />
           </div>
 
-          <div v-if="meta.totalPages > 1" class="flex justify-center pt-2">
+          <div v-if="showPagination" class="flex justify-center pt-2">
             <BasePagination
               :page="filters.page"
               :total="meta.total"

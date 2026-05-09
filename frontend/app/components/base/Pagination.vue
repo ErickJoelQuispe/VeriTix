@@ -72,12 +72,12 @@ function isActivePage(page: number) {
 
 function pageStateClass(page: number) {
   if (isActivePage(page)) {
-    return 'border-lavender/45 bg-lavender/18 text-highlighted ring-1 ring-inset ring-lavender/25'
+    return 'border-lavender/65 bg-lavender/24 text-white shadow-[0_12px_28px_-18px_rgba(156,125,255,0.65)] ring-1 ring-inset ring-lavender/30'
   }
 
   return props.disabled
-    ? 'border-default/40 bg-default/10 text-toned/60'
-    : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted hover:shadow-[0_8px_18px_-14px_rgba(156,125,255,0.45)]'
+    ? 'border-default/35 bg-default/10 text-toned/55'
+    : 'border-default/65 bg-elevated/55 text-highlighted shadow-[0_10px_22px_-18px_rgba(0,0,0,0.72)] hover:border-lavender/45 hover:bg-lavender/14 hover:text-white hover:shadow-[0_12px_28px_-18px_rgba(156,125,255,0.55)]'
 }
 
 const pageItems = computed<Array<number | 'ellipsis'>>(() => {
@@ -123,12 +123,12 @@ function goToPage(nextPage: number) {
     <div v-if="showEdges" class="flex items-center gap-2">
       <button
         type="button"
-        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
         :class="[
           buttonSizeClass,
           disabled || currentPage === 1
-            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
-            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+            ? 'cursor-not-allowed border-default/35 bg-default/10 text-toned/55'
+            : 'border-default/65 bg-elevated/55 text-highlighted shadow-[0_10px_22px_-18px_rgba(0,0,0,0.72)] hover:border-lavender/45 hover:bg-lavender/14 hover:text-white hover:shadow-[0_12px_28px_-18px_rgba(156,125,255,0.55)]',
         ]"
         :disabled="disabled || currentPage === 1"
         @click="goToPage(1)"
@@ -139,12 +139,12 @@ function goToPage(nextPage: number) {
 
       <button
         type="button"
-        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
         :class="[
           buttonSizeClass,
           disabled || currentPage === 1
-            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
-            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+            ? 'cursor-not-allowed border-default/35 bg-default/10 text-toned/55'
+            : 'border-default/65 bg-elevated/55 text-highlighted shadow-[0_10px_22px_-18px_rgba(0,0,0,0.72)] hover:border-lavender/45 hover:bg-lavender/14 hover:text-white hover:shadow-[0_12px_28px_-18px_rgba(156,125,255,0.55)]',
         ]"
         :disabled="disabled || currentPage === 1"
         @click="goToPage(currentPage - 1)"
@@ -160,7 +160,7 @@ function goToPage(nextPage: number) {
         <button
           v-else
           type="button"
-          class="inline-flex items-center justify-center rounded-lg border font-medium transition-colors focus-visible:outline-none focus-visible:ring-2"
+          class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
           :class="[buttonSizeClass, pageStateClass(Number(item))]"
           :disabled="disabled"
           :aria-current="item === currentPage ? 'page' : undefined"
@@ -174,12 +174,12 @@ function goToPage(nextPage: number) {
     <div v-if="showEdges" class="flex items-center gap-2">
       <button
         type="button"
-        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
         :class="[
           buttonSizeClass,
           disabled || currentPage === totalPages
-            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
-            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+            ? 'cursor-not-allowed border-default/35 bg-default/10 text-toned/55'
+            : 'border-default/65 bg-elevated/55 text-highlighted shadow-[0_10px_22px_-18px_rgba(0,0,0,0.72)] hover:border-lavender/45 hover:bg-lavender/14 hover:text-white hover:shadow-[0_12px_28px_-18px_rgba(156,125,255,0.55)]',
         ]"
         :disabled="disabled || currentPage === totalPages"
         @click="goToPage(currentPage + 1)"
@@ -190,12 +190,12 @@ function goToPage(nextPage: number) {
 
       <button
         type="button"
-        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
         :class="[
           buttonSizeClass,
           disabled || currentPage === totalPages
-            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
-            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+            ? 'cursor-not-allowed border-default/35 bg-default/10 text-toned/55'
+            : 'border-default/65 bg-elevated/55 text-highlighted shadow-[0_10px_22px_-18px_rgba(0,0,0,0.72)] hover:border-lavender/45 hover:bg-lavender/14 hover:text-white hover:shadow-[0_12px_28px_-18px_rgba(156,125,255,0.55)]',
         ]"
         :disabled="disabled || currentPage === totalPages"
         @click="goToPage(totalPages)"
