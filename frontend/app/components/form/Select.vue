@@ -185,10 +185,10 @@ onBeforeUnmount(() => {
 
 <template>
   <label class="space-y-2" :class="[fieldClass]">
-    <span class="flex items-center gap-2 text-sm font-medium text-highlighted">
+    <UiMetaLabel as="span">
       {{ props.label }}
       <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
-    </span>
+    </UiMetaLabel>
 
     <div ref="rootRef" class="relative">
       <select

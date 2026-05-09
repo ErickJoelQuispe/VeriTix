@@ -69,7 +69,6 @@ async function onSubmit() {
         kicker="Registro"
         eyebrow="Crear cuenta"
         title="Unite a VeriTix."
-        description="Creá tu perfil una sola vez y guardá tickets, favoritos y transferencias en un solo lugar."
       >
         <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
           <FormField v-model="state.name" name="name" label="Nombre" placeholder="Tu nombre" icon="i-lucide-user" required />

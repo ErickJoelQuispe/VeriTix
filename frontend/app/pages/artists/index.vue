@@ -232,43 +232,26 @@ async function handlePageChange(page: number) {
               </div>
             </div>
 
-            <div class="grid gap-4 lg:grid-cols-4">
-              <label class="space-y-2 lg:col-span-2">
-                <UiMetaLabel as="span"> Nombre del artista </UiMetaLabel>
-                <FormInput
-                  v-model="searchDraft"
-                  name="search"
-                  placeholder="Buscá por artista"
-                  icon="i-lucide-search"
-                  size="md"
-                  :disabled="isPending"
-                />
-              </label>
-
-              <label class="space-y-2">
-                <UiMetaLabel as="span"> País </UiMetaLabel>
-                <FormInput
-                  v-model="countryDraft"
-                  name="country"
-                  placeholder="ES, MX, CO"
-                  icon="i-lucide-globe-2"
-                  size="md"
-                  :disabled="isPending"
-                />
-              </label>
-
-              <FormSelect
-                label="Estado"
-                name="isActive"
-                :model-value="filters.isActive || ALL_OPTION_VALUE"
-                :items="statusItems"
+            <div class="grid gap-4 lg:grid-cols-3">
+              <FormInput
+                v-model="searchDraft"
+                label="Nombre del artista"
+                name="search"
+                placeholder="Buscá por artista"
+                icon="i-lucide-search"
                 size="md"
                 :disabled="isPending"
-                @update:model-value="
-                  updateFilters({
-                    isActive: $event === ALL_OPTION_VALUE ? '' : String($event),
-                  })
-                "
+                class="lg:col-span-3"
+              />
+
+              <FormInput
+                v-model="countryDraft"
+                label="País"
+                name="country"
+                placeholder="ES, MX, CO"
+                icon="i-lucide-globe-2"
+                size="md"
+                :disabled="isPending"
               />
 
               <FormSelect
@@ -281,6 +264,20 @@ async function handlePageChange(page: number) {
                 @update:model-value="
                   updateFilters({
                     genreId: $event === ALL_OPTION_VALUE ? '' : String($event),
+                  })
+                "
+              />
+
+              <FormSelect
+                label="Estado"
+                name="isActive"
+                :model-value="filters.isActive || ALL_OPTION_VALUE"
+                :items="statusItems"
+                size="md"
+                :disabled="isPending"
+                @update:model-value="
+                  updateFilters({
+                    isActive: $event === ALL_OPTION_VALUE ? '' : String($event),
                   })
                 "
               />

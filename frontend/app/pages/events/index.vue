@@ -265,41 +265,35 @@ async function handlePageChange(page: number) {
 
             <div class="space-y-6">
               <div class="grid gap-4 lg:grid-cols-3">
-                <label class="space-y-2">
-                  <UiMetaLabel as="span"> Nombre del evento </UiMetaLabel>
-                  <FormInput
-                    v-model="searchDraft"
-                    name="search"
-                    placeholder="Buscá por evento"
-                    icon="i-lucide-search"
-                    size="md"
-                    :disabled="isPending"
-                  />
-                </label>
+                <FormInput
+                  v-model="searchDraft"
+                  label="Nombre del evento"
+                  name="search"
+                  placeholder="Buscá por evento"
+                  icon="i-lucide-search"
+                  size="md"
+                  :disabled="isPending"
+                />
 
-                <label class="space-y-2">
-                  <UiMetaLabel as="span"> Nombre del artista </UiMetaLabel>
-                  <FormInput
-                    v-model="artistDraft"
-                    name="artistName"
-                    placeholder="Buscá por artista"
-                    icon="i-lucide-mic-2"
-                    size="md"
-                    :disabled="isPending"
-                  />
-                </label>
+                <FormInput
+                  v-model="artistDraft"
+                  label="Nombre del artista"
+                  name="artistName"
+                  placeholder="Buscá por artista"
+                  icon="i-lucide-mic-2"
+                  size="md"
+                  :disabled="isPending"
+                />
 
-                <label class="space-y-2">
-                  <UiMetaLabel as="span"> Nombre del recinto </UiMetaLabel>
-                  <FormInput
-                    v-model="venueDraft"
-                    name="venueName"
-                    placeholder="Buscá por recinto"
-                    icon="i-lucide-map-pin"
-                    size="md"
-                    :disabled="isPending"
-                  />
-                </label>
+                <FormInput
+                  v-model="venueDraft"
+                  label="Nombre del recinto"
+                  name="venueName"
+                  placeholder="Buscá por recinto"
+                  icon="i-lucide-map-pin"
+                  size="md"
+                  :disabled="isPending"
+                />
               </div>
 
               <div class="grid gap-4 lg:grid-cols-2">

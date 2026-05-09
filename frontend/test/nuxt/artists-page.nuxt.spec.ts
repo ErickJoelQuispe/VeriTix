@@ -103,6 +103,7 @@ describe('artists page', () => {
     expect(wrapper.text()).toContain('Género')
     expect(wrapper.text()).toContain('Estado')
     expect(wrapper.text()).toContain('Limpiar filtros')
+    expect(wrapper.html()).toContain('lg:col-span-3')
   })
 
   it('shows pagination above and below results', async () => {

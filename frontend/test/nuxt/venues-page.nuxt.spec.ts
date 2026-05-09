@@ -94,6 +94,8 @@ describe('venues page', () => {
     expect(wrapper.text()).toContain('Tipo')
     expect(wrapper.text()).toContain('Estado')
     expect(wrapper.text()).toContain('Limpiar filtros')
+    expect(wrapper.html()).toContain('lg:grid-cols-3')
+    expect(wrapper.html()).toContain('lg:col-span-3')
   })
 
   it('renders pagination twice when there are results', async () => {

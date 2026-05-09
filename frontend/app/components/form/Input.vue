@@ -6,6 +6,9 @@ defineOptions({
 })
 
 const props = withDefaults(defineProps<{
+  label?: string
+  help?: string
+  required?: boolean
   color?: InputColor
   variant?: InputVariant
   size?: InputSize
@@ -14,6 +17,9 @@ const props = withDefaults(defineProps<{
   placeholder?: string
   icon?: string
 }>(), {
+  label: '',
+  help: '',
+  required: false,
   color: 'neutral',
   variant: 'subtle',
   size: 'lg',
@@ -30,6 +36,7 @@ const modelValue = defineModel<string | number | undefined>()
 const attrs = useAttrs()
 const slots = useSlots()
 const formContext = useFormContext()
+const fieldClass = computed(() => attrs.class)
 const fieldName = computed(() => typeof attrs.name === 'string' ? attrs.name : '')
 
 const forwardedAttrs = computed(() => {
@@ -43,6 +50,21 @@ const errorMessage = computed(() => {
   }
 
   return formContext?.errors[fieldName.value] ?? ''
+})
+
+const helpId = computed(() => `${fieldName.value || 'input'}-help`)
+const errorId = computed(() => `${fieldName.value || 'input'}-error`)
+
+const describedBy = computed(() => {
+  if (errorMessage.value) {
+    return errorId.value
+  }
+
+  if (props.help) {
+    return helpId.value
+  }
+
+  return undefined
 })
 
 const hasError = computed(() => Boolean(errorMessage.value))
@@ -99,7 +121,6 @@ const inputClass = computed(() => {
     stateClass.value,
     leadingPaddingClass,
     trailingPaddingClass,
-    attrs.class,
   ]
 })
 
@@ -132,7 +153,45 @@ watch(modelValue, () => {
 </script>
 
 <template>
-  <div class="relative w-full">
+  <div v-if="props.label" class="space-y-2" :class="[fieldClass]">
+    <UiMetaLabel as="span">
+      {{ props.label }}
+      <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
+    </UiMetaLabel>
+
+    <div class="relative w-full">
+      <BaseIcon v-if="hasLeading && props.icon" :name="props.icon" :class="leadingClass" aria-hidden="true" />
+      <div v-else-if="hasLeading" :class="leadingSlotClass">
+        <slot name="leading" />
+      </div>
+
+      <input
+        v-model="modelValue"
+        v-bind="forwardedAttrs"
+        :type="props.type"
+        :placeholder="props.placeholder"
+        :disabled="props.disabled"
+        :class="inputClass"
+        :aria-invalid="errorMessage ? 'true' : undefined"
+        :aria-describedby="describedBy"
+        :aria-errormessage="errorMessage ? errorId : undefined"
+      >
+
+      <div v-if="hasTrailing" :class="trailingClass">
+        <slot name="trailing" />
+      </div>
+    </div>
+
+    <p v-if="errorMessage" :id="errorId" class="text-xs font-medium text-error" role="alert">
+      {{ errorMessage }}
+    </p>
+
+    <p v-else-if="props.help" :id="helpId" class="text-xs text-toned">
+      {{ props.help }}
+    </p>
+  </div>
+
+  <div v-else class="relative w-full" :class="[fieldClass]">
     <BaseIcon v-if="hasLeading && props.icon" :name="props.icon" :class="leadingClass" aria-hidden="true" />
     <div v-else-if="hasLeading" :class="leadingSlotClass">
       <slot name="leading" />
