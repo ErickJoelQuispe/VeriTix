@@ -98,3 +98,13 @@ function isActive(path: string): boolean {
     </BaseContainer>
   </section>
 </template>
+
+<style>
+.vtx-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--color-highlighted) 60%, var(--color-muted));
+}
+</style>

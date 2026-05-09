@@ -35,19 +35,3 @@ body {
   min-height: 100vh;
   color: var(--color-highlighted);
 }
-
-.vtx-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: color-mix(in oklch, var(--color-highlighted) 60%, var(--color-muted));
-}
-
-.vtx-brand-note {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}

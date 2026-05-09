@@ -25,7 +25,7 @@ const venueTypeLabel = computed(() => venueTypeLabels[props.venue.type] ?? props
 
 <template>
   <UiPanel as="article" interactive radius="xl" padding="none" class="group flex h-full flex-col overflow-hidden">
-    <div class="relative aspect-[4/3] overflow-hidden border-b border-white/10 bg-elevated/30">
+    <div class="relative aspect-4/3 overflow-hidden border-b border-white/10 bg-elevated/30">
       <NuxtImg
         v-if="venue.imageUrl"
         :src="venue.imageUrl"

@@ -58,3 +58,13 @@ function isBackofficeActive(path: string): boolean {
     </BaseContainer>
   </header>
 </template>
+
+<style>
+.vtx-brand-note {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+</style>

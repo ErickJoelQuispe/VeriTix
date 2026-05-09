@@ -21,7 +21,7 @@ const featuredGenres = computed(() => props.artist.genres.slice(0, 3))
 
 <template>
   <UiPanel as="article" interactive radius="xl" padding="none" class="group flex h-full flex-col overflow-hidden">
-    <div class="relative aspect-[4/3] overflow-hidden border-b border-white/10 bg-elevated/30">
+    <div class="relative aspect-4/3 overflow-hidden border-b border-white/10 bg-elevated/30">
       <NuxtImg
         v-if="artist.imageUrl"
         :src="artist.imageUrl"
@@ -38,7 +38,7 @@ const featuredGenres = computed(() => props.artist.genres.slice(0, 3))
         v-else
         class="flex h-full items-center justify-center bg-linear-to-br from-lavender/18 via-elevated/35 to-accent/18"
       >
-        <BaseAvatar :text="artistInitials" size="xl" class="!size-16 border border-white/10" />
+        <BaseAvatar :text="artistInitials" size="xl" class="size-16! border border-white/10" />
       </div>
 
       <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/15 to-transparent" />
