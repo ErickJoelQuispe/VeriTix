@@ -95,7 +95,7 @@ watch(modelValue, () => {
           type="button"
           :aria-label="isVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'"
           :aria-pressed="isVisible"
-          class="cursor-pointer rounded-md p-0.5 text-muted transition-colors duration-150 hover:bg-white/6 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45"
+          class="cursor-pointer rounded-md p-0.5 text-muted transition-colors duration-150 hover:bg-white/6 hover:text-lavender focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/35"
           @click="toggleVisibility"
         >
           <BaseIcon

@@ -44,17 +44,18 @@ const textareaClass = computed(() => {
   }[props.size]
 
   const variantClass = {
-    outline: 'border border-default/60 bg-default/20 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
-    soft: 'border border-default/55 bg-elevated/45 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
-    subtle: 'border border-default/55 bg-default/30 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
-    ghost: 'border border-transparent bg-transparent shadow-none focus-visible:ring-2 focus-visible:ring-primary/25',
+    outline: 'border border-default/60 bg-default/20 shadow-sm',
+    soft: 'border border-default/55 bg-elevated/45 shadow-sm',
+    subtle: 'border border-default/55 bg-default/30 shadow-sm',
+    ghost: 'border border-transparent bg-transparent shadow-none',
     none: 'border-0 bg-transparent px-0 shadow-none focus-visible:ring-0',
   }[props.variant]
 
   return [
-    'w-full rounded-xl text-highlighted placeholder:text-toned/70 transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60',
+    'w-full rounded-xl text-highlighted placeholder:text-toned/70 transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     sizeClass,
     variantClass,
+    stateClass.value,
     attrs.class,
   ]
 })
@@ -65,6 +66,20 @@ const errorMessage = computed(() => {
   }
 
   return formContext?.errors[props.name] ?? ''
+})
+
+const hasError = computed(() => Boolean(errorMessage.value))
+
+const stateClass = computed(() => {
+  if (props.variant === 'none') {
+    return ''
+  }
+
+  if (hasError.value) {
+    return 'border-error/70 ring-2 ring-error/20'
+  }
+
+  return 'focus-visible:border-lavender/45 focus-visible:ring-2 focus-visible:ring-lavender/30'
 })
 
 watch(modelValue, () => {

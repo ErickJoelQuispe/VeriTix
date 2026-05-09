@@ -35,6 +35,10 @@ const props = withDefaults(defineProps<{
 const modelValue = defineModel<string | number | Array<string | number> | undefined>()
 const attrs = useAttrs()
 const formContext = useFormContext()
+const isOpen = ref(false)
+const listboxId = `select-listbox-${Math.random().toString(36).slice(2, 10)}`
+const triggerRef = ref<HTMLButtonElement>()
+const rootRef = ref<HTMLElement>()
 
 const fieldClass = computed(() => attrs.class)
 const forwardedAttrs = computed(() => {
@@ -44,6 +48,22 @@ const forwardedAttrs = computed(() => {
 
 const errorMessage = computed(() => {
   return formContext?.errors[props.name] ?? ''
+})
+
+const selectedItem = computed(() => {
+  if (props.multiple)
+    return null
+
+  const selectedValue = String(modelValue.value ?? '')
+  return props.items.find(item => String(item.value) === selectedValue) ?? null
+})
+
+const displayLabel = computed(() => {
+  return selectedItem.value?.label ?? props.placeholder
+})
+
+const triggerLabelClass = computed(() => {
+  return selectedItem.value ? 'text-highlighted' : 'text-toned'
 })
 
 const selectClass = computed(() => {
@@ -56,18 +76,43 @@ const selectClass = computed(() => {
   }[props.size]
 
   const variantClass = {
-    outline: 'border border-default/60 bg-default/20 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
-    soft: 'border border-default/55 bg-elevated/45 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
-    subtle: 'border border-default/55 bg-default/30 shadow-sm focus-visible:ring-2 focus-visible:ring-primary/35',
-    ghost: 'border border-transparent bg-transparent shadow-none focus-visible:ring-2 focus-visible:ring-primary/25',
+    outline: 'border border-default/60 bg-default/20 shadow-sm',
+    soft: 'border border-default/55 bg-elevated/45 shadow-sm',
+    subtle: 'border border-default/55 bg-default/30 shadow-sm',
+    ghost: 'border border-transparent bg-transparent shadow-none',
     none: 'border-0 bg-transparent px-0 shadow-none focus-visible:ring-0',
   }[props.variant]
 
   return [
-    'w-full rounded-xl text-highlighted transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60',
+    'w-full appearance-none rounded-xl text-left text-highlighted transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     sizeClass,
     variantClass,
+    stateClass.value,
+    props.variant !== 'none' ? 'pr-11' : '',
+    attrs.class,
   ]
+})
+
+const hasError = computed(() => Boolean(errorMessage.value))
+
+const stateClass = computed(() => {
+  if (props.variant === 'none') {
+    return ''
+  }
+
+  if (hasError.value) {
+    return 'border-error/70 ring-2 ring-error/20'
+  }
+
+  return 'focus-visible:border-lavender/45 focus-visible:ring-2 focus-visible:ring-lavender/30'
+})
+
+const openClass = computed(() => {
+  if (props.variant === 'none' || !isOpen.value || hasError.value) {
+    return ''
+  }
+
+  return 'border-lavender/45 ring-2 ring-lavender/20'
 })
 
 function resolveValue(rawValue: string): string | number {
@@ -87,6 +132,51 @@ function handleChange(event: Event) {
 
   formContext?.clearError(props.name)
 }
+
+function toggleListbox() {
+  if (props.disabled)
+    return
+
+  isOpen.value = !isOpen.value
+}
+
+function selectItem(value: string | number) {
+  modelValue.value = value
+  isOpen.value = false
+  formContext?.clearError(props.name)
+}
+
+function closeListbox() {
+  isOpen.value = false
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    closeListbox()
+    triggerRef.value?.focus()
+  }
+}
+
+function handleDocumentClick(event: MouseEvent) {
+  if (!isOpen.value)
+    return
+
+  const target = event.target as Node | null
+  if (target && rootRef.value?.contains(target))
+    return
+
+  closeListbox()
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleDocumentClick)
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleDocumentClick)
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <template>
@@ -96,29 +186,87 @@ function handleChange(event: Event) {
       <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
     </span>
 
-    <select
-      :value="props.multiple ? undefined : (modelValue ?? '')"
-      v-bind="forwardedAttrs"
-      :name="props.name"
-      :multiple="props.multiple"
-      :required="props.required"
-      :disabled="props.disabled"
-      :class="selectClass"
-      @change="handleChange"
-    >
-      <option v-if="props.placeholder && !props.multiple" value="" disabled>
-        {{ props.placeholder }}
-      </option>
-      <option
-        v-for="item in props.items"
-        :key="String(item.value)"
-        :value="String(item.value)"
-        :disabled="item.disabled"
-        :selected="Array.isArray(modelValue) ? modelValue.map(String).includes(String(item.value)) : String(modelValue ?? '') === String(item.value)"
+    <div ref="rootRef" class="relative">
+      <select
+        v-if="props.multiple"
+        :value="props.multiple ? undefined : (modelValue ?? '')"
+        v-bind="forwardedAttrs"
+        :name="props.name"
+        :multiple="props.multiple"
+        :required="props.required"
+        :disabled="props.disabled"
+        :class="selectClass"
+        :aria-invalid="errorMessage ? 'true' : undefined"
+        @change="handleChange"
       >
-        {{ item.label }}
-      </option>
-    </select>
+        <option v-if="props.placeholder && !props.multiple" value="" disabled>
+          {{ props.placeholder }}
+        </option>
+        <option
+          v-for="item in props.items"
+          :key="String(item.value)"
+          :value="String(item.value)"
+          :disabled="item.disabled"
+          :selected="Array.isArray(modelValue) ? modelValue.map(String).includes(String(item.value)) : String(modelValue ?? '') === String(item.value)"
+        >
+          {{ item.label }}
+        </option>
+      </select>
+
+      <template v-else>
+        <input
+          type="hidden"
+          :name="props.name"
+          :value="selectedItem ? String(selectedItem.value) : ''"
+        >
+
+        <button
+          ref="triggerRef"
+          type="button"
+          v-bind="forwardedAttrs"
+          :disabled="props.disabled"
+          :class="[selectClass, openClass]"
+          :aria-invalid="errorMessage ? 'true' : undefined"
+          aria-haspopup="listbox"
+          :aria-expanded="isOpen ? 'true' : 'false'"
+          :aria-controls="listboxId"
+          @click="toggleListbox"
+        >
+          <span class="truncate" :class="triggerLabelClass">
+            {{ displayLabel }}
+          </span>
+        </button>
+
+        <div
+          v-if="isOpen"
+          :id="listboxId"
+          role="listbox"
+          class="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-lavender/35 bg-default shadow-[0_16px_34px_-24px_rgba(86,29,164,0.42)] ring-1 ring-lavender/20"
+        >
+          <button
+            v-for="item in props.items"
+            :key="String(item.value)"
+            type="button"
+            role="option"
+            :disabled="item.disabled"
+            :aria-selected="selectedItem && String(selectedItem.value) === String(item.value) ? 'true' : 'false'"
+            class="block w-full px-4 py-2.5 text-left text-sm text-highlighted transition-colors hover:bg-[color-mix(in_oklch,var(--color-lavender)_14%,var(--color-elevated))] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            :class="selectedItem && String(selectedItem.value) === String(item.value) ? 'bg-[color-mix(in_oklch,var(--color-lavender)_18%,var(--color-elevated))] font-medium text-white' : ''"
+            @click="selectItem(item.value)"
+          >
+            {{ item.label }}
+          </button>
+        </div>
+      </template>
+
+      <BaseIcon
+        v-if="!props.multiple && props.variant !== 'none'"
+        name="i-lucide-chevron-down"
+        class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-toned transition-transform"
+        :class="isOpen ? 'rotate-180' : ''"
+        aria-hidden="true"
+      />
+    </div>
 
     <p v-if="errorMessage" class="text-xs font-medium text-error" role="alert">
       {{ errorMessage }}
