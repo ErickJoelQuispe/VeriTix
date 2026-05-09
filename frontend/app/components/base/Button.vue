@@ -54,15 +54,15 @@ const buttonClass = computed(() => {
     xl: 'px-6 py-3.5 text-sm',
   }[props.size]
 
-  const sharedClass = 'inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border font-medium uppercase leading-none tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 active:translate-y-px active:scale-[0.99] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-60'
+  const sharedClass = 'relative inline-flex cursor-pointer items-center justify-center gap-2 rounded-sm border font-medium uppercase leading-none tracking-wide transition-all duration-200 before:absolute before:-inset-x-1 before:-inset-y-1 before:content-[""] focus-visible:outline-none focus-visible:ring-2 active:translate-y-px active:scale-[0.99] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-60'
 
   const variantClass: Record<ButtonVariant, string> = {
     primary: 'border-highlighted bg-highlighted text-default shadow-sm focus-visible:ring-highlighted/30 hover:-translate-y-0.5 hover:border-lavender hover:bg-lavender hover:text-white hover:font-semibold hover:shadow-[0_14px_28px_-18px_rgba(62,21,120,0.6)]',
-    secondary: 'border-default/55 bg-elevated/84 text-highlighted shadow-none focus-visible:ring-default/35 hover:-translate-y-0.5 hover:border-lavender/35 hover:bg-[color-mix(in_oklch,var(--color-lavender)_14%,var(--color-elevated))] hover:text-white hover:shadow-[0_10px_22px_-18px_rgba(86,29,164,0.22)]',
+    secondary: 'border-default/70 bg-elevated text-highlighted ring-1 ring-inset ring-white/10 shadow-[0_8px_20px_-16px_rgba(120,108,158,0.45)] focus-visible:ring-lavender/35 hover:-translate-y-0.5 hover:border-lavender/45 hover:bg-[color-mix(in_oklch,var(--color-lavender)_18%,var(--color-elevated))] hover:text-white hover:shadow-[0_12px_24px_-16px_rgba(86,29,164,0.35)]',
     outlined: 'border-border-accented bg-transparent text-toned shadow-none focus-visible:ring-primary/25 hover:-translate-y-0.5 hover:border-lavender/40 hover:bg-[color-mix(in_oklch,var(--color-lavender)_10%,transparent)] hover:text-highlighted',
-    reversed: 'border-accent/40 bg-accent text-default shadow-sm focus-visible:ring-accent/30 hover:-translate-y-0.5 hover:border-accent/70 hover:bg-accent/90 hover:shadow-[0_14px_30px_-18px_rgba(166,102,255,0.6)]',
-    warning: 'border-warning/55 bg-warning text-default shadow-sm focus-visible:ring-warning/35 hover:-translate-y-0.5 hover:border-warning/70 hover:bg-warning/90 hover:shadow-[0_14px_28px_-18px_rgba(245,158,11,0.55)]',
-    danger: 'border-error/55 bg-error text-default shadow-sm focus-visible:ring-error/35 hover:-translate-y-0.5 hover:border-error/70 hover:bg-error/90 hover:shadow-[0_14px_28px_-18px_rgba(236,104,92,0.58)]',
+    reversed: 'border-accent/45 bg-accent text-default ring-1 ring-inset ring-white/8 shadow-sm focus-visible:ring-accent/35 hover:-translate-y-1 hover:border-accent/95 hover:bg-[color-mix(in_oklch,var(--color-accent)_82%,black)] hover:shadow-[0_16px_34px_-18px_rgba(166,102,255,0.72)]',
+    warning: 'border-warning/60 bg-warning text-default ring-1 ring-inset ring-white/8 shadow-sm focus-visible:ring-warning/35 hover:-translate-y-1 hover:border-warning/95 hover:bg-[color-mix(in_oklch,var(--color-warning)_82%,black)] hover:shadow-[0_16px_32px_-18px_rgba(245,158,11,0.72)]',
+    danger: 'border-error/60 bg-error text-default ring-1 ring-inset ring-white/8 shadow-sm focus-visible:ring-error/35 hover:-translate-y-1 hover:border-error/95 hover:bg-[color-mix(in_oklch,var(--color-error)_84%,black)] hover:shadow-[0_16px_32px_-18px_rgba(236,104,92,0.74)]',
   }
 
   return [sharedClass, sizeClass, variantClass[props.variant], attrs.class]
