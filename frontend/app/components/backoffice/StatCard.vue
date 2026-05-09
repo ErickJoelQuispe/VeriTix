@@ -31,7 +31,7 @@ const iconBoxClass = computed(() => {
 </script>
 
 <template>
-  <UiGlassPanel tone="subtle" radius="md" padding="md">
+  <UiPanel variant="glass" radius="md" padding="md">
     <div class="flex items-start justify-between gap-3">
       <div class="space-y-3">
         <UiMetaLabel>
@@ -52,5 +52,5 @@ const iconBoxClass = computed(() => {
         <BaseIcon :name="icon" class="size-5" />
       </div>
     </div>
-  </UiGlassPanel>
+  </UiPanel>
 </template>

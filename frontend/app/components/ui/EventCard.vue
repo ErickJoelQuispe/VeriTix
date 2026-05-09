@@ -20,7 +20,7 @@ const cardPrice = computed(() => {
 </script>
 
 <template>
-  <UiGlassPanel as="article" interactive radius="md" class="group flex h-full flex-col overflow-hidden">
+  <UiPanel as="article" interactive radius="md" class="group flex h-full flex-col overflow-hidden">
     <div class="relative overflow-hidden rounded-xl border border-white/10 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
       <NuxtImg
         :src="event.imageUrl ?? undefined"
@@ -58,10 +58,6 @@ const cardPrice = computed(() => {
         <h3 class="line-clamp-2 text-base font-semibold leading-tight text-highlighted transition-colors duration-300 group-hover:text-white sm:text-lg">
           {{ event.name }}
         </h3>
-
-        <p class="line-clamp-1 text-sm font-medium text-toned/90 sm:text-base">
-          Curated transmission from the live catalog.
-        </p>
       </div>
 
       <div class="mt-auto border-t border-white/10 pt-3 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
@@ -79,5 +75,5 @@ const cardPrice = computed(() => {
         </div>
       </div>
     </div>
-  </UiGlassPanel>
+  </UiPanel>
 </template>

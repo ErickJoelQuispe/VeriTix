@@ -106,7 +106,7 @@ onMounted(() => {
       <BackofficeOverviewPanel
         title="Datos del artista"
         description="Edita identidad, metadata y clasificación por género."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div v-if="artist" class="flex flex-wrap items-center gap-2.5">

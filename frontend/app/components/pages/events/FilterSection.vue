@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <UiGlassPanel tone="subtle" padding="md" radius="sm">
+  <section class="space-y-3 border-t border-default/45 pt-5 first:border-t-0 first:pt-0">
     <div class="flex items-center justify-between gap-3">
       <UiMetaLabel as="h3" tone="accent">
         {{ title }}
@@ -16,8 +16,8 @@ defineProps<{
       </span>
     </div>
 
-    <div class="mt-4">
+    <div>
       <slot />
     </div>
-  </UiGlassPanel>
+  </section>
 </template>

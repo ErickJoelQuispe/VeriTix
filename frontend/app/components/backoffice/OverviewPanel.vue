@@ -3,16 +3,16 @@ withDefaults(defineProps<{
   title: string
   description?: string
   eyebrow?: string
-  tone?: 'strong' | 'subtle'
+  variant?: 'solid' | 'glass'
 }>(), {
   description: '',
   eyebrow: '',
-  tone: 'strong',
+  variant: 'solid',
 })
 </script>
 
 <template>
-  <UiGlassPanel :tone="tone" radius="md" padding="lg">
+  <UiPanel :variant="variant" radius="md" padding="lg">
     <div class="flex flex-col gap-4 border-b border-default/55 pb-5 sm:flex-row sm:items-center sm:justify-between">
       <div class="space-y-2">
         <UiMetaLabel v-if="eyebrow" tone="accent">
@@ -37,5 +37,5 @@ withDefaults(defineProps<{
     <div class="pt-5">
       <slot />
     </div>
-  </UiGlassPanel>
+  </UiPanel>
 </template>

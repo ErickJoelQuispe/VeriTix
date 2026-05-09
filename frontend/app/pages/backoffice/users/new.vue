@@ -122,7 +122,7 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
       <BackofficeOverviewPanel
         title="Datos del usuario"
         description="Completa identidad, contacto, rol y contraseña inicial."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div class="flex flex-wrap items-center gap-2.5">

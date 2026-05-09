@@ -118,7 +118,7 @@ onMounted(() => {
       <BackofficeOverviewPanel
         title="Datos del evento"
         description="Edita los campos principales del evento seleccionado."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div v-if="event" class="flex flex-wrap items-center gap-2.5">

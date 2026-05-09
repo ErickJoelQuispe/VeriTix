@@ -31,8 +31,8 @@ function formatDate(value: string | null | undefined) {
 </script>
 
 <template>
-  <UiGlassPanel
-    tone="subtle"
+  <UiPanel
+    variant="glass"
     interactive
     :padding="compact ? 'sm' : 'md'"
     radius="lg"
@@ -81,5 +81,5 @@ function formatDate(value: string | null | undefined) {
     <div v-if="$slots.actions" class="flex shrink-0 flex-wrap items-center justify-start gap-2.5 pt-1 sm:justify-end sm:pt-0">
       <slot name="actions" />
     </div>
-  </UiGlassPanel>
+  </UiPanel>
 </template>

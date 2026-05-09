@@ -81,7 +81,7 @@ onMounted(() => {
       <BackofficeOverviewPanel
         title="Datos del artista"
         description="Completa la ficha principal para catalogo y búsqueda."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div class="flex flex-wrap items-center gap-2.5">

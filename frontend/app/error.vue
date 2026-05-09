@@ -30,7 +30,7 @@ useSeoMeta({
             center
           />
 
-          <UiGlassPanel tone="subtle" radius="xl" padding="lg" class="mx-auto max-w-2xl">
+          <UiPanel variant="glass" radius="xl" padding="lg" class="mx-auto max-w-2xl">
             <section class="flex min-h-[34vh] flex-col items-center justify-center text-center">
               <BaseIcon
                 :name="isNotFound ? 'i-lucide-search-x' : 'i-lucide-circle-alert'"
@@ -51,7 +51,7 @@ useSeoMeta({
                 </BaseButton>
               </div>
             </section>
-          </UiGlassPanel>
+          </UiPanel>
         </div>
       </BaseContainer>
     </main>

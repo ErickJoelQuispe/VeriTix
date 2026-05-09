@@ -87,7 +87,7 @@ const eventErrorMessage = computed(() => {
         </NuxtLink>
 
         <div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-start">
-          <UiGlassPanel class="overflow-hidden" radius="lg">
+          <UiPanel class="overflow-hidden" radius="lg">
             <NuxtImg
               :src="event.imageUrl ?? undefined"
               :alt="`Imagen de ${event.name}`"
@@ -97,7 +97,7 @@ const eventErrorMessage = computed(() => {
               sizes="(max-width: 1023px) 100vw, 58vw"
               placeholder
             />
-          </UiGlassPanel>
+          </UiPanel>
 
           <div class="space-y-8">
             <div class="space-y-5 border-b border-default/55 pb-7">

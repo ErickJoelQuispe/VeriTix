@@ -165,7 +165,7 @@ onMounted(() => {
         eyebrow="Filter"
         title="Narrow list."
         description="Query by name, genre, status, and engagement."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div class="flex items-center gap-3 sm:self-center">

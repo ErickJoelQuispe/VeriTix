@@ -209,7 +209,7 @@ onMounted(() => {
         eyebrow="Filter"
         title="Refine list."
         description="Search by status, role, and activity with a concise view."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div class="flex items-center gap-3 sm:self-center">
@@ -268,10 +268,10 @@ onMounted(() => {
           />
 
           <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <UiGlassPanel
+            <UiPanel
               v-for="user in users"
               :key="user.id"
-              tone="subtle"
+              variant="glass"
               radius="lg"
               padding="md"
               class="h-full border-default/65 bg-elevated/20"
@@ -342,7 +342,7 @@ onMounted(() => {
                   />
                 </div>
               </div>
-            </UiGlassPanel>
+            </UiPanel>
           </div>
 
           <BackofficePaginationRail

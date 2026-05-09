@@ -145,7 +145,7 @@ function submitDemoForm() {
           />
 
           <div class="grid gap-6 lg:grid-cols-2">
-            <UiGlassPanel class="space-y-6 lg:col-span-2">
+            <UiPanel class="space-y-6 lg:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Buttons
@@ -188,9 +188,9 @@ function submitDemoForm() {
                   </BaseButton>
                 </div>
               </div>
-            </UiGlassPanel>
+            </UiPanel>
 
-            <UiGlassPanel class="space-y-6 lg:col-span-2">
+            <UiPanel class="space-y-6 lg:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Badges
@@ -251,9 +251,9 @@ function submitDemoForm() {
                   </div>
                 </div>
               </div>
-            </UiGlassPanel>
+            </UiPanel>
 
-            <UiGlassPanel class="space-y-5">
+            <UiPanel class="space-y-5">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Avatars and icons
@@ -282,9 +282,9 @@ function submitDemoForm() {
                   <span class="text-sm font-medium text-highlighted">{{ icon.label }}</span>
                 </div>
               </div>
-            </UiGlassPanel>
+            </UiPanel>
 
-            <UiGlassPanel class="space-y-5">
+            <UiPanel class="space-y-5">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Skeletons and pagination
@@ -309,9 +309,9 @@ function submitDemoForm() {
               <p class="text-xs text-toned">
                 Current page: {{ paginationPage }}
               </p>
-            </UiGlassPanel>
+            </UiPanel>
 
-            <UiGlassPanel class="space-y-5">
+            <UiPanel class="space-y-5">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Popover
@@ -330,7 +330,7 @@ function submitDemoForm() {
                 </BaseButton>
 
                 <template #content>
-                  <UiGlassPanel class="w-72 space-y-3">
+                  <UiPanel class="w-72 space-y-3">
                     <div class="space-y-1">
                       <p class="text-sm font-semibold text-highlighted">
                         Popover demo
@@ -348,10 +348,10 @@ function submitDemoForm() {
                         Contextual
                       </BaseBadge>
                     </div>
-                  </UiGlassPanel>
+                  </UiPanel>
                 </template>
               </BasePopover>
-            </UiGlassPanel>
+            </UiPanel>
           </div>
         </section>
 
@@ -363,7 +363,7 @@ function submitDemoForm() {
           />
 
           <div class="grid gap-6 lg:grid-cols-2">
-            <UiGlassPanel class="space-y-5">
+            <UiPanel class="space-y-5">
               <UiSectionHeading
                 eyebrow="Section heading"
                 title="A reusable section header."
@@ -371,9 +371,9 @@ function submitDemoForm() {
                 action-label="Browse events"
                 action-to="/events"
               />
-            </UiGlassPanel>
+            </UiPanel>
 
-            <UiGlassPanel class="space-y-5">
+            <UiPanel class="space-y-5">
               <div class="space-y-3">
                 <UiMetaLabel tone="default">
                   Meta label
@@ -390,38 +390,38 @@ function submitDemoForm() {
                 action-label="Go to events"
                 action-to="/events"
               />
-            </UiGlassPanel>
+            </UiPanel>
 
-            <UiGlassPanel class="space-y-5 lg:col-span-2">
+            <UiPanel class="space-y-5 lg:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
-                  Glass panels
+                  Panel variants
                 </p>
                 <p class="text-sm leading-relaxed text-toned">
-                  The surface component used to frame cards, sections, and controls.
+                  The surface component used to frame cards, sections, and controls, including a softer glass variant.
                 </p>
               </div>
 
               <div class="grid gap-4 md:grid-cols-2">
-                <UiGlassPanel tone="subtle" padding="sm" radius="md">
+                <UiPanel variant="glass" padding="sm" radius="md">
                   <p class="text-sm font-medium text-highlighted">
                     Subtle panel
                   </p>
                   <p class="mt-1 text-sm text-toned">
                     Lower contrast for nested content.
                   </p>
-                </UiGlassPanel>
+                </UiPanel>
 
-                <UiGlassPanel tone="strong" padding="lg" radius="xl" interactive>
+                <UiPanel padding="lg" radius="xl" interactive>
                   <p class="text-sm font-medium text-highlighted">
                     Interactive panel
                   </p>
                   <p class="mt-1 text-sm text-toned">
                     Hover and focus states are built in.
                   </p>
-                </UiGlassPanel>
-              </div>
-            </UiGlassPanel>
+                </UiPanel>
+            </div>
+            </UiPanel>
           </div>
         </section>
 
@@ -433,7 +433,7 @@ function submitDemoForm() {
           />
 
           <div class="grid gap-6 xl:grid-cols-2">
-            <UiGlassPanel class="space-y-5">
+            <UiPanel class="space-y-5">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   FormRoot + FormField
@@ -461,9 +461,9 @@ function submitDemoForm() {
                   Submit demo
                 </BaseButton>
               </FormRoot>
-            </UiGlassPanel>
+            </UiPanel>
 
-            <UiGlassPanel class="space-y-5">
+            <UiPanel class="space-y-5">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Raw control set
@@ -480,7 +480,7 @@ function submitDemoForm() {
                 <FormTextarea v-model="rawNotes" name="rawNotes" placeholder="Textarea without a label" :rows="4" />
                 <FormSelect v-model="rawRole" name="rawRole" label="Select control" :items="formRoleItems" />
               </div>
-            </UiGlassPanel>
+            </UiPanel>
           </div>
         </section>
 
@@ -492,7 +492,7 @@ function submitDemoForm() {
           />
 
           <div class="grid gap-6 lg:grid-cols-[1fr_auto]">
-            <UiGlassPanel class="space-y-3">
+            <UiPanel class="space-y-3">
               <UiMetaLabel tone="accent">
                 Live feedback
               </UiMetaLabel>
@@ -510,7 +510,7 @@ function submitDemoForm() {
                   {{ preset.title }}
                 </BaseButton>
               </div>
-            </UiGlassPanel>
+            </UiPanel>
           </div>
         </section>
       </div>

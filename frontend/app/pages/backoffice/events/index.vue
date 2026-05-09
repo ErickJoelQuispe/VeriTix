@@ -253,7 +253,7 @@ onMounted(() => {
       <BackofficeOverviewPanel
         eyebrow="Filter"
         :title="catalogMode === 'review' ? 'Refine list.' : 'Refine list.'"
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div class="flex items-center gap-3 sm:self-center">

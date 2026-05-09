@@ -16,35 +16,34 @@ withDefaults(
 </script>
 
 <template>
-  <section class="vtx-auth-panel">
-    <header class="vtx-auth-panel-head">
-      <strong class="font-display text-3xl font-normal leading-none tracking-tight text-highlighted">
-        {{ panelTitle }}
-      </strong>
+  <UiPanel as="section" variant="glass" radius="xl" padding="lg" class="w-full max-w-130 overflow-hidden">
+    <header class="flex items-start justify-between gap-4 border-b border-default/60 pb-5">
+      <div class="space-y-1">
+        <UiMetaLabel v-if="eyebrow" tone="accent">
+          {{ eyebrow }}
+        </UiMetaLabel>
+
+        <strong class="block font-display text-2xl font-normal leading-none tracking-tight text-highlighted sm:text-3xl">
+          {{ panelTitle }}
+        </strong>
+      </div>
 
       <span
         v-if="kicker"
-        class="font-mono text-[0.68rem] tracking-[0.12em] text-muted uppercase"
+        class="rounded-full border border-default/60 bg-default/20 px-3 py-1 font-mono text-[0.68rem] tracking-[0.12em] text-muted uppercase"
       >
         {{ kicker }}
       </span>
     </header>
 
-    <div class="vtx-auth-panel-body">
-      <span
-        v-if="eyebrow"
-        class="mb-3 block font-mono text-xs tracking-widest text-muted uppercase"
-      >
-        {{ eyebrow }}
-      </span>
-
-      <h1 class="font-display text-6xl leading-[0.92] tracking-tight text-highlighted">
+    <div class="pt-7">
+      <h1 class="font-display text-4xl leading-[0.92] tracking-tight text-highlighted sm:text-5xl">
         {{ title }}
       </h1>
 
       <p
         v-if="description"
-        class="mt-3 max-w-[34ch] text-toned"
+        class="mt-3 max-w-[34ch] text-sm leading-relaxed text-toned sm:text-base"
       >
         {{ description }}
       </p>
@@ -53,28 +52,9 @@ withDefaults(
         <slot />
       </div>
 
-      <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
+      <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-default/55 pt-4 text-sm text-toned">
         <slot name="meta" />
       </div>
     </div>
-  </section>
+  </UiPanel>
 </template>
-
-<style scoped>
-@reference "@/assets/css/main.css";
-
-.vtx-auth-panel {
-  @apply w-full max-w-130 overflow-hidden rounded-panel border border-default/80 bg-elevated/75 shadow-[0_24px_70px_rgba(0,0,0,0.18)] backdrop-blur-sm;
-  background:
-    radial-gradient(circle at 50% 0%, color-mix(in oklch, var(--color-error) 9%, transparent) 0%, transparent 42%),
-    linear-gradient(180deg, color-mix(in oklch, var(--color-elevated) 84%, transparent), color-mix(in oklch, var(--color-default) 82%, transparent));
-}
-
-.vtx-auth-panel-head {
-  @apply flex items-center justify-between border-b border-default/70 px-6 py-5;
-}
-
-.vtx-auth-panel-body {
-  @apply px-6 pb-6 pt-7;
-}
-</style>

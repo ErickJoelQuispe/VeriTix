@@ -24,9 +24,7 @@ useSeoMeta({
 })
 
 const searchDraft = ref(readQueryValue(route.query.search))
-const artistNameDraft = ref('')
 const showAllGenres = ref(false)
-const dateWindow = ref<'30' | 'quarter' | 'all'>('30')
 
 const filters = computed(() => {
   return {
@@ -121,6 +119,7 @@ const resultsChips = computed(() => {
   ]
 })
 const isPending = computed(() => status.value === 'pending')
+const hasDraftSearch = computed(() => Boolean(searchDraft.value.trim()))
 const eventsErrorMessage = computed(() => {
   if (!error.value) {
     return ''
@@ -154,13 +153,12 @@ async function updateFilters(next: Partial<typeof filters.value>) {
 }
 
 async function submitSearch() {
-  // TODO(backend): include `artistName: artistNameDraft.value.trim()` in the public events
-  // query once the API supports artist-name filtering end-to-end.
   await updateFilters({ search: searchDraft.value.trim() })
 }
 
 async function clearFilters() {
   searchDraft.value = ''
+  showAllGenres.value = false
   await navigateTo('/events')
 }
 
@@ -187,79 +185,64 @@ async function handlePageChange(page: number) {
               Curated Transmissions.
             </h1>
             <p class="mt-2.5 max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-              Browse the catalog, narrow by date or venue, and move from discovery to ticket in a few clean steps.
+              Explorá la cartelera, refiná por género o ciudad, y pasá del descubrimiento al ticket en pocos pasos.
             </p>
           </div>
 
-          <form class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.3fr_.8fr_.8fr_auto]" @submit.prevent="submitSearch">
-            <FormInput v-model="searchDraft" placeholder="Search artists, venues, or cities" icon="i-lucide-search" :disabled="isPending" />
-            <FormInput v-model="artistNameDraft" placeholder="Artist" icon="i-lucide-mic-vocal" :disabled="isPending" />
-            <FormSelect label="Location" name="city" :model-value="filters.city || '__all__'" :items="[{ label: 'Location: any', value: '__all__' }, ...cityOptions.map(city => ({ label: city, value: city }))]" :disabled="isPending" @update:model-value="updateFilters({ city: $event === '__all__' ? '' : String($event) })" />
-            <BaseButton variant="secondary" type="submit" :loading="isPending">
-              Search
-            </BaseButton>
-          </form>
+          <UiPanel as="form" variant="glass" radius="xl" padding="md" class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto]" @submit.prevent="submitSearch">
+            <FormInput
+              v-model="searchDraft"
+              placeholder="Buscar eventos o artistas"
+              icon="i-lucide-search"
+              size="md"
+              :disabled="isPending"
+            />
 
-          <div class="flex items-center justify-between gap-4 text-[0.68rem] tracking-widest text-muted uppercase">
-            <p>{{ meta.total }} visibles</p>
-            <p>página {{ meta.page }} / {{ Math.max(meta.totalPages, 1) }}</p>
-          </div>
+            <BaseButton variant="primary" type="submit" size="md" :loading="isPending" leading-icon="i-lucide-search">
+              Buscar
+            </BaseButton>
+
+            <BaseButton
+              v-if="hasDraftSearch || hasActiveFilters"
+              variant="outlined"
+              type="button"
+              size="md"
+              :disabled="isPending"
+              leading-icon="i-lucide-rotate-ccw"
+              @click="clearFilters"
+            >
+              Limpiar
+            </BaseButton>
+          </UiPanel>
         </header>
 
         <section class="grid gap-8 xl:grid-cols-[292px_minmax(0,1fr)] xl:items-start xl:gap-10">
           <aside class="xl:sticky xl:top-24">
-            <UiGlassPanel padding="lg" radius="md">
-              <div class="border-b border-default/55 pb-5">
-                <div>
+            <UiPanel padding="lg" radius="xl">
+              <div class="flex items-start justify-between gap-4">
+                <div class="space-y-1">
                   <UiMetaLabel tone="accent">
                     Filtros
                   </UiMetaLabel>
-                </div>
-
-                <div v-if="hasActiveFilters" class="mt-4 flex flex-wrap items-center gap-2">
-                  <p class="text-xs font-medium text-dimmed uppercase">
-                    {{ activeFilterCount }} filtro{{ activeFilterCount > 1 ? 's' : '' }} activo{{ activeFilterCount > 1 ? 's' : '' }}
+                  <p class="text-sm leading-relaxed text-toned">
+                    Refiná la cartelera con géneros y ciudades.
                   </p>
-
-                  <BaseButton
-                    variant="outlined"
-                    size="xs"
-                    :disabled="isPending"
-                    class="px-2.5"
-                    @click="clearFilters"
-                  >
-                    Limpiar todo
-                  </BaseButton>
                 </div>
+
+                <BaseButton
+                  v-if="hasActiveFilters"
+                  variant="outlined"
+                  size="sm"
+                  :disabled="isPending"
+                  @click="clearFilters"
+                >
+                  Limpiar todo
+                </BaseButton>
               </div>
 
-              <div class="mt-5 space-y-4.5">
-                <PagesEventsFilterSection title="Búsqueda">
-                  <form class="mt-3.5 space-y-3" @submit.prevent="submitSearch">
-                    <FormInput
-                      v-model="searchDraft"
-                      placeholder="Buscar por evento"
-                      icon="i-lucide-search"
-                      :disabled="isPending"
-                      class="min-w-0"
-                    />
-
-                    <FormInput
-                      v-model="artistNameDraft"
-                      placeholder="Buscar por artista"
-                      icon="i-lucide-mic-vocal"
-                      :disabled="isPending"
-                      class="min-w-0"
-                    />
-
-                    <BaseButton variant="primary" type="submit" size="sm" :loading="isPending" :disabled="isPending" block>
-                      Buscar
-                    </BaseButton>
-                  </form>
-                </PagesEventsFilterSection>
-
-                <PagesEventsFilterSection title="Genre" :status="filters.genreId ? '1 selected' : 'Top'">
-                  <div class="mt-3.5 flex flex-wrap gap-2.5">
+              <div class="mt-6 space-y-6">
+                <PagesEventsFilterSection title="Género" :status="filters.genreId ? '1 seleccionado' : 'Todos'">
+                  <div class="flex flex-wrap gap-2.5">
                     <PagesEventsFilterChip
                       label="Todos"
                       size="sm"
@@ -291,10 +274,10 @@ async function handlePageChange(page: number) {
                   </BaseButton>
                 </PagesEventsFilterSection>
 
-                <PagesEventsFilterSection title="Venue" :status="filters.city ? '1' : 'Any'">
-                  <div class="mt-3.5 flex flex-wrap gap-2.5">
+                <PagesEventsFilterSection title="Ciudad" :status="filters.city ? '1 seleccionada' : 'Todas'">
+                  <div class="flex flex-wrap gap-2.5">
                     <PagesEventsFilterChip
-                      label="Any"
+                      label="Todas"
                       size="sm"
                       :active="!filters.city"
                       :disabled="isPending"
@@ -312,22 +295,8 @@ async function handlePageChange(page: number) {
                     />
                   </div>
                 </PagesEventsFilterSection>
-
-                <PagesEventsFilterSection title="Date" :status="dateWindow === 'all' ? 'All' : 'Active'">
-                  <div class="mt-3.5 space-y-2.5">
-                    <button type="button" class="w-full rounded-lg border px-3 py-2 text-left text-sm" :class="dateWindow === '30' ? 'border-primary/50 bg-primary/10 text-highlighted' : 'border-default/60 bg-default/10 text-toned'" @click="dateWindow = '30'">
-                      Next 30 days
-                    </button>
-                    <button type="button" class="w-full rounded-lg border px-3 py-2 text-left text-sm" :class="dateWindow === 'quarter' ? 'border-primary/50 bg-primary/10 text-highlighted' : 'border-default/60 bg-default/10 text-toned'" @click="dateWindow = 'quarter'">
-                      This quarter
-                    </button>
-                    <button type="button" class="w-full rounded-lg border px-3 py-2 text-left text-sm" :class="dateWindow === 'all' ? 'border-primary/50 bg-primary/10 text-highlighted' : 'border-default/60 bg-default/10 text-toned'" @click="dateWindow = 'all'">
-                      All dates
-                    </button>
-                  </div>
-                </PagesEventsFilterSection>
               </div>
-            </UiGlassPanel>
+            </UiPanel>
           </aside>
 
           <section class="space-y-7">

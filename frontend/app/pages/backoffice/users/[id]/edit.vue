@@ -158,7 +158,7 @@ onMounted(() => {
       <BackofficeOverviewPanel
         title="Datos del usuario"
         description="Edita contacto, rol, estado y verificación de cuenta."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div v-if="user" class="flex flex-wrap items-center gap-2.5">

@@ -7,7 +7,7 @@ definePageMeta({
 
 useSeoMeta({
   title: 'Registro | VeriTix',
-  description: 'Crea tu cuenta de VeriTix y descubre los mejores conciertos progresivos.',
+  description: 'Creá tu cuenta de VeriTix y descubrí los mejores conciertos progresivos.',
 })
 
 const schema = z.object({
@@ -61,33 +61,35 @@ async function onSubmit() {
 
 <template>
   <div>
-    <main class="grid min-h-[calc(100vh-78px)] place-items-center px-6 py-14 md:px-16 md:py-24">
+    <PageBackdrop :intensity="0.85" />
+
+    <main class="relative grid min-h-[calc(100vh-78px)] place-items-center overflow-hidden px-4 py-12 sm:px-6 md:px-10 lg:px-16">
       <AuthPanel
-        panel-title="Create account"
-        kicker="Secure signup"
-        eyebrow="Register"
-        title="Join VeriTix."
-        description="Create your profile once, then keep tickets, saved events, and transfers in one place."
+        panel-title="Cuenta nueva"
+        kicker="Registro"
+        eyebrow="Crear cuenta"
+        title="Unite a VeriTix."
+        description="Creá tu perfil una sola vez y guardá tickets, favoritos y transferencias en un solo lugar."
       >
         <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-4" @submit="onSubmit">
-          <FormField v-model="state.name" name="name" label="Name" placeholder="Your name" icon="i-lucide-user" required />
-          <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="name@domain.com" icon="i-lucide-mail" required />
-          <FormPassword v-model="state.password" name="password" label="Password" placeholder="Create a password" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
-          <FormField v-model="state.lastName" name="lastName" label="Last name" placeholder="Last name" icon="i-lucide-user-round" required />
-          <FormField v-model="state.phone" name="phone" label="Phone" placeholder="+34958123456" icon="i-lucide-phone" required />
-          <FormPassword v-model="state.confirmPassword" name="confirmPassword" label="Confirm password" placeholder="Repeat password" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
+          <FormField v-model="state.name" name="name" label="Nombre" placeholder="Tu nombre" icon="i-lucide-user" required />
+          <FormField v-model="state.lastName" name="lastName" label="Apellido" placeholder="Tu apellido" icon="i-lucide-user-round" required />
+          <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" required />
+          <FormField v-model="state.phone" name="phone" label="Teléfono" placeholder="+34958123456" icon="i-lucide-phone" required />
+          <FormPassword v-model="state.password" name="password" label="Contraseña" placeholder="Creá una contraseña" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
+          <FormPassword v-model="state.confirmPassword" name="confirmPassword" label="Confirmar contraseña" placeholder="Repetí la contraseña" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
           <div class="grid gap-3 pt-2">
             <BaseButton variant="primary" type="submit" size="lg" block :loading="pending">
-              Create account
+              Crear cuenta
             </BaseButton>
             <BaseButton variant="secondary" to="/login" size="lg" block>
-              Already have an account?
+              Ya tengo cuenta
             </BaseButton>
           </div>
         </FormRoot>
 
         <template #meta>
-          By continuing, you accept the terms.
+          <span>Al continuar aceptás los términos.</span>
         </template>
       </AuthPanel>
     </main>

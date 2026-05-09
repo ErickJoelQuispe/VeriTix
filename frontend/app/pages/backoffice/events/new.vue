@@ -83,7 +83,7 @@ onMounted(() => {
       <BackofficeOverviewPanel
         title="Datos del evento"
         description="Completa los campos principales para crear la ficha."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div class="flex flex-wrap items-center gap-2.5">

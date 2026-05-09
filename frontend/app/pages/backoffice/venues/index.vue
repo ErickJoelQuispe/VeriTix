@@ -114,7 +114,7 @@ onMounted(() => {
         eyebrow="Filter"
         title="Refine list."
         description="Availability, capacity, and operational status in one place."
-        tone="subtle"
+        variant="glass"
       >
         <template #actions>
           <div class="flex items-center gap-3 sm:self-center">
@@ -170,10 +170,10 @@ onMounted(() => {
           />
 
           <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <UiGlassPanel
+            <UiPanel
               v-for="venue in venues"
               :key="venue.id"
-              tone="subtle"
+              variant="glass"
               radius="lg"
               padding="md"
               class="h-full border-default/65 bg-elevated/20"
@@ -205,7 +205,7 @@ onMounted(() => {
                   </div>
                 </div>
               </div>
-            </UiGlassPanel>
+            </UiPanel>
           </div>
 
           <BackofficePaginationRail

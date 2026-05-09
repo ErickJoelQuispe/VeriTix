@@ -185,11 +185,11 @@ onMounted(() => {
       <BackofficeToolbarChips :items="dashboardChips" />
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <template v-if="pending">
-          <UiGlassPanel v-for="index in 4" :key="index" tone="subtle" radius="md" padding="md">
+          <UiPanel v-for="index in 4" :key="index" variant="glass" radius="md" padding="md">
             <BaseSkeleton class="mb-4 size-10 rounded-lg" />
             <BaseSkeleton class="mb-2 h-8 w-16" />
             <BaseSkeleton class="h-4 w-24" />
-          </UiGlassPanel>
+          </UiPanel>
         </template>
 
         <template v-else>
@@ -206,7 +206,7 @@ onMounted(() => {
       </div>
 
       <div class="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
-        <BackofficeOverviewPanel eyebrow="Filter" title="Narrow data." description="Ajustá foco por ventana y estado operativo." tone="subtle">
+        <BackofficeOverviewPanel eyebrow="Filter" title="Narrow data." description="Ajustá foco por ventana y estado operativo." variant="glass">
           <div class="space-y-3 text-sm">
             <label class="flex items-center gap-2"><input checked type="checkbox"> Today</label>
             <label class="flex items-center gap-2"><input checked type="checkbox"> This week</label>
@@ -280,7 +280,7 @@ onMounted(() => {
             </div>
           </BackofficeOverviewPanel>
 
-          <BackofficeOverviewPanel eyebrow="Queue" title="Needs attention." description="Tarjetas accionables para seguimiento rápido." tone="subtle">
+          <BackofficeOverviewPanel eyebrow="Queue" title="Needs attention." description="Tarjetas accionables para seguimiento rápido." variant="glass">
             <div class="space-y-4">
               <div class="space-y-3">
                 <div
