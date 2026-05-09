@@ -17,7 +17,7 @@ const eventDate = computed(() => {
       <NuxtImg
         :src="event.imageUrl ?? undefined"
         :alt="`Imagen de ${event.name}`"
-        class="h-40 w-full object-cover transition duration-500 sm:h-44"
+        class="h-60 w-full object-cover transition duration-500 sm:h-64"
         loading="lazy"
         width="900"
         height="1200"
