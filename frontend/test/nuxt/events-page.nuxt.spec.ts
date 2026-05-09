@@ -44,9 +44,9 @@ const {
   }))
 
   const useApiErrorMessageMock = vi.fn(() => ({
-    getApiErrorMessage: vi.fn((message: unknown, fallback: string) => (
-      typeof message === 'string' ? message : fallback
-    )),
+    getApiErrorMessage: vi.fn((message: unknown, fallback: string) =>
+      typeof message === 'string' ? message : fallback,
+    ),
   }))
 
   return {
@@ -81,9 +81,50 @@ beforeEach(() => {
   }
   state.genres = []
   state.cities = []
+
+  usePublicEventsMock.mockImplementation(() => ({
+    data: ref(state.eventsResponse),
+    status: ref('success'),
+    error: ref(null),
+  }))
+
+  useEventCatalogFiltersMock.mockImplementation(() => ({
+    genres: { data: ref(state.genres) },
+    cities: ref(state.cities),
+  }))
 })
 
 describe('events page', () => {
+  it('renders the primitive filter panel with the new search fields', async () => {
+    const wrapper = await mountSuspended(EventsPage)
+
+    expect(wrapper.text()).toContain('Nombre del evento')
+    expect(wrapper.text()).toContain('Nombre del artista')
+    expect(wrapper.text()).toContain('Nombre del recinto')
+    expect(wrapper.text()).toContain('Género')
+    expect(wrapper.text()).toContain('Ciudad')
+    expect(wrapper.text()).toContain('Limpiar filtros')
+  })
+
+  it('shows a spinner instead of the search icon while loading', async () => {
+    state.eventsResponse = {
+      data: [],
+      meta: { total: 0, page: 1, limit: 24, totalPages: 0 },
+    }
+
+    usePublicEventsMock.mockImplementation(() => ({
+      data: ref(state.eventsResponse),
+      status: ref('pending'),
+      error: ref(null),
+    }))
+
+    const wrapper = await mountSuspended(EventsPage)
+    const searchButton = wrapper.get('button[type="submit"]')
+
+    expect(searchButton.find('span.animate-spin').exists()).toBe(true)
+    expect(searchButton.find('svg').exists()).toBe(false)
+  })
+
   it('renders pagination above and below the results when there are events', async () => {
     const wrapper = await mountSuspended(EventsPage)
 

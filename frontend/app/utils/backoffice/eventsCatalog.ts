@@ -1,6 +1,9 @@
 import type { PaginationMeta } from '~~/shared/api/types'
-import type { BackofficeEventRecord, BackofficeRequiresAttentionRecord } from '~~/shared/types'
-import { compactQuery } from '~~/shared/query'
+import type {
+  BackofficeEventRecord,
+  BackofficeRequiresAttentionRecord,
+} from '~~/shared/types'
+import { compactQuery } from '../../../shared/query'
 
 export type QuickWindow = 'all' | 'upcoming' | 'thisMonth' | 'past'
 export type EventBadgeColor = 'success' | 'warning' | 'error' | 'neutral'
@@ -29,20 +32,32 @@ export interface CatalogFilters {
   dateTo: string
 }
 
-export const QUICK_WINDOW_OPTIONS: Array<{ value: QuickWindow, label: string }> = [
+export const QUICK_WINDOW_OPTIONS: Array<{
+  value: QuickWindow
+  label: string
+}> = [
   { value: 'all', label: 'Todo' },
   { value: 'upcoming', label: 'Próximos' },
   { value: 'thisMonth', label: 'Este mes' },
   { value: 'past', label: 'Histórico' },
 ]
 
-export const CATALOG_MODE_ITEMS: Array<{ value: CatalogMode, label: string, icon: string }> = [
+export const CATALOG_MODE_ITEMS: Array<{
+  value: CatalogMode
+  label: string
+  icon: string
+}> = [
   { value: 'published', label: 'Publicados', icon: 'i-lucide-store' },
   { value: 'review', label: 'Revisión', icon: 'i-lucide-siren' },
 ]
 
 export function isQuickWindow(value: string): value is QuickWindow {
-  return value === 'all' || value === 'upcoming' || value === 'thisMonth' || value === 'past'
+  return (
+    value === 'all'
+    || value === 'upcoming'
+    || value === 'thisMonth'
+    || value === 'past'
+  )
 }
 
 export function isCatalogMode(value: string): value is CatalogMode {
@@ -65,7 +80,10 @@ function toEndOfDayIso(value: string): string | undefined {
   return new Date(`${value}T23:59:59`).toISOString()
 }
 
-function getQuickWindowRange(quickWindow: QuickWindow): { dateFrom?: string, dateTo?: string } {
+function getQuickWindowRange(quickWindow: QuickWindow): {
+  dateFrom?: string
+  dateTo?: string
+} {
   const now = new Date()
 
   if (quickWindow === 'upcoming') {
@@ -78,9 +96,19 @@ function getQuickWindowRange(quickWindow: QuickWindow): { dateFrom?: string, dat
 
   if (quickWindow === 'thisMonth') {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+    const monthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+    )
 
-    return { dateFrom: monthStart.toISOString(), dateTo: monthEnd.toISOString() }
+    return {
+      dateFrom: monthStart.toISOString(),
+      dateTo: monthEnd.toISOString(),
+    }
   }
 
   return {}
@@ -97,9 +125,10 @@ export function buildCatalogQuery({
   filters: CatalogFilters
   quickWindow: QuickWindow
 }) {
-  const quickRange = !filters.dateFrom && !filters.dateTo
-    ? getQuickWindowRange(quickWindow)
-    : {}
+  const quickRange
+    = !filters.dateFrom && !filters.dateTo
+      ? getQuickWindowRange(quickWindow)
+      : {}
 
   return compactQuery({
     page: pageValue,
@@ -137,7 +166,9 @@ export function createCatalogListItems({
   requiresAttention: BackofficeRequiresAttentionRecord[]
 }): CatalogEventListItem[] {
   if (catalogMode === 'review') {
-    const publishedById = new Map(catalogEvents.map(event => [event.id, event]))
+    const publishedById = new Map(
+      catalogEvents.map(event => [event.id, event]),
+    )
 
     return requiresAttention.map((event) => {
       const publishedMatch = publishedById.get(event.id)

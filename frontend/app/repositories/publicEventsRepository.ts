@@ -1,4 +1,7 @@
-import type { PublicEventDetailApiItem, PublicEventListApiItem } from '~~/shared/api/public-events'
+import type {
+  PublicEventDetailApiItem,
+  PublicEventListApiItem,
+} from '~~/shared/api/public-events'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   CurrencyCode,
@@ -8,9 +11,11 @@ import type {
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
-import { compactQuery } from '~~/shared/query'
+import { compactQuery } from '../../shared/query'
 
-export function toIsoString(value: string | Date | null | undefined): string | null {
+export function toIsoString(
+  value: string | Date | null | undefined,
+): string | null {
   if (!value) {
     return null
   }
@@ -34,7 +39,9 @@ export function normalizeCurrencyCode(value: string): CurrencyCode {
   return 'EUR'
 }
 
-export function mapEventListItem(item: PublicEventListApiItem): EventCatalogItem {
+export function mapEventListItem(
+  item: PublicEventListApiItem,
+): EventCatalogItem {
   return {
     id: item.id,
     name: item.name,
@@ -46,7 +53,9 @@ export function mapEventListItem(item: PublicEventListApiItem): EventCatalogItem
   }
 }
 
-export function mapEventDetail(item: PublicEventDetailApiItem): EventCatalogDetail {
+export function mapEventDetail(
+  item: PublicEventDetailApiItem,
+): EventCatalogDetail {
   return {
     id: item.id,
     name: item.name,
@@ -68,8 +77,12 @@ export function mapEventDetail(item: PublicEventDetailApiItem): EventCatalogDeta
 export function usePublicEventsRepository() {
   const apiRequest = useApiRequest()
 
-  async function listEvents(filters: EventCatalogFilters): Promise<PaginatedResponse<EventCatalogItem>> {
-    const response = await apiRequest<PaginatedResponse<PublicEventListApiItem>>('/events', {
+  async function listEvents(
+    filters: EventCatalogFilters,
+  ): Promise<PaginatedResponse<EventCatalogItem>> {
+    const response = await apiRequest<
+      PaginatedResponse<PublicEventListApiItem>
+    >('/events', {
       method: 'GET',
       query: compactQuery({
         page: filters.page,
@@ -77,6 +90,8 @@ export function usePublicEventsRepository() {
         city: filters.city,
         genreId: filters.genreId,
         search: filters.search,
+        artistName: filters.artistName,
+        venueName: filters.venueName,
       }),
     })
 
@@ -87,9 +102,12 @@ export function usePublicEventsRepository() {
   }
 
   async function getEvent(id: string): Promise<EventCatalogDetail> {
-    const response = await apiRequest<PublicEventDetailApiItem>(`/events/${id}`, {
-      method: 'GET',
-    })
+    const response = await apiRequest<PublicEventDetailApiItem>(
+      `/events/${id}`,
+      {
+        method: 'GET',
+      },
+    )
 
     return mapEventDetail(response)
   }
@@ -101,9 +119,12 @@ export function usePublicEventsRepository() {
   }
 
   async function listVenues(): Promise<VenueOption[]> {
-    const response = await apiRequest<PaginatedResponse<VenueOption>>('/venues', {
-      method: 'GET',
-    })
+    const response = await apiRequest<PaginatedResponse<VenueOption>>(
+      '/venues',
+      {
+        method: 'GET',
+      },
+    )
 
     return response.data
   }

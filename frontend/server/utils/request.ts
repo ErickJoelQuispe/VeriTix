@@ -1,12 +1,18 @@
 import type { H3Event } from 'h3'
 import { createError, getQuery, getRouterParam, readBody } from 'h3'
-import { compactQuery, normalizeQueryValue } from '~~/shared/query'
+import { compactQuery, normalizeQueryValue } from '../../shared/query'
 
-function readSingleQueryValue(event: H3Event, key: string): string | number | boolean | undefined {
+function readSingleQueryValue(
+  event: H3Event,
+  key: string,
+): string | number | boolean | undefined {
   return normalizeQueryValue(getQuery(event)[key])
 }
 
-export function readOptionalStringQuery(event: H3Event, key: string): string | undefined {
+export function readOptionalStringQuery(
+  event: H3Event,
+  key: string,
+): string | undefined {
   const value = readSingleQueryValue(event, key)
   return typeof value === 'string' ? value : undefined
 }
@@ -30,7 +36,11 @@ export function readPageQuery(event: H3Event, fallback = 1): number {
   return parsed
 }
 
-export function readLimitQuery(event: H3Event, fallback: number, max = 200): number {
+export function readLimitQuery(
+  event: H3Event,
+  fallback: number,
+  max = 200,
+): number {
   const value = readSingleQueryValue(event, 'limit')
 
   if (typeof value === 'undefined') {
@@ -49,7 +59,10 @@ export function readLimitQuery(event: H3Event, fallback: number, max = 200): num
   return parsed
 }
 
-export function readBooleanQuery(event: H3Event, key: string): boolean | undefined {
+export function readBooleanQuery(
+  event: H3Event,
+  key: string,
+): boolean | undefined {
   const value = readSingleQueryValue(event, key)
 
   if (typeof value === 'undefined') {
@@ -87,7 +100,9 @@ export function requireRouteId(event: H3Event, entityName: string): string {
   return id
 }
 
-export async function readRequiredBodyObject<TBody extends object>(event: H3Event): Promise<TBody> {
+export async function readRequiredBodyObject<TBody extends object>(
+  event: H3Event,
+): Promise<TBody> {
   const body = await readBody<TBody | null>(event)
 
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
@@ -100,6 +115,8 @@ export async function readRequiredBodyObject<TBody extends object>(event: H3Even
   return body
 }
 
-export function withDefinedQuery(query: Record<string, string | number | boolean | null | undefined>): Record<string, string | number | boolean> {
+export function withDefinedQuery(
+  query: Record<string, string | number | boolean | null | undefined>,
+): Record<string, string | number | boolean> {
   return compactQuery(query)
 }

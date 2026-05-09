@@ -9,18 +9,31 @@ import type {
 } from '~~/shared/types'
 import { usePublicEventsRepository } from '../repositories/publicEventsRepository'
 
-export { buildEventFallbackImage, buildFallbackImage, mapEventDetail, mapEventListItem, normalizeCurrencyCode, toIsoString } from '../repositories/publicEventsRepository'
+export {
+  buildEventFallbackImage,
+  buildFallbackImage,
+  mapEventDetail,
+  mapEventListItem,
+  normalizeCurrencyCode,
+  toIsoString,
+} from '../repositories/publicEventsRepository'
 
-export function normalizeFilters(raw?: Partial<EventCatalogFilters>): EventCatalogFilters {
+export function normalizeFilters(
+  raw?: Partial<EventCatalogFilters>,
+): EventCatalogFilters {
   return {
     search: raw?.search?.trim() ?? '',
+    artistName: raw?.artistName?.trim() ?? '',
+    venueName: raw?.venueName?.trim() ?? '',
     genreId: raw?.genreId?.trim() ?? '',
     city: raw?.city?.trim() ?? '',
     page: raw?.page && raw.page > 0 ? raw.page : 1,
   }
 }
 
-export function usePublicEvents(filters?: MaybeRef<Partial<EventCatalogFilters> | undefined>) {
+export function usePublicEvents(
+  filters?: MaybeRef<Partial<EventCatalogFilters> | undefined>,
+) {
   const { listEvents } = usePublicEventsRepository()
 
   const normalizedFilters = computed(() => {
@@ -89,7 +102,11 @@ export function useEventCatalogFilters() {
   )
 
   const cities = computed(() => {
-    return [...new Set((venues.data.value ?? []).map(venue => venue.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'))
+    return [
+      ...new Set(
+        (venues.data.value ?? []).map(venue => venue.city).filter(Boolean),
+      ),
+    ].sort((a, b) => a.localeCompare(b, 'es'))
   })
 
   return {

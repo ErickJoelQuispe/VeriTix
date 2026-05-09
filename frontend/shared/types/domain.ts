@@ -75,6 +75,8 @@ export interface EventCatalogDetail {
 
 export interface EventCatalogFilters {
   search: string
+  artistName: string
+  venueName: string
   genreId: string
   city: string
   page: number

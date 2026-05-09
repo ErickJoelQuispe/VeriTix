@@ -4,7 +4,7 @@ import type {
   BackofficeArtistRecord,
   GenreOption,
 } from '~~/shared/types'
-import { compactQuery } from '~~/shared/query'
+import { compactQuery } from '../../shared/query'
 
 export function useBackofficeArtistsRepository() {
   const apiRequest = useApiRequest()
@@ -29,17 +29,20 @@ export function useBackofficeArtistsRepository() {
     genreId: string
     isActive: string
   }): Promise<PaginatedResponse<BackofficeArtistRecord>> {
-    return apiRequest<PaginatedResponse<BackofficeArtistRecord>>('/admin/artists', {
-      method: 'GET',
-      headers: requireBackofficeHeaders(),
-      query: compactQuery({
-        page: pageValue,
-        limit: pageSize,
-        search,
-        genreId,
-        isActive,
-      }),
-    })
+    return apiRequest<PaginatedResponse<BackofficeArtistRecord>>(
+      '/admin/artists',
+      {
+        method: 'GET',
+        headers: requireBackofficeHeaders(),
+        query: compactQuery({
+          page: pageValue,
+          limit: pageSize,
+          search,
+          genreId,
+          isActive,
+        }),
+      },
+    )
   }
 
   async function getArtist(artistId: string): Promise<BackofficeArtistRecord> {
@@ -49,20 +52,31 @@ export function useBackofficeArtistsRepository() {
     })
   }
 
-  async function createArtist(payload: BackofficeArtistPayload): Promise<BackofficeArtistRecord> {
-    return apiRequest<BackofficeArtistRecord, BackofficeArtistPayload>('/admin/artists', {
-      method: 'POST',
-      headers: requireBackofficeHeaders(),
-      body: payload,
-    })
+  async function createArtist(
+    payload: BackofficeArtistPayload,
+  ): Promise<BackofficeArtistRecord> {
+    return apiRequest<BackofficeArtistRecord, BackofficeArtistPayload>(
+      '/admin/artists',
+      {
+        method: 'POST',
+        headers: requireBackofficeHeaders(),
+        body: payload,
+      },
+    )
   }
 
-  async function updateArtist(artistId: string, payload: BackofficeArtistPayload): Promise<BackofficeArtistRecord> {
-    return apiRequest<BackofficeArtistRecord, BackofficeArtistPayload>(`/admin/artists/${artistId}`, {
-      method: 'PATCH',
-      headers: requireBackofficeHeaders(),
-      body: payload,
-    })
+  async function updateArtist(
+    artistId: string,
+    payload: BackofficeArtistPayload,
+  ): Promise<BackofficeArtistRecord> {
+    return apiRequest<BackofficeArtistRecord, BackofficeArtistPayload>(
+      `/admin/artists/${artistId}`,
+      {
+        method: 'PATCH',
+        headers: requireBackofficeHeaders(),
+        body: payload,
+      },
+    )
   }
 
   async function deleteArtist(artistId: string): Promise<void> {

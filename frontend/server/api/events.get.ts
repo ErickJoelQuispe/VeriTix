@@ -4,7 +4,12 @@ import type { PaginatedResponse as ApiPaginatedResponse } from '~~/shared/api/ty
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'
 import { createNormalizedQueryPublicApiPolicy } from '~~/server/utils/cache/policies/public-api'
-import { readLimitQuery, readOptionalStringQuery, readPageQuery, withDefinedQuery } from '~~/server/utils/request'
+import {
+  readLimitQuery,
+  readOptionalStringQuery,
+  readPageQuery,
+  withDefinedQuery,
+} from '~~/server/utils/request'
 import { toUiPaginatedResponse } from '~~/shared/api/pagination'
 
 function normalizeEventsCatalogQuery(event: H3Event) {
@@ -17,10 +22,15 @@ function normalizeEventsCatalogQuery(event: H3Event) {
     dateFrom: readOptionalStringQuery(event, 'dateFrom'),
     dateTo: readOptionalStringQuery(event, 'dateTo'),
     search: readOptionalStringQuery(event, 'search'),
+    artistName: readOptionalStringQuery(event, 'artistName'),
+    venueName: readOptionalStringQuery(event, 'venueName'),
   })
 }
 
-const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<ApiPaginatedResponse<PublicEventListApiItem>, ReturnType<typeof normalizeEventsCatalogQuery>>({
+const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<
+  ApiPaginatedResponse<PublicEventListApiItem>,
+  ReturnType<typeof normalizeEventsCatalogQuery>
+>({
   prefix: 'events',
   getNormalizedQuery: normalizeEventsCatalogQuery,
   maxAge: 60,
@@ -29,7 +39,9 @@ const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<ApiPaginatedR
 
 export default createCachedHandler(async (event) => {
   const normalizedQuery = normalizeEventsCatalogQuery(event)
-  const response = await proxyBackendRequest<ApiPaginatedResponse<PublicEventListApiItem>>(event, '/events', {
+  const response = await proxyBackendRequest<
+    ApiPaginatedResponse<PublicEventListApiItem>
+  >(event, '/events', {
     method: 'GET',
     query: normalizedQuery,
   })

@@ -4,7 +4,7 @@ import type {
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
 } from '~~/shared/types'
-import { compactQuery, trimToUndefined } from '~~/shared/query'
+import { compactQuery, trimToUndefined } from '../../shared/query'
 
 export function useBackofficeUsersRepository() {
   const apiRequest = useApiRequest()
@@ -43,20 +43,31 @@ export function useBackofficeUsersRepository() {
     })
   }
 
-  async function createUser(payload: BackofficeCreateUserPayload): Promise<BackofficeUserRecord> {
-    return apiRequest<BackofficeUserRecord, BackofficeCreateUserPayload>('/admin/users', {
-      method: 'POST',
-      headers: requireBackofficeHeaders(),
-      body: payload,
-    })
+  async function createUser(
+    payload: BackofficeCreateUserPayload,
+  ): Promise<BackofficeUserRecord> {
+    return apiRequest<BackofficeUserRecord, BackofficeCreateUserPayload>(
+      '/admin/users',
+      {
+        method: 'POST',
+        headers: requireBackofficeHeaders(),
+        body: payload,
+      },
+    )
   }
 
-  async function updateUser(userId: string, payload: BackofficeUpdateUserPayload): Promise<BackofficeUserRecord> {
-    return apiRequest<BackofficeUserRecord, BackofficeUpdateUserPayload>(`/admin/users/${userId}`, {
-      method: 'PATCH',
-      headers: requireBackofficeHeaders(),
-      body: payload,
-    })
+  async function updateUser(
+    userId: string,
+    payload: BackofficeUpdateUserPayload,
+  ): Promise<BackofficeUserRecord> {
+    return apiRequest<BackofficeUserRecord, BackofficeUpdateUserPayload>(
+      `/admin/users/${userId}`,
+      {
+        method: 'PATCH',
+        headers: requireBackofficeHeaders(),
+        body: payload,
+      },
+    )
   }
 
   async function deleteUser(userId: string): Promise<void> {
@@ -66,7 +77,9 @@ export function useBackofficeUsersRepository() {
     })
   }
 
-  async function findUserByEmail(email: string): Promise<BackofficeUserRecord | null> {
+  async function findUserByEmail(
+    email: string,
+  ): Promise<BackofficeUserRecord | null> {
     const normalizedEmail = trimToUndefined(email.toLowerCase())
 
     if (!normalizedEmail) {
@@ -80,7 +93,10 @@ export function useBackofficeUsersRepository() {
     })
   }
 
-  async function isEmailTaken(email: string, excludeUserId?: string): Promise<boolean> {
+  async function isEmailTaken(
+    email: string,
+    excludeUserId?: string,
+  ): Promise<boolean> {
     const existingUser = await findUserByEmail(email)
 
     if (!existingUser) {
