@@ -38,7 +38,7 @@ const toneClasses = computed(() => {
     section: 'py-10 sm:py-14 lg:py-16',
     glow: 'from-primary/12 via-transparent to-transparent',
     leftGlow: 'bg-secondary/12',
-    rightGlow: 'bg-auric-500/14',
+    rightGlow: 'bg-primary/14',
     bottomGlow: 'bg-primary/10',
     divider: 'border-default/60',
     badgeColor: 'warning' as const,
@@ -62,11 +62,11 @@ const toneClasses = computed(() => {
       />
       <div
         v-if="tone === 'vivid'"
-        class="absolute bottom-24 left-[12%] hidden h-px w-40 bg-linear-to-r from-transparent via-auric-300/35 to-transparent xl:block"
+        class="absolute bottom-24 left-[12%] hidden h-px w-40 bg-linear-to-r from-transparent via-primary/35 to-transparent xl:block"
       />
     </div>
 
-    <UContainer class="relative">
+    <BaseContainer class="relative">
       <div class="mx-auto max-w-6xl space-y-8 lg:space-y-10">
         <header class="grid gap-8 border-b pb-8 lg:grid-cols-[minmax(0,1.15fr)_auto] lg:items-end" :class="toneClasses.divider">
           <div class="space-y-5">
@@ -104,7 +104,7 @@ const toneClasses = computed(() => {
           <div class="flex items-end lg:justify-end">
             <BaseButton
               v-if="actionTo && actionLabel"
-              kind="secondary"
+              variant="secondary"
               :to="actionTo"
               size="lg"
               class="px-5"
@@ -129,7 +129,7 @@ const toneClasses = computed(() => {
           </aside>
         </div>
       </div>
-    </UContainer>
+    </BaseContainer>
   </section>
 </template>
 

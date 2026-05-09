@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
-import type { ApiErrorPayload } from '~~/shared/types'
-import { appendResponseHeader, createError, getHeader, setResponseStatus } from 'h3'
+import type { ApiErrorPayload } from '~~/shared/api/types'
+import { appendResponseHeader, createError, getHeader, setCookie, setResponseStatus } from 'h3'
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
@@ -52,12 +52,42 @@ function normalizeBackendError(error: unknown): never {
   })
 }
 
-function buildProxyHeaders(event: H3Event, headersInit?: HeadersInit): Headers {
+function normalizeCookieHeaderForAuth(cookieHeader: string): string {
+  const parts = cookieHeader
+    .split(';')
+    .map(part => part.trim())
+    .filter(Boolean)
+
+  const kv = new Map<string, string>()
+
+  for (const part of parts) {
+    const separatorIndex = part.indexOf('=')
+
+    if (separatorIndex <= 0) {
+      continue
+    }
+
+    const key = part.slice(0, separatorIndex).trim()
+    const value = part.slice(separatorIndex + 1)
+
+    kv.set(key, value)
+  }
+
+  return Array.from(kv.entries())
+    .map(([key, value]) => `${key}=${value}`)
+    .join('; ')
+}
+
+function buildProxyHeaders(event: H3Event, path: string, headersInit?: HeadersInit): Headers {
   const headers = new Headers(headersInit)
 
   const cookieHeader = getHeader(event, 'cookie')
   if (cookieHeader && !headers.has('cookie')) {
-    headers.set('cookie', cookieHeader)
+    const normalizedCookie = path.startsWith('/auth/')
+      ? normalizeCookieHeaderForAuth(cookieHeader)
+      : cookieHeader
+
+    headers.set('cookie', normalizedCookie)
   }
 
   const authHeader = getHeader(event, 'authorization')
@@ -66,6 +96,11 @@ function buildProxyHeaders(event: H3Event, headersInit?: HeadersInit): Headers {
   }
 
   return headers
+}
+
+function clearLegacyRefreshCookiePaths(event: H3Event): void {
+  setCookie(event, 'refresh_token', '', { path: '/', maxAge: 0 })
+  setCookie(event, 'refresh_token', '', { path: '/auth', maxAge: 0 })
 }
 
 function forwardSetCookieHeaders(event: H3Event, responseHeaders: Headers): void {
@@ -104,10 +139,15 @@ export async function proxyBackendRequest<TResponse, TBody extends BodyInit | ob
       method: options.method,
       body: options.body,
       query: options.query,
-      headers: buildProxyHeaders(event, options.headers),
+      headers: buildProxyHeaders(event, path, options.headers),
     })
 
     setResponseStatus(event, response.status)
+
+    if (path === '/auth/login' || path === '/auth/refresh' || path === '/auth/logout') {
+      clearLegacyRefreshCookiePaths(event)
+    }
+
     forwardSetCookieHeaders(event, response.headers)
 
     return response._data as TResponse

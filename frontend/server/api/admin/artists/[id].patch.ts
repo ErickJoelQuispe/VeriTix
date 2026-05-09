@@ -1,19 +1,12 @@
-import type { AdminArtistPayload, AdminArtistRecord } from '~/types'
+import type { BackofficeArtistPayload, BackofficeArtistRecord } from '~~/shared/types'
+import { readRequiredBodyObject, requireRouteId } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
+  const id = requireRouteId(event, 'artist')
+  const body = await readRequiredBodyObject<Partial<BackofficeArtistPayload>>(event)
 
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Missing artist id',
-    })
-  }
-
-  const body = await readBody<Partial<AdminArtistPayload>>(event)
-
-  return proxyBackendRequest<AdminArtistRecord, Partial<AdminArtistPayload>>(event, `/artists/${id}`, {
+  return proxyBackendRequest<BackofficeArtistRecord, Partial<BackofficeArtistPayload>>(event, `/artists/${id}`, {
     method: 'PATCH',
     body,
   })

@@ -24,7 +24,7 @@ const showConfirmPasswordModel = defineModel<boolean>('showConfirmPassword', { d
       </p>
     </div>
 
-    <BasePasswordField
+    <FormPassword
       v-model="currentPasswordModel"
       name="currentPassword"
       label="Contraseña actual"
@@ -36,7 +36,7 @@ const showConfirmPasswordModel = defineModel<boolean>('showConfirmPassword', { d
     />
 
     <div class="grid gap-5 lg:grid-cols-2">
-      <BasePasswordField
+      <FormPassword
         v-model="newPasswordModel"
         name="newPassword"
         label="Nueva contraseña"
@@ -48,7 +48,7 @@ const showConfirmPasswordModel = defineModel<boolean>('showConfirmPassword', { d
         @update:show="showNewPasswordModel = $event"
       />
 
-      <BasePasswordField
+      <FormPassword
         v-model="confirmPasswordModel"
         name="confirmPassword"
         label="Confirmar contraseña"

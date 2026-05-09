@@ -61,4 +61,13 @@ export class EventQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   artistName?: string;
+
+  @ApiPropertyOptional({
+    example: 'Movistar Arena',
+    description:
+      'Filtrar por nombre del recinto (búsqueda parcial, insensible a mayúsculas).',
+  })
+  @IsOptional()
+  @IsString()
+  venueName?: string;
 }

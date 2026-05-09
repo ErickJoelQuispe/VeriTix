@@ -1,48 +1,62 @@
 export function useRouteAccess() {
-  const { ensureSession, isAuthenticated, user } = useAuth()
+  const { ensureSession, isAuthenticated, sessionStatus, user } = useAuth()
 
-  const isAdmin = computed(() => user.value?.role === 'ADMIN')
+  const isBackofficeUser = computed(() => user.value?.role === 'ADMIN')
 
-  async function ensureSessionSafe(): Promise<boolean> {
+  async function ensureSessionSafe(): Promise<boolean | 'unknown'> {
     try {
-      return await ensureSession()
+      const sessionReady = await ensureSession()
+
+      if (sessionReady) {
+        return true
+      }
+
+      return sessionStatus.value === 'anonymous' ? false : 'unknown'
     }
     catch {
-      return false
+      return import.meta.server ? 'unknown' : false
     }
   }
 
-  async function requireAuthenticated(redirectTo = '/login') {
+  async function requireAuthenticated(redirectTo = '/login'): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
+    if (sessionReady === 'unknown') {
+      return
+    }
+
     if (!sessionReady || !isAuthenticated.value) {
-      return navigateTo(redirectTo)
+      return redirectTo
     }
   }
 
-  async function requireAdmin() {
+  async function requireBackofficeAccess(): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
-    if (!sessionReady || !isAuthenticated.value) {
-      return navigateTo('/login')
+    if (sessionReady === 'unknown') {
+      return
     }
 
-    if (!isAdmin.value) {
-      return navigateTo('/users/me')
+    if (!sessionReady || !isAuthenticated.value) {
+      return '/login'
+    }
+
+    if (!isBackofficeUser.value) {
+      return '/users/me'
     }
   }
 
-  async function redirectIfAuthenticated(redirectTo = '/users/me') {
+  async function redirectIfAuthenticated(redirectTo = '/users/me'): Promise<string | undefined> {
     const sessionReady = await ensureSessionSafe()
 
     if (sessionReady && isAuthenticated.value) {
-      return navigateTo(redirectTo)
+      return redirectTo
     }
   }
 
   return {
     requireAuthenticated,
-    requireAdmin,
+    requireBackofficeAccess,
     redirectIfAuthenticated,
   }
 }

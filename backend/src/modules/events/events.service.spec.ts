@@ -178,6 +178,8 @@ describe('EventsService', () => {
         dateFrom: undefined,
         dateTo: undefined,
         search: undefined,
+        artistName: undefined,
+        venueName: undefined,
       });
       expect(cache.getOrSet).toHaveBeenCalled();
     });
@@ -188,6 +190,8 @@ describe('EventsService', () => {
         limit: 5,
         city: 'CDMX',
         search: 'Rock',
+        artistName: 'The Killers',
+        venueName: 'Arena',
       };
       repo.findAll.mockResolvedValue(mockPaginated as any);
 
@@ -202,6 +206,8 @@ describe('EventsService', () => {
         dateFrom: undefined,
         dateTo: undefined,
         search: 'Rock',
+        artistName: 'The Killers',
+        venueName: 'Arena',
       });
     });
   });

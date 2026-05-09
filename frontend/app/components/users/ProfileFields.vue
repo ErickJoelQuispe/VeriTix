@@ -18,7 +18,7 @@ const avatarUrlModel = defineModel<string>('avatarUrl', { default: '' })
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <BaseFormField
+        <FormField
           v-model="nameModel"
           name="name"
           label="Nombre"
@@ -27,7 +27,7 @@ const avatarUrlModel = defineModel<string>('avatarUrl', { default: '' })
           required
         />
 
-        <BaseFormField
+        <FormField
           v-model="lastNameModel"
           name="lastName"
           label="Apellido"
@@ -49,7 +49,7 @@ const avatarUrlModel = defineModel<string>('avatarUrl', { default: '' })
       </div>
 
       <div class="grid gap-4">
-        <BaseFormField
+        <FormField
           v-model="phoneModel"
           name="phone"
           label="Teléfono"
@@ -59,7 +59,7 @@ const avatarUrlModel = defineModel<string>('avatarUrl', { default: '' })
           icon="i-lucide-phone"
         />
 
-        <BaseFormField
+        <FormField
           v-model="avatarUrlModel"
           name="avatarUrl"
           label="Avatar URL"

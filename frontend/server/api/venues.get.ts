@@ -1,21 +1,47 @@
-import type { PaginatedResponse, VenueOption } from '~/types'
+import type { H3Event } from 'h3'
+import type { PublicVenueListApiItem } from '~~/shared/api/public-venues'
+import type { PaginatedResponse as ApiPaginatedResponse } from '~~/shared/api/types'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'
-import { createStaticPublicApiPolicy } from '~~/server/utils/cache/policies/public-api'
+import { createNormalizedQueryPublicApiPolicy } from '~~/server/utils/cache/policies/public-api'
+import {
+  readBooleanQuery,
+  readLimitQuery,
+  readOptionalStringQuery,
+  readPageQuery,
+  withDefinedQuery,
+} from '~~/server/utils/request'
+import { toUiPaginatedResponse } from '~~/shared/api/pagination'
 
-const venuesCachePolicy = createStaticPublicApiPolicy<PaginatedResponse<VenueOption>>({
-  key: 'venues:page=1:limit=100:isActive=true',
-  maxAge: 1800,
-  staleMaxAge: 21600,
+function normalizeVenuesCatalogQuery(event: H3Event) {
+  return withDefinedQuery({
+    page: readPageQuery(event),
+    limit: readLimitQuery(event, 24),
+    search: readOptionalStringQuery(event, 'search'),
+    city: readOptionalStringQuery(event, 'city'),
+    type: readOptionalStringQuery(event, 'type'),
+    isActive: readBooleanQuery(event, 'isActive'),
+  })
+}
+
+const venuesCachePolicy = createNormalizedQueryPublicApiPolicy<
+  ApiPaginatedResponse<PublicVenueListApiItem>,
+  ReturnType<typeof normalizeVenuesCatalogQuery>
+>({
+  prefix: 'venues',
+  getNormalizedQuery: normalizeVenuesCatalogQuery,
+  maxAge: 60,
+  staleMaxAge: 300,
 })
 
 export default createCachedHandler(async (event) => {
-  return proxyBackendRequest<PaginatedResponse<VenueOption>>(event, '/venues', {
+  const normalizedQuery = normalizeVenuesCatalogQuery(event)
+  const response = await proxyBackendRequest<
+    ApiPaginatedResponse<PublicVenueListApiItem>
+  >(event, '/venues', {
     method: 'GET',
-    query: {
-      page: 1,
-      limit: 100,
-      isActive: true,
-    },
+    query: normalizedQuery,
   })
+
+  return toUiPaginatedResponse(response)
 }, venuesCachePolicy)

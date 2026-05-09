@@ -1,24 +1,4 @@
 <script setup lang="ts">
-/**
- * BaseBadge — semantic wrapper around UBadge.
- *
- * Kinds:
- *   status  → dynamic color (success/warning/error/neutral) + soft variant + pill shape
- *            Used for entity statuses (Activo/Inactivo, PUBLISHED/DRAFT/etc.)
- *   tag     → neutral color + subtle variant + rounded-md shape
- *            Used for categorisation labels (genres, formats)
- *   outline → neutral/warning color + outline variant + pill shape
- *            Used for secondary tags (Revisión, +N overflow, alert counts)
- *   info    → neutral color + soft variant + pill shape
- *            Used for contextual info (pagination, counts)
- *   role    → primary color + soft variant + pill shape
- *            Used for role indicators (ADMIN)
- *   price   → primary color + soft variant + larger pill shape
- *            Used for price displays
- *   accent  → dynamic color/variant + pill shape with icon
- *            Used for highlighted callouts (SettingsShell badges)
- */
-
 defineOptions({
   inheritAttrs: false,
 })
@@ -59,27 +39,29 @@ function resolveDefaults(kind: BadgeKind, explicitColor?: BadgeColor): { color: 
       return { color: 'primary', variant: 'soft' as const }
     case 'accent':
       return { color: explicitColor ?? 'primary', variant: 'soft' as const }
+    default:
+      return { color: explicitColor ?? 'neutral', variant: 'soft' as const }
   }
 }
 
 const badgeClass = computed(() => {
   switch (props.kind) {
     case 'status':
-      return 'rounded-full px-2.5 font-medium'
+      return 'rounded-full font-mono uppercase tracking-[0.14em]'
     case 'tag':
-      return 'rounded-md px-2.5 py-1 text-xs font-semibold'
+      return 'rounded-lg font-semibold tracking-[0.02em]'
     case 'outline':
-      return 'rounded-full px-2.5'
+      return 'rounded-full font-mono uppercase tracking-[0.14em]'
     case 'info':
-      return 'rounded-full px-2.5'
+      return 'rounded-full font-mono uppercase tracking-[0.14em]'
     case 'role':
-      return 'rounded-full px-2 font-semibold'
+      return 'rounded-full font-mono uppercase tracking-[0.14em]'
     case 'price':
-      return 'rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase md:text-sm'
+      return 'rounded-full font-mono uppercase tracking-[0.14em]'
     case 'accent':
-      return 'rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase'
+      return 'rounded-full font-mono uppercase tracking-[0.14em]'
     default:
-      return 'rounded-full px-2.5'
+      return 'rounded-full'
   }
 })
 
@@ -92,18 +74,43 @@ const resolved = computed(() => {
     variant: defaults.variant,
   }
 })
+
+const toneClass = computed(() => {
+  const colors: Record<BadgeColor, string> = {
+    primary: 'border-lavender/42 bg-lavender/16 text-lavender',
+    secondary: 'border-secondary/42 bg-secondary/16 text-secondary',
+    success: 'border-success/42 bg-success/16 text-success',
+    info: 'border-info/42 bg-info/16 text-info',
+    warning: 'border-warning/42 bg-warning/16 text-warning',
+    error: 'border-error/42 bg-error/16 text-error',
+    neutral: 'border-default/62 bg-elevated/46 text-toned',
+  }
+
+  const variants: Record<BadgeVariant, string> = {
+    soft: 'backdrop-blur-xs shadow-sm',
+    subtle: 'backdrop-blur-[1px] shadow-none',
+    outline: 'bg-transparent shadow-none',
+  }
+
+  const sizeClass: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', string> = {
+    xs: 'px-2.5 py-1 text-xs',
+    sm: 'px-3 py-1 text-xs',
+    md: 'px-3.5 py-1.5 text-xs',
+    lg: 'px-4 py-2 text-sm',
+    xl: 'px-4.5 py-2 text-sm',
+  }
+
+  return [colors[resolved.value.color], variants[resolved.value.variant], sizeClass[props.size], badgeClass.value]
+})
 </script>
 
 <template>
-  <UBadge
+  <span
     v-bind="attrs"
-    :color="resolved.color"
-    :variant="resolved.variant"
-    :size="size"
-    :icon="icon"
-    :leading="leading"
-    :class="badgeClass"
+    class="inline-flex items-center gap-2 border leading-none whitespace-nowrap ring-1 ring-inset ring-white/10 transition-colors duration-200" :class="[toneClass]"
   >
+    <BaseIcon v-if="icon && leading !== false" :name="icon" class="size-4" aria-hidden="true" />
     <slot />
-  </UBadge>
+    <BaseIcon v-if="icon && leading === false" :name="icon" class="size-4" aria-hidden="true" />
+  </span>
 </template>

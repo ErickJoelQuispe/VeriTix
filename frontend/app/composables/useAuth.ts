@@ -9,22 +9,13 @@ import type {
   UserProfile,
 } from '~~/shared/types'
 
-function buildAuthHeaders(accessToken: string | null): HeadersInit | undefined {
-  if (!accessToken) {
-    return undefined
-  }
-
-  return {
-    authorization: `Bearer ${accessToken}`,
-  }
-}
-
 export function useAuth() {
   const accessToken = useState<string | null>('auth-access-token', () => null)
   const user = useState<UserProfile | null>('auth-user', () => null)
   const pending = useState<boolean>('auth-pending', () => false)
-  const hydrated = useState<boolean>('auth-hydrated', () => false)
-  const ensureSessionPromise = useState<Promise<boolean> | null>('auth-ensure-session-promise', () => null)
+  const sessionStatus = useState<'unknown' | 'authenticated' | 'anonymous'>('auth-session-status', () => 'unknown')
+  const refreshStatus = useState<'idle' | 'refreshing'>('auth-refresh-status', () => 'idle')
+  const refreshPromise = useState<Promise<AuthResponse | null> | null>('auth-refresh-promise', () => null)
 
   const apiRequest = useApiRequest()
   const { isApiAuthError } = useApiErrorMessage()
@@ -36,45 +27,32 @@ export function useAuth() {
   function applyAuth(response: AuthResponse): AuthResponse {
     accessToken.value = response.accessToken
     user.value = response.user
-    hydrated.value = true
+    sessionStatus.value = 'authenticated'
     return response
   }
 
   function clearAuth(): void {
     accessToken.value = null
     user.value = null
+    sessionStatus.value = 'anonymous'
   }
 
   async function ensureSession(): Promise<boolean> {
-    if (import.meta.server) {
-      return isAuthenticated.value
-    }
-
     if (isAuthenticated.value) {
-      hydrated.value = true
+      sessionStatus.value = 'authenticated'
       return true
     }
 
-    if (hydrated.value) {
+    if (sessionStatus.value === 'anonymous') {
       return false
     }
 
-    if (ensureSessionPromise.value) {
-      return await ensureSessionPromise.value
+    if (import.meta.server) {
+      return false
     }
 
-    ensureSessionPromise.value = (async () => {
-      const response = await refreshSession()
-      hydrated.value = true
-      return Boolean(response)
-    })()
-
-    try {
-      return await ensureSessionPromise.value
-    }
-    finally {
-      ensureSessionPromise.value = null
-    }
+    const response = await refreshSession()
+    return Boolean(response)
   }
 
   async function register(payload: RegisterRequest): Promise<AuthResponse> {
@@ -115,21 +93,38 @@ export function useAuth() {
   }
 
   async function refreshSession(): Promise<AuthResponse | null> {
-    try {
-      const response = await apiRequest<AuthResponse>('/auth/refresh', {
-        method: 'POST',
-        headers: buildAuthHeaders(accessToken.value),
-        skipAuthRefresh: true,
-      })
-
-      return applyAuth(response)
+    if (refreshPromise.value) {
+      return await refreshPromise.value
     }
-    catch (error) {
-      if (isApiAuthError(error)) {
-        clearAuth()
-      }
 
-      return null
+    refreshStatus.value = 'refreshing'
+    refreshPromise.value = (async () => {
+      try {
+        const response = await apiRequest<AuthResponse>('/auth/refresh', {
+          method: 'POST',
+          skipAuthRefresh: true,
+        })
+
+        return applyAuth(response)
+      }
+      catch (error) {
+        if (isApiAuthError(error)) {
+          clearAuth()
+          return null
+        }
+
+        throw error
+      }
+      finally {
+        refreshStatus.value = 'idle'
+      }
+    })()
+
+    try {
+      return await refreshPromise.value
+    }
+    finally {
+      refreshPromise.value = null
     }
   }
 
@@ -137,13 +132,17 @@ export function useAuth() {
     try {
       await apiRequest<void>('/auth/logout', {
         method: 'POST',
-        headers: buildAuthHeaders(accessToken.value),
         skipAuthRefresh: true,
       })
     }
+    catch (error) {
+      if (!isApiAuthError(error)) {
+        throw error
+      }
+    }
     finally {
       clearAuth()
-      hydrated.value = true
+      sessionStatus.value = 'anonymous'
     }
   }
 
@@ -167,7 +166,8 @@ export function useAuth() {
     accessToken,
     user,
     pending,
-    hydrated,
+    sessionStatus,
+    refreshStatus,
     isAuthenticated,
     register,
     login,

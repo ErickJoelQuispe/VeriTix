@@ -1,34 +1,36 @@
 import type { H3Event } from 'h3'
-import type { PaginatedResponse } from '~/types'
-import { getQuery } from 'h3'
+import type { PublicEventListApiItem } from '~~/shared/api/public-events'
+import type { PaginatedResponse as ApiPaginatedResponse } from '~~/shared/api/types'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 import { createCachedHandler } from '~~/server/utils/cache/create-cached-handler'
 import { createNormalizedQueryPublicApiPolicy } from '~~/server/utils/cache/policies/public-api'
-
-function getQueryValue(event: H3Event, key: string): string | undefined {
-  const value = getQuery(event)[key]
-
-  if (Array.isArray(value)) {
-    return value[0]?.toString()
-  }
-
-  return value?.toString()
-}
+import {
+  readLimitQuery,
+  readOptionalStringQuery,
+  readPageQuery,
+  withDefinedQuery,
+} from '~~/server/utils/request'
+import { toUiPaginatedResponse } from '~~/shared/api/pagination'
 
 function normalizeEventsCatalogQuery(event: H3Event) {
-  return {
-    page: getQueryValue(event, 'page'),
-    limit: getQueryValue(event, 'limit'),
-    city: getQueryValue(event, 'city'),
-    genreId: getQueryValue(event, 'genreId'),
-    formatId: getQueryValue(event, 'formatId'),
-    dateFrom: getQueryValue(event, 'dateFrom'),
-    dateTo: getQueryValue(event, 'dateTo'),
-    search: getQueryValue(event, 'search'),
-  }
+  return withDefinedQuery({
+    page: readPageQuery(event),
+    limit: readLimitQuery(event, 24),
+    city: readOptionalStringQuery(event, 'city'),
+    genreId: readOptionalStringQuery(event, 'genreId'),
+    formatId: readOptionalStringQuery(event, 'formatId'),
+    dateFrom: readOptionalStringQuery(event, 'dateFrom'),
+    dateTo: readOptionalStringQuery(event, 'dateTo'),
+    search: readOptionalStringQuery(event, 'search'),
+    artistName: readOptionalStringQuery(event, 'artistName'),
+    venueName: readOptionalStringQuery(event, 'venueName'),
+  })
 }
 
-const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<PaginatedResponse<unknown>, ReturnType<typeof normalizeEventsCatalogQuery>>({
+const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<
+  ApiPaginatedResponse<PublicEventListApiItem>,
+  ReturnType<typeof normalizeEventsCatalogQuery>
+>({
   prefix: 'events',
   getNormalizedQuery: normalizeEventsCatalogQuery,
   maxAge: 60,
@@ -37,9 +39,12 @@ const eventsListCachePolicy = createNormalizedQueryPublicApiPolicy<PaginatedResp
 
 export default createCachedHandler(async (event) => {
   const normalizedQuery = normalizeEventsCatalogQuery(event)
-
-  return proxyBackendRequest<PaginatedResponse<unknown>>(event, '/events', {
+  const response = await proxyBackendRequest<
+    ApiPaginatedResponse<PublicEventListApiItem>
+  >(event, '/events', {
     method: 'GET',
     query: normalizedQuery,
   })
+
+  return toUiPaginatedResponse(response)
 }, eventsListCachePolicy)

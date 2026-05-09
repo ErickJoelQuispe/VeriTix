@@ -1,16 +1,11 @@
 <template>
   <div class="relative isolate min-h-screen text-default">
-    <BackgroundBase />
-    <BackgroundSpectrum />
-    <BackgroundTexture />
+    <BackdropsPageBackdrop />
+    <BackdropsPerspectiveGrid />
 
-    <div class="relative z-10 flex min-h-screen flex-col">
+    <div class="relative z-10 min-h-screen">
       <LayoutHeader />
-
-      <UMain class="flex flex-1 flex-col pb-6">
-        <slot />
-      </UMain>
-
+      <slot />
       <LayoutFooter />
     </div>
   </div>

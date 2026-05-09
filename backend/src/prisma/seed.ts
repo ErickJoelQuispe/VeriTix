@@ -320,6 +320,76 @@ const artists = [
   },
 ];
 
+type TicketTypeSeed = {
+  name: string;
+  description: string;
+  price: string;
+  totalQuantity: number;
+  maxPerUser: number;
+  availableQuantity?: number;
+  saleStartDate?: Date;
+  saleEndDate?: Date;
+};
+
+type PublishedEventSeed = {
+  name: string;
+  description: string;
+  eventDate: Date;
+  doorsOpenTime: Date;
+  startSale: Date;
+  endSale: Date;
+  maxCapacity: number;
+  imageSeed: string;
+  creatorId: string;
+  venueId: string;
+  formatId: string;
+  genreIds: string[];
+  artists: Array<{
+    role: ArtistRole;
+    performanceOrder: number;
+    artistId: string;
+  }>;
+  ticketTypes: TicketTypeSeed[];
+};
+
+async function createPublishedEvent(seed: PublishedEventSeed) {
+  const event = await prisma.event.create({
+    data: {
+      name: seed.name,
+      description: seed.description,
+      eventDate: seed.eventDate,
+      doorsOpenTime: seed.doorsOpenTime,
+      startSale: seed.startSale,
+      endSale: seed.endSale,
+      maxCapacity: seed.maxCapacity,
+      status: EventStatus.PUBLISHED,
+      currency: 'EUR',
+      imageUrl: `https://picsum.photos/seed/${seed.imageSeed}/800/450`,
+      creatorId: seed.creatorId,
+      venueId: seed.venueId,
+      formatId: seed.formatId,
+      genres: { connect: seed.genreIds.map((id) => ({ id })) },
+      artists: { create: seed.artists },
+    },
+  });
+
+  await prisma.ticketType.createMany({
+    data: seed.ticketTypes.map((ticketType) => ({
+      name: ticketType.name,
+      description: ticketType.description,
+      price: ticketType.price,
+      totalQuantity: ticketType.totalQuantity,
+      availableQuantity: ticketType.availableQuantity ?? ticketType.totalQuantity,
+      maxPerUser: ticketType.maxPerUser,
+      eventId: event.id,
+      saleStartDate: ticketType.saleStartDate ?? seed.startSale,
+      saleEndDate: ticketType.saleEndDate ?? seed.endSale,
+    })),
+  });
+
+  return event;
+}
+
 // ─── SEED ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -514,6 +584,7 @@ async function main() {
   const fmtAcustico = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'acustico' } });
   const fmtClubNight = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'club-night' } });
   const fmtTributo = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'tributo' } });
+  const fmtCicloFlamenco = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'ciclo-flamenco' } });
 
   // Venues
   const palacioCongresos = await prisma.venue.findUniqueOrThrow({ where: { slug: 'palacio-congresos-granada' } });
@@ -533,6 +604,7 @@ async function main() {
   const rosalia = await prisma.artist.findUniqueOrThrow({ where: { slug: 'rosalia' } });
   const cTangana = await prisma.artist.findUniqueOrThrow({ where: { slug: 'c-tangana' } });
   const badGyal = await prisma.artist.findUniqueOrThrow({ where: { slug: 'bad-gyal' } });
+  const ojeteCalor = await prisma.artist.findUniqueOrThrow({ where: { slug: 'ojete-calor' } });
   const izal = await prisma.artist.findUniqueOrThrow({ where: { slug: 'izal' } });
   const anniBSweet = await prisma.artist.findUniqueOrThrow({ where: { slug: 'anni-b-sweet' } });
   const elKanka = await prisma.artist.findUniqueOrThrow({ where: { slug: 'el-kanka' } });
@@ -556,16 +628,16 @@ async function main() {
   const gJazz = await prisma.genre.findUniqueOrThrow({ where: { slug: 'jazz' } });
   const gSoul = await prisma.genre.findUniqueOrThrow({ where: { slug: 'soul' } });
   const gBlues = await prisma.genre.findUniqueOrThrow({ where: { slug: 'blues' } });
+  const gHouse = await prisma.genre.findUniqueOrThrow({ where: { slug: 'house' } });
+  const gTechno = await prisma.genre.findUniqueOrThrow({ where: { slug: 'techno' } });
   const gUrbanoEs = await prisma.genre.findUniqueOrThrow({ where: { slug: 'urbano-espanol' } });
 
   // ── Cleanup idempotente ───────────────────────────────────────────────────
-  const demoEventNames = [
-    // 4 originales
+  const publishedDemoEventNames = [
     'Granada Indie Night 2026',
     'Granada Urban Sessions 2026',
     'Madrid Pop Arena 2026',
     'Barcelona Electronica Nights 2026',
-    // 16 nuevos
     'Bilbao Rock Fest 2026',
     'Sevilla Flamenco Fusion 2026',
     'Granada Acustico Sessions 2026',
@@ -573,22 +645,38 @@ async function main() {
     'Barcelona Pop Night 2026',
     'Bilbao Club Night Edition 2026',
     'Sevilla Folk & Soul 2026',
-    'Madrid Jazz Club 2027',
     'Granada Festival de Verano 2027',
+    'Madrid Jazz Club 2027',
     'Barcelona Tributo a los 90s 2026',
     'Madrid Reggaeton Arena 2026',
     'Sevilla Indie Pop Weekend 2026',
-    // 4 DRAFT
+    'Bilbao Blues & Soul Night 2026',
+    'Granada House Sessions 2026',
+    'Madrid Flamenco Club 2026',
+    'Barcelona R&B Rooftop 2027',
+    'Sevilla Latin Fiesta 2026',
+    'Granada Folk Under the Stars 2026',
+    'Bilbao Pop Alternativo 2026',
+    'Madrid Rock Revival 2026',
+    'Barcelona Electronica Sunrise 2027',
+  ];
+
+  const draftDemoEventNames = [
     'Granada Draft Rock Night',
     'Madrid Draft Pop Showcase',
     'Bilbao Draft Electronic Session',
     'Sevilla Draft Flamenco Night',
-    // 2 FINISHED (pasados, 2025)
-    'Granada Indie Night 2025',
-    'Madrid Rock Fest 2025',
-    // 2 CANCELLED
-    'Valencia Pop Fest 2026 (Cancelado)',
-    'Barcelona Metal Night 2026 (Cancelado)',
+  ];
+
+  const finishedDemoEventNames = ['Granada Indie Night 2025', 'Madrid Rock Fest 2025'];
+
+  const cancelledDemoEventNames = ['Valencia Pop Fest 2026 (Cancelado)', 'Barcelona Metal Night 2026 (Cancelado)'];
+
+  const demoEventNames = [
+    ...publishedDemoEventNames,
+    ...draftDemoEventNames,
+    ...finishedDemoEventNames,
+    ...cancelledDemoEventNames,
   ];
 
   const existingDemoEvents = await prisma.event.findMany({
@@ -615,7 +703,7 @@ async function main() {
     await prisma.event.deleteMany({ where: { id: { in: existingEventIds } } });
   }
 
-  // ── EVENTOS PUBLISHED (12) ────────────────────────────────────────────────
+  // ── EVENTOS PUBLISHED (25) ────────────────────────────────────────────────
 
   // 1 — Granada Indie Night 2026 (original, admin)
   const indieNight = await prisma.event.create({
@@ -1001,6 +1089,300 @@ async function main() {
       { name: 'Abono VIP', description: 'Zona VIP con servicios exclusivos', price: '150.00', totalQuantity: 1200, availableQuantity: 1200, maxPerUser: 4, eventId: granadaFestival.id },
     ],
   });
+
+  const additionalPublishedEvents: PublishedEventSeed[] = [
+    {
+      name: 'Granada Jazz Club 2027',
+      description: 'Sesión íntima de jazz y soul con banda completa en Granada.',
+      eventDate: new Date('2027-03-20T20:30:00.000+01:00'),
+      doorsOpenTime: new Date('2027-03-20T19:00:00.000+01:00'),
+      startSale: new Date('2026-11-15T10:00:00.000+01:00'),
+      endSale: new Date('2027-03-20T18:30:00.000+01:00'),
+      maxCapacity: 662,
+      imageSeed: 'granada-jazz-club-2027',
+      creatorId: adminUser.id,
+      venueId: teatroIsabel.id,
+      formatId: fmtClubNight.id,
+      genreIds: [gJazz.id, gSoul.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: nathyPeluso.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: elKanka.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Acceso general', price: '42.00', totalQuantity: 500, maxPerUser: 4 },
+        { name: 'VIP Lounge', description: 'Zona reservada con mejores vistas', price: '82.00', totalQuantity: 120, maxPerUser: 2 },
+      ],
+    },
+    {
+      name: 'Barcelona Tributo a los 90s 2026',
+      description: 'Repaso a los himnos de los 90 con una puesta en escena de gran formato.',
+      eventDate: new Date('2026-09-26T21:00:00.000+02:00'),
+      doorsOpenTime: new Date('2026-09-26T19:30:00.000+02:00'),
+      startSale: new Date('2026-05-10T10:00:00.000+02:00'),
+      endSale: new Date('2026-09-26T20:00:00.000+02:00'),
+      maxCapacity: 18000,
+      imageSeed: 'barcelona-tributo-a-los-90s-2026',
+      creatorId: creatorUser.id,
+      venueId: palauSantJordi.id,
+      formatId: fmtTributo.id,
+      genreIds: [gRock.id, gPop.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: fitoYFitipaldis.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: loriMeyers.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Entrada general', price: '48.00', totalQuantity: 11000, maxPerUser: 6 },
+        { name: 'Tribuna Preferente', description: 'Visibilidad preferente en grada', price: '95.00', totalQuantity: 2200, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Madrid Reggaeton Arena 2026',
+      description: 'Noche urbana con reggaeton y trap en formato arena.',
+      eventDate: new Date('2026-11-21T22:00:00.000+01:00'),
+      doorsOpenTime: new Date('2026-11-21T20:00:00.000+01:00'),
+      startSale: new Date('2026-07-15T10:00:00.000+02:00'),
+      endSale: new Date('2026-11-21T21:00:00.000+01:00'),
+      maxCapacity: 17000,
+      imageSeed: 'madrid-reggaeton-arena-2026',
+      creatorId: adminUser.id,
+      venueId: wizink.id,
+      formatId: fmtConcierto.id,
+      genreIds: [gReggaeton.id, gTrap.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: badGyal.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: dellafuente.id },
+      ],
+      ticketTypes: [
+        { name: 'Pista', description: 'Acceso a pista general', price: '58.00', totalQuantity: 9000, maxPerUser: 6 },
+        { name: 'Front Stage', description: 'Zona cercana al escenario', price: '110.00', totalQuantity: 2000, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Sevilla Indie Pop Weekend 2026',
+      description: 'Fin de semana de indie pop con dos noches consecutivas de programación.',
+      eventDate: new Date('2026-10-10T19:30:00.000+02:00'),
+      doorsOpenTime: new Date('2026-10-10T18:00:00.000+02:00'),
+      startSale: new Date('2026-06-01T10:00:00.000+02:00'),
+      endSale: new Date('2026-10-10T18:30:00.000+02:00'),
+      maxCapacity: 5000,
+      imageSeed: 'sevilla-indie-pop-weekend-2026',
+      creatorId: creatorUser.id,
+      venueId: fibesSevilla.id,
+      formatId: fmtFestival.id,
+      genreIds: [gIndie.id, gPop.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: morat.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: anniBSweet.id },
+      ],
+      ticketTypes: [
+        { name: 'Abono General', description: 'Acceso a las dos jornadas', price: '65.00', totalQuantity: 3000, maxPerUser: 6 },
+        { name: 'Abono VIP', description: 'Abono con zona preferente', price: '140.00', totalQuantity: 600, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Bilbao Blues & Soul Night 2026',
+      description: 'Noche de blues y soul con guitarras al frente y una voz principal potente.',
+      eventDate: new Date('2026-09-12T20:30:00.000+02:00'),
+      doorsOpenTime: new Date('2026-09-12T19:00:00.000+02:00'),
+      startSale: new Date('2026-05-20T10:00:00.000+02:00'),
+      endSale: new Date('2026-09-12T19:30:00.000+02:00'),
+      maxCapacity: 14000,
+      imageSeed: 'bilbao-blues-soul-night-2026',
+      creatorId: creatorUser.id,
+      venueId: becBilbao.id,
+      formatId: fmtConcierto.id,
+      genreIds: [gBlues.id, gSoul.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: fitoYFitipaldis.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: nathyPeluso.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Entrada general', price: '39.00', totalQuantity: 7000, maxPerUser: 6 },
+        { name: 'Butaca Preferente', description: 'Asiento con mejor visibilidad', price: '72.00', totalQuantity: 900, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Granada House Sessions 2026',
+      description: 'Sesión nocturna de house y electrónica en formato club.',
+      eventDate: new Date('2026-12-12T23:00:00.000+01:00'),
+      doorsOpenTime: new Date('2026-12-12T22:00:00.000+01:00'),
+      startSale: new Date('2026-08-01T10:00:00.000+02:00'),
+      endSale: new Date('2026-12-12T22:00:00.000+01:00'),
+      maxCapacity: 4500,
+      imageSeed: 'granada-house-sessions-2026',
+      creatorId: adminUser.id,
+      venueId: copera.id,
+      formatId: fmtClubNight.id,
+      genreIds: [gElectronica.id, gHouse.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: stromae.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: ojeteCalor.id },
+      ],
+      ticketTypes: [
+        { name: 'Early Access', description: 'Entrada anticipada', price: '28.00', totalQuantity: 1200, maxPerUser: 4 },
+        { name: 'General', description: 'Entrada general', price: '38.00', totalQuantity: 2500, maxPerUser: 6 },
+      ],
+    },
+    {
+      name: 'Madrid Flamenco Club 2026',
+      description: 'Noche de flamenco urbano con cruces entre tradición y vanguardia.',
+      eventDate: new Date('2026-10-31T21:30:00.000+01:00'),
+      doorsOpenTime: new Date('2026-10-31T20:00:00.000+01:00'),
+      startSale: new Date('2026-06-15T10:00:00.000+02:00'),
+      endSale: new Date('2026-10-31T20:30:00.000+01:00'),
+      maxCapacity: 17000,
+      imageSeed: 'madrid-flamenco-club-2026',
+      creatorId: adminUser.id,
+      venueId: wizink.id,
+      formatId: fmtCicloFlamenco.id,
+      genreIds: [gFlamenco.id, gUrbanoEs.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: cTangana.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: rosalia.id },
+      ],
+      ticketTypes: [
+        { name: 'Pista', description: 'Acceso general a pista', price: '50.00', totalQuantity: 8500, maxPerUser: 6 },
+        { name: 'VIP Tablao', description: 'Zona VIP con mejor visibilidad', price: '125.00', totalQuantity: 1800, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Barcelona R&B Rooftop 2027',
+      description: 'Noche de R&B y soul con una puesta en escena elegante.',
+      eventDate: new Date('2027-05-15T21:00:00.000+02:00'),
+      doorsOpenTime: new Date('2027-05-15T19:30:00.000+02:00'),
+      startSale: new Date('2026-12-10T10:00:00.000+01:00'),
+      endSale: new Date('2027-05-15T20:00:00.000+02:00'),
+      maxCapacity: 18000,
+      imageSeed: 'barcelona-rb-rooftop-2027',
+      creatorId: creatorUser.id,
+      venueId: palauSantJordi.id,
+      formatId: fmtConcierto.id,
+      genreIds: [gBlues.id, gSoul.id, gPop.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: nathyPeluso.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: badGyal.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Acceso general', price: '54.00', totalQuantity: 9000, maxPerUser: 6 },
+        { name: 'Premium', description: 'Zona premium con visibilidad preferente', price: '105.00', totalQuantity: 2000, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Sevilla Latin Fiesta 2026',
+      description: 'Celebración latina con pop, reggaeton y un cierre de alto voltaje.',
+      eventDate: new Date('2026-09-19T20:30:00.000+02:00'),
+      doorsOpenTime: new Date('2026-09-19T19:00:00.000+02:00'),
+      startSale: new Date('2026-05-25T10:00:00.000+02:00'),
+      endSale: new Date('2026-09-19T19:30:00.000+02:00'),
+      maxCapacity: 5000,
+      imageSeed: 'sevilla-latin-fiesta-2026',
+      creatorId: adminUser.id,
+      venueId: fibesSevilla.id,
+      formatId: fmtFestival.id,
+      genreIds: [gPopLatino.id, gReggaeton.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: morat.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: badGyal.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Acceso general', price: '46.00', totalQuantity: 3500, maxPerUser: 6 },
+        { name: 'VIP', description: 'Zona VIP con acceso rápido', price: '88.00', totalQuantity: 700, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Granada Folk Under the Stars 2026',
+      description: 'Concierto acústico de folk e indie bajo un formato cercano.',
+      eventDate: new Date('2026-11-07T20:00:00.000+01:00'),
+      doorsOpenTime: new Date('2026-11-07T19:00:00.000+01:00'),
+      startSale: new Date('2026-07-01T10:00:00.000+02:00'),
+      endSale: new Date('2026-11-07T18:30:00.000+01:00'),
+      maxCapacity: 662,
+      imageSeed: 'granada-folk-under-the-stars-2026',
+      creatorId: adminUser.id,
+      venueId: teatroIsabel.id,
+      formatId: fmtAcustico.id,
+      genreIds: [gFolk.id, gIndie.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: elKanka.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: anniBSweet.id },
+      ],
+      ticketTypes: [
+        { name: 'Butaca', description: 'Butaca numerada', price: '30.00', totalQuantity: 500, maxPerUser: 4 },
+        { name: 'Patio VIP', description: 'Zona preferente de butaca', price: '58.00', totalQuantity: 120, maxPerUser: 2 },
+      ],
+    },
+    {
+      name: 'Bilbao Pop Alternativo 2026',
+      description: 'Noche de pop alternativo con una producción de gran formato.',
+      eventDate: new Date('2026-10-03T21:00:00.000+02:00'),
+      doorsOpenTime: new Date('2026-10-03T19:30:00.000+02:00'),
+      startSale: new Date('2026-05-12T10:00:00.000+02:00'),
+      endSale: new Date('2026-10-03T20:00:00.000+02:00'),
+      maxCapacity: 14000,
+      imageSeed: 'bilbao-pop-alternativo-2026',
+      creatorId: creatorUser.id,
+      venueId: becBilbao.id,
+      formatId: fmtConcierto.id,
+      genreIds: [gRockAlt.id, gIndie.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: izal.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: vetustaMorla.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Entrada general', price: '47.00', totalQuantity: 7000, maxPerUser: 6 },
+        { name: 'Golden Circle', description: 'Círculo dorado frente al escenario', price: '90.00', totalQuantity: 1200, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Madrid Rock Revival 2026',
+      description: 'Festival de rock con clásicos modernos y un cartel nacional sólido.',
+      eventDate: new Date('2026-12-19T19:00:00.000+01:00'),
+      doorsOpenTime: new Date('2026-12-19T17:30:00.000+01:00'),
+      startSale: new Date('2026-08-20T10:00:00.000+02:00'),
+      endSale: new Date('2026-12-19T17:00:00.000+01:00'),
+      maxCapacity: 17000,
+      imageSeed: 'madrid-rock-revival-2026',
+      creatorId: adminUser.id,
+      venueId: wizink.id,
+      formatId: fmtFestival.id,
+      genreIds: [gRock.id, gRockAlt.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: losPlanetas.id },
+        { role: ArtistRole.HEADLINER, performanceOrder: 2, artistId: loriMeyers.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 3, artistId: fitoYFitipaldis.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Pista general', price: '55.00', totalQuantity: 9000, maxPerUser: 6 },
+        { name: 'Premium', description: 'Zona premium con mejor acústica', price: '120.00', totalQuantity: 2200, maxPerUser: 4 },
+      ],
+    },
+    {
+      name: 'Barcelona Electronica Sunrise 2027',
+      description: 'Club night con electrónica y una puesta visual nocturna.',
+      eventDate: new Date('2027-02-20T23:30:00.000+01:00'),
+      doorsOpenTime: new Date('2027-02-20T22:00:00.000+01:00'),
+      startSale: new Date('2026-10-01T10:00:00.000+02:00'),
+      endSale: new Date('2027-02-20T22:30:00.000+01:00'),
+      maxCapacity: 18000,
+      imageSeed: 'barcelona-electronica-sunrise-2027',
+      creatorId: creatorUser.id,
+      venueId: palauSantJordi.id,
+      formatId: fmtClubNight.id,
+      genreIds: [gElectronica.id, gTechno.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: stromae.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: ojeteCalor.id },
+      ],
+      ticketTypes: [
+        { name: 'Pista', description: 'Pista general', price: '45.00', totalQuantity: 10000, maxPerUser: 6 },
+        { name: 'After Hours', description: 'Acceso a zona nocturna extendida', price: '85.00', totalQuantity: 1500, maxPerUser: 4 },
+      ],
+    },
+  ];
+
+  for (const eventSeed of additionalPublishedEvents) {
+    await createPublishedEvent(eventSeed);
+  }
 
   // ── EVENTOS DRAFT (4) — alimentan requires-attention ─────────────────────
 
@@ -1439,7 +1821,7 @@ async function main() {
   console.log('✅ Seed completado:');
   console.log('   - 8 usuarios (admin, creator, validator, user, 4 buyers)');
   console.log('   - 15 artistas, 8 venues, 7 formatos, 27 géneros');
-  console.log('   - 20 eventos (12 PUBLISHED, 4 DRAFT, 2 FINISHED, 2 CANCELLED)');
+  console.log('   - 33 eventos (25 PUBLISHED, 4 DRAFT, 2 FINISHED, 2 CANCELLED)');
   console.log('   - 22 órdenes con pagos para analytics (10 indie 2025 + 12 rock 2025)');
   console.log('   - Tickets reales: USED en eventos FINISHED, ACTIVE en evento PUBLISHED');
 }

@@ -1,5 +1,15 @@
 export default defineNuxtPlugin(() => {
-  const { ensureSession } = useAuth()
+  const { ensureSession, refreshStatus, sessionStatus } = useAuth()
 
-  void ensureSession()
+  onNuxtReady(() => {
+    if (sessionStatus.value !== 'unknown' || refreshStatus.value === 'refreshing') {
+      return
+    }
+
+    void ensureSession().catch(() => {
+      if (sessionStatus.value === 'unknown') {
+        sessionStatus.value = 'anonymous'
+      }
+    })
+  })
 })

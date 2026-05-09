@@ -1,8 +1,8 @@
-import type { AdminRequiresAttentionRecord } from '~/types'
+import type { BackofficeRequiresAttentionRecord } from '~~/shared/types'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 
 export default defineEventHandler(async (event) => {
-  return proxyBackendRequest<AdminRequiresAttentionRecord[]>(event, '/events/requires-attention', {
+  return proxyBackendRequest<BackofficeRequiresAttentionRecord[]>(event, '/events/requires-attention', {
     method: 'GET',
   })
 })

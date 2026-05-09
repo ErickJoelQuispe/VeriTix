@@ -15,7 +15,7 @@ withDefaults(
   <component
     :is="as"
     class="text-xs font-semibold tracking-wide uppercase"
-    :class="tone === 'accent' ? 'text-secondary' : 'text-dimmed'"
+    :class="tone === 'accent' ? 'text-lavender' : 'text-dimmed'"
   >
     <slot />
   </component>

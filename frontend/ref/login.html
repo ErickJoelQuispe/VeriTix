@@ -1,0 +1,229 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VeriTix | Sign In</title>
+  <style>
+    :root {
+      --bg: oklch(16% 0.015 270);
+      --surface: oklch(21% 0.015 270);
+      --fg: oklch(95% 0.01 270);
+      --muted: oklch(65% 0.015 270);
+      --border: oklch(28% 0.015 270);
+      --accent-1: oklch(70% 0.22 340);
+      --accent-2: oklch(75% 0.20 40);
+      --accent-3: oklch(65% 0.18 200);
+      --font-serif: 'Iowan Old Style', 'Charter', 'Times New Roman', Georgia, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      color: var(--fg);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 50% 10%, color-mix(in oklch, var(--accent-1) 12%, transparent) 0%, transparent 34%),
+        radial-gradient(circle at 78% 16%, color-mix(in oklch, var(--accent-2) 8%, transparent) 0%, transparent 28%),
+        radial-gradient(circle at 24% 28%, color-mix(in oklch, var(--accent-3) 9%, transparent) 0%, transparent 24%),
+        var(--bg);
+    }
+
+    ::selection { background: var(--accent-1); color: #fff; }
+    a { color: var(--fg); text-decoration: none; transition: color 0.3s, background 0.3s, border-color 0.3s; }
+    a:hover { color: var(--accent-2); }
+
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      pointer-events: none;
+      opacity: 0.04;
+      background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+      mix-blend-mode: overlay;
+    }
+
+    .angled-grid {
+      position: fixed;
+      inset: -40vh -20vw;
+      width: 140vw;
+      height: 180vh;
+      z-index: -4;
+      pointer-events: none;
+      opacity: 0.16;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 110px 110px;
+      transform: perspective(900px) rotateX(64deg) rotateZ(-18deg);
+      transform-origin: center;
+      mask-image: radial-gradient(circle at center, black 0 42%, transparent 78%);
+      -webkit-mask-image: radial-gradient(circle at center, black 0 42%, transparent 78%);
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      padding: 18px clamp(56px, 7vw, 120px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: linear-gradient(180deg, color-mix(in oklch, var(--bg) 94%, transparent), color-mix(in oklch, var(--bg) 76%, transparent));
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid color-mix(in oklch, var(--border) 75%, transparent);
+    }
+
+    .brand-mark { display: flex; flex-direction: column; gap: 4px; }
+    .logo { font-family: var(--font-serif); font-size: 1.35rem; letter-spacing: 0.02em; }
+    .brand-note { font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 24px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary { background: var(--fg); color: var(--bg); }
+    .btn-primary:hover { transform: translateY(-2px); background: var(--accent-2); color: var(--bg); }
+    .btn-secondary { background: transparent; color: var(--fg); border-color: color-mix(in oklch, var(--border) 70%, transparent); }
+    .btn-secondary:hover { border-color: var(--fg); background: color-mix(in oklch, var(--surface) 50%, transparent); }
+
+    .auth-shell {
+      min-height: calc(100vh - 78px);
+      padding: 88px clamp(56px, 7vw, 120px) 120px;
+      display: grid;
+      place-items: center;
+    }
+
+    .auth-card {
+      width: min(520px, 100%);
+      border: 1px solid color-mix(in oklch, var(--border) 78%, transparent);
+      background: color-mix(in oklch, var(--surface) 76%, transparent);
+      border-radius: 18px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 22px 24px;
+      border-bottom: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-head strong { font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
+    .card-body { padding: 28px 24px 24px; }
+    .eyebrow { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px; display: block; }
+    .serif-title { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.02em; line-height: 1.05; }
+    h1.serif-title { font-size: clamp(3rem, 8vw, 4.6rem); margin-bottom: 14px; }
+    .card-copy { color: color-mix(in oklch, var(--fg) 72%, var(--muted)); font-size: 1rem; max-width: 34ch; margin-bottom: 28px; }
+
+    .field { display: grid; gap: 8px; margin-bottom: 16px; }
+    .field label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .field input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid color-mix(in oklch, var(--border) 72%, transparent);
+      color: var(--fg);
+      padding: 14px 16px;
+      border-radius: 2px;
+      outline: none;
+      font: inherit;
+    }
+    .field input:focus { border-color: var(--accent-2); }
+
+    .auth-actions { display: grid; gap: 14px; margin-top: 26px; }
+    .auth-foot { display: flex; justify-content: space-between; gap: 16px; margin-top: 18px; color: var(--muted); font-size: 0.92rem; flex-wrap: wrap; }
+
+    .site-footer {
+      padding: 0 clamp(56px, 7vw, 120px) 48px;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 28px;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      .site-header { padding: 16px 20px; }
+      .auth-shell { padding: 56px 24px 88px; }
+      .site-footer { padding-left: 24px; padding-right: 24px; }
+      h1.serif-title { font-size: clamp(2.8rem, 15vw, 4.2rem); }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <div class="angled-grid" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="brand-mark">
+      <div class="logo">VeriTix</div>
+      <div class="brand-note">Live events / ledger access</div>
+    </div>
+    <a href="veritix-landing-prism-fractal.html" class="btn btn-secondary">Home</a>
+  </header>
+
+  <main class="auth-shell">
+    <section class="auth-card" aria-label="Sign in form">
+      <div class="card-head">
+        <strong>Sign in</strong>
+        <span class="brand-note">Secure session</span>
+      </div>
+      <div class="card-body">
+        <span class="eyebrow">Access</span>
+        <h1 class="serif-title">Sign in.</h1>
+        <p class="card-copy">Pick up where you left off. Saved events, transfers, and tickets stay in one place.</p>
+        <form>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" autocomplete="email" placeholder="name@domain.com">
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password">
+          </div>
+          <div class="auth-actions">
+            <button class="btn btn-primary" type="submit">Sign in</button>
+            <a href="veritix-register-prism-fractal.html" class="btn btn-secondary">Create account</a>
+          </div>
+        </form>
+        <div class="auth-foot">
+          <a href="veritix-forgot-password-prism-fractal.html">Forgot your password?</a>
+          <span>Ledger-backed access.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="logo">VeriTix</div>
+    <p class="brand-note">&copy; 2024 VERITIX INFRASTRUCTURE</p>
+  </footer>
+</body>
+</html>

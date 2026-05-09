@@ -1,30 +1,39 @@
-# Documentación técnica de VeriTix
+# Documentación de VeriTix
 
-## Fuente de verdad (regla principal)
+Este directorio está separado en dos módulos claros:
 
-1. **Código del repo** (backend, frontend, Prisma)
-2. `docs/tfg.md` **solo** para alcance/roadmap explícito
-3. Esta carpeta `docs/` como síntesis operativa
+## 1) Markdown puro (`docs/markdown/`)
+
+Solo archivos `.md` de documentación funcional/técnica (sin scripts ni configuración de compilación).
+
+- [`markdown/STATUS.md`](./markdown/STATUS.md)
+- [`markdown/ARCHITECHTURE.md`](./markdown/ARCHITECHTURE.md)
+- [`markdown/API.md`](./markdown/API.md)
+- [`markdown/DATABASE.md`](./markdown/DATABASE.md)
+- [`markdown/REQUIREMENTS.md`](./markdown/REQUIREMENTS.md)
+- [`markdown/tfg.md`](./markdown/tfg.md)
+- [`markdown/doc2.md`](./markdown/doc2.md)
+- [`markdown/Latex.md`](./markdown/Latex.md) (histórico de conversación)
+
+## 2) Módulo LaTeX (`docs/latex/`)
+
+Contiene todo el tooling para generar PDF académico desde Markdown:
+
+- `src/` → capítulos fuente
+- `filters/` → transformaciones Lua para limpiar Markdown
+- `template.tex` → plantilla LaTeX
+- `metadata.yml` → metadatos globales
+- `build.sh` + `Makefile` → build/clean/erd
+- `assets/` → recursos gráficos estáticos del PDF
+- `build/assets/` → diagramas ER generados por Prisma (PNG)
+- `build/` → salida de compilación
+
+Guía operativa: [`docs/latex/README.md`](./latex/README.md).
+
+## Regla de fuente de verdad
+
+1. **Código del repo** (backend/frontend/prisma)
+2. `docs/markdown/tfg.md` para alcance/roadmap explícito
+3. Documentación como síntesis operativa
 
 Si hay contradicción entre documentación y código, **manda el código**.
-
-## Índice
-
-- [`STATUS.md`](./STATUS.md): snapshot actual del proyecto (implementado hoy, deudas y estado por áreas).
-- [`ARCHITECHTURE.md`](./ARCHITECHTURE.md): arquitectura real frontend/backend, boundaries, auth, flujos y configuración.
-- [`API.md`](./API.md): rutas internas de frontend (Nitro) y rutas backend (Nest) con contratos principales.
-- [`DATABASE.md`](./DATABASE.md): modelo actual de base de datos desde `backend/prisma/schema.prisma`.
-- [`ERD.md`](./ERD.md): representación textual/tabular del ERD alineada al schema actual.
-- [`REQUIREMENTS.md`](./REQUIREMENTS.md): requerimientos funcionales implementados vs pendientes (pendientes solo según `docs/tfg.md`).
-- [`tfg.md`](./tfg.md): marco funcional/académico base y definición explícita de futuro.
-
-## Cómo usar esta documentación
-
-- Empezá por `STATUS.md` para entender dónde está parado el proyecto.
-- Si vas a tocar arquitectura o integración, seguí con `ARCHITECHTURE.md` y `API.md`.
-- Si vas a tocar datos, usá `DATABASE.md`.
-- Si querés contrastar alcance funcional (hoy vs pendiente), usá `REQUIREMENTS.md`.
-
-## Convención de verificación
-
-Cada documento referencia paths reales cuando aporta evidencia (por ejemplo `backend/src/modules/...`, `frontend/server/api/...`, `backend/prisma/schema.prisma`).

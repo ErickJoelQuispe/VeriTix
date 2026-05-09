@@ -1,19 +1,12 @@
-import type { AdminEventDetail, AdminEventPayload } from '~/types'
+import type { BackofficeEventDetail, BackofficeEventPayload } from '~~/shared/types'
+import { readRequiredBodyObject, requireRouteId } from '~~/server/utils/admin/request'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
+  const id = requireRouteId(event, 'event')
+  const body = await readRequiredBodyObject<Partial<BackofficeEventPayload>>(event)
 
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Missing event id',
-    })
-  }
-
-  const body = await readBody<Partial<AdminEventPayload>>(event)
-
-  return proxyBackendRequest<AdminEventDetail, Partial<AdminEventPayload>>(event, `/events/${id}`, {
+  return proxyBackendRequest<BackofficeEventDetail, Partial<BackofficeEventPayload>>(event, `/events/${id}`, {
     method: 'PATCH',
     body,
   })

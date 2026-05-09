@@ -2,9 +2,9 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import adminMiddleware from '~/middleware/admin'
-import authMiddleware from '~/middleware/auth'
-import guestMiddleware from '~/middleware/guest'
+import authMiddleware from '@/middleware/auth'
+import backofficeMiddleware from '@/middleware/backoffice'
+import guestMiddleware from '@/middleware/guest'
 
 const { navigateToMock, useAuthMock } = vi.hoisted(() => {
   return {
@@ -76,7 +76,7 @@ describe('middleware guards', () => {
     })
   })
 
-  describe('admin middleware', () => {
+  describe('backoffice middleware', () => {
     it('envía a login si no hay sesión', async () => {
       useAuthMock.mockReturnValue({
         ensureSession: vi.fn().mockResolvedValue(true),
@@ -84,7 +84,7 @@ describe('middleware guards', () => {
         user: ref(null),
       })
 
-      const result = await adminMiddleware({} as never, {} as never)
+      const result = await backofficeMiddleware({} as never, {} as never)
 
       expect(navigateToMock).toHaveBeenCalledWith('/login')
       expect(result).toBe('/login')
@@ -97,7 +97,7 @@ describe('middleware guards', () => {
         user: ref({ role: 'CREATOR' }),
       })
 
-      const result = await adminMiddleware({} as never, {} as never)
+      const result = await backofficeMiddleware({} as never, {} as never)
 
       expect(navigateToMock).toHaveBeenCalledWith('/users/me')
       expect(result).toBe('/users/me')
@@ -110,7 +110,7 @@ describe('middleware guards', () => {
         user: ref({ role: 'ADMIN' }),
       })
 
-      const result = await adminMiddleware({} as never, {} as never)
+      const result = await backofficeMiddleware({} as never, {} as never)
 
       expect(navigateToMock).not.toHaveBeenCalled()
       expect(result).toBeUndefined()

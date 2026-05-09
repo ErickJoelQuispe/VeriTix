@@ -10,8 +10,8 @@ useSeoMeta({
 
 <template>
   <div>
-    <HomeHeroSection />
-    <HomeFeaturedEventsSection />
-    <HomeHowItWorksSection />
+    <PagesHomeHeroSection />
+    <PagesHomeFeaturedEventsSection />
+    <PagesHomeValueSection />
   </div>
 </template>

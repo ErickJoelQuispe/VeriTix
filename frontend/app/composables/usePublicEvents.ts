@@ -1,26 +1,42 @@
 import type { MaybeRef } from 'vue'
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   EventCatalogDetail,
   EventCatalogFilters,
   EventCatalogItem,
   GenreOption,
-  PaginatedResponse,
   VenueOption,
-} from '~/types'
+} from '~~/shared/types'
+import type { PublicEventArtistApiItem } from '~~/shared/api/public-events'
 import { usePublicEventsRepository } from '../repositories/publicEventsRepository'
 
-export { buildEventFallbackImage, buildFallbackImage, mapEventDetail, mapEventListItem, normalizeCurrencyCode, toIsoString } from '../repositories/publicEventsRepository'
+export {
+  buildEventFallbackImage,
+  buildFallbackImage,
+  mapEventDetail,
+  mapEventListItem,
+  normalizeCurrencyCode,
+  toIsoString,
+} from '../repositories/publicEventsRepository'
 
-export function normalizeFilters(raw?: Partial<EventCatalogFilters>): EventCatalogFilters {
+export function normalizeFilters(
+  raw?: Partial<EventCatalogFilters>,
+): EventCatalogFilters {
   return {
+    dateFrom: raw?.dateFrom?.trim() ?? '',
+    dateTo: raw?.dateTo?.trim() ?? '',
     search: raw?.search?.trim() ?? '',
+    artistName: raw?.artistName?.trim() ?? '',
+    venueName: raw?.venueName?.trim() ?? '',
     genreId: raw?.genreId?.trim() ?? '',
     city: raw?.city?.trim() ?? '',
     page: raw?.page && raw.page > 0 ? raw.page : 1,
   }
 }
 
-export function usePublicEvents(filters?: MaybeRef<Partial<EventCatalogFilters> | undefined>) {
+export function usePublicEvents(
+  filters?: MaybeRef<Partial<EventCatalogFilters> | undefined>,
+) {
   const { listEvents } = usePublicEventsRepository()
 
   const normalizedFilters = computed(() => {
@@ -42,9 +58,27 @@ export function usePublicEvents(filters?: MaybeRef<Partial<EventCatalogFilters> 
           page: 1,
           limit: 24,
           totalPages: 0,
+          hasNext: false,
+          hasPrev: false,
         },
       }),
       watch: [normalizedFilters],
+      server: true,
+    },
+  )
+}
+
+export function usePublicEventArtists(eventId: MaybeRef<string>) {
+  const { listEventArtists } = usePublicEventsRepository()
+
+  const normalizedEventId = computed(() => unref(eventId).trim())
+
+  return useAsyncData<PublicEventArtistApiItem[]>(
+    () => `veritix-public-event-artists:${normalizedEventId.value}`,
+    async () => listEventArtists(normalizedEventId.value),
+    {
+      default: () => [],
+      watch: [normalizedEventId],
       server: true,
     },
   )
@@ -87,7 +121,11 @@ export function useEventCatalogFilters() {
   )
 
   const cities = computed(() => {
-    return [...new Set((venues.data.value ?? []).map(venue => venue.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'))
+    return [
+      ...new Set(
+        (venues.data.value ?? []).map(venue => venue.city).filter(Boolean),
+      ),
+    ].sort((a, b) => a.localeCompare(b, 'es'))
   })
 
   return {

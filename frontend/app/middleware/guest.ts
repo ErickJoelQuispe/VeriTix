@@ -1,9 +1,9 @@
 export default defineNuxtRouteMiddleware(async () => {
-  if (import.meta.server) {
-    return
-  }
-
   const { redirectIfAuthenticated } = useRouteAccess()
 
-  return redirectIfAuthenticated('/users/me')
+  const redirectTo = await redirectIfAuthenticated('/users/me')
+
+  if (redirectTo) {
+    return navigateTo(redirectTo)
+  }
 })
