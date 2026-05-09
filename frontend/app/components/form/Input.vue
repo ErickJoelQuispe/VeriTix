@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<{
   icon: undefined,
 })
 type InputColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
-type InputVariant = 'outline' | 'soft' | 'subtle' | 'ghost' | 'hero' | 'none'
+type InputVariant = 'outline' | 'soft' | 'subtle' | 'ghost' | 'hero' | 'elevated' | 'none'
 type InputSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 const modelValue = defineModel<string | number | undefined>()
@@ -96,6 +96,7 @@ const inputClass = computed(() => {
     subtle: 'border border-default/55 bg-default/30 shadow-sm',
     ghost: 'border border-transparent bg-transparent shadow-none',
     hero: 'rounded-full border border-default/50 bg-linear-to-br from-white/10 to-white/5 shadow-lg backdrop-blur-sm',
+    elevated: 'border border-default/60 bg-elevated/80 shadow-sm ring-1 ring-inset ring-white/8',
     none: 'border-0 bg-transparent px-0 shadow-none focus-visible:ring-0',
   }[props.variant]
 
