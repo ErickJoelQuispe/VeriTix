@@ -103,7 +103,7 @@ function isMainNavActive(path: string): boolean {
               <template v-if="showGuestActions">
                 <BaseButton
                   to="/login"
-                  variant="outlined"
+                  variant="primary"
                   size="xs"
                   class="rounded-full! px-4! py-1.5! text-[0.7rem]! tracking-[0.12em]!"
                 >

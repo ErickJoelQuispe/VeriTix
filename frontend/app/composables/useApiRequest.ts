@@ -35,8 +35,9 @@ export function useApiRequest() {
 
   function resolveHeaders(path: string, headers?: HeadersInit | (() => HeadersInit)) {
     const resolved = normalizeHeaders(headers)
+    const shouldAttachClientAuth = path === '/auth/logout' || !path.startsWith('/auth/')
 
-    if (!path.startsWith('/auth/') && accessToken.value && !resolved.has('authorization')) {
+    if (shouldAttachClientAuth && accessToken.value && !resolved.has('authorization')) {
       resolved.set('authorization', `Bearer ${accessToken.value}`)
     }
 
