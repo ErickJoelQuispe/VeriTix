@@ -46,6 +46,40 @@ const currentPage = computed(() => {
   return Math.min(Math.max(props.page ?? 1, 1), totalPages.value)
 })
 
+const buttonSizeClass = computed(() => {
+  return {
+    xs: 'h-8 w-8 text-xs',
+    sm: 'h-9 w-9 text-xs',
+    md: 'h-10 w-10 text-sm',
+    lg: 'h-11 w-11 text-sm',
+    xl: 'h-12 w-12 text-base',
+  }[props.size]
+})
+
+const iconSizeClass = computed(() => {
+  return {
+    xs: 'size-4',
+    sm: 'size-4',
+    md: 'size-5',
+    lg: 'size-5',
+    xl: 'size-5',
+  }[props.size]
+})
+
+function isActivePage(page: number) {
+  return page === currentPage.value
+}
+
+function pageStateClass(page: number) {
+  if (isActivePage(page)) {
+    return 'border-lavender/45 bg-lavender/18 text-highlighted ring-1 ring-inset ring-lavender/25'
+  }
+
+  return props.disabled
+    ? 'border-default/40 bg-default/10 text-toned/60'
+    : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted hover:shadow-[0_8px_18px_-14px_rgba(156,125,255,0.45)]'
+}
+
 const pageItems = computed<Array<number | 'ellipsis'>>(() => {
   if (totalPages.value <= 7) {
     return Array.from({ length: totalPages.value }, (_, index) => index + 1)
@@ -87,24 +121,47 @@ function goToPage(nextPage: number) {
 <template>
   <nav v-bind="forwardedAttrs" class="flex flex-col items-center gap-3 sm:flex-row" :class="[paginationClass]" aria-label="Pagination">
     <div v-if="showEdges" class="flex items-center gap-2">
-      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === 1" @click="goToPage(1)">
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        :class="[
+          buttonSizeClass,
+          disabled || currentPage === 1
+            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
+            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+        ]"
+        :disabled="disabled || currentPage === 1"
+        @click="goToPage(1)"
+      >
         <span class="sr-only">Primera página</span>
-        «
-      </BaseButton>
-      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === 1" @click="goToPage(currentPage - 1)">
+        <BaseIcon name="i-lucide-chevrons-left" :class="iconSizeClass" />
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        :class="[
+          buttonSizeClass,
+          disabled || currentPage === 1
+            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
+            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+        ]"
+        :disabled="disabled || currentPage === 1"
+        @click="goToPage(currentPage - 1)"
+      >
         <span class="sr-only">Página anterior</span>
-        ‹
-      </BaseButton>
+        <BaseIcon name="i-lucide-chevron-left" :class="iconSizeClass" />
+      </button>
     </div>
 
     <div class="flex items-center gap-1">
       <template v-for="(item, index) in pageItems" :key="`${item}-${index}`">
-        <span v-if="item === 'ellipsis'" class="inline-flex min-w-9 items-center justify-center px-2 text-toned">…</span>
+        <span v-if="item === 'ellipsis'" class="inline-flex h-10 w-10 items-center justify-center text-toned/70">…</span>
         <button
           v-else
           type="button"
-          class="inline-flex min-w-9 items-center justify-center rounded-md border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2"
-          :class="item === currentPage ? 'border-primary/45 bg-primary/20 text-highlighted ring-primary/30' : 'border-default/55 bg-default/20 text-toned hover:border-default/75 hover:bg-default/35 hover:text-highlighted'"
+          class="inline-flex items-center justify-center rounded-lg border font-medium transition-colors focus-visible:outline-none focus-visible:ring-2"
+          :class="[buttonSizeClass, pageStateClass(Number(item))]"
           :disabled="disabled"
           :aria-current="item === currentPage ? 'page' : undefined"
           @click="goToPage(Number(item))"
@@ -115,14 +172,37 @@ function goToPage(nextPage: number) {
     </div>
 
     <div v-if="showEdges" class="flex items-center gap-2">
-      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === totalPages" @click="goToPage(currentPage + 1)">
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        :class="[
+          buttonSizeClass,
+          disabled || currentPage === totalPages
+            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
+            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+        ]"
+        :disabled="disabled || currentPage === totalPages"
+        @click="goToPage(currentPage + 1)"
+      >
         <span class="sr-only">Página siguiente</span>
-        ›
-      </BaseButton>
-      <BaseButton variant="outlined" :size="size" :disabled="disabled || currentPage === totalPages" @click="goToPage(totalPages)">
+        <BaseIcon name="i-lucide-chevron-right" :class="iconSizeClass" />
+      </button>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-lg border transition-colors focus-visible:outline-none focus-visible:ring-2"
+        :class="[
+          buttonSizeClass,
+          disabled || currentPage === totalPages
+            ? 'cursor-not-allowed border-default/40 bg-default/10 text-toned/60'
+            : 'border-default/50 bg-default/12 text-toned hover:border-lavender/35 hover:bg-lavender/12 hover:text-highlighted',
+        ]"
+        :disabled="disabled || currentPage === totalPages"
+        @click="goToPage(totalPages)"
+      >
         <span class="sr-only">Última página</span>
-        »
-      </BaseButton>
+        <BaseIcon name="i-lucide-chevrons-right" :class="iconSizeClass" />
+      </button>
     </div>
   </nav>
 </template>
