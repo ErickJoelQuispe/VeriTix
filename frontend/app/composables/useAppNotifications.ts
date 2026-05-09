@@ -30,7 +30,7 @@ export function useAppNotifications() {
     pushToast(toast, description, options, {
       title: 'Error',
       color: 'error',
-      icon: 'i-lucide-alert-circle',
+      icon: 'i-lucide-circle-alert',
     })
   }
 
@@ -38,7 +38,7 @@ export function useAppNotifications() {
     pushToast(toast, description, options, {
       title: 'Éxito',
       color: 'success',
-      icon: 'i-lucide-check-circle',
+      icon: 'i-lucide-circle-check',
     })
   }
 

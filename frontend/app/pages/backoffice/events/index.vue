@@ -384,7 +384,7 @@ onMounted(() => {
 
               <template #details>
                 <p v-if="event.isReview && event.issues.length > 0" class="flex items-start gap-2 text-sm text-toned">
-                  <BaseIcon name="i-lucide-alert-triangle" class="mt-0.5 size-4 shrink-0 text-warning" />
+                  <BaseIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-warning" />
                   <span>
                     {{ event.issues.join(' · ') }}
                   </span>

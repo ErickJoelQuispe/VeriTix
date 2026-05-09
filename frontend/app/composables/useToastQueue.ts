@@ -1,13 +1,23 @@
+type ToastColor = 'error' | 'success' | 'info' | 'warning' | 'neutral'
+
 interface ToastItem {
   id?: string
   title: string
   description: string
-  color?: 'error' | 'success' | 'info' | 'warning' | 'neutral'
+  color?: ToastColor
   icon?: string
   duration?: number
 }
 
 const timers = new Map<string, ReturnType<typeof setTimeout>>()
+
+const DEFAULT_TOAST_ICONS: Record<ToastColor, string> = {
+  error: 'i-lucide-circle-alert',
+  success: 'i-lucide-circle-check',
+  info: 'i-lucide-info',
+  warning: 'i-lucide-triangle-alert',
+  neutral: 'i-lucide-bell',
+}
 
 export function useToastQueue() {
   const toasts = useState<Required<ToastItem>[]>('vtx-toasts', () => [])
@@ -25,12 +35,14 @@ export function useToastQueue() {
 
   function add(toast: ToastItem) {
     const id = toast.id ?? (globalThis.crypto?.randomUUID?.() || `toast-${Date.now()}-${Math.random().toString(16).slice(2)}`)
+    const color = toast.color ?? 'neutral'
+
     const normalized: Required<ToastItem> = {
       id,
       title: toast.title,
       description: toast.description,
-      color: toast.color ?? 'neutral',
-      icon: toast.icon ?? 'i-lucide-bell',
+      color,
+      icon: toast.icon ?? DEFAULT_TOAST_ICONS[color],
       duration: toast.duration ?? 4200,
     }
 

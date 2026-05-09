@@ -45,7 +45,7 @@ onMounted(async () => {
 
       <template v-else>
         <div class="mx-auto rounded-full bg-error/10 p-4 text-error w-fit">
-          <BaseIcon name="i-lucide-alert-circle" class="size-8" />
+          <BaseIcon name="i-lucide-circle-alert" class="size-8" />
         </div>
         <p class="mt-6 text-lg font-medium text-highlighted">
           Ha ocurrido un problema

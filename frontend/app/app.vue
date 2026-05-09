@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout>
     <NuxtPage />
-    <OverlaysToastHost />
+    <UiToastHost />
   </NuxtLayout>
 </template>

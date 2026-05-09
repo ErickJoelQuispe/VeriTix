@@ -79,22 +79,34 @@ const iconVariants = [
 
 const toastPresets = [
   {
+    title: 'Error',
+    description: 'Use this for failures, validation issues, and actions that could not complete.',
+    color: 'error' as const,
+    icon: 'i-lucide-circle-alert',
+  },
+  {
     title: 'Saved',
     description: 'The green toast is the success state used for confirmations.',
     color: 'success' as const,
-    icon: 'i-lucide-check-circle',
+    icon: 'i-lucide-circle-check',
   },
   {
     title: 'Heads up',
     description: 'The amber toast is useful for soft warnings and reminders.',
     color: 'warning' as const,
-    icon: 'i-lucide-alert-triangle',
+    icon: 'i-lucide-triangle-alert',
   },
   {
     title: 'FYI',
     description: 'The blue toast works for neutral status updates.',
     color: 'info' as const,
     icon: 'i-lucide-info',
+  },
+  {
+    title: 'Neutral',
+    description: 'Neutral toasts are useful for generic, non-blocking updates.',
+    color: 'neutral' as const,
+    icon: 'i-lucide-bell',
   },
 ] as const
 
@@ -514,7 +526,7 @@ function submitDemoForm() {
                 Tap any action to enqueue a toast. The host renders at the bottom-right of the app shell.
               </p>
 
-              <div class="grid gap-3 sm:grid-cols-3">
+              <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <BaseButton
                   v-for="preset in toastPresets"
                   :key="preset.title"

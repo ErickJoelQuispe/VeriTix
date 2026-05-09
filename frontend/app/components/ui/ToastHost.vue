@@ -2,11 +2,19 @@
 const { toasts, remove } = useToastQueue()
 
 const colorClasses: Record<'error' | 'success' | 'info' | 'warning' | 'neutral', string> = {
-  error: 'border-error/30 bg-error/12 text-error',
-  success: 'border-success/30 bg-success/12 text-success',
-  info: 'border-info/30 bg-info/12 text-info',
-  warning: 'border-warning/30 bg-warning/12 text-warning',
-  neutral: 'border-default/60 bg-elevated/80 text-toned',
+  error: 'border-error/35 bg-error/12',
+  success: 'border-success/35 bg-success/12',
+  info: 'border-info/35 bg-info/12',
+  warning: 'border-warning/35 bg-warning/12',
+  neutral: 'border-default/60 bg-elevated/80',
+}
+
+const iconClasses: Record<'error' | 'success' | 'info' | 'warning' | 'neutral', string> = {
+  error: 'text-error',
+  success: 'text-success',
+  info: 'text-info',
+  warning: 'text-warning',
+  neutral: 'text-toned',
 }
 </script>
 
@@ -16,12 +24,12 @@ const colorClasses: Record<'error' | 'success' | 'info' | 'warning' | 'neutral',
       <article
         v-for="toast in toasts"
         :key="toast.id"
-        class="pointer-events-auto rounded-2xl border p-4 shadow-2xl backdrop-blur-lg"
+        class="pointer-events-auto rounded-2xl border p-4 shadow-2xl backdrop-blur-lg ring-1 ring-inset ring-white/10"
         :class="colorClasses[toast.color]"
         role="status"
       >
         <div class="flex items-start gap-3">
-          <BaseIcon :name="toast.icon" class="mt-0.5 size-5 shrink-0" />
+          <BaseIcon :name="toast.icon" class="mt-0.5 size-5 shrink-0" :class="iconClasses[toast.color]" />
 
           <div class="min-w-0 flex-1 space-y-1">
             <p class="text-sm font-semibold text-highlighted">

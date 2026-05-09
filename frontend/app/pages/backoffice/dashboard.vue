@@ -42,7 +42,7 @@ const metrics = computed(() => {
       label: 'Atención',
       value: cancelledEvents,
       hint: cancelledEvents > 0 ? 'eventos cancelados' : 'sin incidencias críticas',
-      icon: 'i-lucide-alert-circle',
+      icon: 'i-lucide-circle-alert',
       variant: cancelledEvents > 0 ? 'error' as const : 'default' as const,
     },
   ]
