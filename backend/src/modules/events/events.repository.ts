@@ -149,6 +149,7 @@ export type FindAllEventsParams = {
   dateTo?: string;
   search?: string;
   artistName?: string;
+  venueName?: string;
 };
 
 // ── Analytics types ───────────────────────────────────────────────────────────
@@ -217,15 +218,33 @@ export class EventsRepository {
   async findAll(
     params: FindAllEventsParams,
   ): Promise<PaginatedResponse<EventListItem>> {
-    const { page, limit, city, genreId, formatId, dateFrom, dateTo, search, artistName } =
-      params;
+    const {
+      page,
+      limit,
+      city,
+      genreId,
+      formatId,
+      dateFrom,
+      dateTo,
+      search,
+      artistName,
+      venueName,
+    } = params;
 
     const where: EventWhereInput = {
       status: EventStatus.PUBLISHED,
     };
 
-    if (city !== undefined)
-      where.venue = { city: { contains: city, mode: 'insensitive' } };
+    if (city !== undefined || venueName !== undefined) {
+      where.venue = {
+        ...(city !== undefined
+          ? { city: { contains: city, mode: 'insensitive' } }
+          : {}),
+        ...(venueName !== undefined
+          ? { name: { contains: venueName, mode: 'insensitive' } }
+          : {}),
+      };
+    }
     if (genreId !== undefined) where.genres = { some: { id: genreId } };
     if (formatId !== undefined) where.formatId = formatId;
     if (dateFrom !== undefined || dateTo !== undefined) {
@@ -238,7 +257,9 @@ export class EventsRepository {
     }
     if (artistName) {
       where.artists = {
-        some: { artist: { name: { contains: artistName, mode: 'insensitive' } } },
+        some: {
+          artist: { name: { contains: artistName, mode: 'insensitive' } },
+        },
       };
     }
 
@@ -253,12 +274,7 @@ export class EventsRepository {
       this.prisma.event.count({ where }),
     ]);
 
-    return createPaginatedResponse(
-      data as EventListItem[],
-      total,
-      page,
-      limit,
-    );
+    return createPaginatedResponse(data as EventListItem[], total, page, limit);
   }
 
   async findByCreator(
@@ -279,12 +295,7 @@ export class EventsRepository {
       this.prisma.event.count({ where }),
     ]);
 
-    return createPaginatedResponse(
-      data as EventListItem[],
-      total,
-      page,
-      limit,
-    );
+    return createPaginatedResponse(data as EventListItem[], total, page, limit);
   }
 
   findById(id: string): Promise<EventDetail | null> {
@@ -429,12 +440,18 @@ export class EventsRepository {
           revenue += Number(item.subtotal);
         }
       }
-      return { id: e.id, name: e.name, eventDate: e.eventDate, maxCapacity: e.maxCapacity, venue: e.venue, ticketsSold, revenue };
+      return {
+        id: e.id,
+        name: e.name,
+        eventDate: e.eventDate,
+        maxCapacity: e.maxCapacity,
+        venue: e.venue,
+        ticketsSold,
+        revenue,
+      };
     });
 
-    return mapped
-      .sort((a, b) => b.ticketsSold - a.ticketsSold)
-      .slice(0, limit);
+    return mapped.sort((a, b) => b.ticketsSold - a.ticketsSold).slice(0, limit);
   }
 
   findMetricsById(id: string): Promise<EventMetricsRaw | null> {

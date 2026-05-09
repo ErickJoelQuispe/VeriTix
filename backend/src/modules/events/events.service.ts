@@ -27,11 +27,7 @@ import {
   UpcomingQueryDto,
   UpdateEventDto,
 } from './dto';
-import {
-  EventDetail,
-  EventListItem,
-  EventsRepository,
-} from './events.repository';
+import { EventsRepository } from './events.repository';
 
 @Injectable()
 export class EventsService {
@@ -77,6 +73,7 @@ export class EventsService {
         dateTo: query.dateTo,
         search: query.search,
         artistName: query.artistName,
+        venueName: query.venueName,
       }),
     );
   }
@@ -120,6 +117,7 @@ export class EventsService {
           dateTo: query.dateTo,
           search: query.search,
           artistName: query.artistName,
+          venueName: query.venueName,
         }),
       CACHE_TTL_SHORT,
     ) as Promise<PaginatedResponse<EventListResponseDto>>;
@@ -261,16 +259,20 @@ export class EventsService {
       }
 
       if (issues.length > 0) {
-        result.push({ id: row.id, name: row.name, status: row.status, eventDate: row.eventDate, issues });
+        result.push({
+          id: row.id,
+          name: row.name,
+          status: row.status,
+          eventDate: row.eventDate,
+          issues,
+        });
       }
     }
 
     return result;
   }
 
-  async getTopEvents(
-    query: TopEventsQueryDto,
-  ): Promise<TopEventResponseDto[]> {
+  async getTopEvents(query: TopEventsQueryDto): Promise<TopEventResponseDto[]> {
     const rows = await this.cache.getOrSet(
       CACHE_KEYS.EVENTS_TOP(query.limit),
       () => this.eventsRepository.findTopEvents(query.limit),
@@ -308,7 +310,8 @@ export class EventsService {
     }
     const total = raw.maxCapacity;
     const available = total - sold;
-    const occupancyRate = total > 0 ? Math.round((sold / total) * 10000) / 10000 : 0;
+    const occupancyRate =
+      total > 0 ? Math.round((sold / total) * 10000) / 10000 : 0;
 
     // ── Revenue por tipo de ticket ─────────────────────────────────────────
     let totalRevenue = 0;
@@ -322,11 +325,21 @@ export class EventsService {
         }
       }
       totalRevenue += ttRevenue;
-      return { name: tt.name, sold: ttSold, revenue: Math.round(ttRevenue * 100) / 100 };
+      return {
+        name: tt.name,
+        sold: ttSold,
+        revenue: Math.round(ttRevenue * 100) / 100,
+      };
     });
 
     // ── Órdenes por estado ─────────────────────────────────────────────────
-    const orderCounts = { total: raw.orders.length, completed: 0, pending: 0, cancelled: 0, refunded: 0 };
+    const orderCounts = {
+      total: raw.orders.length,
+      completed: 0,
+      pending: 0,
+      cancelled: 0,
+      refunded: 0,
+    };
     for (const o of raw.orders) {
       if (o.status === OrderStatus.COMPLETED) orderCounts.completed++;
       else if (o.status === OrderStatus.PENDING) orderCounts.pending++;
@@ -335,9 +348,10 @@ export class EventsService {
     }
 
     // ── Top ticket type ────────────────────────────────────────────────────
-    const topTicketType = byTicketType.length > 0
-      ? byTicketType.reduce((best, tt) => (tt.sold > best.sold ? tt : best))
-      : null;
+    const topTicketType =
+      byTicketType.length > 0
+        ? byTicketType.reduce((best, tt) => (tt.sold > best.sold ? tt : best))
+        : null;
 
     return {
       eventId: raw.id,
@@ -346,9 +360,10 @@ export class EventsService {
       capacity: { total, sold, available, occupancyRate },
       revenue: { total: Math.round(totalRevenue * 100) / 100, byTicketType },
       orders: orderCounts,
-      topTicketType: topTicketType && topTicketType.sold > 0
-        ? { name: topTicketType.name, sold: topTicketType.sold }
-        : null,
+      topTicketType:
+        topTicketType && topTicketType.sold > 0
+          ? { name: topTicketType.name, sold: topTicketType.sold }
+          : null,
     };
   }
 }
