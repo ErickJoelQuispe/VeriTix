@@ -54,36 +54,34 @@ function onSearch() {
           </p>
 
           <form class="space-y-3" @submit.prevent="onSearch">
-            <!-- Search Field Container -->
-            <div
-              class="flex items-center gap-2 rounded-full border border-default/50 bg-linear-to-br from-white/10 to-white/5 p-1.5 shadow-lg backdrop-blur-sm transition-all duration-200 focus-within:border-primary/45 focus-within:bg-white/8 focus-within:shadow-[0_16px_34px_-24px_rgba(239,170,71,0.28)]"
+            <FormInput
+              v-model="query"
+              placeholder="Buscá artista, ciudad o género..."
+              variant="hero"
+              size="xl"
+              aria-label="Buscar eventos"
+              class="w-full text-base"
             >
-              <!-- Search Icon -->
-              <BaseIcon
-                name="i-lucide-search"
-                class="ml-3 h-5 w-5 shrink-0 text-toned transition-colors duration-300"
-                :class="{ 'text-primary': query.length > 0 }"
-                aria-hidden="true"
-              />
+              <template #leading>
+                <BaseIcon
+                  name="i-lucide-search"
+                  class="size-5 transition-colors duration-300"
+                  :class="query.length > 0 ? 'text-primary' : 'text-toned'"
+                  aria-hidden="true"
+                />
+              </template>
 
-              <FormInput
-                v-model="query"
-                placeholder="Buscá artista, ciudad o género..."
-                variant="none"
-                aria-label="Buscar eventos"
-                class="flex-1 border-0 bg-transparent text-base text-highlighted focus:ring-0"
-              />
-
-              <!-- Submit Button - Subtle outline variant -->
-              <BaseButton
-                variant="primary"
-                type="submit"
-                size="md"
-                class="shrink-0 px-6"
-              >
-                Buscar
-              </BaseButton>
-            </div>
+              <template #trailing>
+                <BaseButton
+                  variant="primary"
+                  type="submit"
+                  size="md"
+                  class="rounded-full! px-6! py-2.5!"
+                >
+                  Buscar
+                </BaseButton>
+              </template>
+            </FormInput>
 
             <!-- Hint Text -->
             <p class="flex items-center gap-2 px-4 text-xs text-toned/90">

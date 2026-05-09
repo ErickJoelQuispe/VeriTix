@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<{
 
 const attrs = useAttrs()
 const imageFailed = ref(false)
+const WHITESPACE_REGEX = /\s+/
 
 const forwardedAttrs = computed(() => {
   const { class: _class, ...rest } = attrs
@@ -64,12 +65,13 @@ const initials = computed(() => {
   }
 
   const words = source
-    .split(/\s+/)
+    .split(WHITESPACE_REGEX)
     .map(word => word.trim())
     .filter(Boolean)
 
   if (words.length >= 2) {
-    return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase()
+    const [first = '', second = ''] = words
+    return `${first.charAt(0)}${second.charAt(0)}`.toUpperCase()
   }
 
   return source.slice(0, 2).toUpperCase()

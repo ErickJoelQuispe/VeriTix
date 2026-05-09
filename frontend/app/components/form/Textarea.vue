@@ -34,6 +34,28 @@ const forwardedAttrs = computed(() => {
   return rest
 })
 
+const errorMessage = computed(() => {
+  if (!props.name) {
+    return ''
+  }
+
+  return formContext?.errors[props.name] ?? ''
+})
+
+const hasError = computed(() => Boolean(errorMessage.value))
+
+const stateClass = computed(() => {
+  if (props.variant === 'none') {
+    return ''
+  }
+
+  if (hasError.value) {
+    return 'border-error/70 ring-2 ring-error/20'
+  }
+
+  return 'focus-visible:border-lavender/45 focus-visible:ring-2 focus-visible:ring-lavender/30'
+})
+
 const textareaClass = computed(() => {
   const sizeClass = {
     xs: 'px-3 py-1.5 text-xs',
@@ -58,28 +80,6 @@ const textareaClass = computed(() => {
     stateClass.value,
     attrs.class,
   ]
-})
-
-const errorMessage = computed(() => {
-  if (!props.name) {
-    return ''
-  }
-
-  return formContext?.errors[props.name] ?? ''
-})
-
-const hasError = computed(() => Boolean(errorMessage.value))
-
-const stateClass = computed(() => {
-  if (props.variant === 'none') {
-    return ''
-  }
-
-  if (hasError.value) {
-    return 'border-error/70 ring-2 ring-error/20'
-  }
-
-  return 'focus-visible:border-lavender/45 focus-visible:ring-2 focus-visible:ring-lavender/30'
 })
 
 watch(modelValue, () => {

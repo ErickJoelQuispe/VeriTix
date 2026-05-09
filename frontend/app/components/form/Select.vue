@@ -51,8 +51,9 @@ const errorMessage = computed(() => {
 })
 
 const selectedItem = computed(() => {
-  if (props.multiple)
+  if (props.multiple) {
     return null
+  }
 
   const selectedValue = String(modelValue.value ?? '')
   return props.items.find(item => String(item.value) === selectedValue) ?? null
@@ -64,6 +65,20 @@ const displayLabel = computed(() => {
 
 const triggerLabelClass = computed(() => {
   return selectedItem.value ? 'text-highlighted' : 'text-toned'
+})
+
+const hasError = computed(() => Boolean(errorMessage.value))
+
+const stateClass = computed(() => {
+  if (props.variant === 'none') {
+    return ''
+  }
+
+  if (hasError.value) {
+    return 'border-error/70 ring-2 ring-error/20'
+  }
+
+  return 'focus-visible:border-lavender/45 focus-visible:ring-2 focus-visible:ring-lavender/30'
 })
 
 const selectClass = computed(() => {
@@ -93,20 +108,6 @@ const selectClass = computed(() => {
   ]
 })
 
-const hasError = computed(() => Boolean(errorMessage.value))
-
-const stateClass = computed(() => {
-  if (props.variant === 'none') {
-    return ''
-  }
-
-  if (hasError.value) {
-    return 'border-error/70 ring-2 ring-error/20'
-  }
-
-  return 'focus-visible:border-lavender/45 focus-visible:ring-2 focus-visible:ring-lavender/30'
-})
-
 const openClass = computed(() => {
   if (props.variant === 'none' || !isOpen.value || hasError.value) {
     return ''
@@ -134,8 +135,9 @@ function handleChange(event: Event) {
 }
 
 function toggleListbox() {
-  if (props.disabled)
+  if (props.disabled) {
     return
+  }
 
   isOpen.value = !isOpen.value
 }
@@ -158,12 +160,14 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 function handleDocumentClick(event: MouseEvent) {
-  if (!isOpen.value)
+  if (!isOpen.value) {
     return
+  }
 
   const target = event.target as Node | null
-  if (target && rootRef.value?.contains(target))
+  if (target && rootRef.value?.contains(target)) {
     return
+  }
 
   closeListbox()
 }
