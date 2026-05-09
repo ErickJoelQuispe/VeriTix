@@ -74,13 +74,8 @@ const fallbackTone = computed(() => {
         <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
       </div>
 
-      <div class="pt-5">
-        <div class="flex items-center justify-between gap-4 text-[0.68rem] tracking-[0.11em] text-muted uppercase">
-          <span>{{ eventDate }}</span>
-          <span class="truncate">{{ props.event.venue.name }}</span>
-        </div>
-
-        <h3 class="mt-3 line-clamp-2 font-display text-2xl leading-none text-highlighted transition-colors duration-300 group-hover:text-primary">
+      <div class="vtx-transmission-details">
+        <h3 class="line-clamp-2 font-display text-2xl leading-none text-highlighted transition-colors duration-300 group-hover:text-primary">
           {{ props.event.name }}
         </h3>
 
@@ -89,9 +84,21 @@ const fallbackTone = computed(() => {
           <span v-if="props.event.format">· {{ props.event.format.name }}</span>
         </p>
 
-        <div class="mt-4 flex items-center justify-between border-t border-default/60 pt-3 text-xs tracking-wide text-muted uppercase">
-          <span>{{ eventTime }}</span>
-          <span>Curated transmission</span>
+        <div class="mt-auto flex items-end justify-between pt-4">
+          <div class="text-xs tracking-wide text-muted uppercase">
+            <span>{{ eventDate }}</span>
+            <span class="mx-1.5">·</span>
+            <span>{{ eventTime }}</span>
+          </div>
+
+          <BaseButton
+            :to="eventLink"
+            variant="primary"
+            size="sm"
+            class="px-3.5"
+          >
+            Ver
+          </BaseButton>
         </div>
       </div>
     </article>
@@ -102,8 +109,19 @@ const fallbackTone = computed(() => {
 @reference "@/assets/css/main.css";
 
 .vtx-transmission-media {
-  aspect-ratio: 4 / 4.55;
-  @apply relative overflow-hidden rounded-sm border border-default/70 bg-elevated/55;
+  aspect-ratio: 4 / 3.5;
+  @apply relative overflow-hidden rounded-t-sm;
+}
+
+.vtx-transmission-details {
+  @apply flex flex-col p-5;
+  background: oklch(0.16 0.015 270 / 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-image:
+    linear-gradient(oklch(0.28 0.015 270 / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.28 0.015 270 / 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .vtx-transmission-fallback {
