@@ -45,7 +45,7 @@ Las pruebas de frontend se ejecutan con Vitest en dos proyectos:
 
 ---
 
-::: {.latex-figure width="0.7\\linewidth"}
+::: {.latex-figure width="0.92\\linewidth"}
 
 ![Ejecución de los 80 tests del frontend](assets/frontend-tests.png)
 
