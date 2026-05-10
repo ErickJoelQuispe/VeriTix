@@ -2,12 +2,6 @@ import { fileURLToPath } from 'node:url'
 import { defineVitestProject } from '@nuxt/test-utils/config'
 import { defineConfig } from 'vitest/config'
 
-const appAlias = {
-  '@': fileURLToPath(new URL('./app', import.meta.url)),
-  '~': fileURLToPath(new URL('./app', import.meta.url)),
-  '~~': fileURLToPath(new URL('.', import.meta.url)),
-}
-
 export default defineConfig({
   test: {
     onConsoleLog(log: string) {
@@ -20,7 +14,12 @@ export default defineConfig({
           name: 'unit',
           include: ['test/unit/**/*.{test,spec}.ts'],
           environment: 'node',
-          alias: appAlias,
+          alias: {
+            '@': fileURLToPath(new URL('./app', import.meta.url)),
+            '@@': fileURLToPath(new URL('.', import.meta.url)),
+            '~': fileURLToPath(new URL('./app', import.meta.url)),
+            '~~': fileURLToPath(new URL('.', import.meta.url)),
+          },
         },
       },
       {
