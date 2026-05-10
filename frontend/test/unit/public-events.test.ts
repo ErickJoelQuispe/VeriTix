@@ -8,7 +8,7 @@ import {
   toIsoString,
 } from '../../app/repositories/publicEventsRepository'
 
-import { normalizeFilters } from '../../app/composables/usePublicEvents'
+import { normalizeFilters } from '../../app/composables/public/usePublicEvents'
 
 describe('normalizeFilters', () => {
   it('devuelve defaults estables cuando no recibe nada', () => {

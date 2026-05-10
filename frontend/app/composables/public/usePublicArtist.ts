@@ -1,6 +1,6 @@
 import type { MaybeRef } from 'vue'
 import type { PublicArtistDetailApiItem } from '~~/shared/api/public-artists'
-import { usePublicArtistsRepository } from '../repositories/publicArtistsRepository'
+import { usePublicArtistsRepository } from '../../repositories/publicArtistsRepository'
 
 export function usePublicArtist(id: MaybeRef<string>) {
   const { getArtist } = usePublicArtistsRepository()

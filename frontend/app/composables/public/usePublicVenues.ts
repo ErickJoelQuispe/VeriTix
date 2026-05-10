@@ -2,7 +2,7 @@ import type { MaybeRef } from 'vue'
 import type { PublicVenueListApiItem } from '~~/shared/api/public-venues'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { VenueCatalogFilters } from '~~/shared/types'
-import { usePublicVenuesRepository } from '../repositories/publicVenuesRepository'
+import { usePublicVenuesRepository } from '../../repositories/publicVenuesRepository'
 
 export function normalizeVenueFilters(
   raw?: Partial<VenueCatalogFilters>,

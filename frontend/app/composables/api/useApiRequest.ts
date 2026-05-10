@@ -1,4 +1,3 @@
-import type { UserProfile } from '~~/shared/types'
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
@@ -29,7 +28,6 @@ export function useApiRequest() {
   const config = useRuntimeConfig()
   const { getApiErrorStatus, markApiSessionExpiredError } = useApiErrorMessage()
   const accessToken = useState<string | null>('auth-access-token', () => null)
-  const user = useState<UserProfile | null>('auth-user', () => null)
   const sessionStatus = useState<'unknown' | 'authenticated' | 'guest'>('auth-session-status', () => 'unknown')
   const requestHeaders = import.meta.server ? useRequestHeaders(['authorization', 'cookie']) : null
 
@@ -88,36 +86,27 @@ export function useApiRequest() {
     return response._data as TResponse
   }
 
-  function markGuestSession() {
-    accessToken.value = null
-    user.value = null
-    sessionStatus.value = 'guest'
-  }
-
   async function retryAfterRefresh<TResponse, TBody extends BodyInit | object | null>(
     request: PreparedRequest,
     options: ApiRequestOptions<TBody>,
     sourceError: unknown,
   ): Promise<TResponse> {
+    const { refreshSession, clearAuth } = useAuth()
+
     try {
-      const { refreshSession } = useAuth()
       const refreshed = await refreshSession()
 
       if (!refreshed) {
-        markGuestSession()
+        clearAuth()
         throw markApiSessionExpiredError(sourceError)
       }
-
-      accessToken.value = refreshed.accessToken
-      user.value = refreshed.user
-      sessionStatus.value = 'authenticated'
 
       try {
         return await executeRequest<TResponse, TBody>(request, options)
       }
       catch (retryError) {
         if (getApiErrorStatus(retryError) === 401) {
-          markGuestSession()
+          clearAuth()
           throw markApiSessionExpiredError(retryError)
         }
 
@@ -126,7 +115,7 @@ export function useApiRequest() {
     }
     catch (refreshError) {
       if (getApiErrorStatus(refreshError) === 401) {
-        markGuestSession()
+        clearAuth()
         throw markApiSessionExpiredError(sourceError)
       }
 
@@ -141,7 +130,7 @@ export function useApiRequest() {
     const shouldRetryAuth = import.meta.client
       && !options.skipAuthRefresh
       && !path.startsWith('/auth/')
-      && (Boolean(accessToken.value) || sessionStatus.value !== 'guest')
+      && sessionStatus.value !== 'guest'
 
     const request = prepareRequest(path, options.timeoutMs)
 

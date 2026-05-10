@@ -73,7 +73,7 @@ describe('arquitectura de repositorios', () => {
 
 describe('arquitectura de route access', () => {
   it('useRouteAccess existe y tiene las funciones', async () => {
-    const content = await readFile(join(appDir, 'composables/useRouteAccess.ts'), 'utf-8')
+    const content = await readFile(join(appDir, 'composables/auth/useRouteAccess.ts'), 'utf-8')
 
     expect(content).toContain('export function useRouteAccess()')
     expect(content).toContain('requireAuthenticated')

@@ -2,7 +2,7 @@ import type { MaybeRef } from 'vue'
 import type { PublicArtistListApiItem } from '~~/shared/api/public-artists'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { ArtistCatalogFilters } from '~~/shared/types'
-import { usePublicArtistsRepository } from '../repositories/publicArtistsRepository'
+import { usePublicArtistsRepository } from '../../repositories/publicArtistsRepository'
 
 export function normalizeArtistFilters(
   raw?: Partial<ArtistCatalogFilters>,

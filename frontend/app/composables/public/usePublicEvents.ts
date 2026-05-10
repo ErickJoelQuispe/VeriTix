@@ -8,7 +8,7 @@ import type {
   VenueOption,
 } from '~~/shared/types'
 import type { PublicEventArtistApiItem } from '~~/shared/api/public-events'
-import { usePublicEventsRepository } from '../repositories/publicEventsRepository'
+import { usePublicEventsRepository } from '../../repositories/publicEventsRepository'
 
 export function normalizeFilters(
   raw?: Partial<EventCatalogFilters>,
