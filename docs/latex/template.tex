@@ -179,6 +179,12 @@ $if(linestretch)$\setstretch{$linestretch$}$endif$
 \AtEndEnvironment{tabular}{\focresettablestyle}%
 \AtBeginEnvironment{longtable}{\focapplytablestyle}%
 
+% Pandoc genera \def\LTcaptype{none} en tablas sin caption.
+% longtable no define ese contador; lo definimos vacío para evitar el error.
+\makeatletter
+\@ifundefined{c@none}{\newcounter{none}}{}
+\makeatother
+
 
 % %%────────────────────────────────────────────────────
 % %% LISTAS
