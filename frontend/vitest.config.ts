@@ -10,6 +10,9 @@ const appAlias = {
 
 export default defineConfig({
   test: {
+    onConsoleLog(log: string) {
+      if (log.includes('<Suspense> is an experimental feature')) { return false }
+    },
     projects: [
       {
         extends: true,
