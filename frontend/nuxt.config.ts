@@ -19,6 +19,10 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/fonts', '@nuxt/test-utils/module'],
 
+  imports: {
+    dirs: ['~/composables', '~/composables/**'],
+  },
+
   components: [
     {
       path: '~/components',
