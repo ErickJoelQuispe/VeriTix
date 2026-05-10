@@ -30,7 +30,7 @@ export function useApiRequest() {
   const { getApiErrorStatus, markApiSessionExpiredError } = useApiErrorMessage()
   const accessToken = useState<string | null>('auth-access-token', () => null)
   const user = useState<UserProfile | null>('auth-user', () => null)
-  const sessionStatus = useState<'unknown' | 'authenticated' | 'anonymous'>('auth-session-status', () => 'unknown')
+  const sessionStatus = useState<'unknown' | 'authenticated' | 'guest'>('auth-session-status', () => 'unknown')
   const requestHeaders = import.meta.server ? useRequestHeaders(['authorization', 'cookie']) : null
 
   function resolveHeaders(path: string, headers?: HeadersInit | (() => HeadersInit)) {
@@ -88,10 +88,10 @@ export function useApiRequest() {
     return response._data as TResponse
   }
 
-  function markAnonymousSession() {
+  function markGuestSession() {
     accessToken.value = null
     user.value = null
-    sessionStatus.value = 'anonymous'
+    sessionStatus.value = 'guest'
   }
 
   async function retryAfterRefresh<TResponse, TBody extends BodyInit | object | null>(
@@ -104,7 +104,7 @@ export function useApiRequest() {
       const refreshed = await refreshSession()
 
       if (!refreshed) {
-        markAnonymousSession()
+        markGuestSession()
         throw markApiSessionExpiredError(sourceError)
       }
 
@@ -117,7 +117,7 @@ export function useApiRequest() {
       }
       catch (retryError) {
         if (getApiErrorStatus(retryError) === 401) {
-          markAnonymousSession()
+          markGuestSession()
           throw markApiSessionExpiredError(retryError)
         }
 
@@ -126,7 +126,7 @@ export function useApiRequest() {
     }
     catch (refreshError) {
       if (getApiErrorStatus(refreshError) === 401) {
-        markAnonymousSession()
+        markGuestSession()
         throw markApiSessionExpiredError(sourceError)
       }
 
@@ -141,7 +141,7 @@ export function useApiRequest() {
     const shouldRetryAuth = import.meta.client
       && !options.skipAuthRefresh
       && !path.startsWith('/auth/')
-      && (Boolean(accessToken.value) || sessionStatus.value !== 'anonymous')
+      && (Boolean(accessToken.value) || sessionStatus.value !== 'guest')
 
     const request = prepareRequest(path, options.timeoutMs)
 

@@ -11,7 +11,7 @@ export function useRouteAccess() {
         return true
       }
 
-      return sessionStatus.value === 'anonymous' ? false : 'unknown'
+      return sessionStatus.value === 'guest' ? false : 'unknown'
     }
     catch {
       return import.meta.server ? 'unknown' : false

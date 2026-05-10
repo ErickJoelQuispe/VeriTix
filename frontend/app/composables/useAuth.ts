@@ -13,7 +13,7 @@ export function useAuth() {
   const accessToken = useState<string | null>('auth-access-token', () => null)
   const user = useState<UserProfile | null>('auth-user', () => null)
   const pending = useState<boolean>('auth-pending', () => false)
-  const sessionStatus = useState<'unknown' | 'authenticated' | 'anonymous'>('auth-session-status', () => 'unknown')
+  const sessionStatus = useState<'unknown' | 'authenticated' | 'guest'>('auth-session-status', () => 'unknown')
   const refreshStatus = useState<'idle' | 'refreshing'>('auth-refresh-status', () => 'idle')
   const refreshPromise = useState<Promise<AuthResponse | null> | null>('auth-refresh-promise', () => null)
 
@@ -34,7 +34,7 @@ export function useAuth() {
   function clearAuth(): void {
     accessToken.value = null
     user.value = null
-    sessionStatus.value = 'anonymous'
+    sessionStatus.value = 'guest'
   }
 
   async function ensureSession(): Promise<boolean> {
@@ -43,7 +43,7 @@ export function useAuth() {
       return true
     }
 
-    if (sessionStatus.value === 'anonymous') {
+    if (sessionStatus.value === 'guest') {
       return false
     }
 
@@ -142,7 +142,7 @@ export function useAuth() {
     }
     finally {
       clearAuth()
-      sessionStatus.value = 'anonymous'
+      sessionStatus.value = 'guest'
     }
   }
 

@@ -101,6 +101,7 @@ function buildProxyHeaders(event: H3Event, path: string, headersInit?: HeadersIn
 function clearLegacyRefreshCookiePaths(event: H3Event): void {
   setCookie(event, 'refresh_token', '', { path: '/', maxAge: 0 })
   setCookie(event, 'refresh_token', '', { path: '/auth', maxAge: 0 })
+  setCookie(event, 'refresh_token', '', { path: '/api/auth', maxAge: 0 })
 }
 
 function forwardSetCookieHeaders(event: H3Event, responseHeaders: Headers): void {
@@ -123,7 +124,7 @@ function forwardSetCookieHeaders(event: H3Event, responseHeaders: Headers): void
 const AUTH_COOKIE_PATH_REGEX = /([;\s]path=)\/auth(?=;|$)/i
 
 function normalizeCookiePathForFrontend(cookieHeaderValue: string): string {
-  return cookieHeaderValue.replace(AUTH_COOKIE_PATH_REGEX, '$1/api/auth')
+  return cookieHeaderValue.replace(AUTH_COOKIE_PATH_REGEX, '$1/')
 }
 
 export async function proxyBackendRequest<TResponse, TBody extends BodyInit | object | null = Record<string, unknown>>(

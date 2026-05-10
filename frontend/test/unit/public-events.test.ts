@@ -5,9 +5,10 @@ import {
   mapEventDetail,
   mapEventListItem,
   normalizeCurrencyCode,
-  normalizeFilters,
   toIsoString,
-} from '../../app/composables/usePublicEvents'
+} from '../../app/repositories/publicEventsRepository'
+
+import { normalizeFilters } from '../../app/composables/usePublicEvents'
 
 describe('normalizeFilters', () => {
   it('devuelve defaults estables cuando no recibe nada', () => {

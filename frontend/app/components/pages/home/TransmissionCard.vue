@@ -92,10 +92,10 @@ const fallbackTone = computed(() => {
           </div>
 
           <BaseButton
-            :to="eventLink"
             variant="primary"
             size="sm"
             class="px-3.5"
+            @click.stop="navigateTo(eventLink)"
           >
             Ver
           </BaseButton>

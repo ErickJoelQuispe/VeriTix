@@ -10,15 +10,6 @@ import type {
 import type { PublicEventArtistApiItem } from '~~/shared/api/public-events'
 import { usePublicEventsRepository } from '../repositories/publicEventsRepository'
 
-export {
-  buildEventFallbackImage,
-  buildFallbackImage,
-  mapEventDetail,
-  mapEventListItem,
-  normalizeCurrencyCode,
-  toIsoString,
-} from '../repositories/publicEventsRepository'
-
 export function normalizeFilters(
   raw?: Partial<EventCatalogFilters>,
 ): EventCatalogFilters {

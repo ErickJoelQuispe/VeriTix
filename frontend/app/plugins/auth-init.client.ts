@@ -8,7 +8,7 @@ export default defineNuxtPlugin(() => {
 
     void ensureSession().catch(() => {
       if (sessionStatus.value === 'unknown') {
-        sessionStatus.value = 'anonymous'
+        sessionStatus.value = 'guest'
       }
     })
   })
