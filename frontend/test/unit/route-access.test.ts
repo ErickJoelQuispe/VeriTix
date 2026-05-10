@@ -10,7 +10,7 @@ describe('arquitectura de route access', () => {
 
     expect(content).toContain('export function useRouteAccess()')
     expect(content).toContain('requireAuthenticated')
-    expect(content).toContain('requireAdmin')
+    expect(content).toContain('requireBackofficeAccess')
     expect(content).toContain('redirectIfAuthenticated')
   })
 })

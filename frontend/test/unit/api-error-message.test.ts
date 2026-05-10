@@ -13,7 +13,7 @@ describe('useApiErrorMessage', () => {
 
   it('detecta errores de autenticación', () => {
     expect(isApiAuthError({ response: { status: 401 } })).toBe(true)
-    expect(isApiAuthError({ statusCode: 403 })).toBe(true)
+    expect(isApiAuthError({ statusCode: 403 })).toBe(false)
     expect(isApiAuthError({ statusCode: 422 })).toBe(false)
   })
 
