@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatMoney } from '../../app/utils/currency-formatters'
+import { formatMoney } from '@/utils/currency-formatters'
 
 describe('formatMoney', () => {
   it('formatea COP sin decimales para el locale por defecto', () => {

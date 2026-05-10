@@ -47,4 +47,13 @@ export default defineNuxtConfig({
       standalone: false,
     },
   },
+
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        types: ['node'],
+      },
+      include: ['../test/unit/**/*'],
+    },
+  },
 })

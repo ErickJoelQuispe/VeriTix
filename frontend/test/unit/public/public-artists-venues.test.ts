@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizeArtistFilters } from '../../app/composables/public/usePublicArtists'
-import { normalizeVenueFilters } from '../../app/composables/public/usePublicVenues'
+import { normalizeArtistFilters } from '@/composables/public/usePublicArtists'
+import { normalizeVenueFilters } from '@/composables/public/usePublicVenues'
 
 describe('normalizeArtistFilters', () => {
   it('normaliza strings y página por defecto', () => {

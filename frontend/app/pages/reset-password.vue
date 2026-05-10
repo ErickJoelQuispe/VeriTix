@@ -31,7 +31,6 @@ const state = reactive({
   confirmPassword: '',
 })
 
-const form = useTemplateRef('form')
 const { resetPassword } = useAuth()
 const { notifyApiError } = useAppNotifications()
 
@@ -39,10 +38,17 @@ const pending = ref(false)
 const success = ref(false)
 
 async function onSubmit() {
-  if (!form.value) return
   if (!token.value) {
     notifyApiError(null, 'Token de recuperación no encontrado. Solicitá un nuevo enlace.', {
       id: 'auth-reset-no-token',
+    })
+    return
+  }
+
+  const validation = schema.safeParse(state)
+  if (!validation.success) {
+    notifyApiError(null, validation.error.issues[0]?.message ?? 'Datos inválidos', {
+      id: 'auth-reset-validation',
     })
     return
   }
@@ -85,28 +91,24 @@ async function onSubmit() {
 
           <div class="mb-7 flex items-center justify-center">
             <span class="inline-flex items-center gap-2 rounded-full border border-auric-300/30 bg-auric-400/10 px-3 py-1 text-xs font-semibold tracking-wide text-auric-200 uppercase">
-              <UIcon name="i-lucide-shield-check" class="size-3.5" />
+              <BaseIcon name="i-lucide-shield-check" class="size-3.5" />
               Restablecimiento seguro
             </span>
           </div>
 
           <!-- Success state -->
           <div v-if="success" class="vtx-recovery-note">
-            <UIcon name="i-lucide-check-circle" class="size-4 shrink-0 text-auric-300" />
+            <BaseIcon name="i-lucide-check-circle" class="size-4 shrink-0 text-auric-300" />
             <p>
               ¡Contraseña actualizada! Redirigiendo a inicio de sesión...
             </p>
           </div>
 
           <!-- Form state -->
-          <UForm
+          <form
             v-else
-            ref="form"
-            :state="state"
-            :schema="schema"
-            :validate-on="[]"
             class="flex flex-col gap-4"
-            @submit="onSubmit"
+            @submit.prevent="onSubmit"
           >
             <BasePasswordField
               v-model="state.password"
@@ -140,7 +142,7 @@ async function onSubmit() {
             >
               Actualizar contraseña
             </BaseButton>
-          </UForm>
+          </form>
 
           <footer class="pt-1">
             <p class="text-center text-sm text-muted">

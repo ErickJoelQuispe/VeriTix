@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { useApiErrorMessage } from '../../app/composables/api/useApiErrorMessage'
+import { useApiErrorMessage } from '@/composables/api/useApiErrorMessage'
 
 describe('useApiErrorMessage', () => {
   const { getApiErrorMessage, getApiErrorStatus, isApiAuthError } = useApiErrorMessage()

@@ -6,9 +6,9 @@ import {
   mapEventListItem,
   normalizeCurrencyCode,
   toIsoString,
-} from '../../app/repositories/publicEventsRepository'
+} from '@/repositories/publicEventsRepository'
 
-import { normalizeFilters } from '../../app/composables/public/usePublicEvents'
+import { normalizeFilters } from '@/composables/public/usePublicEvents'
 
 describe('normalizeFilters', () => {
   it('devuelve defaults estables cuando no recibe nada', () => {
