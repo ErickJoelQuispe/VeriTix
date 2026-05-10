@@ -3,20 +3,23 @@ import { defineVitestProject } from '@nuxt/test-utils/config'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./app', import.meta.url)),
-      '~': fileURLToPath(new URL('./app', import.meta.url)),
-      '~~': fileURLToPath(new URL('.', import.meta.url)),
-    },
-  },
   test: {
+    onConsoleLog(log: string) {
+      if (log.includes('<Suspense> is an experimental feature')) { return false }
+    },
     projects: [
       {
+        extends: true,
         test: {
           name: 'unit',
           include: ['test/unit/**/*.{test,spec}.ts'],
           environment: 'node',
+          alias: {
+            '@': fileURLToPath(new URL('./app', import.meta.url)),
+            '@@': fileURLToPath(new URL('.', import.meta.url)),
+            '~': fileURLToPath(new URL('./app', import.meta.url)),
+            '~~': fileURLToPath(new URL('.', import.meta.url)),
+          },
         },
       },
       {

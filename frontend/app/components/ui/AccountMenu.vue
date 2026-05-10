@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AccountMenuItem } from '@/composables/useAccountMenuItems'
+import type { AccountMenuItem } from '@/composables/ui/useAccountMenuItems'
 
 defineOptions({
   inheritAttrs: false,

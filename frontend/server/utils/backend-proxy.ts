@@ -52,42 +52,12 @@ function normalizeBackendError(error: unknown): never {
   })
 }
 
-function normalizeCookieHeaderForAuth(cookieHeader: string): string {
-  const parts = cookieHeader
-    .split(';')
-    .map(part => part.trim())
-    .filter(Boolean)
-
-  const kv = new Map<string, string>()
-
-  for (const part of parts) {
-    const separatorIndex = part.indexOf('=')
-
-    if (separatorIndex <= 0) {
-      continue
-    }
-
-    const key = part.slice(0, separatorIndex).trim()
-    const value = part.slice(separatorIndex + 1)
-
-    kv.set(key, value)
-  }
-
-  return Array.from(kv.entries())
-    .map(([key, value]) => `${key}=${value}`)
-    .join('; ')
-}
-
 function buildProxyHeaders(event: H3Event, path: string, headersInit?: HeadersInit): Headers {
   const headers = new Headers(headersInit)
 
   const cookieHeader = getHeader(event, 'cookie')
   if (cookieHeader && !headers.has('cookie')) {
-    const normalizedCookie = path.startsWith('/auth/')
-      ? normalizeCookieHeaderForAuth(cookieHeader)
-      : cookieHeader
-
-    headers.set('cookie', normalizedCookie)
+    headers.set('cookie', cookieHeader)
   }
 
   const authHeader = getHeader(event, 'authorization')
@@ -98,9 +68,15 @@ function buildProxyHeaders(event: H3Event, path: string, headersInit?: HeadersIn
   return headers
 }
 
-function clearLegacyRefreshCookiePaths(event: H3Event): void {
+function clearRefreshCookieOnAllPaths(event: H3Event): void {
+  const cookieHeader = getHeader(event, 'cookie')
+  if (!cookieHeader?.includes('refresh_token=')) {
+    return
+  }
+
   setCookie(event, 'refresh_token', '', { path: '/', maxAge: 0 })
   setCookie(event, 'refresh_token', '', { path: '/auth', maxAge: 0 })
+  setCookie(event, 'refresh_token', '', { path: '/api/auth', maxAge: 0 })
 }
 
 function forwardSetCookieHeaders(event: H3Event, responseHeaders: Headers): void {
@@ -123,7 +99,7 @@ function forwardSetCookieHeaders(event: H3Event, responseHeaders: Headers): void
 const AUTH_COOKIE_PATH_REGEX = /([;\s]path=)\/auth(?=;|$)/i
 
 function normalizeCookiePathForFrontend(cookieHeaderValue: string): string {
-  return cookieHeaderValue.replace(AUTH_COOKIE_PATH_REGEX, '$1/api/auth')
+  return cookieHeaderValue.replace(AUTH_COOKIE_PATH_REGEX, '$1/')
 }
 
 export async function proxyBackendRequest<TResponse, TBody extends BodyInit | object | null = Record<string, unknown>>(
@@ -145,7 +121,7 @@ export async function proxyBackendRequest<TResponse, TBody extends BodyInit | ob
     setResponseStatus(event, response.status)
 
     if (path === '/auth/login' || path === '/auth/refresh' || path === '/auth/logout') {
-      clearLegacyRefreshCookiePaths(event)
+      clearRefreshCookieOnAllPaths(event)
     }
 
     forwardSetCookieHeaders(event, response.headers)

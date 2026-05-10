@@ -12,6 +12,7 @@ export default withNuxt(
     },
     rules: {
       curly: ['error', 'all'],
+      'style/max-statements-per-line': 'off',
     },
   }),
 )
