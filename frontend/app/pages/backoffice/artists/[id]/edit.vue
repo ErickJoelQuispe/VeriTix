@@ -96,14 +96,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Editar artista"
     description="Actualiza la ficha del artista y su información pública."
     primary-action-to="/backoffice/artists"
     primary-action-label="Volver a artistas"
   >
     <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         title="Datos del artista"
         description="Edita identidad, metadata y clasificación por género."
         variant="glass"
@@ -128,7 +128,7 @@ onMounted(() => {
           </div>
         </template>
 
-        <BackofficeArtistForm
+        <PagesBackofficeArtistForm
           v-else-if="artist"
           v-model:dirty="isFormDirty"
           :initial-value="artist"
@@ -137,7 +137,7 @@ onMounted(() => {
           submit-label="Guardar cambios"
           @submit="updateArtist"
         />
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>

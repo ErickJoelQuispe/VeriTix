@@ -108,14 +108,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Editar evento"
     description="Actualiza la ficha del evento y su configuración operativa."
     primary-action-to="/backoffice/events"
     primary-action-label="Volver a eventos"
   >
     <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         title="Datos del evento"
         description="Edita los campos principales del evento seleccionado."
         variant="glass"
@@ -143,7 +143,7 @@ onMounted(() => {
           </div>
         </template>
 
-        <BackofficeEventForm
+        <PagesBackofficeEventForm
           v-else-if="event"
           v-model:dirty="isFormDirty"
           :initial-value="event"
@@ -154,7 +154,7 @@ onMounted(() => {
           submit-label="Guardar cambios"
           @submit="updateEvent"
         />
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>

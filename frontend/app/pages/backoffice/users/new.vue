@@ -112,14 +112,14 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Nuevo usuario"
     description="Crea una cuenta y asigna su rol operativo."
     primary-action-to="/backoffice/users"
     primary-action-label="Volver a usuarios"
   >
     <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         title="Datos del usuario"
         description="Completa identidad, contacto, rol y contraseña inicial."
         variant="glass"
@@ -135,7 +135,7 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
           </div>
         </template>
 
-        <BackofficeUserForm
+        <PagesBackofficeUserForm
           v-model:dirty="isFormDirty"
           :role-options="roleOptions"
           :submitting="submitting"
@@ -144,7 +144,7 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
           @email-blur="handleEmailBlur"
           @submit="createUser"
         />
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>

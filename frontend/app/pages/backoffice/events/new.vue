@@ -73,14 +73,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Nuevo evento"
     description="Crea un evento y dejalo listo para publicar."
     primary-action-to="/backoffice/events"
     primary-action-label="Volver a eventos"
   >
     <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         title="Datos del evento"
         description="Completa los campos principales para crear la ficha."
         variant="glass"
@@ -108,7 +108,7 @@ onMounted(() => {
           </div>
         </template>
 
-        <BackofficeEventForm
+        <PagesBackofficeEventForm
           v-else
           v-model:dirty="isFormDirty"
           :venues="venues"
@@ -118,7 +118,7 @@ onMounted(() => {
           submit-label="Crear evento"
           @submit="createEvent"
         />
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>

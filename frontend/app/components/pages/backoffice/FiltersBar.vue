@@ -250,12 +250,58 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
 
 <template>
   <div class="flex w-full flex-col gap-4">
-    <BackofficeFilterGrid :items="primaryControls" :grid-class="primaryGridClass" />
+    <!-- Primary controls -->
+    <div class="grid grid-cols-1 items-end gap-4" :class="primaryGridClass">
+      <template v-for="item in primaryControls" :key="item.key">
+        <FormField
+          v-if="item.kind === 'field'"
+          :name="item.name"
+          :label="item.label"
+          :model-value="item.modelValue"
+          :placeholder="item.placeholder"
+          :icon="item.icon"
+          :type="item.type"
+          :disabled="item.disabled"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
+        />
+        <FormSelect
+          v-else
+          :name="item.name"
+          :label="item.label"
+          :items="item.items"
+          :model-value="String(item.modelValue ?? '')"
+          size="md"
+          :disabled="item.disabled"
+          @update:model-value="item.onUpdate($event)"
+        />
+      </template>
+    </div>
 
-    <BackofficeFilterGrid
-      v-if="secondaryControls.length > 0"
-      :items="secondaryControls"
-      :grid-class="secondaryGridClass"
-    />
+    <!-- Secondary controls -->
+    <div v-if="secondaryControls.length > 0" class="grid grid-cols-1 items-end gap-4" :class="secondaryGridClass">
+      <template v-for="item in secondaryControls" :key="item.key">
+        <FormField
+          v-if="item.kind === 'field'"
+          :name="item.name"
+          :label="item.label"
+          :model-value="item.modelValue"
+          :placeholder="item.placeholder"
+          :icon="item.icon"
+          :type="item.type"
+          :disabled="item.disabled"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
+        />
+        <FormSelect
+          v-else
+          :name="item.name"
+          :label="item.label"
+          :items="item.items"
+          :model-value="String(item.modelValue ?? '')"
+          size="md"
+          :disabled="item.disabled"
+          @update:model-value="item.onUpdate($event)"
+        />
+      </template>
+    </div>
   </div>
 </template>

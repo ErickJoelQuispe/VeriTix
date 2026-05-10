@@ -234,7 +234,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Manage events"
     description="Search, filter, and update event records with a compact overview."
     primary-action-to="/backoffice/events/new"
@@ -250,7 +250,7 @@ onMounted(() => {
         </BaseButton>
       </section>
 
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         eyebrow="Filter"
         :title="catalogMode === 'review' ? 'Refine list.' : 'Refine list.'"
         variant="glass"
@@ -277,7 +277,7 @@ onMounted(() => {
         </template>
 
         <div class="space-y-6">
-          <BackofficeFiltersBar
+          <PagesBackofficeFiltersBar
             v-model:search="filters.search"
             v-model:city="filters.city"
             v-model:genre-id="filters.genreId"
@@ -292,11 +292,11 @@ onMounted(() => {
             class="w-full"
           />
 
-          <BackofficeToolbarChips :items="toolbarChips" />
+          <PagesBackofficeToolbarChips :items="toolbarChips" />
 
           <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 text-sm text-toned sm:p-4">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <BackofficeSegmentedControl
+              <PagesBackofficeSegmentedControl
                 :items="catalogModeItems"
                 :active-value="catalogMode"
                 size="md"
@@ -307,7 +307,7 @@ onMounted(() => {
                 v-if="catalogMode === 'published'"
                 class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4"
               >
-                <BackofficeSegmentedControl
+                <PagesBackofficeSegmentedControl
                   :items="quickWindowItems"
                   :active-value="quickWindow"
                   size="md"
@@ -317,15 +317,20 @@ onMounted(() => {
             </div>
           </div>
 
-          <BackofficePaginationRail
-            v-if="catalogMode === 'published'"
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="catalogPending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToCatalogPage"
-          />
+          <div v-if="catalogMode === 'published'" class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="catalogPending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToCatalogPage"
+              />
+            </div>
+          </div>
 
           <div v-if="catalogMode === 'review'" class="flex flex-col gap-3 border-y border-default/70 py-3 text-sm text-toned sm:flex-row sm:items-center sm:justify-between">
             <p class="font-medium text-highlighted">
@@ -355,7 +360,7 @@ onMounted(() => {
               description="Prueba con otros filtros."
             />
 
-            <BackofficeEventRow
+            <PagesBackofficeEventRow
               v-for="event in catalogListItems"
               v-else
               :key="event.id"
@@ -395,7 +400,7 @@ onMounted(() => {
                 <BaseButton variant="secondary" size="sm" class="!rounded-md border-default/55 bg-default/55 hover:bg-default/70" :to="event.to">
                   Editar
                 </BaseButton>
-                <BackofficeDeleteAction
+                <PagesBackofficeDeleteAction
                   v-if="!event.isReview"
                   item-label="el evento"
                   trigger-variant="secondary"
@@ -404,20 +409,25 @@ onMounted(() => {
                   @confirm="removeEvent(event.id)"
                 />
               </template>
-            </BackofficeEventRow>
+            </PagesBackofficeEventRow>
           </div>
 
-          <BackofficePaginationRail
-            v-if="catalogMode === 'published'"
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="catalogPending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToCatalogPage"
-          />
+          <div v-if="catalogMode === 'published'" class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="catalogPending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToCatalogPage"
+              />
+            </div>
+          </div>
         </div>
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>

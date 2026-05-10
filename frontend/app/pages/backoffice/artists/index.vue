@@ -145,7 +145,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Manage artists"
     description="Query by name, genre, status, and engagement."
     primary-action-to="/backoffice/artists/new"
@@ -161,7 +161,7 @@ onMounted(() => {
         </BaseButton>
       </section>
 
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         eyebrow="Filter"
         title="Narrow list."
         description="Query by name, genre, status, and engagement."
@@ -179,7 +179,7 @@ onMounted(() => {
         </template>
 
         <div class="space-y-6">
-          <BackofficeFiltersBar
+          <PagesBackofficeFiltersBar
             v-model:search="filters.search"
             v-model:page-size="pageSize"
             v-model:genre-id="filters.genreId"
@@ -198,16 +198,22 @@ onMounted(() => {
             class="w-full"
           />
 
-          <BackofficeToolbarChips :items="toolbarChips" />
+          <PagesBackofficeToolbarChips :items="toolbarChips" />
 
-          <BackofficePaginationRail
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="pending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToPage"
-          />
+          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToPage"
+              />
+            </div>
+          </div>
 
           <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
@@ -270,7 +276,7 @@ onMounted(() => {
               </NuxtLink>
 
               <!-- Delete action -->
-              <BackofficeDeleteAction
+              <PagesBackofficeDeleteAction
                 item-label="el artista"
                 trigger-variant="outlined"
                 trigger-class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity"
@@ -280,16 +286,22 @@ onMounted(() => {
             </div>
           </div>
 
-          <BackofficePaginationRail
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="pending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToPage"
-          />
+          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToPage"
+              />
+            </div>
+          </div>
         </div>
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>

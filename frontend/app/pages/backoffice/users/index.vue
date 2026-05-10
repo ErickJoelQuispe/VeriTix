@@ -189,7 +189,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Manage users"
     description="Search by status, role, and activity with a concise view."
     primary-action-to="/backoffice/users/new"
@@ -205,7 +205,7 @@ onMounted(() => {
         </BaseButton>
       </section>
 
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         eyebrow="Filter"
         title="Refine list."
         description="Search by status, role, and activity with a concise view."
@@ -223,7 +223,7 @@ onMounted(() => {
         </template>
 
         <div class="space-y-6">
-          <BackofficeFiltersBar
+          <PagesBackofficeFiltersBar
             v-model:search="filters.search"
             v-model:page-size="pageSize"
             v-model:genre-id="filters.role"
@@ -243,16 +243,22 @@ onMounted(() => {
             class="w-full"
           />
 
-          <BackofficeToolbarChips :items="toolbarChips" />
+          <PagesBackofficeToolbarChips :items="toolbarChips" />
 
-          <BackofficePaginationRail
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="pending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToPage"
-          />
+          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToPage"
+              />
+            </div>
+          </div>
 
           <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
@@ -333,7 +339,7 @@ onMounted(() => {
                   <BaseButton variant="secondary" size="sm" block :to="`/backoffice/users/${user.id}/edit`">
                     Editar
                   </BaseButton>
-                  <BackofficeDeleteAction
+                  <PagesBackofficeDeleteAction
                     item-label="el usuario"
                     trigger-variant="outlined"
                     trigger-class="w-full justify-center text-error hover:bg-error/10"
@@ -345,16 +351,22 @@ onMounted(() => {
             </UiPanel>
           </div>
 
-          <BackofficePaginationRail
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="pending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToPage"
-          />
+          <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+            <div class="flex w-full flex-wrap items-center justify-center">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                :show-edges="meta.totalPages > 5"
+                size="lg"
+                @update:page="goToPage"
+              />
+            </div>
+          </div>
         </div>
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>

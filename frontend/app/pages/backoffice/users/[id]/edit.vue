@@ -148,14 +148,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
+  <PagesBackofficePageShell
     title="Editar usuario"
     description="Actualiza perfil, permisos y estado de acceso del usuario."
     primary-action-to="/backoffice/users"
     primary-action-label="Volver a usuarios"
   >
     <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
+      <PagesBackofficeOverviewPanel
         title="Datos del usuario"
         description="Edita contacto, rol, estado y verificación de cuenta."
         variant="glass"
@@ -183,7 +183,7 @@ onMounted(() => {
           </div>
         </template>
 
-        <BackofficeUserForm
+        <PagesBackofficeUserForm
           v-else-if="user"
           v-model:dirty="isFormDirty"
           :initial-value="user"
@@ -194,7 +194,7 @@ onMounted(() => {
           @email-blur="handleEmailBlur"
           @submit="updateUser"
         />
-      </BackofficeOverviewPanel>
+      </PagesBackofficeOverviewPanel>
     </div>
-  </BackofficePageShell>
+  </PagesBackofficePageShell>
 </template>
