@@ -108,13 +108,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Editar evento"
-    description="Actualiza la ficha del evento y su configuración operativa."
-    primary-action-to="/backoffice/events"
-    primary-action-label="Volver a eventos"
-  >
-    <div class="mx-auto max-w-5xl space-y-5">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
+          <BaseButton
+            to="/backoffice/events"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Volver a eventos
+          </BaseButton>
+        </header>
       <PagesBackofficeOverviewPanel
         title="Datos del evento"
         description="Edita los campos principales del evento seleccionado."
@@ -155,6 +162,7 @@ onMounted(() => {
           @submit="updateEvent"
         />
       </PagesBackofficeOverviewPanel>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

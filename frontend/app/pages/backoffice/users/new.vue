@@ -112,13 +112,20 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Nuevo usuario"
-    description="Crea una cuenta y asigna su rol operativo."
-    primary-action-to="/backoffice/users"
-    primary-action-label="Volver a usuarios"
-  >
-    <div class="mx-auto max-w-5xl space-y-5">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Nuevo usuario" description="Crea una cuenta y asigna su rol operativo." />
+          <BaseButton
+            to="/backoffice/users"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Volver a usuarios
+          </BaseButton>
+        </header>
       <PagesBackofficeOverviewPanel
         title="Datos del usuario"
         description="Completa identidad, contacto, rol y contraseña inicial."
@@ -145,6 +152,7 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
           @submit="createUser"
         />
       </PagesBackofficeOverviewPanel>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

@@ -96,11 +96,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Manage venues"
-    description="Availability, capacity, and operational status in one place."
-  >
-    <div class="mx-auto max-w-7xl space-y-8" data-testid="backoffice-venues-page">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8" data-testid="backoffice-venues-page">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Manage venues" description="Availability, capacity, and operational status in one place." />
+        </header>
       <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
         <FormInput v-model="filters.search" placeholder="Search venue or city" icon="i-lucide-search" :disabled="pending" />
         <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
@@ -230,6 +231,7 @@ onMounted(() => {
           </div>
         </div>
       </PagesBackofficeOverviewPanel>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

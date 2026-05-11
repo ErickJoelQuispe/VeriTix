@@ -234,13 +234,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Manage events"
-    description="Search, filter, and update event records with a compact overview."
-    primary-action-to="/backoffice/events/new"
-    primary-action-label="Nuevo evento"
-  >
-    <div class="mx-auto max-w-7xl space-y-8" data-testid="backoffice-events-page">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8" data-testid="backoffice-events-page">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Manage events" description="Search, filter, and update event records with a compact overview." />
+          <BaseButton
+            to="/backoffice/events/new"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Nuevo evento
+          </BaseButton>
+        </header>
       <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
         <FormInput v-model="filters.search" placeholder="Search title, venue, city" icon="i-lucide-search" :disabled="catalogPending || filtersPending" />
         <FormSelect label="Status" name="status" :model-value="catalogMode" :items="catalogModeItems.map(item => ({ label: item.label, value: item.value }))" :disabled="catalogPending || filtersPending" @update:model-value="setCatalogMode(String($event))" />
@@ -428,6 +435,7 @@ onMounted(() => {
           </div>
         </div>
       </PagesBackofficeOverviewPanel>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

@@ -148,13 +148,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Editar usuario"
-    description="Actualiza perfil, permisos y estado de acceso del usuario."
-    primary-action-to="/backoffice/users"
-    primary-action-label="Volver a usuarios"
-  >
-    <div class="mx-auto max-w-5xl space-y-5">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Editar usuario" description="Actualiza perfil, permisos y estado de acceso del usuario." />
+          <BaseButton
+            to="/backoffice/users"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Volver a usuarios
+          </BaseButton>
+        </header>
       <PagesBackofficeOverviewPanel
         title="Datos del usuario"
         description="Edita contacto, rol, estado y verificación de cuenta."
@@ -195,6 +202,7 @@ onMounted(() => {
           @submit="updateUser"
         />
       </PagesBackofficeOverviewPanel>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

@@ -96,13 +96,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Editar artista"
-    description="Actualiza la ficha del artista y su información pública."
-    primary-action-to="/backoffice/artists"
-    primary-action-label="Volver a artistas"
-  >
-    <div class="mx-auto max-w-5xl space-y-5">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Editar artista" description="Actualiza la ficha del artista y su información pública." />
+          <BaseButton
+            to="/backoffice/artists"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Volver a artistas
+          </BaseButton>
+        </header>
       <PagesBackofficeOverviewPanel
         title="Datos del artista"
         description="Edita identidad, metadata y clasificación por género."
@@ -138,6 +145,7 @@ onMounted(() => {
           @submit="updateArtist"
         />
       </PagesBackofficeOverviewPanel>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

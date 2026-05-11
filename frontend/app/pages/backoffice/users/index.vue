@@ -189,13 +189,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Manage users"
-    description="Search by status, role, and activity with a concise view."
-    primary-action-to="/backoffice/users/new"
-    primary-action-label="Nuevo usuario"
-  >
-    <div class="mx-auto max-w-7xl space-y-8" data-testid="backoffice-users-page">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8" data-testid="backoffice-users-page">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Manage users" description="Search by status, role, and activity with a concise view." />
+          <BaseButton
+            to="/backoffice/users/new"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Nuevo usuario
+          </BaseButton>
+        </header>
       <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
         <FormInput v-model="filters.search" placeholder="Search name or email" icon="i-lucide-search" :disabled="pending" />
         <FormSelect label="Role" name="role" :model-value="filters.role || '__all__'" :items="[{ label: 'Role: all', value: '__all__' }, ...roleFilterOptions.map(role => ({ label: role.name, value: role.id }))]" :disabled="pending" @update:model-value="filters.role = $event === '__all__' ? '' : String($event)" />
@@ -367,6 +374,7 @@ onMounted(() => {
           </div>
         </div>
       </PagesBackofficeOverviewPanel>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

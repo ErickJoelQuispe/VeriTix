@@ -183,13 +183,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <PagesBackofficePageShell
-    title="Dashboard"
-    description="Resumen operativo del backoffice con métricas, actividad reciente y seguimiento rápido."
-    primary-action-to="/backoffice/events/new"
-    primary-action-label="Nuevo evento"
-  >
-    <div class="space-y-8">
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
+          <PageHeading eyebrow="Backoffice" title="Dashboard" description="Resumen operativo del backoffice con métricas, actividad reciente y seguimiento rápido." />
+          <BaseButton
+            to="/backoffice/events/new"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Nuevo evento
+          </BaseButton>
+        </header>
       <!-- Metrics -->
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <template v-if="pending">
@@ -322,6 +329,7 @@ onMounted(() => {
           </div>
         </PagesBackofficeOverviewPanel>
       </div>
-    </div>
-  </PagesBackofficePageShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>
