@@ -62,9 +62,11 @@ const pastErrorMessage = computed(() => {
   return getApiErrorMessage(pastError.value, 'No pudimos cargar los eventos pasados de este venue.')
 })
 
+const WHITESPACE_RE = /\s+/
+
 function venueInitials(name: string): string {
   return name
-    .split(/\s+/)
+    .split(WHITESPACE_RE)
     .filter(Boolean)
     .slice(0, 2)
     .map(word => word.charAt(0).toUpperCase())

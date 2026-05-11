@@ -60,9 +60,11 @@ const lineupErrorMessage = computed(() => {
   return getApiErrorMessage(lineupError.value, 'No pudimos cargar el lineup público en este momento.')
 })
 
+const WHITESPACE_RE = /\s+/
+
 function artistInitials(name: string): string {
   return name
-    .split(/\s+/)
+    .split(WHITESPACE_RE)
     .filter(Boolean)
     .slice(0, 2)
     .map(word => word.charAt(0).toUpperCase())

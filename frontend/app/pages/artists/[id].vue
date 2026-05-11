@@ -63,9 +63,11 @@ const pastErrorMessage = computed(() => {
 const upcomingItems = computed(() => upcomingEvents.value?.data ?? [])
 const pastItems = computed(() => pastEvents.value?.data ?? [])
 
+const WHITESPACE_RE = /\s+/
+
 function artistInitials(name: string): string {
   return name
-    .split(/\s+/)
+    .split(WHITESPACE_RE)
     .filter(Boolean)
     .slice(0, 2)
     .map(word => word.charAt(0).toUpperCase())
