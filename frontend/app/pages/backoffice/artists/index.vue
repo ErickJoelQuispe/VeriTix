@@ -254,12 +254,12 @@ onMounted(() => {
                     >
                     <div
                       v-else
-                      class="flex h-full items-center justify-center bg-gradient-to-br from-toned/25 to-toned/10"
+                      class="flex h-full items-center justify-center bg-linear-to-br from-toned/25 to-toned/10"
                     >
                       <BaseAvatar
                         :text="artistInitials(artist)"
                         size="xl"
-                        class="!size-16"
+                        class="size-16!"
                       />
                     </div>
 

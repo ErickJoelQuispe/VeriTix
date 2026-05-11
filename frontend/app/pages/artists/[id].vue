@@ -99,16 +99,16 @@ function formatCreatedAt(value: string | Date): string {
               v-if="artist.imageUrl"
               :src="artist.imageUrl"
               :alt="`Imagen de ${artist.name}`"
-              class="min-h-88 w-full object-cover lg:min-h-[34rem]"
+              class="min-h-88 w-full object-cover lg:min-h-136"
               width="1000"
               height="1200"
               sizes="(max-width: 1023px) 100vw, 40vw"
               placeholder
             />
 
-            <div v-else class="flex min-h-88 items-center justify-center px-8 py-16 text-center lg:min-h-[34rem]">
+            <div v-else class="flex min-h-88 items-center justify-center px-8 py-16 text-center lg:min-h-136">
               <div class="max-w-sm space-y-4">
-                <BaseAvatar :text="artistInitials(artist.name)" size="xl" class="mx-auto !size-20 border border-default/55" />
+                <BaseAvatar :text="artistInitials(artist.name)" size="xl" class="mx-auto size-20! border border-default/55" />
                 <div class="space-y-2">
                   <p class="text-lg font-semibold text-highlighted">
                     Sin imagen pública
