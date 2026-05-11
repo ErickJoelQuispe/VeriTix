@@ -7,6 +7,8 @@ RUN bun install --frozen-lockfile
 
 FROM deps AS builder
 COPY . .
+ARG NUXT_APP_BASE_URL=/
+ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
 RUN rm -rf node_modules/.cache/nuxt
 RUN bun run build
 
