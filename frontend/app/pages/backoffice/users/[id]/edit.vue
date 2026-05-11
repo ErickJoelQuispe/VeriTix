@@ -151,8 +151,8 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
-          <PageHeading eyebrow="Backoffice" title="Editar usuario" description="Actualiza perfil, permisos y estado de acceso del usuario." />
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Editar usuario" description="Actualiza perfil, permisos y estado de acceso del usuario." />
           <BaseButton
             to="/backoffice/users"
             variant="primary"
@@ -161,47 +161,47 @@ onMounted(() => {
           >
             Volver a usuarios
           </BaseButton>
-        </header>
-      <PagesBackofficeOverviewPanel
-        title="Datos del usuario"
-        description="Edita contacto, rol, estado y verificación de cuenta."
-        variant="glass"
-      >
-        <template #actions>
-          <div v-if="user" class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ totalRoles }} roles
-            </BaseBadge>
-            <BaseBadge kind="status" :color="user.isActive ? 'success' : 'neutral'" size="sm" class="min-w-24 justify-center">
-              {{ user.isActive ? 'ACTIVO' : 'INACTIVO' }}
-            </BaseBadge>
-            <BaseBadge kind="status" :color="user.emailVerified ? 'success' : 'warning'" size="sm" class="min-w-24 justify-center">
-              {{ user.emailVerified ? 'VERIFICADO' : 'PENDIENTE' }}
-            </BaseBadge>
-          </div>
-        </template>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del usuario"
+          description="Edita contacto, rol, estado y verificación de cuenta."
+          variant="glass"
+        >
+          <template #actions>
+            <div v-if="user" class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ totalRoles }} roles
+              </BaseBadge>
+              <BaseBadge kind="status" :color="user.isActive ? 'success' : 'neutral'" size="sm" class="min-w-24 justify-center">
+                {{ user.isActive ? 'ACTIVO' : 'INACTIVO' }}
+              </BaseBadge>
+              <BaseBadge kind="status" :color="user.emailVerified ? 'success' : 'warning'" size="sm" class="min-w-24 justify-center">
+                {{ user.emailVerified ? 'VERIFICADO' : 'PENDIENTE' }}
+              </BaseBadge>
+            </div>
+          </template>
 
-        <template v-if="loading">
-          <div class="space-y-4">
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-          </div>
-        </template>
+          <template v-if="loading">
+            <div class="space-y-4">
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+            </div>
+          </template>
 
-        <PagesBackofficeUserForm
-          v-else-if="user"
-          v-model:dirty="isFormDirty"
-          :initial-value="user"
-          :role-options="roleOptions"
-          :submitting="submitting"
-          submit-label="Guardar cambios"
-          :include-password="false"
-          @email-blur="handleEmailBlur"
-          @submit="updateUser"
-        />
-      </PagesBackofficeOverviewPanel>
+          <PagesBackofficeUserForm
+            v-else-if="user"
+            v-model:dirty="isFormDirty"
+            :initial-value="user"
+            :role-options="roleOptions"
+            :submitting="submitting"
+            submit-label="Guardar cambios"
+            :include-password="false"
+            @email-blur="handleEmailBlur"
+            @submit="updateUser"
+          />
+        </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
   </section>

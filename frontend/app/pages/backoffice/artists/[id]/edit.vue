@@ -99,8 +99,8 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
-          <PageHeading eyebrow="Backoffice" title="Editar artista" description="Actualiza la ficha del artista y su información pública." />
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Editar artista" description="Actualiza la ficha del artista y su información pública." />
           <BaseButton
             to="/backoffice/artists"
             variant="primary"
@@ -109,42 +109,42 @@ onMounted(() => {
           >
             Volver a artistas
           </BaseButton>
-        </header>
-      <PagesBackofficeOverviewPanel
-        title="Datos del artista"
-        description="Edita identidad, metadata y clasificación por género."
-        variant="glass"
-      >
-        <template #actions>
-          <div v-if="artist" class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ genres?.length || 0 }} géneros
-            </BaseBadge>
-            <BaseBadge kind="status" :color="artist.isActive ? 'success' : 'neutral'" size="sm" class="min-w-24 justify-center">
-              {{ artist.isActive ? 'ACTIVO' : 'INACTIVO' }}
-            </BaseBadge>
-          </div>
-        </template>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del artista"
+          description="Edita identidad, metadata y clasificación por género."
+          variant="glass"
+        >
+          <template #actions>
+            <div v-if="artist" class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ genres?.length || 0 }} géneros
+              </BaseBadge>
+              <BaseBadge kind="status" :color="artist.isActive ? 'success' : 'neutral'" size="sm" class="min-w-24 justify-center">
+                {{ artist.isActive ? 'ACTIVO' : 'INACTIVO' }}
+              </BaseBadge>
+            </div>
+          </template>
 
-        <template v-if="loading">
-          <div class="space-y-4">
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-24 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-          </div>
-        </template>
+          <template v-if="loading">
+            <div class="space-y-4">
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-24 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+            </div>
+          </template>
 
-        <PagesBackofficeArtistForm
-          v-else-if="artist"
-          v-model:dirty="isFormDirty"
-          :initial-value="artist"
-          :genres="genres"
-          :submitting="submitting"
-          submit-label="Guardar cambios"
-          @submit="updateArtist"
-        />
-      </PagesBackofficeOverviewPanel>
+          <PagesBackofficeArtistForm
+            v-else-if="artist"
+            v-model:dirty="isFormDirty"
+            :initial-value="artist"
+            :genres="genres"
+            :submitting="submitting"
+            submit-label="Guardar cambios"
+            @submit="updateArtist"
+          />
+        </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
   </section>

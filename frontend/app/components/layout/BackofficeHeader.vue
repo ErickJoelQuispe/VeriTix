@@ -173,5 +173,3 @@ function isNavActive(path: string): boolean {
     </BaseContainer>
   </header>
 </template>
-
-

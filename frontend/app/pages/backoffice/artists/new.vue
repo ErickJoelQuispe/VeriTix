@@ -74,8 +74,8 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
-          <PageHeading eyebrow="Backoffice" title="Nuevo artista" description="Crea un artista y dejalo listo para asociar a eventos." />
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Nuevo artista" description="Crea un artista y dejalo listo para asociar a eventos." />
           <BaseButton
             to="/backoffice/artists"
             variant="primary"
@@ -84,38 +84,38 @@ onMounted(() => {
           >
             Volver a artistas
           </BaseButton>
-        </header>
-      <PagesBackofficeOverviewPanel
-        title="Datos del artista"
-        description="Completa la ficha principal para catalogo y búsqueda."
-        variant="glass"
-      >
-        <template #actions>
-          <div class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ genres?.length || 0 }} géneros
-            </BaseBadge>
-          </div>
-        </template>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del artista"
+          description="Completa la ficha principal para catalogo y búsqueda."
+          variant="glass"
+        >
+          <template #actions>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ genres?.length || 0 }} géneros
+              </BaseBadge>
+            </div>
+          </template>
 
-        <template v-if="loading">
-          <div class="space-y-4">
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-24 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-          </div>
-        </template>
+          <template v-if="loading">
+            <div class="space-y-4">
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-24 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+            </div>
+          </template>
 
-        <PagesBackofficeArtistForm
-          v-else
-          v-model:dirty="isFormDirty"
-          :genres="genres"
-          :submitting="submitting"
-          submit-label="Crear artista"
-          @submit="createArtist"
-        />
-      </PagesBackofficeOverviewPanel>
+          <PagesBackofficeArtistForm
+            v-else
+            v-model:dirty="isFormDirty"
+            :genres="genres"
+            :submitting="submitting"
+            submit-label="Crear artista"
+            @submit="createArtist"
+          />
+        </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
   </section>

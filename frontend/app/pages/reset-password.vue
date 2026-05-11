@@ -57,7 +57,7 @@ async function onSubmit() {
   try {
     await resetPassword(token.value, state.password)
     success.value = true
-    setTimeout(() => navigateTo('/login'), 3000)
+    setTimeout(navigateTo, 3000, '/login')
   }
   catch (error) {
     notifyApiError(error, 'El enlace de recuperación es inválido o expiró. Solicitá uno nuevo.', {

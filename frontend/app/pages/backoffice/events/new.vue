@@ -76,8 +76,8 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
-          <PageHeading eyebrow="Backoffice" title="Nuevo evento" description="Crea un evento y dejalo listo para publicar." />
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Nuevo evento" description="Crea un evento y dejalo listo para publicar." />
           <BaseButton
             to="/backoffice/events"
             variant="primary"
@@ -86,46 +86,46 @@ onMounted(() => {
           >
             Volver a eventos
           </BaseButton>
-        </header>
-      <PagesBackofficeOverviewPanel
-        title="Datos del evento"
-        description="Completa los campos principales para crear la ficha."
-        variant="glass"
-      >
-        <template #actions>
-          <div class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ venues?.length || 0 }} venues
-            </BaseBadge>
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ formats?.length || 0 }} formatos
-            </BaseBadge>
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ genres?.length || 0 }} generos
-            </BaseBadge>
-          </div>
-        </template>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del evento"
+          description="Completa los campos principales para crear la ficha."
+          variant="glass"
+        >
+          <template #actions>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ venues?.length || 0 }} venues
+              </BaseBadge>
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ formats?.length || 0 }} formatos
+              </BaseBadge>
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ genres?.length || 0 }} generos
+              </BaseBadge>
+            </div>
+          </template>
 
-        <template v-if="loading">
-          <div class="space-y-4">
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-24 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-          </div>
-        </template>
+          <template v-if="loading">
+            <div class="space-y-4">
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-24 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+            </div>
+          </template>
 
-        <PagesBackofficeEventForm
-          v-else
-          v-model:dirty="isFormDirty"
-          :venues="venues"
-          :genres="genres"
-          :formats="formats"
-          :submitting="submitting"
-          submit-label="Crear evento"
-          @submit="createEvent"
-        />
-      </PagesBackofficeOverviewPanel>
+          <PagesBackofficeEventForm
+            v-else
+            v-model:dirty="isFormDirty"
+            :venues="venues"
+            :genres="genres"
+            :formats="formats"
+            :submitting="submitting"
+            submit-label="Crear evento"
+            @submit="createEvent"
+          />
+        </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
   </section>

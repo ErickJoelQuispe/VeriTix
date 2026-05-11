@@ -111,8 +111,8 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <header class="flex flex-col gap-4 border-b border-default/55 pb-7 lg:flex-row lg:items-start lg:justify-between">
-          <PageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
           <BaseButton
             to="/backoffice/events"
             variant="primary"
@@ -121,47 +121,47 @@ onMounted(() => {
           >
             Volver a eventos
           </BaseButton>
-        </header>
-      <PagesBackofficeOverviewPanel
-        title="Datos del evento"
-        description="Edita los campos principales del evento seleccionado."
-        variant="glass"
-      >
-        <template #actions>
-          <div v-if="event" class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ venues?.length || 0 }} venues
-            </BaseBadge>
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ formats?.length || 0 }} formatos
-            </BaseBadge>
-            <BaseBadge kind="status" :color="getStatusTone(event.status)" size="sm" class="min-w-24 justify-center">
-              {{ event.status }}
-            </BaseBadge>
-          </div>
-        </template>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del evento"
+          description="Edita los campos principales del evento seleccionado."
+          variant="glass"
+        >
+          <template #actions>
+            <div v-if="event" class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ venues?.length || 0 }} venues
+              </BaseBadge>
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ formats?.length || 0 }} formatos
+              </BaseBadge>
+              <BaseBadge kind="status" :color="getStatusTone(event.status)" size="sm" class="min-w-24 justify-center">
+                {{ event.status }}
+              </BaseBadge>
+            </div>
+          </template>
 
-        <template v-if="loading">
-          <div class="space-y-4">
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-24 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-          </div>
-        </template>
+          <template v-if="loading">
+            <div class="space-y-4">
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-24 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+            </div>
+          </template>
 
-        <PagesBackofficeEventForm
-          v-else-if="event"
-          v-model:dirty="isFormDirty"
-          :initial-value="event"
-          :venues="venues"
-          :genres="genres"
-          :formats="formats"
-          :submitting="submitting"
-          submit-label="Guardar cambios"
-          @submit="updateEvent"
-        />
-      </PagesBackofficeOverviewPanel>
+          <PagesBackofficeEventForm
+            v-else-if="event"
+            v-model:dirty="isFormDirty"
+            :initial-value="event"
+            :venues="venues"
+            :genres="genres"
+            :formats="formats"
+            :submitting="submitting"
+            submit-label="Guardar cambios"
+            @submit="updateEvent"
+          />
+        </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
   </section>
