@@ -3,7 +3,7 @@ import type {
   BackofficeEventRecord,
   BackofficeRequiresAttentionRecord,
 } from '~~/shared/types'
-import { compactQuery } from '../../../shared/query'
+import { compactQuery } from '~~/shared/query'
 
 export type QuickWindow = 'all' | 'upcoming' | 'thisMonth' | 'past'
 export type EventBadgeColor = 'success' | 'warning' | 'error' | 'neutral'

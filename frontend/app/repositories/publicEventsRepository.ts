@@ -13,7 +13,7 @@ import type {
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
-import { compactQuery } from '../../shared/query'
+import { compactQuery } from '~~/shared/query'
 
 export function toIsoString(
   value: string | Date | null | undefined,

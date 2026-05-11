@@ -4,7 +4,7 @@ import type {
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
 } from '~~/shared/types'
-import { compactQuery, trimToUndefined } from '../../shared/query'
+import { compactQuery, trimToUndefined } from '~~/shared/query'
 
 export function useBackofficeUsersRepository() {
   const apiRequest = useApiRequest()

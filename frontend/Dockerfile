@@ -7,6 +7,7 @@ RUN bun install --frozen-lockfile
 
 FROM deps AS builder
 COPY . .
+RUN rm -rf node_modules/.cache/nuxt
 RUN bun run build
 
 FROM oven/bun:1-alpine AS production

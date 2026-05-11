@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 import { createError, getQuery, getRouterParam, readBody } from 'h3'
-import { compactQuery, normalizeQueryValue } from '../../shared/query'
+import { compactQuery, normalizeQueryValue } from '~~/shared/query'
 
 function readSingleQueryValue(
   event: H3Event,

@@ -3,7 +3,7 @@ import type {
   BackofficeVenueListQuery,
   BackofficeVenueRecord,
 } from '~~/shared/types'
-import { compactQuery } from '../../shared/query'
+import { compactQuery } from '~~/shared/query'
 
 export function useBackofficeVenuesRepository() {
   const apiRequest = useApiRequest()

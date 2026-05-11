@@ -4,7 +4,7 @@ import type {
   BackofficeArtistRecord,
   GenreOption,
 } from '~~/shared/types'
-import { compactQuery } from '../../shared/query'
+import { compactQuery } from '~~/shared/query'
 
 export function useBackofficeArtistsRepository() {
   const apiRequest = useApiRequest()
