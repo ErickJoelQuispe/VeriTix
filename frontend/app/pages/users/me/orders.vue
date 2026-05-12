@@ -16,6 +16,8 @@ useSeoMeta({
 const { fetchMyOrders } = useMyOrders()
 const { notifyApiError } = useAppNotifications()
 
+const errorMessage = ref('')
+
 const orders = ref<UserOrder[]>([])
 const initialized = ref(false)
 const pending = ref(false)
@@ -57,12 +59,14 @@ async function loadOrders(targetPage = page.value) {
   pending.value = true
 
   try {
+    errorMessage.value = ''
     const response = await fetchMyOrders(targetPage, limit)
     orders.value = response.data
     meta.value = response.meta
     page.value = response.meta.page
   }
   catch (error) {
+    errorMessage.value = 'No pudimos cargar tus órdenes. Intentá de nuevo más tarde.'
     notifyApiError(error, 'No pudimos cargar tus órdenes.', { id: 'my-orders-load-error' })
   }
   finally {
@@ -113,8 +117,25 @@ onMounted(() => {
           />
         </div>
 
+        <div
+          v-if="errorMessage"
+          class="rounded-2xl border border-error/30 bg-error/8 px-6 py-14 text-center"
+        >
+          <div class="mx-auto flex max-w-md flex-col items-center gap-4">
+            <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
+            <div class="space-y-2">
+              <p class="text-lg font-semibold text-highlighted">
+                No pudimos cargar tus órdenes.
+              </p>
+              <p class="text-sm leading-relaxed text-toned">
+                {{ errorMessage }}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <UiEmptyState
-          v-if="orders.length === 0"
+          v-else-if="orders.length === 0"
           icon="i-lucide-shopping-bag"
           title="Todavía no tenés órdenes"
           description="Cuando comprés una entrada aparecerá acá con su estado de pago."
