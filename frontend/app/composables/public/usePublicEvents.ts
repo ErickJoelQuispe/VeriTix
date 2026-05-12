@@ -1,4 +1,5 @@
 import type { MaybeRef } from 'vue'
+import type { PublicEventArtistApiItem } from '~~/shared/api/public-events'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type {
   EventCatalogDetail,
@@ -7,7 +8,6 @@ import type {
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
-import type { PublicEventArtistApiItem } from '~~/shared/api/public-events'
 import { usePublicEventsRepository } from '../../repositories/publicEventsRepository'
 
 export function normalizeFilters(

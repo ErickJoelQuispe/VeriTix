@@ -145,151 +145,171 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
-    title="Manage artists"
-    description="Query by name, genre, status, and engagement."
-    primary-action-to="/backoffice/artists/new"
-    primary-action-label="Nuevo artista"
-  >
-    <div class="mx-auto max-w-7xl space-y-8" data-testid="backoffice-artists-page">
-      <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
-        <FormInput v-model="filters.search" placeholder="Search artist or agent" icon="i-lucide-search" :disabled="pending" />
-        <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
-        <FormSelect label="Genre" name="genre" :model-value="filters.genreId || '__all__'" :items="[{ label: 'Genre: all', value: '__all__' }, ...genreFilterOptions.map(genre => ({ label: genre.name, value: genre.id }))]" :disabled="pending" @update:model-value="filters.genreId = $event === '__all__' ? '' : String($event)" />
-        <BaseButton variant="secondary" :loading="pending" @click="applyFilters">
-          Search
-        </BaseButton>
-      </section>
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8" data-testid="backoffice-artists-page">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Manage artists" description="Query by name, genre, status, and engagement." />
+          <BaseButton
+            to="/backoffice/artists/new"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Nuevo artista
+          </BaseButton>
+        </div>
+        <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
+          <FormInput v-model="filters.search" placeholder="Search artist or agent" icon="i-lucide-search" :disabled="pending" />
+          <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
+          <FormSelect label="Genre" name="genre" :model-value="filters.genreId || '__all__'" :items="[{ label: 'Genre: all', value: '__all__' }, ...genreFilterOptions.map(genre => ({ label: genre.name, value: genre.id }))]" :disabled="pending" @update:model-value="filters.genreId = $event === '__all__' ? '' : String($event)" />
+          <BaseButton variant="secondary" :loading="pending" @click="applyFilters">
+            Search
+          </BaseButton>
+        </section>
 
-      <BackofficeOverviewPanel
-        eyebrow="Filter"
-        title="Narrow list."
-        description="Query by name, genre, status, and engagement."
-        variant="glass"
-      >
-        <template #actions>
-          <div class="flex items-center gap-3 sm:self-center">
-            <BaseButton variant="outlined" size="md" :disabled="pending" @click="resetFilters">
-              Resetear
-            </BaseButton>
-            <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
-              Aplicar
-            </BaseButton>
-          </div>
-        </template>
+        <PagesBackofficeOverviewPanel
+          eyebrow="Filter"
+          title="Narrow list."
+          description="Query by name, genre, status, and engagement."
+          variant="glass"
+        >
+          <template #actions>
+            <div class="flex items-center gap-3 sm:self-center">
+              <BaseButton variant="outlined" size="md" :disabled="pending" @click="resetFilters">
+                Resetear
+              </BaseButton>
+              <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
+                Aplicar
+              </BaseButton>
+            </div>
+          </template>
 
-        <div class="space-y-6">
-          <BackofficeFiltersBar
-            v-model:search="filters.search"
-            v-model:page-size="pageSize"
-            v-model:genre-id="filters.genreId"
-            v-model:format-id="filters.isActive"
-            :page-size-options="pageSizeOptions"
-            :genres="genreFilterOptions"
-            :formats="statusOptions"
-            :visible-filters="['pageSize', 'genre', 'format']"
-            search-label="Buscar artista"
-            search-placeholder="Nombre del artista"
-            genre-label="Género"
-            genre-name="genreId"
-            format-label="Estado"
-            format-name="isActive"
-            :loading="pending"
-            class="w-full"
-          />
+          <div class="space-y-6">
+            <PagesBackofficeFiltersBar
+              v-model:search="filters.search"
+              v-model:page-size="pageSize"
+              v-model:genre-id="filters.genreId"
+              v-model:format-id="filters.isActive"
+              :page-size-options="pageSizeOptions"
+              :genres="genreFilterOptions"
+              :formats="statusOptions"
+              :visible-filters="['pageSize', 'genre', 'format']"
+              search-label="Buscar artista"
+              search-placeholder="Nombre del artista"
+              genre-label="Género"
+              genre-name="genreId"
+              format-label="Estado"
+              format-name="isActive"
+              :loading="pending"
+              class="w-full"
+            />
 
-          <BackofficeToolbarChips :items="toolbarChips" />
+            <PagesBackofficeToolbarChips :items="toolbarChips" />
 
-          <BackofficePaginationRail
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="pending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToPage"
-          />
+            <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+              <div class="flex w-full flex-wrap items-center justify-center">
+                <BasePagination
+                  :page="meta.page"
+                  :total="meta.total"
+                  :items-per-page="meta.limit"
+                  :disabled="pending"
+                  :sibling-count="1"
+                  :show-edges="meta.totalPages > 5"
+                  size="lg"
+                  @update:page="goToPage"
+                />
+              </div>
+            </div>
 
-          <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
-          </div>
+            <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
+            </div>
 
-          <UiEmptyState
-            v-else-if="artists.length === 0"
-            icon="i-lucide-mic-2"
-            title="Sin artistas"
-            description="No encontramos artistas para estos filtros."
-            action-label="Crear artista"
-            action-to="/backoffice/artists/new"
-          />
+            <UiEmptyState
+              v-else-if="artists.length === 0"
+              icon="i-lucide-mic-2"
+              title="Sin artistas"
+              description="No encontramos artistas para estos filtros."
+              action-label="Crear artista"
+              action-to="/backoffice/artists/new"
+            />
 
-          <div v-else class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            <div
-              v-for="artist in artists"
-              :key="artist.id"
-              class="group relative block"
-            >
-              <NuxtLink
-                :to="`/backoffice/artists/${artist.id}/edit`"
-                class="block"
+            <div v-else class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              <div
+                v-for="artist in artists"
+                :key="artist.id"
+                class="group relative block"
               >
-                <div class="aspect-square overflow-hidden rounded-xl bg-elevated/30">
-                  <img
-                    v-if="artist.imageUrl"
-                    :src="artist.imageUrl"
-                    :alt="artist.name"
-                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  >
-                  <div
-                    v-else
-                    class="flex h-full items-center justify-center bg-gradient-to-br from-toned/25 to-toned/10"
-                  >
-                    <BaseAvatar
-                      :text="artistInitials(artist)"
-                      size="xl"
-                      class="!size-16"
-                    />
+                <NuxtLink
+                  :to="`/backoffice/artists/${artist.id}/edit`"
+                  class="block"
+                >
+                  <div class="aspect-square overflow-hidden rounded-xl bg-elevated/30">
+                    <img
+                      v-if="artist.imageUrl"
+                      :src="artist.imageUrl"
+                      :alt="artist.name"
+                      class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    >
+                    <div
+                      v-else
+                      class="flex h-full items-center justify-center bg-linear-to-br from-toned/25 to-toned/10"
+                    >
+                      <BaseAvatar
+                        :text="artistInitials(artist)"
+                        size="xl"
+                        class="size-16!"
+                      />
+                    </div>
+
+                    <!-- Status -->
+                    <div
+                      class="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider opacity-80"
+                      :class="artist.isActive ? 'bg-black/60 text-white' : 'bg-black/40 text-muted'"
+                    >
+                      {{ artist.isActive ? 'Activo' : 'Inactivo' }}
+                    </div>
                   </div>
 
-                  <!-- Status -->
-                  <div
-                    class="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider opacity-80"
-                    :class="artist.isActive ? 'bg-black/60 text-white' : 'bg-black/40 text-muted'"
-                  >
-                    {{ artist.isActive ? 'Activo' : 'Inactivo' }}
+                  <div class="mt-2">
+                    <h3 class="truncate text-sm font-medium text-highlighted">
+                      {{ artist.name }}
+                    </h3>
+                    <p v-if="artist.genres.length" class="truncate text-xs text-toned">
+                      {{ artist.genres.map(g => g.name).join(', ') }}
+                    </p>
                   </div>
-                </div>
+                </NuxtLink>
 
-                <div class="mt-2">
-                  <h3 class="truncate text-sm font-medium text-highlighted">
-                    {{ artist.name }}
-                  </h3>
-                  <p v-if="artist.genres.length" class="truncate text-xs text-toned">
-                    {{ artist.genres.map(g => g.name).join(', ') }}
-                  </p>
-                </div>
-              </NuxtLink>
+                <!-- Delete action -->
+                <PagesBackofficeDeleteAction
+                  item-label="el artista"
+                  trigger-variant="outlined"
+                  trigger-class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity"
+                  :pending="deletingId === artist.id"
+                  @confirm="removeArtist(artist.id)"
+                />
+              </div>
+            </div>
 
-              <!-- Delete action -->
-              <BackofficeDeleteAction
-                item-label="el artista"
-                trigger-variant="outlined"
-                trigger-class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity"
-                :pending="deletingId === artist.id"
-                @confirm="removeArtist(artist.id)"
-              />
+            <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
+              <div class="flex w-full flex-wrap items-center justify-center">
+                <BasePagination
+                  :page="meta.page"
+                  :total="meta.total"
+                  :items-per-page="meta.limit"
+                  :disabled="pending"
+                  :sibling-count="1"
+                  :show-edges="meta.totalPages > 5"
+                  size="lg"
+                  @update:page="goToPage"
+                />
+              </div>
             </div>
           </div>
-
-          <BackofficePaginationRail
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :pending="pending"
-            :show-edges="meta.totalPages > 5"
-            @update:page="goToPage"
-          />
-        </div>
-      </BackofficeOverviewPanel>
-    </div>
-  </BackofficePageShell>
+        </PagesBackofficeOverviewPanel>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

@@ -21,7 +21,7 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
             </p>
             <ul class="space-y-3 text-sm text-toned">
               <li>
-                <NuxtLink to="/backoffice/dashboard">
+                <NuxtLink to="/backoffice">
                   Dashboard
                 </NuxtLink>
               </li>

@@ -159,9 +159,3 @@ function isMainNavActive(path: string): boolean {
     </BaseContainer>
   </header>
 </template>
-
-<style scoped>
-.vtx-header-brand-link:hover .vtx-header-brand-prism {
-    filter: drop-shadow(0 0 14px color-mix(in oklch, var(--color-accent) 34%, transparent));
-}
-</style>

@@ -1,3 +1,5 @@
+import type { PublicEventDetailApiItem, PublicEventListApiItem } from '~~/shared/api/public-events'
+
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -5,8 +7,6 @@ import {
   mapEventDetail,
   mapEventListItem,
 } from '@/repositories/publicEventsRepository'
-
-import type { PublicEventListApiItem, PublicEventDetailApiItem } from '~~/shared/api/public-events'
 
 describe('mapEventListItem', () => {
   const input: PublicEventListApiItem = {

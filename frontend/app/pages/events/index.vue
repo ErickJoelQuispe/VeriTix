@@ -347,7 +347,7 @@ async function handlePageChange(page: number) {
               <p class="text-sm font-medium text-highlighted">
                 {{ resultsHeading }}
               </p>
-              <BackofficeToolbarChips :items="resultsChips" />
+              <PagesBackofficeToolbarChips :items="resultsChips" />
             </div>
           </div>
 

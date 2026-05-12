@@ -43,10 +43,10 @@ beforeEach(() => {
   vi.clearAllMocks()
 
   apiRequestMock.mockImplementation(async (path: string, _opts?: unknown) => {
-    if (path === '/auth/register') return { ok: true }
-    if (path === '/auth/login') return authResponse
-    if (path === '/auth/refresh') return authResponse
-    if (path === '/auth/logout') return undefined
+    if (path === '/auth/register') { return { ok: true } }
+    if (path === '/auth/login') { return authResponse }
+    if (path === '/auth/refresh') { return authResponse }
+    if (path === '/auth/logout') { return undefined }
 
     throw new Error(`Unexpected path: ${path}`)
   })

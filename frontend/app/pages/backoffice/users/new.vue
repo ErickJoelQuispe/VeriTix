@@ -112,39 +112,47 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
 </script>
 
 <template>
-  <BackofficePageShell
-    title="Nuevo usuario"
-    description="Crea una cuenta y asigna su rol operativo."
-    primary-action-to="/backoffice/users"
-    primary-action-label="Volver a usuarios"
-  >
-    <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
-        title="Datos del usuario"
-        description="Completa identidad, contacto, rol y contraseña inicial."
-        variant="glass"
-      >
-        <template #actions>
-          <div class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ totalRoles }} roles
-            </BaseBadge>
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              acceso inicial
-            </BaseBadge>
-          </div>
-        </template>
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Nuevo usuario" description="Crea una cuenta y asigna su rol operativo." />
+          <BaseButton
+            to="/backoffice/users"
+            variant="primary"
+            size="sm"
+            leading-icon="i-lucide-plus"
+          >
+            Volver a usuarios
+          </BaseButton>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del usuario"
+          description="Completa identidad, contacto, rol y contraseña inicial."
+          variant="glass"
+        >
+          <template #actions>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ totalRoles }} roles
+              </BaseBadge>
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                acceso inicial
+              </BaseBadge>
+            </div>
+          </template>
 
-        <BackofficeUserForm
-          v-model:dirty="isFormDirty"
-          :role-options="roleOptions"
-          :submitting="submitting"
-          submit-label="Crear usuario"
-          :include-password="true"
-          @email-blur="handleEmailBlur"
-          @submit="createUser"
-        />
-      </BackofficeOverviewPanel>
-    </div>
-  </BackofficePageShell>
+          <PagesBackofficeUserForm
+            v-model:dirty="isFormDirty"
+            :role-options="roleOptions"
+            :submitting="submitting"
+            submit-label="Crear usuario"
+            :include-password="true"
+            @email-blur="handleEmailBlur"
+            @submit="createUser"
+          />
+        </PagesBackofficeOverviewPanel>
+      </div>
+    </BaseContainer>
+  </section>
 </template>
