@@ -3,6 +3,7 @@ import type { UserRole } from '~~/shared/types'
 import { z } from 'zod'
 
 definePageMeta({
+  layout: 'account',
   middleware: 'auth',
 })
 

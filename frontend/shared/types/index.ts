@@ -1,4 +1,6 @@
 export * from './auth'
 export * from './backoffice'
 export * from './domain'
+export * from './orders'
+export * from './tickets'
 export * from './user'

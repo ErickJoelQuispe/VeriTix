@@ -101,9 +101,8 @@ const toneClasses = computed(() => {
             </div>
           </div>
 
-          <div class="flex items-end lg:justify-end">
+          <div v-if="actionTo && actionLabel" class="flex items-end lg:justify-end">
             <BaseButton
-              v-if="actionTo && actionLabel"
               variant="secondary"
               :to="actionTo"
               size="lg"
