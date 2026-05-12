@@ -16,11 +16,10 @@ useSeoMeta({
 const { fetchMyTickets, getTicketPdfUrl } = useMyTickets()
 const { notifyApiError } = useAppNotifications()
 
-const errorMessage = ref('')
-
 const tickets = ref<UserTicket[]>([])
 const initialized = ref(false)
 const pending = ref(false)
+const errorMessage = ref('')
 const page = ref(1)
 const limit = 12
 
@@ -86,193 +85,195 @@ onMounted(() => {
 </script>
 
 <template>
-  <UsersSettingsShell
-    title="Mis entradas"
-    description="Consultá tus entradas compradas, descargalas en PDF y verificá su estado de validación."
-    tone="minimal"
-  >
-    <section class="space-y-6">
-      <div v-if="!initialized" class="space-y-4">
-        <BaseSkeleton v-for="index in 4" :key="index" class="h-28 rounded-2xl" />
-      </div>
-
-      <template v-else>
-        <div v-if="showPagination" class="flex justify-end">
-          <BasePagination
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :disabled="pending"
-            :sibling-count="1"
-            size="sm"
-            color="neutral"
-            variant="ghost"
-            active-color="primary"
-            active-variant="soft"
-            show-edges
-            @update:page="goToPage"
-          />
-        </div>
-
-        <div
-          v-if="errorMessage"
-          class="rounded-2xl border border-error/30 bg-error/8 px-6 py-14 text-center"
-        >
-          <div class="mx-auto flex max-w-md flex-col items-center gap-4">
-            <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
-            <div class="space-y-2">
-              <p class="text-lg font-semibold text-highlighted">
-                No pudimos cargar tus entradas.
-              </p>
-              <p class="text-sm leading-relaxed text-toned">
-                {{ errorMessage }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <UiEmptyState
-          v-else-if="tickets.length === 0"
-          icon="i-lucide-ticket"
-          title="Todavía no tenés entradas"
-          description="Cuando comprés una entrada aparecerá acá con su estado y opción de descarga."
-          action-label="Ver eventos"
-          action-to="/events"
+  <section class="relative py-10 sm:py-14 lg:py-16">
+    <BaseContainer class="relative">
+      <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
+        <UiPageHeading
+          eyebrow="Mi cuenta"
+          title="Entradas"
+          description="Consultá tus entradas compradas, descargalas en PDF y verificá su estado de validación."
         />
 
-        <div v-else class="space-y-3">
-          <UiPanel
-            v-for="ticket in tickets"
-            :key="ticket.id"
-            variant="glass"
-            radius="lg"
-            padding="md"
-            class="border-default/65 bg-elevated/20"
-          >
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div class="flex min-w-0 items-start gap-4">
-                <div class="vtx-ticket-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
-                  <BaseIcon name="i-lucide-ticket" class="size-5 text-primary" />
-                </div>
+        <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
+          <section class="space-y-6">
+            <div v-if="!initialized" class="space-y-4">
+              <BaseSkeleton v-for="index in 4" :key="index" class="h-28 rounded-2xl" />
+            </div>
 
-                <div class="min-w-0 space-y-1">
-                  <p class="truncate text-base font-semibold text-highlighted">
-                    {{ ticket.event.name }}
-                  </p>
-                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <span class="text-sm text-toned">{{ ticket.ticketType.name }}</span>
-                    <span class="hidden text-default/40 sm:inline">·</span>
-                    <span class="text-sm text-toned">{{ formatEventDate(ticket.event.eventDate) }}</span>
-                  </div>
-                  <p class="text-xs text-muted font-mono">
-                    #{{ ticket.hash.slice(0, 12).toUpperCase() }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap sm:justify-end">
-                <div class="flex items-center gap-2">
-                  <BaseBadge
-                    kind="status"
-                    :color="getStatusConfig(ticket.status).color"
-                    :icon="getStatusConfig(ticket.status).icon"
-                    size="sm"
-                    leading
-                  >
-                    {{ getStatusConfig(ticket.status).label }}
-                  </BaseBadge>
-
-                  <BaseBadge kind="price" size="sm">
-                    {{ formatPrice(ticket.ticketType.price) }}
-                  </BaseBadge>
-                </div>
-
-                <BaseButton
-                  v-if="ticket.status === 'ACTIVE'"
-                  variant="secondary"
+            <template v-else>
+              <div v-if="showPagination" class="flex justify-end">
+                <BasePagination
+                  :page="meta.page"
+                  :total="meta.total"
+                  :items-per-page="meta.limit"
+                  :disabled="pending"
+                  :sibling-count="1"
                   size="sm"
-                  :to="getTicketPdfUrl(ticket.id)"
-                  target="_blank"
-                  external
-                  leading-icon="i-lucide-download"
+                  color="neutral"
+                  variant="ghost"
+                  active-color="primary"
+                  active-variant="soft"
+                  show-edges
+                  @update:page="goToPage"
+                />
+              </div>
+
+              <div
+                v-if="errorMessage"
+                class="rounded-2xl border border-error/30 bg-error/8 px-6 py-14 text-center"
+              >
+                <div class="mx-auto flex max-w-md flex-col items-center gap-4">
+                  <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
+                  <div class="space-y-2">
+                    <p class="text-lg font-semibold text-highlighted">
+                      No pudimos cargar tus entradas.
+                    </p>
+                    <p class="text-sm leading-relaxed text-toned">
+                      {{ errorMessage }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <UiEmptyState
+                v-else-if="tickets.length === 0"
+                icon="i-lucide-ticket"
+                title="Todavía no tenés entradas"
+                description="Cuando comprés una entrada aparecerá acá con su estado y opción de descarga."
+                action-label="Ver eventos"
+                action-to="/events"
+              />
+
+              <div v-else class="space-y-3">
+                <UiPanel
+                  v-for="ticket in tickets"
+                  :key="ticket.id"
+                  variant="glass"
+                  radius="lg"
+                  padding="md"
+                  class="border-default/65 bg-elevated/20"
                 >
-                  PDF
-                </BaseButton>
+                  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex min-w-0 items-start gap-4">
+                      <div class="vtx-ticket-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
+                        <BaseIcon name="i-lucide-ticket" class="size-5 text-primary" />
+                      </div>
+
+                      <div class="min-w-0 space-y-1">
+                        <p class="truncate text-base font-semibold text-highlighted">
+                          {{ ticket.event.name }}
+                        </p>
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <span class="text-sm text-toned">{{ ticket.ticketType.name }}</span>
+                          <span class="hidden text-default/40 sm:inline">·</span>
+                          <span class="text-sm text-toned">{{ formatEventDate(ticket.event.eventDate) }}</span>
+                        </div>
+                        <p class="font-mono text-xs text-muted">
+                          #{{ ticket.hash.slice(0, 12).toUpperCase() }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap sm:justify-end">
+                      <div class="flex items-center gap-2">
+                        <BaseBadge
+                          kind="status"
+                          :color="getStatusConfig(ticket.status).color"
+                          :icon="getStatusConfig(ticket.status).icon"
+                          size="sm"
+                          leading
+                        >
+                          {{ getStatusConfig(ticket.status).label }}
+                        </BaseBadge>
+
+                        <BaseBadge kind="price" size="sm">
+                          {{ formatPrice(ticket.ticketType.price) }}
+                        </BaseBadge>
+                      </div>
+
+                      <BaseButton
+                        v-if="ticket.status === 'ACTIVE'"
+                        variant="secondary"
+                        size="sm"
+                        :to="getTicketPdfUrl(ticket.id)"
+                        target="_blank"
+                        external
+                        leading-icon="i-lucide-download"
+                      >
+                        PDF
+                      </BaseButton>
+                    </div>
+                  </div>
+                </UiPanel>
               </div>
-            </div>
-          </UiPanel>
+
+              <div v-if="showPagination" class="flex justify-center pt-2">
+                <BasePagination
+                  :page="meta.page"
+                  :total="meta.total"
+                  :items-per-page="meta.limit"
+                  :disabled="pending"
+                  :sibling-count="1"
+                  size="sm"
+                  color="neutral"
+                  variant="ghost"
+                  active-color="primary"
+                  active-variant="soft"
+                  show-edges
+                  @update:page="goToPage"
+                />
+              </div>
+            </template>
+          </section>
+
+          <aside class="space-y-6">
+            <ClientOnly>
+              <UiPanel variant="glass" radius="lg" padding="md" class="space-y-4">
+                <UiMetaLabel>Resumen</UiMetaLabel>
+
+                <div class="space-y-3">
+                  <div class="vtx-stat-row">
+                    <span class="text-sm text-toned">Total de entradas</span>
+                    <span class="text-sm font-semibold text-highlighted">
+                      {{ initialized ? meta.total : '—' }}
+                    </span>
+                  </div>
+
+                  <div class="vtx-stat-row">
+                    <span class="text-sm text-toned">Activas</span>
+                    <span class="text-sm font-semibold text-success">
+                      {{ initialized ? tickets.filter(t => t.status === 'ACTIVE').length : '—' }}
+                    </span>
+                  </div>
+
+                  <div class="vtx-stat-row">
+                    <span class="text-sm text-toned">Usadas</span>
+                    <span class="text-sm font-semibold text-toned">
+                      {{ initialized ? tickets.filter(t => t.status === 'USED').length : '—' }}
+                    </span>
+                  </div>
+                </div>
+              </UiPanel>
+
+              <UiPanel variant="glass" radius="lg" padding="md" class="space-y-3">
+                <UiMetaLabel>¿Necesitás ayuda?</UiMetaLabel>
+                <p class="text-sm leading-relaxed text-toned">
+                  Si tenés problemas con una entrada, contactá al organizador del evento o al soporte de VeriTix.
+                </p>
+              </UiPanel>
+
+              <template #fallback>
+                <div class="space-y-4" aria-hidden="true">
+                  <BaseSkeleton class="h-40 rounded-2xl" />
+                  <BaseSkeleton class="h-24 rounded-2xl" />
+                </div>
+              </template>
+            </ClientOnly>
+          </aside>
         </div>
-
-        <div v-if="showPagination" class="flex justify-center pt-2">
-          <BasePagination
-            :page="meta.page"
-            :total="meta.total"
-            :items-per-page="meta.limit"
-            :disabled="pending"
-            :sibling-count="1"
-            size="sm"
-            color="neutral"
-            variant="ghost"
-            active-color="primary"
-            active-variant="soft"
-            show-edges
-            @update:page="goToPage"
-          />
-        </div>
-      </template>
-    </section>
-
-    <template #aside>
-      <ClientOnly>
-        <div class="space-y-6">
-          <div class="rounded-panel border border-default/45 bg-elevated/35 p-5">
-            <UiMetaLabel class="mb-4">
-              Resumen
-            </UiMetaLabel>
-
-            <div class="space-y-3">
-              <div class="vtx-stat-row">
-                <span class="text-sm text-toned">Total de entradas</span>
-                <span class="text-sm font-semibold text-highlighted">
-                  {{ initialized ? meta.total : '—' }}
-                </span>
-              </div>
-
-              <div class="vtx-stat-row">
-                <span class="text-sm text-toned">Activas</span>
-                <span class="text-sm font-semibold text-success">
-                  {{ initialized ? tickets.filter(t => t.status === 'ACTIVE').length : '—' }}
-                </span>
-              </div>
-
-              <div class="vtx-stat-row">
-                <span class="text-sm text-toned">Usadas</span>
-                <span class="text-sm font-semibold text-toned">
-                  {{ initialized ? tickets.filter(t => t.status === 'USED').length : '—' }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="rounded-panel border border-default/45 bg-elevated/35 p-5">
-            <UiMetaLabel class="mb-3">
-              ¿Necesitás ayuda?
-            </UiMetaLabel>
-            <p class="text-sm leading-relaxed text-toned">
-              Si tenés problemas con una entrada, contactá al organizador del evento o al soporte de VeriTix.
-            </p>
-          </div>
-        </div>
-
-        <template #fallback>
-          <div class="space-y-4" aria-hidden="true">
-            <BaseSkeleton class="h-40 rounded-panel" />
-            <BaseSkeleton class="h-24 rounded-panel" />
-          </div>
-        </template>
-      </ClientOnly>
-    </template>
-  </UsersSettingsShell>
+      </div>
+    </BaseContainer>
+  </section>
 </template>
 
 <style scoped>
