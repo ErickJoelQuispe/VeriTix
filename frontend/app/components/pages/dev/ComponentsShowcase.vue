@@ -13,7 +13,7 @@ const demoForm = reactive({
 })
 
 const rawInput = ref('VeriTix')
-const rawInputOutline = ref('Outline variant')
+const rawInputHero = ref('Hero variant')
 const rawPassword = ref('veritix-demo')
 const rawNotes = ref('Reusable textarea control')
 const rawRole = ref('admin')
@@ -476,7 +476,7 @@ function submitDemoForm() {
 
               <div class="space-y-4">
                 <FormInput v-model="rawInput" name="rawInput" placeholder="FormInput with icon" icon="i-lucide-search" />
-                <FormInput v-model="rawInputOutline" name="rawInputOutline" variant="outline" placeholder="Outline variant" />
+                <FormInput v-model="rawInputHero" name="rawInputHero" variant="hero" placeholder="Hero variant" />
                 <FormPassword v-model="rawPassword" name="rawPassword" label="Password control" />
                 <FormTextarea v-model="rawNotes" name="rawNotes" placeholder="Textarea without a label" :rows="4" />
                 <FormSelect v-model="rawRole" name="rawRole" label="Select control" :items="formRoleItems" />

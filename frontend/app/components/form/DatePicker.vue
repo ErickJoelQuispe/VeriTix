@@ -14,7 +14,6 @@ const props = withDefaults(defineProps<{
   placeholder?: string
   icon?: string
   size?: 'sm' | 'md' | 'lg'
-  variant?: 'outline' | 'soft' | 'subtle' | 'ghost'
   clearable?: boolean
   min?: string
   max?: string
@@ -25,7 +24,6 @@ const props = withDefaults(defineProps<{
   placeholder: 'Seleccioná una fecha',
   icon: 'i-lucide-calendar-days',
   size: 'lg',
-  variant: 'subtle',
   clearable: true,
   min: undefined,
   max: undefined,
@@ -119,21 +117,13 @@ const controlClass = computed(() => {
     lg: 'min-h-11 px-4.5 py-3 text-base',
   }[props.size]
 
-  const variantClass = {
-    outline: 'border border-default/60 bg-default/20 shadow-sm',
-    soft: 'border border-default/55 bg-elevated/45 shadow-sm',
-    subtle: 'border border-default/55 bg-default/30 shadow-sm',
-    ghost: 'border border-transparent bg-transparent shadow-none',
-  }[props.variant]
-
   const leadingPadding = props.icon ? 'pl-11' : 'pl-4'
   const trailingPadding = canClear.value ? 'pr-20' : 'pr-11'
 
   return [
-    'relative w-full rounded-xl text-left text-highlighted transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    'relative w-full rounded-xl border border-default/55 bg-default/30 text-left text-highlighted shadow-sm transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     'cursor-pointer',
     sizeClass,
-    variantClass,
     hasError.value ? 'border-error/70 ring-2 ring-error/20' : 'focus-visible:border-lavender/55 focus-visible:ring-2 focus-visible:ring-lavender/35',
     leadingPadding,
     trailingPadding,

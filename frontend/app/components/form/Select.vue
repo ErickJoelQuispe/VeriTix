@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useFormContext } from './context'
 
-type SelectColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
-type SelectVariant = 'outline' | 'soft' | 'subtle' | 'ghost' | 'none'
 type SelectSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 defineOptions({
@@ -15,8 +13,6 @@ const props = withDefaults(defineProps<{
   name: string
   help?: string
   required?: boolean
-  color?: SelectColor
-  variant?: SelectVariant
   size?: SelectSize
   disabled?: boolean
   placeholder?: string
@@ -24,8 +20,6 @@ const props = withDefaults(defineProps<{
   icon?: string
   multiple?: boolean
 }>(), {
-  color: 'neutral',
-  variant: 'subtle',
   size: 'lg',
   disabled: false,
   placeholder: '',
@@ -84,10 +78,6 @@ const triggerLabelClass = computed(() => {
 const hasError = computed(() => Boolean(errorMessage.value))
 
 const stateClass = computed(() => {
-  if (props.variant === 'none') {
-    return ''
-  }
-
   if (hasError.value) {
     return 'border-error/70 ring-2 ring-error/20'
   }
@@ -104,27 +94,18 @@ const selectClass = computed(() => {
     xl: 'min-h-12 px-5 py-3.5 text-base',
   }[props.size]
 
-  const variantClass = {
-    outline: 'border border-default/60 bg-default/20 shadow-sm',
-    soft: 'border border-default/55 bg-elevated/45 shadow-sm',
-    subtle: 'border border-default/55 bg-default/30 shadow-sm',
-    ghost: 'border border-transparent bg-transparent shadow-none',
-    none: 'border-0 bg-transparent px-0 shadow-none focus-visible:ring-0',
-  }[props.variant]
-
   return [
-    'relative w-full appearance-none rounded-xl text-left text-highlighted transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    'relative w-full appearance-none rounded-xl border border-default/55 bg-default/30 text-left text-highlighted shadow-sm transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     sizeClass,
-    variantClass,
     stateClass.value,
-    hasLeading.value && props.variant !== 'none' ? 'pl-11' : '',
-    props.variant !== 'none' ? 'pr-11' : '',
+    hasLeading.value ? 'pl-11' : '',
+    'pr-11',
     attrs.class,
   ]
 })
 
 const openClass = computed(() => {
-  if (props.variant === 'none' || !isOpen.value || hasError.value) {
+  if (!isOpen.value || hasError.value) {
     return ''
   }
 
@@ -207,7 +188,7 @@ onBeforeUnmount(() => {
 
     <div ref="rootRef" class="relative">
       <BaseIcon
-        v-if="props.icon && props.variant !== 'none'"
+        v-if="props.icon"
         :name="props.icon"
         class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-toned"
         aria-hidden="true"
@@ -293,7 +274,7 @@ onBeforeUnmount(() => {
       </template>
 
       <BaseIcon
-        v-if="!props.multiple && props.variant !== 'none'"
+        v-if="!props.multiple"
         name="i-lucide-chevron-down"
         class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-toned transition-transform"
         :class="isOpen ? 'rotate-180' : ''"
