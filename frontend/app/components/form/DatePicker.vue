@@ -77,6 +77,31 @@ const monthLabel = computed(() => {
   return label.charAt(0).toUpperCase() + label.slice(1)
 })
 
+const monthOptions = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+]
+
+const yearOptions = computed(() => {
+  const currentYear = today.getFullYear()
+  const minYear = props.min ? parseIsoDate(props.min)?.getFullYear() ?? 1900 : 1900
+  const maxYear = props.max ? parseIsoDate(props.max)?.getFullYear() ?? 2100 : 2100
+  const startYear = Math.max(2000, Math.min(minYear, currentYear) - 1)
+  const endYear = Math.max(maxYear, currentYear) + 1
+
+  return Array.from({ length: endYear - startYear + 1 }, (_, index) => startYear + index)
+})
+
 const triggerTextClass = computed(() => selectedDate.value ? 'text-highlighted' : 'text-toned/70')
 
 const selectedIso = computed(() => modelValue.value ?? '')
@@ -102,6 +127,7 @@ const controlClass = computed(() => {
 
   return [
     'relative w-full rounded-xl text-left text-highlighted transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    'cursor-pointer',
     sizeClass,
     variantClass,
     hasError.value ? 'border-error/70 ring-2 ring-error/20' : 'focus-visible:border-lavender/55 focus-visible:ring-2 focus-visible:ring-lavender/35',
@@ -111,27 +137,10 @@ const controlClass = computed(() => {
 })
 
 const panelClass = computed(() => {
-  return 'z-[9999] w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-lavender/30 bg-elevated p-3 shadow-[0_24px_60px_-30px_rgba(86,29,164,0.58)] ring-1 ring-lavender/10'
+  return 'z-[9999] w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-lavender/30 bg-elevated p-3 shadow-[0_16px_32px_-24px_rgba(86,29,164,0.35)] ring-1 ring-lavender/10'
 })
 
 const calendarDays = computed(() => buildCalendarDays(viewMonth.value))
-const canGoPrev = computed(() => {
-  if (!props.min) {
-    return true
-  }
-
-  const monthStart = startOfMonth(viewMonth.value)
-  return startOfMonth(parseIsoDate(props.min) ?? monthStart) <= previousMonth(monthStart)
-})
-
-const canGoNext = computed(() => {
-  if (!props.max) {
-    return true
-  }
-
-  const monthStart = startOfMonth(viewMonth.value)
-  return startOfMonth(parseIsoDate(props.max) ?? monthStart) >= nextMonth(monthStart)
-})
 
 watch(selectedDate, (date) => {
   if (date) {
@@ -175,8 +184,8 @@ function updatePanelPosition() {
   const triggerRect = rootRef.value.getBoundingClientRect()
   const margin = 12
   const gap = 12
-  const estimatedHeight = 416
-  const panelWidth = Math.min(288, window.innerWidth - margin * 2)
+  const estimatedHeight = 392
+  const panelWidth = Math.min(320, window.innerWidth - margin * 2)
   const spaceBelow = window.innerHeight - triggerRect.bottom
   const spaceAbove = triggerRect.top
   const placeAbove = spaceBelow < estimatedHeight && spaceAbove > spaceBelow
@@ -223,16 +232,12 @@ function selectDate(date: Date) {
   closeOpen()
 }
 
-function previousMonthView() {
-  if (canGoPrev.value) {
-    viewMonth.value = previousMonth(viewMonth.value)
-  }
+function setViewMonth(monthIndex: number) {
+  viewMonth.value = new Date(viewMonth.value.getFullYear(), monthIndex, 1)
 }
 
-function nextMonthView() {
-  if (canGoNext.value) {
-    viewMonth.value = nextMonth(viewMonth.value)
-  }
+function setViewYear(year: number) {
+  viewMonth.value = new Date(year, viewMonth.value.getMonth(), 1)
 }
 
 function onDocumentPointerDown(event: MouseEvent) {
@@ -305,14 +310,6 @@ function startOfMonth(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), 1)
 }
 
-function previousMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth() - 1, 1)
-}
-
-function nextMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 1)
-}
-
 function compareDates(a: Date, b: Date) {
   return a.getFullYear() - b.getFullYear()
     || a.getMonth() - b.getMonth()
@@ -382,7 +379,7 @@ function formatSelected(date: Date) {
       <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
     </UiMetaLabel>
 
-    <div ref="rootRef" class="relative isolate z-[70] w-full">
+    <div ref="rootRef" class="relative isolate z-70 w-full">
       <input
         type="hidden"
         :name="props.name"
@@ -439,8 +436,8 @@ function formatSelected(date: Date) {
           :class="panelClass"
           :style="panelStyle"
         >
-          <div class="flex items-center justify-between gap-3">
-            <div>
+          <div class="flex flex-col gap-3">
+            <div class="space-y-1">
               <p class="text-sm font-semibold text-lavender">
                 {{ monthLabel }}
               </p>
@@ -449,25 +446,30 @@ function formatSelected(date: Date) {
               </p>
             </div>
 
-            <div class="flex items-center gap-2">
-              <BaseButton
-                variant="outlined"
-                size="sm"
-                leading-icon="i-lucide-chevron-left"
-                :disabled="!canGoPrev"
-                class="border-lavender/25 text-lavender hover:border-lavender/45 hover:bg-lavender/10 hover:text-lavender"
-                aria-label="Mes anterior"
-                @click="previousMonthView"
-              />
-              <BaseButton
-                variant="outlined"
-                size="sm"
-                leading-icon="i-lucide-chevron-right"
-                :disabled="!canGoNext"
-                class="border-lavender/25 text-lavender hover:border-lavender/45 hover:bg-lavender/10 hover:text-lavender"
-                aria-label="Mes siguiente"
-                @click="nextMonthView"
-              />
+            <div class="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
+              <label class="sr-only" :for="`${listboxId}-month`">Mes</label>
+              <select
+                :id="`${listboxId}-month`"
+                :value="viewMonth.getMonth()"
+                class="min-h-10 cursor-pointer rounded-xl border border-default/55 bg-elevated/70 px-3 text-sm font-medium text-highlighted shadow-sm outline-none transition hover:border-lavender/35 hover:bg-elevated focus:border-lavender/55 focus:ring-2 focus:ring-lavender/20"
+                aria-label="Mes"
+                @change="setViewMonth(Number(($event.target as HTMLSelectElement).value))"
+              >
+                <option v-for="(month, index) in monthOptions" :key="month" :value="index">
+                  {{ month }}
+                </option>
+              </select>
+
+              <select
+                :value="viewMonth.getFullYear()"
+                class="min-h-10 cursor-pointer rounded-xl border border-default/55 bg-elevated/70 px-3 text-sm font-medium text-highlighted shadow-sm outline-none transition hover:border-lavender/35 hover:bg-elevated focus:border-lavender/55 focus:ring-2 focus:ring-lavender/20"
+                aria-label="Año"
+                @change="setViewYear(Number(($event.target as HTMLSelectElement).value))"
+              >
+                <option v-for="year in yearOptions" :key="year" :value="year">
+                  {{ year }}
+                </option>
+              </select>
             </div>
           </div>
 
@@ -480,7 +482,7 @@ function formatSelected(date: Date) {
               v-for="day in calendarDays"
               :key="toIsoDate(day.date)"
               type="button"
-              class="flex h-10 items-center justify-center rounded-xl text-sm transition"
+              class="flex h-10 cursor-pointer items-center justify-center rounded-xl text-sm transition"
               :class="[
                 day.isCurrentMonth ? 'text-highlighted' : 'text-toned/45',
                 day.disabled ? 'cursor-not-allowed opacity-40' : 'hover:bg-lavender/10 hover:text-lavender',
