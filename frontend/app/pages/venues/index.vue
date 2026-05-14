@@ -189,7 +189,7 @@ async function handlePageChange(page: number) {
             variant="glass"
             radius="xl"
             padding="lg"
-            class="space-y-6"
+            class="relative z-10 space-y-6"
             @submit.prevent="submitSearch"
           >
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -255,6 +255,7 @@ async function handlePageChange(page: number) {
                 name="type"
                 :model-value="filters.type || ALL_OPTION_VALUE"
                 :items="venueTypeItems"
+                :placeholder-value="ALL_OPTION_VALUE"
                 size="md"
                 :disabled="isPending"
                 @update:model-value="
@@ -269,6 +270,7 @@ async function handlePageChange(page: number) {
                 name="isActive"
                 :model-value="filters.isActive || ALL_OPTION_VALUE"
                 :items="statusItems"
+                :placeholder-value="ALL_OPTION_VALUE"
                 size="md"
                 :disabled="isPending"
                 @update:model-value="

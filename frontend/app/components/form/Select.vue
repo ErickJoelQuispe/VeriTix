@@ -20,6 +20,7 @@ const props = withDefaults(defineProps<{
   size?: SelectSize
   disabled?: boolean
   placeholder?: string
+  placeholderValue?: string | number
   multiple?: boolean
 }>(), {
   color: 'neutral',
@@ -27,6 +28,7 @@ const props = withDefaults(defineProps<{
   size: 'lg',
   disabled: false,
   placeholder: '',
+  placeholderValue: undefined,
   help: '',
   required: false,
   multiple: false,
@@ -64,7 +66,15 @@ const displayLabel = computed(() => {
 })
 
 const triggerLabelClass = computed(() => {
-  return selectedItem.value ? 'text-highlighted' : 'text-toned'
+  if (!selectedItem.value) {
+    return 'text-toned/70'
+  }
+
+  if (props.placeholderValue !== undefined && String(selectedItem.value.value) === String(props.placeholderValue)) {
+    return 'text-toned/70'
+  }
+
+  return 'text-highlighted'
 })
 
 const hasError = computed(() => Boolean(errorMessage.value))
@@ -245,7 +255,7 @@ onBeforeUnmount(() => {
           v-if="isOpen"
           :id="listboxId"
           role="listbox"
-          class="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-lavender/35 bg-default shadow-[0_16px_34px_-24px_rgba(86,29,164,0.42)] ring-1 ring-lavender/20"
+          class="absolute z-50 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-lavender/35 bg-default shadow-[0_16px_34px_-24px_rgba(86,29,164,0.42)] ring-1 ring-lavender/20"
         >
           <button
             v-for="item in props.items"

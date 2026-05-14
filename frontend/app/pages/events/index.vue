@@ -20,8 +20,7 @@ function readQueryPage(value: unknown): number {
 
 useSeoMeta({
   title: 'Eventos | VeriTix',
-  description:
-    'Explorá conciertos y experiencias en vivo con filtros por nombre, artista, recinto, género y ciudad.',
+  description: 'Explorá conciertos y experiencias en vivo con filtros por nombre, artista, recinto, género y ciudad.',
 })
 
 const searchDraft = ref(readQueryValue(route.query.search))
@@ -89,13 +88,9 @@ const meta = computed(
 )
 
 const selectedGenreLabel = computed(
-  () =>
-    genreOptions.value.find(genre => genre.id === filters.value.genreId)
-      ?.name ?? '',
+  () => genreOptions.value.find(genre => genre.id === filters.value.genreId)?.name ?? '',
 )
-const resultsHeading = computed(
-  () => `${meta.value.total} resultado${meta.value.total === 1 ? '' : 's'}`,
-)
+const resultsHeading = computed(() => `${meta.value.total} resultado${meta.value.total === 1 ? '' : 's'}`)
 
 const resultsContext = computed(() => {
   const segments = [
@@ -139,17 +134,11 @@ const eventsErrorMessage = computed(() => {
     return ''
   }
 
-  return getApiErrorMessage(
-    error.value,
-    'No pudimos cargar los eventos en este momento.',
-  )
+  return getApiErrorMessage(error.value, 'No pudimos cargar los eventos en este momento.')
 })
 
 const showPagination = computed(
-  () =>
-    !eventsErrorMessage.value
-    && events.value.length > 0
-    && meta.value.totalPages > 1,
+  () => !eventsErrorMessage.value && events.value.length > 0 && meta.value.totalPages > 1,
 )
 
 async function updateFilters(next: Partial<typeof filters.value>) {
@@ -214,7 +203,7 @@ async function handlePageChange(page: number) {
           <UiPageHeading
             eyebrow="Cartelera"
             title="Eventos"
-            description="Explorá la cartelera, refiná por nombre, artista, recinto, género o ciudad, y pasá del descubrimiento al ticket en pocos pasos."
+            description="Explorá la cartelera, refiná por nombre, artista, recinto, género o ciudad."
           />
 
           <UiPanel
@@ -222,12 +211,10 @@ async function handlePageChange(page: number) {
             variant="glass"
             radius="xl"
             padding="lg"
-            class="space-y-6"
+            class="relative z-10 space-y-6"
             @submit.prevent="submitSearch"
           >
-            <div
-              class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-            >
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div class="space-y-1">
                 <UiMetaLabel as="h2" tone="accent">
                   Filtros
@@ -302,12 +289,12 @@ async function handlePageChange(page: number) {
                   name="genreId"
                   :model-value="filters.genreId || ALL_OPTION_VALUE"
                   :items="genreItems"
+                  :placeholder-value="ALL_OPTION_VALUE"
                   size="md"
                   :disabled="isPending"
                   @update:model-value="
                     updateFilters({
-                      genreId:
-                        $event === ALL_OPTION_VALUE ? '' : String($event),
+                      genreId: $event === ALL_OPTION_VALUE ? '' : String($event),
                     })
                   "
                 />
@@ -317,6 +304,7 @@ async function handlePageChange(page: number) {
                   name="city"
                   :model-value="filters.city || ALL_OPTION_VALUE"
                   :items="cityItems"
+                  :placeholder-value="ALL_OPTION_VALUE"
                   size="md"
                   :disabled="isPending"
                   @update:model-value="
@@ -331,9 +319,7 @@ async function handlePageChange(page: number) {
         </div>
 
         <section class="space-y-6">
-          <div
-            class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
-          >
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div class="space-y-1">
               <UiMetaLabel tone="accent">
                 Resultados
@@ -368,15 +354,8 @@ async function handlePageChange(page: number) {
             />
           </div>
 
-          <div
-            v-if="isPending"
-            class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3"
-          >
-            <BaseSkeleton
-              v-for="index in 6"
-              :key="index"
-              class="h-104 rounded-2xl"
-            />
+          <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
+            <BaseSkeleton v-for="index in 6" :key="index" class="h-104 rounded-2xl" />
           </div>
 
           <div
@@ -406,11 +385,7 @@ async function handlePageChange(page: number) {
           </div>
 
           <div v-else class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <UiEventCard
-              v-for="event in events"
-              :key="event.id"
-              :event="event"
-            />
+            <UiEventCard v-for="event in events" :key="event.id" :event="event" />
           </div>
 
           <div v-if="showPagination" class="flex justify-center pt-2">

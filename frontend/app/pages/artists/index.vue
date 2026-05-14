@@ -193,7 +193,7 @@ async function handlePageChange(page: number) {
             variant="glass"
             radius="xl"
             padding="lg"
-            class="space-y-6"
+            class="relative z-10 space-y-6"
             @submit.prevent="submitSearch"
           >
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -254,13 +254,14 @@ async function handlePageChange(page: number) {
                 :disabled="isPending"
               />
 
-              <FormSelect
-                label="Género"
-                name="genreId"
-                :model-value="filters.genreId || ALL_OPTION_VALUE"
-                :items="genreItems"
-                size="md"
-                :disabled="isPending"
+                <FormSelect
+                  label="Género"
+                  name="genreId"
+                  :model-value="filters.genreId || ALL_OPTION_VALUE"
+                  :items="genreItems"
+                  :placeholder-value="ALL_OPTION_VALUE"
+                  size="md"
+                  :disabled="isPending"
                 @update:model-value="
                   updateFilters({
                     genreId: $event === ALL_OPTION_VALUE ? '' : String($event),
@@ -268,13 +269,14 @@ async function handlePageChange(page: number) {
                 "
               />
 
-              <FormSelect
-                label="Estado"
-                name="isActive"
-                :model-value="filters.isActive || ALL_OPTION_VALUE"
-                :items="statusItems"
-                size="md"
-                :disabled="isPending"
+                <FormSelect
+                  label="Estado"
+                  name="isActive"
+                  :model-value="filters.isActive || ALL_OPTION_VALUE"
+                  :items="statusItems"
+                  :placeholder-value="ALL_OPTION_VALUE"
+                  size="md"
+                  :disabled="isPending"
                 @update:model-value="
                   updateFilters({
                     isActive: $event === ALL_OPTION_VALUE ? '' : String($event),
