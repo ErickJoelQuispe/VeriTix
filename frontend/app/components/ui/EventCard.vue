@@ -13,7 +13,7 @@ const eventDate = computed(() => {
 
 <template>
   <UiPanel as="article" interactive radius="md" padding="none" class="group flex h-full flex-col overflow-hidden">
-    <div data-test="event-card-media" class="relative w-full overflow-hidden border-b border-white/10 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55">
+    <div data-test="event-card-media" class="relative w-full overflow-hidden border-b border-white/10 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35">
       <NuxtImg
         :src="event.imageUrl ?? undefined"
         :alt="`Imagen de ${event.name}`"
@@ -45,7 +45,7 @@ const eventDate = computed(() => {
         {{ event.name }}
       </h3>
 
-      <div data-test="event-card-footer" class="mt-auto flex flex-col gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-default/55 group-focus-within:border-default/55 sm:flex-row sm:items-end sm:justify-between">
+      <div data-test="event-card-footer" class="mt-auto flex flex-col gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 sm:flex-row sm:items-end sm:justify-between">
         <div class="min-w-0">
           <span class="block text-xs tracking-widest text-muted uppercase">{{ eventDate }}</span>
         </div>

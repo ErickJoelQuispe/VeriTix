@@ -214,7 +214,7 @@ onMounted(() => {
             </div>
 
             <template v-else>
-              <article class="rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
+              <UiPanel as="article" variant="transparent" padding="xl" radius="xl" class="space-y-0">
                 <div class="space-y-2 border-b border-default/55 pb-5">
                   <UiMetaLabel>
                     Perfil
@@ -317,9 +317,9 @@ onMounted(() => {
                     </BaseButton>
                   </div>
                 </FormRoot>
-              </article>
+              </UiPanel>
 
-              <article id="seguridad" class="scroll-mt-28 rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
+              <UiPanel as="article" id="seguridad" variant="transparent" padding="xl" radius="xl" class="scroll-mt-28 space-y-0">
                 <div class="space-y-2 border-b border-default/55 pb-5">
                   <UiMetaLabel>
                     Seguridad
@@ -408,7 +408,7 @@ onMounted(() => {
                     </BaseButton>
                   </div>
                 </FormRoot>
-              </article>
+              </UiPanel>
             </template>
           </div>
 
@@ -478,11 +478,11 @@ onMounted(() => {
               </div>
 
               <template #fallback>
-                <div class="rounded-panel border border-default bg-elevated/35 p-5 sm:p-6" aria-hidden="true">
+                <UiPanel variant="transparent" padding="xl" radius="xl" class="space-y-0" aria-hidden="true">
                   <BaseSkeleton class="h-16 w-16 rounded-2xl" />
                   <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
                   <BaseSkeleton class="mt-2 h-4 w-44 rounded" />
-                </div>
+                </UiPanel>
               </template>
             </ClientOnly>
           </aside>
