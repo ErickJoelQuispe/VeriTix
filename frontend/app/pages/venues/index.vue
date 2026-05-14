@@ -21,7 +21,7 @@ function readQueryPage(value: unknown): number {
 useSeoMeta({
   title: 'Venues | VeriTix',
   description:
-    'Explorá venues por nombre, dirección, ciudad, tipo y estado para encontrar el recinto ideal.',
+    'Explorá venues por nombre, dirección, ciudad y tipo para encontrar el recinto ideal.',
 })
 
 const searchDraft = ref(readQueryValue(route.query.search))
@@ -31,7 +31,6 @@ const filters = computed(() => ({
   search: readQueryValue(route.query.search),
   city: readQueryValue(route.query.city),
   type: readQueryValue(route.query.type),
-  isActive: readQueryValue(route.query.isActive),
   page: readQueryPage(route.query.page),
 }))
 
@@ -77,18 +76,11 @@ const selectedVenueTypeLabel = computed(
   () => venueTypeItems.find(item => item.value === filters.value.type)?.label ?? '',
 )
 
-const statusItems = [
-  { label: 'Todos los estados', value: ALL_OPTION_VALUE },
-  { label: 'Activo', value: 'true' },
-  { label: 'Inactivo', value: 'false' },
-]
-
 const resultsContext = computed(() => {
   const segments = [
     filters.value.search ? `venue: “${filters.value.search}”` : '',
     filters.value.city ? `ciudad: ${filters.value.city}` : '',
     selectedVenueTypeLabel.value ? `tipo: ${selectedVenueTypeLabel.value}` : '',
-    filters.value.isActive ? `estado: ${filters.value.isActive === 'true' ? 'activo' : 'inactivo'}` : '',
   ].filter(Boolean)
 
   if (segments.length === 0) {
@@ -99,13 +91,13 @@ const resultsContext = computed(() => {
 })
 
 const activeFilterCount = computed(
-  () => [filters.value.search, filters.value.city, filters.value.type, filters.value.isActive].filter(Boolean).length,
+  () => [filters.value.search, filters.value.city, filters.value.type].filter(Boolean).length,
 )
 
 const resultsStats = computed(() => [
-  { label: 'Resultados', value: meta.value.total },
-  { label: 'Página', value: `${meta.value.page}/${Math.max(meta.value.totalPages, 1)}` },
-  { label: 'Filtros', value: activeFilterCount.value },
+  { label: 'Resultados', value: meta.value.total, icon: 'i-lucide-chart-column' },
+  { label: 'Página', value: `${meta.value.page}/${Math.max(meta.value.totalPages, 1)}`, icon: 'i-lucide-layers-3' },
+  { label: 'Filtros', value: activeFilterCount.value, icon: 'i-lucide-sliders-horizontal' },
 ])
 
 const isPending = computed(() => status.value === 'pending')
@@ -129,13 +121,11 @@ async function updateFilters(next: Partial<typeof filters.value>) {
   const shouldResetPage = next.search !== undefined
     || next.city !== undefined
     || next.type !== undefined
-    || next.isActive !== undefined
 
   const query = {
     search: next.search ?? filters.value.search,
     city: next.city ?? filters.value.city,
     type: next.type ?? filters.value.type,
-    isActive: next.isActive ?? filters.value.isActive,
     page: shouldResetPage ? 1 : (next.page ?? filters.value.page),
   }
 
@@ -145,7 +135,6 @@ async function updateFilters(next: Partial<typeof filters.value>) {
       search: query.search || undefined,
       city: query.city || undefined,
       type: query.type || undefined,
-      isActive: query.isActive || undefined,
       page: query.page > 1 ? String(query.page) : undefined,
     },
   })
@@ -181,7 +170,7 @@ async function handlePageChange(page: number) {
           <UiPageHeading
             eyebrow="Descubrimiento"
             title="Venues"
-            description="Explorá recintos por nombre, dirección, ciudad, tipo y estado para afinar la búsqueda."
+            description="Explorá recintos por nombre, dirección, ciudad y tipo para afinar la búsqueda."
           />
 
           <UiPanel
@@ -198,7 +187,7 @@ async function handlePageChange(page: number) {
                   Filtros
                 </UiMetaLabel>
                 <p class="text-sm leading-relaxed text-toned">
-                  Buscá por nombre o dirección y afiná por ciudad, tipo o estado.
+                  Buscá por nombre o dirección y afiná por ciudad o tipo.
                 </p>
               </div>
 
@@ -228,7 +217,7 @@ async function handlePageChange(page: number) {
               </div>
             </div>
 
-            <div class="grid gap-4 lg:grid-cols-3">
+            <div class="grid gap-4 lg:grid-cols-2">
               <FormInput
                 v-model="searchDraft"
                 label="Nombre o dirección"
@@ -237,7 +226,7 @@ async function handlePageChange(page: number) {
                 icon="i-lucide-search"
                 size="md"
                 :disabled="isPending"
-                class="lg:col-span-3"
+                class="lg:col-span-2"
               />
 
               <FormInput
@@ -256,26 +245,12 @@ async function handlePageChange(page: number) {
                 :model-value="filters.type || ALL_OPTION_VALUE"
                 :items="venueTypeItems"
                 :placeholder-value="ALL_OPTION_VALUE"
+                icon="i-lucide-building-2"
                 size="md"
                 :disabled="isPending"
                 @update:model-value="
                   updateFilters({
                     type: $event === ALL_OPTION_VALUE ? '' : String($event),
-                  })
-                "
-              />
-
-              <FormSelect
-                label="Estado"
-                name="isActive"
-                :model-value="filters.isActive || ALL_OPTION_VALUE"
-                :items="statusItems"
-                :placeholder-value="ALL_OPTION_VALUE"
-                size="md"
-                :disabled="isPending"
-                @update:model-value="
-                  updateFilters({
-                    isActive: $event === ALL_OPTION_VALUE ? '' : String($event),
                   })
                 "
               />
@@ -295,7 +270,15 @@ async function handlePageChange(page: number) {
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <BaseBadge v-for="stat in resultsStats" :key="stat.label" kind="info" size="sm">
+              <BaseBadge
+                v-for="stat in resultsStats"
+                :key="stat.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="stat.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
                 {{ stat.label }}: {{ stat.value }}
               </BaseBadge>
             </div>

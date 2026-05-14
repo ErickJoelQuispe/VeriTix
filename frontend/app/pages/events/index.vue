@@ -90,8 +90,6 @@ const meta = computed(
 const selectedGenreLabel = computed(
   () => genreOptions.value.find(genre => genre.id === filters.value.genreId)?.name ?? '',
 )
-const resultsHeading = computed(() => `${meta.value.total} resultado${meta.value.total === 1 ? '' : 's'}`)
-
 const resultsContext = computed(() => {
   const segments = [
     filters.value.search ? `evento: “${filters.value.search}”` : '',
@@ -120,12 +118,13 @@ const activeFilterCount = computed(
 )
 
 const resultsChips = computed(() => [
-  { label: 'resultados', value: meta.value.total },
+  { label: 'Resultados', value: meta.value.total, icon: 'i-lucide-chart-column' },
   {
-    label: 'página',
+    label: 'Página',
     value: `${meta.value.page}/${Math.max(meta.value.totalPages, 1)}`,
+    icon: 'i-lucide-layers-3',
   },
-  { label: 'filtros', value: activeFilterCount.value },
+  { label: 'Filtros', value: activeFilterCount.value, icon: 'i-lucide-sliders-horizontal' },
 ])
 
 const isPending = computed(() => status.value === 'pending')
@@ -290,6 +289,7 @@ async function handlePageChange(page: number) {
                   :model-value="filters.genreId || ALL_OPTION_VALUE"
                   :items="genreItems"
                   :placeholder-value="ALL_OPTION_VALUE"
+                  icon="i-lucide-music-2"
                   size="md"
                   :disabled="isPending"
                   @update:model-value="
@@ -305,6 +305,7 @@ async function handlePageChange(page: number) {
                   :model-value="filters.city || ALL_OPTION_VALUE"
                   :items="cityItems"
                   :placeholder-value="ALL_OPTION_VALUE"
+                  icon="i-lucide-map-pin"
                   size="md"
                   :disabled="isPending"
                   @update:model-value="
@@ -329,11 +330,18 @@ async function handlePageChange(page: number) {
               </p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3">
-              <p class="text-sm font-medium text-highlighted">
-                {{ resultsHeading }}
-              </p>
-              <PagesBackofficeToolbarChips :items="resultsChips" />
+            <div class="flex flex-wrap items-center gap-2">
+              <BaseBadge
+                v-for="stat in resultsChips"
+                :key="stat.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="stat.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ stat.label }}: {{ stat.value }}
+              </BaseBadge>
             </div>
           </div>
 

@@ -273,7 +273,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :placeholder-value="item.key === 'genreId' || item.key === 'formatId' ? item.items?.[0]?.value : undefined"
           size="md"
           :disabled="item.disabled"
-          @update:model-value="item.onUpdate($event)"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
         />
       </template>
     </div>
@@ -301,7 +301,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :placeholder-value="item.key === 'genreId' || item.key === 'formatId' ? item.items?.[0]?.value : undefined"
           size="md"
           :disabled="item.disabled"
-          @update:model-value="item.onUpdate($event)"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
         />
       </template>
     </div>

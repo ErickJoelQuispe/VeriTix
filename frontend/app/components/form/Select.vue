@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<{
   disabled?: boolean
   placeholder?: string
   placeholderValue?: string | number
+  icon?: string
   multiple?: boolean
 }>(), {
   color: 'neutral',
@@ -29,6 +30,7 @@ const props = withDefaults(defineProps<{
   disabled: false,
   placeholder: '',
   placeholderValue: undefined,
+  icon: undefined,
   help: '',
   required: false,
   multiple: false,
@@ -60,6 +62,8 @@ const selectedItem = computed(() => {
   const selectedValue = String(modelValue.value ?? '')
   return props.items.find(item => String(item.value) === selectedValue) ?? null
 })
+
+const hasLeading = computed(() => Boolean(props.icon))
 
 const displayLabel = computed(() => {
   return selectedItem.value?.label ?? props.placeholder
@@ -109,10 +113,11 @@ const selectClass = computed(() => {
   }[props.variant]
 
   return [
-    'w-full appearance-none rounded-xl text-left text-highlighted transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    'relative w-full appearance-none rounded-xl text-left text-highlighted transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     sizeClass,
     variantClass,
     stateClass.value,
+    hasLeading.value && props.variant !== 'none' ? 'pl-11' : '',
     props.variant !== 'none' ? 'pr-11' : '',
     attrs.class,
   ]
@@ -201,6 +206,13 @@ onBeforeUnmount(() => {
     </UiMetaLabel>
 
     <div ref="rootRef" class="relative">
+      <BaseIcon
+        v-if="props.icon && props.variant !== 'none'"
+        :name="props.icon"
+        class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-toned"
+        aria-hidden="true"
+      />
+
       <select
         v-if="props.multiple"
         :value="props.multiple ? undefined : (modelValue ?? '')"
@@ -246,6 +258,13 @@ onBeforeUnmount(() => {
           :aria-controls="listboxId"
           @click="toggleListbox"
         >
+          <BaseIcon
+            v-if="props.icon"
+            :name="props.icon"
+            class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-toned"
+            aria-hidden="true"
+          />
+
           <span class="truncate" :class="triggerLabelClass">
             {{ displayLabel }}
           </span>
