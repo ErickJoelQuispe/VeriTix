@@ -361,37 +361,79 @@ function submitDemoForm() {
           <UiSectionHeading
             eyebrow="Shared UI"
             title="Reusable blocks."
-            description="Composition helpers that sit above primitives: headings, labels, and empty states."
+            description="Composition helpers that sit above primitives: page headers, section headers, and action chrome."
           />
 
           <div class="grid gap-6 lg:grid-cols-2">
             <UiPanel class="space-y-5">
-              <UiSectionHeading
-                eyebrow="Section heading"
-                title="A reusable section header."
-                description="Use it to keep section hierarchy and action placement consistent."
+              <UiPageHeading
+                eyebrow="Shared UI"
+                title="Page heading"
+                description="Use it for top-level screens that need a strong title, context, and a primary action."
                 action-label="Browse events"
                 action-to="/events"
               />
             </UiPanel>
 
             <UiPanel class="space-y-5">
-              <div class="space-y-3">
-                <UiMetaLabel tone="default">
-                  Meta label
-                </UiMetaLabel>
-                <UiMetaLabel tone="accent">
-                  Accent meta label
-                </UiMetaLabel>
-              </div>
-
-              <UiEmptyState
-                icon="i-lucide-layout-grid"
-                title="Nothing selected"
-                description="Empty states can guide the user toward the next action without feeling dead."
-                action-label="Go to events"
+              <UiSectionHeading
+                eyebrow="Section heading"
+                title="Reusable section header"
+                description="Keeps local hierarchy and action placement consistent inside long pages."
+                action-label="Browse events"
                 action-to="/events"
               />
+            </UiPanel>
+
+            <UiPanel class="space-y-5 lg:col-span-2">
+              <div class="space-y-2">
+                <p class="text-sm font-semibold text-highlighted">
+                  Action chrome
+                </p>
+                <p class="text-sm leading-relaxed text-toned">
+                  Small reusable wrappers for footer actions and form boundaries.
+                </p>
+              </div>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <UiPanel variant="glass" padding="md" radius="md" class="space-y-3">
+                  <p class="text-sm font-medium text-highlighted">
+                    Form actions
+                  </p>
+                  <p class="text-sm text-toned">
+                    The shared footer used to align primary and secondary actions.
+                  </p>
+
+                  <BackofficeFormActions>
+                    <div class="flex gap-3">
+                      <BaseButton variant="outlined" size="sm">
+                        Cancel
+                      </BaseButton>
+                      <BaseButton variant="primary" size="sm">
+                        Save
+                      </BaseButton>
+                    </div>
+                  </BackofficeFormActions>
+                </UiPanel>
+
+                <UiPanel variant="glass" padding="md" radius="md" class="space-y-3">
+                  <p class="text-sm font-medium text-highlighted">
+                    Meta label
+                  </p>
+                  <p class="text-sm text-toned">
+                    A compact typographic helper for labels, metadata, and tiny section cues.
+                  </p>
+
+                  <div class="flex flex-wrap gap-3">
+                    <UiMetaLabel tone="default">
+                      Default
+                    </UiMetaLabel>
+                    <UiMetaLabel tone="accent">
+                      Accent
+                    </UiMetaLabel>
+                  </div>
+                </UiPanel>
+              </div>
             </UiPanel>
           </div>
         </section>
@@ -409,14 +451,14 @@ function submitDemoForm() {
                 Solid
               </UiMetaLabel>
               <p class="text-sm font-semibold text-highlighted">
-                Default panel
+                Solid panel
               </p>
               <p class="text-sm leading-relaxed text-toned">
                 The main surface for cards, sections, and grouped content.
               </p>
             </UiPanel>
 
-            <UiPanel variant="glass" class="space-y-3" padding="sm" radius="md">
+            <UiPanel variant="glass" class="space-y-3" padding="md" radius="md">
               <UiMetaLabel tone="default">
                 Glass
               </UiMetaLabel>
@@ -437,18 +479,6 @@ function submitDemoForm() {
               </p>
               <p class="text-sm leading-relaxed text-toned">
                 Useful for cards that behave like actions or navigation targets.
-              </p>
-            </UiPanel>
-
-            <UiPanel padding="sm" radius="md" class="space-y-3">
-              <UiMetaLabel tone="default">
-                Compact
-              </UiMetaLabel>
-              <p class="text-sm font-semibold text-highlighted">
-                Dense panel
-              </p>
-              <p class="text-sm leading-relaxed text-toned">
-                A tighter composition for smaller surfaces and side content.
               </p>
             </UiPanel>
           </div>

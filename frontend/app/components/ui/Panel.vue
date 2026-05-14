@@ -3,8 +3,8 @@ const props = withDefaults(
   defineProps<{
     as?: string
     variant?: 'solid' | 'glass'
-    padding?: 'none' | 'sm' | 'md' | 'lg'
-    radius?: 'sm' | 'md' | 'lg' | 'xl'
+    padding?: 'none' | 'md' | 'lg'
+    radius?: 'md' | 'lg' | 'xl'
     interactive?: boolean
   }>(),
   {
@@ -22,7 +22,6 @@ const panelClass = computed(() => {
     : 'border border-default/70 bg-elevated/45 shadow-sm backdrop-blur-md ring-1 ring-inset ring-white/5'
 
   const radiusClass = {
-    sm: 'rounded-lg',
     md: 'rounded-xl',
     lg: 'rounded-2xl',
     xl: 'rounded-3xl',
@@ -30,7 +29,6 @@ const panelClass = computed(() => {
 
   const paddingClass = {
     none: '',
-    sm: 'p-3',
     md: 'p-4 sm:p-5',
     lg: 'p-5 sm:p-6',
   }[props.padding]
