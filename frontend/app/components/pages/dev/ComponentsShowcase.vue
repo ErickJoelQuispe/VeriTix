@@ -17,6 +17,7 @@ const rawInputOutline = ref('Outline variant')
 const rawPassword = ref('veritix-demo')
 const rawNotes = ref('Reusable textarea control')
 const rawRole = ref('admin')
+const rawDate = ref('2026-05-14')
 
 const buttonVariants = [
   { label: 'Primary', variant: 'primary', icon: 'i-lucide-sparkles' },
@@ -479,6 +480,40 @@ function submitDemoForm() {
                 <FormPassword v-model="rawPassword" name="rawPassword" label="Password control" />
                 <FormTextarea v-model="rawNotes" name="rawNotes" placeholder="Textarea without a label" :rows="4" />
                 <FormSelect v-model="rawRole" name="rawRole" label="Select control" :items="formRoleItems" />
+              </div>
+            </UiPanel>
+
+            <UiPanel class="space-y-5 lg:col-span-2">
+              <div class="space-y-2">
+                <p class="text-sm font-semibold text-highlighted">
+                  Date picker
+                </p>
+                <p class="text-sm leading-relaxed text-toned">
+                  Shared calendar field with lavender accents, popover navigation, and form-context validation.
+                </p>
+              </div>
+
+              <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_18rem]">
+                <FormDatePicker
+                  v-model="rawDate"
+                  name="rawDate"
+                  label="Fecha del evento"
+                  help="Seleccioná una fecha para ver el calendario compartido en acción."
+                  placeholder="Elegí una fecha"
+                  class="w-full"
+                />
+
+                <div class="space-y-3 rounded-2xl border border-default/60 bg-default/20 p-4">
+                  <UiMetaLabel tone="accent">
+                    Value preview
+                  </UiMetaLabel>
+                  <p class="text-sm text-toned">
+                    {{ rawDate || 'Sin fecha seleccionada' }}
+                  </p>
+                  <BaseButton variant="outlined" size="sm" leading-icon="i-lucide-trash-2" @click="rawDate = ''">
+                    Limpiar
+                  </BaseButton>
+                </div>
               </div>
             </UiPanel>
           </div>
