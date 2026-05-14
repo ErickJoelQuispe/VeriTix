@@ -99,20 +99,12 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-venues-page">
-        <UiPageHeading eyebrow="Backoffice" title="Manage venues" description="Availability, capacity, and operational status in one place." />
-        <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
-          <FormInput v-model="filters.search" placeholder="Search venue or city" icon="i-lucide-search" :disabled="pending" />
-          <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
-          <FormInput v-model="filters.city" placeholder="City" icon="i-lucide-map-pin" :disabled="pending" />
-          <BaseButton variant="secondary" :loading="pending" @click="applyFilters">
-            Search
-          </BaseButton>
-        </section>
+        <UiPageHeading eyebrow="Backoffice" title="Venues" description="Buscá recintos por nombre, ciudad y estado operativo." />
 
         <PagesBackofficeOverviewPanel
-          eyebrow="Filter"
-          title="Refine list."
-          description="Availability, capacity, and operational status in one place."
+          eyebrow="Filtros"
+          title="Lista de venues"
+          description="Filtrá por nombre, ciudad, estado y paginación desde un mismo bloque."
           variant="glass"
         >
           <template #actions>

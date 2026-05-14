@@ -259,18 +259,11 @@ onMounted(() => {
             Nuevo evento
           </BaseButton>
         </div>
-        <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
-          <FormInput v-model="filters.search" placeholder="Search title, venue, city" icon="i-lucide-search" :disabled="catalogPending || filtersPending" />
-          <FormSelect label="Status" name="status" :model-value="catalogMode" :items="catalogModeItems.map(item => ({ label: item.label, value: item.value }))" :disabled="catalogPending || filtersPending" @update:model-value="setCatalogMode(String($event))" />
-          <FormSelect label="Window" name="window" :model-value="quickWindow" :items="quickWindowItems" :disabled="catalogPending || filtersPending" @update:model-value="setQuickWindow(String($event))" />
-          <BaseButton variant="secondary" :loading="catalogPending || filtersPending" @click="applyCatalogFilters">
-            Search
-          </BaseButton>
-        </section>
 
         <PagesBackofficeOverviewPanel
-          eyebrow="Filter"
-          :title="catalogMode === 'review' ? 'Refine list.' : 'Refine list.'"
+          eyebrow="Filtros"
+          title="Vista operativa de eventos"
+          description="Filtrá el catálogo, alterná la vista y seguí las alertas desde un solo panel."
           variant="glass"
         >
           <template #actions>
