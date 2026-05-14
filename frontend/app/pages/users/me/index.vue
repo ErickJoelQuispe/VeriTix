@@ -193,38 +193,15 @@ onMounted(() => {
 
 <template>
   <section class="vtx-settings-shell relative py-10 sm:py-12 lg:py-14">
-    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div class="absolute inset-x-0 top-0 h-56 bg-linear-to-b from-white/6 via-transparent to-transparent" />
-      <div class="absolute -left-16 top-28 h-56 w-56 rounded-full bg-white/6 blur-3xl" />
-      <div class="absolute -right-20 top-10 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
-      <div class="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-white/4 blur-3xl" />
-    </div>
-
     <BaseContainer class="relative">
       <div class="mx-auto max-w-6xl space-y-8 lg:space-y-10">
-        <header class="grid gap-8 border-b border-default/45 pb-8 lg:grid-cols-[minmax(0,1.15fr)_auto] lg:items-end">
-          <div class="space-y-5">
-            <div class="space-y-3">
-              <UiMetaLabel tone="accent">
-                Ajustes
-              </UiMetaLabel>
-
-              <h1 class="max-w-4xl font-display text-3xl leading-tight text-highlighted sm:text-4xl lg:text-5xl">
-                Perfil y seguridad
-              </h1>
-
-              <p class="max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-                Actualiza tus datos personales y protege el acceso a tu cuenta desde un único espacio más claro.
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-end lg:justify-end">
-            <BaseButton variant="secondary" to="/users/me/logout" size="lg" class="border-default/60 bg-default/6 px-5">
-              Cerrar sesión
-            </BaseButton>
-          </div>
-        </header>
+        <UiSectionHeading
+          eyebrow="Ajustes"
+          title="Perfil y seguridad"
+          description="Actualiza tus datos personales y protege el acceso a tu cuenta desde un único espacio más claro."
+          action-label="Cerrar sesión"
+          action-to="/users/me/logout"
+        />
 
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
           <div class="min-w-0 space-y-6">
