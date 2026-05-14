@@ -96,8 +96,6 @@ const roleView = computed(() => {
   return roleViews[user.value.role]
 })
 
-const isAdmin = computed(() => user.value?.role === 'ADMIN')
-
 const profileInitials = computed(() => {
   const initials = [profileState.name || user.value?.name, profileState.lastName || user.value?.lastName]
     .map(value => value?.trim()?.charAt(0)?.toUpperCase() ?? '')
@@ -194,153 +192,367 @@ onMounted(() => {
 </script>
 
 <template>
-  <UsersSettingsShell
-    title="Perfil y seguridad"
-    description="Actualiza tus datos personales y protege el acceso a tu cuenta desde un único espacio más claro."
-    tone="minimal"
-  >
-    <section class="space-y-6">
-      <div v-if="!initialized" class="space-y-4">
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-      </div>
+  <section class="vtx-settings-shell relative py-10 sm:py-12 lg:py-14">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div class="absolute inset-x-0 top-0 h-56 bg-linear-to-b from-white/6 via-transparent to-transparent" />
+      <div class="absolute -left-16 top-28 h-56 w-56 rounded-full bg-white/6 blur-3xl" />
+      <div class="absolute -right-20 top-10 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+      <div class="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-white/4 blur-3xl" />
+    </div>
 
-      <div v-else class="space-y-6">
-        <article class="rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
-          <div class="space-y-2 border-b border-default/55 pb-5">
-            <UiMetaLabel>
-              Perfil
-            </UiMetaLabel>
-            <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
-              Datos personales
-            </h2>
-            <p class="max-w-2xl text-sm leading-relaxed text-toned">
-              Revisá la información visible de tu cuenta y mantené al día tus datos de contacto.
-            </p>
-          </div>
+    <BaseContainer class="relative">
+      <div class="mx-auto max-w-6xl space-y-8 lg:space-y-10">
+        <header class="grid gap-8 border-b border-default/45 pb-8 lg:grid-cols-[minmax(0,1.15fr)_auto] lg:items-end">
+          <div class="space-y-5">
+            <div class="space-y-3">
+              <UiMetaLabel tone="accent">
+                Ajustes
+              </UiMetaLabel>
 
-          <FormRoot
-            :state="profileState"
-            :schema="profileSchema"
-            :validate-on="[]"
-            class="space-y-6 pt-6"
-            @submit="submitProfile"
-          >
-            <UsersProfileFields
-              v-model:name="profileState.name"
-              v-model:last-name="profileState.lastName"
-              v-model:phone="profileState.phone"
-              v-model:avatar-url="profileState.avatarUrl"
-            />
+              <h1 class="max-w-4xl font-display text-3xl leading-tight text-highlighted sm:text-4xl lg:text-5xl">
+                Perfil y seguridad
+              </h1>
 
-            <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
-              <span class="text-sm text-toned">
-                Datos visibles y de contacto.
-              </span>
-
-              <BaseButton
-                variant="primary"
-                type="submit"
-                size="lg"
-                class="vtx-profile-submit px-6"
-                :loading="profileSubmitting"
-                :disabled="!hasProfileChanges"
-              >
-                Guardar perfil
-              </BaseButton>
+              <p class="max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
+                Actualiza tus datos personales y protege el acceso a tu cuenta desde un único espacio más claro.
+              </p>
             </div>
-          </FormRoot>
-        </article>
-
-        <article id="seguridad" class="scroll-mt-28 rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
-          <div class="space-y-2 border-b border-default/55 pb-5">
-            <UiMetaLabel>
-              Seguridad
-            </UiMetaLabel>
-            <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
-              Acceso a la cuenta
-            </h2>
-            <p class="max-w-2xl text-sm leading-relaxed text-toned">
-              Cambiá tu contraseña y gestioná el cierre de sesión desde el mismo bloque de seguridad.
-            </p>
           </div>
 
-          <FormRoot
-            :state="passwordState"
-            :schema="passwordSchema"
-            :validate-on="[]"
-            class="space-y-6 pt-6"
-            @submit="submitPassword"
-          >
-            <UsersPasswordFields
-              v-model:current-password="passwordState.currentPassword"
-              v-model:new-password="passwordState.newPassword"
-              v-model:confirm-password="passwordState.confirmPassword"
-              v-model:show-current-password="showCurrentPassword"
-              v-model:show-new-password="showNewPassword"
-              v-model:show-confirm-password="showConfirmPassword"
-            />
+          <div class="flex items-end lg:justify-end">
+            <BaseButton variant="secondary" to="/users/me/logout" size="lg" class="border-default/60 bg-default/6 px-5">
+              Cerrar sesión
+            </BaseButton>
+          </div>
+        </header>
 
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span class="text-sm text-toned">
-                Acceso y protección de la cuenta.
-              </span>
+        <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
+          <div class="min-w-0 space-y-6">
+            <div v-if="!initialized" class="space-y-4">
+              <BaseSkeleton class="h-11 rounded-2xl" />
+              <BaseSkeleton class="h-11 rounded-2xl" />
+              <BaseSkeleton class="h-11 rounded-2xl" />
+              <BaseSkeleton class="h-11 rounded-2xl" />
+              <BaseSkeleton class="h-11 rounded-2xl" />
+            </div>
 
-              <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <BaseButton
-                  variant="secondary"
-                  to="/users/me/logout"
-                  size="lg"
-                  class="px-6"
+            <template v-else>
+              <article class="rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
+                <div class="space-y-2 border-b border-default/55 pb-5">
+                  <UiMetaLabel>
+                    Perfil
+                  </UiMetaLabel>
+                  <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
+                    Datos personales
+                  </h2>
+                  <p class="max-w-2xl text-sm leading-relaxed text-toned">
+                    Revisá la información visible de tu cuenta y mantené al día tus datos de contacto.
+                  </p>
+                </div>
+
+                <FormRoot
+                  :state="profileState"
+                  :schema="profileSchema"
+                  :validate-on="[]"
+                  class="space-y-6 pt-6"
+                  @submit="submitProfile"
                 >
-                  Cerrar sesión
-                </BaseButton>
+                  <div class="space-y-6">
+                    <section class="space-y-4 border-b border-default/55 pb-6">
+                      <div class="space-y-2">
+                        <h3 class="text-lg font-semibold text-highlighted">
+                          Identidad
+                        </h3>
+                        <p class="text-sm leading-relaxed text-toned">
+                          Nombre y datos visibles en tu cuenta.
+                        </p>
+                      </div>
 
-                <BaseButton
-                  variant="primary"
-                  type="submit"
-                  size="lg"
-                  class="vtx-profile-submit px-6"
-                  :loading="passwordSubmitting"
+                      <div class="grid gap-4 sm:grid-cols-2">
+                        <FormField
+                          v-model="profileState.name"
+                          name="name"
+                          label="Nombre"
+                          placeholder="Nombre"
+                          icon="i-lucide-user"
+                          required
+                        />
+
+                        <FormField
+                          v-model="profileState.lastName"
+                          name="lastName"
+                          label="Apellido"
+                          placeholder="Apellido"
+                          icon="i-lucide-user-round"
+                          required
+                        />
+                      </div>
+                    </section>
+
+                    <section class="space-y-4 border-b border-default/55 pb-6">
+                      <div class="space-y-2">
+                        <h3 class="text-lg font-semibold text-highlighted">
+                          Contacto
+                        </h3>
+                        <p class="text-sm leading-relaxed text-toned">
+                          Canales que usamos para identificarte y mantener tu perfil al día.
+                        </p>
+                      </div>
+
+                      <div class="grid gap-4">
+                        <FormField
+                          v-model="profileState.phone"
+                          name="phone"
+                          label="Teléfono"
+                          help="Opcional · formato E.164"
+                          type="tel"
+                          placeholder="+34958123456"
+                          icon="i-lucide-phone"
+                        />
+
+                        <FormField
+                          v-model="profileState.avatarUrl"
+                          name="avatarUrl"
+                          label="Avatar URL"
+                          help="Opcional"
+                          type="url"
+                          placeholder="https://..."
+                          icon="i-lucide-image"
+                        />
+                      </div>
+                    </section>
+                  </div>
+
+                  <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span class="text-sm text-toned">
+                      Datos visibles y de contacto.
+                    </span>
+
+                    <BaseButton
+                      variant="primary"
+                      type="submit"
+                      size="lg"
+                      class="vtx-profile-submit px-6"
+                      :loading="profileSubmitting"
+                      :disabled="!hasProfileChanges"
+                    >
+                      Guardar perfil
+                    </BaseButton>
+                  </div>
+                </FormRoot>
+              </article>
+
+              <article id="seguridad" class="scroll-mt-28 rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
+                <div class="space-y-2 border-b border-default/55 pb-5">
+                  <UiMetaLabel>
+                    Seguridad
+                  </UiMetaLabel>
+                  <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
+                    Acceso a la cuenta
+                  </h2>
+                  <p class="max-w-2xl text-sm leading-relaxed text-toned">
+                    Cambiá tu contraseña y gestioná el cierre de sesión desde el mismo bloque de seguridad.
+                  </p>
+                </div>
+
+                <FormRoot
+                  :state="passwordState"
+                  :schema="passwordSchema"
+                  :validate-on="[]"
+                  class="space-y-6 pt-6"
+                  @submit="submitPassword"
                 >
-                  Actualizar contraseña
-                </BaseButton>
+                  <div class="space-y-6">
+                    <div class="space-y-2">
+                      <div>
+                        <UiMetaLabel>
+                          Seguridad
+                        </UiMetaLabel>
+                        <h3 class="mt-3 text-2xl font-semibold text-highlighted">
+                          Cambiar contraseña
+                        </h3>
+                      </div>
+
+                      <p class="text-sm leading-relaxed text-toned">
+                        Usá una clave nueva con al menos 8 caracteres, una mayúscula y un número.
+                      </p>
+                    </div>
+
+                    <FormPassword
+                      v-model="passwordState.currentPassword"
+                      name="currentPassword"
+                      label="Contraseña actual"
+                      placeholder="Contraseña actual"
+                      icon="i-lucide-lock"
+                      :show="showCurrentPassword"
+                      required
+                      @update:show="showCurrentPassword = $event"
+                    />
+
+                    <div class="grid gap-5 lg:grid-cols-2">
+                      <FormPassword
+                        v-model="passwordState.newPassword"
+                        name="newPassword"
+                        label="Nueva contraseña"
+                        help="8+ caracteres · mayúscula · minúscula · número"
+                        placeholder="Nueva contraseña"
+                        icon="i-lucide-shield"
+                        :show="showNewPassword"
+                        required
+                        @update:show="showNewPassword = $event"
+                      />
+
+                      <FormPassword
+                        v-model="passwordState.confirmPassword"
+                        name="confirmPassword"
+                        label="Confirmar contraseña"
+                        placeholder="Confirmar contraseña"
+                        icon="i-lucide-check-check"
+                        :show="showConfirmPassword"
+                        required
+                        @update:show="showConfirmPassword = $event"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <span class="text-sm text-toned">
+                      Acceso y protección de la cuenta.
+                    </span>
+
+                    <BaseButton
+                      variant="primary"
+                      type="submit"
+                      size="lg"
+                      class="vtx-profile-submit px-6"
+                      :loading="passwordSubmitting"
+                    >
+                      Actualizar contraseña
+                    </BaseButton>
+                  </div>
+                </FormRoot>
+              </article>
+            </template>
+          </div>
+
+          <aside class="space-y-8">
+            <ClientOnly>
+              <div class="space-y-8">
+                <section class="relative vtx-profile-presence space-y-5 border-b border-default/55 pb-8">
+                  <div class="flex items-center gap-4">
+                    <div class="vtx-profile-avatar flex size-16 shrink-0 items-center justify-center rounded-2xl text-lg font-semibold text-highlighted">
+                      {{ profileInitials }}
+                    </div>
+
+                    <div>
+                      <UiMetaLabel>
+                        Identidad visible
+                      </UiMetaLabel>
+                      <p class="mt-2 text-lg font-semibold text-highlighted">
+                        {{ `${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim() }}
+                      </p>
+                      <p class="mt-1 text-sm text-toned">
+                        {{ user?.email ?? 'Sin email' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                    <div class="vtx-profile-signal">
+                      <UiMetaLabel>
+                        Avatar
+                      </UiMetaLabel>
+                      <p class="mt-2 text-sm font-semibold text-highlighted">
+                        {{ profileState.avatarUrl.trim() ? 'Configurado' : 'Sin personalizar' }}
+                      </p>
+                    </div>
+
+                    <div class="vtx-profile-signal">
+                      <UiMetaLabel>
+                        Teléfono
+                      </UiMetaLabel>
+                      <p class="mt-2 text-sm font-semibold text-highlighted">
+                        {{ profileState.phone || 'Pendiente' }}
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                <section v-if="roleView" class="relative vtx-profile-role space-y-4 border-b border-default/55 pb-8">
+                  <div>
+                    <UiMetaLabel tone="accent">
+                      {{ roleView.title }}
+                    </UiMetaLabel>
+                  </div>
+
+                  <ul class="space-y-3">
+                    <li
+                      v-for="capability in roleView.capabilities"
+                      :key="capability"
+                      class="flex items-start gap-3 text-sm leading-relaxed text-toned"
+                    >
+                      <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/14 text-primary">
+                        <BaseIcon name="i-lucide-check" class="size-3.5" />
+                      </span>
+                      <span>{{ capability }}</span>
+                    </li>
+                  </ul>
+                </section>
               </div>
-            </div>
-          </FormRoot>
-        </article>
+
+              <template #fallback>
+                <div class="rounded-panel border border-default bg-elevated/35 p-5 sm:p-6" aria-hidden="true">
+                  <BaseSkeleton class="h-16 w-16 rounded-2xl" />
+                  <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
+                  <BaseSkeleton class="mt-2 h-4 w-44 rounded" />
+                </div>
+              </template>
+            </ClientOnly>
+          </aside>
+        </div>
       </div>
-    </section>
-
-    <template #aside>
-      <ClientOnly>
-        <UsersProfileAside
-          :initials="profileInitials"
-          :full-name="`${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim()"
-          :email="user?.email ?? 'Sin email'"
-          :avatar-configured="Boolean(profileState.avatarUrl.trim())"
-          :phone="profileState.phone"
-          :is-admin="isAdmin"
-          :role-view="roleView"
-        />
-
-        <template #fallback>
-          <div class="rounded-panel border border-default bg-elevated/35 p-5 sm:p-6" aria-hidden="true">
-            <BaseSkeleton class="h-16 w-16 rounded-2xl" />
-            <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
-            <BaseSkeleton class="mt-2 h-4 w-44 rounded" />
-          </div>
-        </template>
-      </ClientOnly>
-    </template>
-  </UsersSettingsShell>
+    </BaseContainer>
+  </section>
 </template>
 
 <style scoped>
 @reference "@/assets/css/main.css";
+
+.vtx-settings-shell {
+  isolation: isolate;
+}
+
+.vtx-profile-presence::before {
+  @apply absolute -left-2 top-0 hidden h-28 w-28 rounded-full blur-3xl lg:block;
+  content: '';
+  background: radial-gradient(circle at center, rgb(239 170 71 / 0.16), rgb(255 255 255 / 0));
+}
+
+.vtx-profile-avatar {
+  border: 1px solid rgb(239 170 71 / 0.45);
+  background:
+    radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.86), rgb(255 255 255 / 0) 38%),
+    linear-gradient(135deg, rgb(239 170 71 / 0.4), rgb(44 189 230 / 0.4), rgb(240 100 127 / 0.28));
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.04),
+    0 18px 34px -24px rgb(239 170 71 / 0.8);
+}
+
+.vtx-profile-signal {
+  @apply relative pl-4;
+}
+
+.vtx-profile-signal::before {
+  @apply absolute bottom-0 left-0 top-0 w-0.5 rounded-full;
+  content: '';
+  background: linear-gradient(180deg, rgb(239 170 71 / 0.9), rgb(44 189 230 / 0.8));
+}
+
+.vtx-profile-role::after {
+  @apply absolute right-0 top-0 hidden h-20 w-20 rounded-full blur-2xl lg:block;
+  content: '';
+  background: radial-gradient(circle at center, rgb(44 189 230 / 0.14), rgb(255 255 255 / 0));
+}
 
 .vtx-profile-submit {
   border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
