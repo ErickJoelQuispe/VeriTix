@@ -35,6 +35,7 @@ const modelValue = defineModel<string | undefined>()
 const attrs = useAttrs()
 const formContext = useFormContext()
 const isOpen = ref(false)
+const activeMenu = ref<'month' | 'year' | null>(null)
 const rootRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
 const triggerRef = ref<HTMLButtonElement | null>(null)
@@ -92,6 +93,9 @@ const monthOptions = [
   'Diciembre',
 ]
 
+const currentMonthLabel = computed(() => monthOptions[viewMonth.value.getMonth()])
+const currentYearLabel = computed(() => `${viewMonth.value.getFullYear()}`)
+
 const yearOptions = computed(() => {
   const currentYear = today.getFullYear()
   const minYear = props.min ? parseIsoDate(props.min)?.getFullYear() ?? 1900 : 1900
@@ -137,7 +141,7 @@ const controlClass = computed(() => {
 })
 
 const panelClass = computed(() => {
-  return 'z-[9999] w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-lavender/30 bg-elevated p-3 shadow-[0_16px_32px_-24px_rgba(86,29,164,0.35)] ring-1 ring-lavender/10'
+  return 'z-[9999] w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-lavender/45 bg-elevated p-3 shadow-[0_16px_32px_-24px_rgba(86,29,164,0.28)] ring-1 ring-lavender/15'
 })
 
 const calendarDays = computed(() => buildCalendarDays(viewMonth.value))
@@ -154,6 +158,7 @@ watch(modelValue, () => {
 
 watch(isOpen, async (open) => {
   if (!open) {
+    activeMenu.value = null
     return
   }
 
@@ -167,6 +172,7 @@ function toggleOpen() {
   }
 
   isOpen.value = !isOpen.value
+  activeMenu.value = null
 
   if (isOpen.value && selectedDate.value) {
     viewMonth.value = startOfMonth(selectedDate.value)
@@ -209,6 +215,7 @@ function updatePanelPosition() {
 
 function closeOpen() {
   isOpen.value = false
+  activeMenu.value = null
 }
 
 function clearSelection() {
@@ -240,6 +247,20 @@ function setViewYear(year: number) {
   viewMonth.value = new Date(year, viewMonth.value.getMonth(), 1)
 }
 
+function toggleMenu(menu: 'month' | 'year') {
+  activeMenu.value = activeMenu.value === menu ? null : menu
+}
+
+function selectMonth(monthIndex: number) {
+  setViewMonth(monthIndex)
+  activeMenu.value = null
+}
+
+function selectYear(year: number) {
+  setViewYear(year)
+  activeMenu.value = null
+}
+
 function onDocumentPointerDown(event: MouseEvent) {
   if (!isOpen.value || !rootRef.value) {
     return
@@ -256,6 +277,7 @@ function onDocumentPointerDown(event: MouseEvent) {
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
+    activeMenu.value = null
     closeOpen()
     triggerRef.value?.focus()
   }
@@ -436,7 +458,7 @@ function formatSelected(date: Date) {
           :class="panelClass"
           :style="panelStyle"
         >
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-3 border-b border-lavender/15 pb-3">
             <div class="space-y-1">
               <p class="text-sm font-semibold text-lavender">
                 {{ monthLabel }}
@@ -447,29 +469,65 @@ function formatSelected(date: Date) {
             </div>
 
             <div class="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2">
-              <label class="sr-only" :for="`${listboxId}-month`">Mes</label>
-              <select
-                :id="`${listboxId}-month`"
-                :value="viewMonth.getMonth()"
-                class="min-h-10 cursor-pointer rounded-xl border border-default/55 bg-elevated/70 px-3 text-sm font-medium text-highlighted shadow-sm outline-none transition hover:border-lavender/35 hover:bg-elevated focus:border-lavender/55 focus:ring-2 focus:ring-lavender/20"
-                aria-label="Mes"
-                @change="setViewMonth(Number(($event.target as HTMLSelectElement).value))"
-              >
-                <option v-for="(month, index) in monthOptions" :key="month" :value="index">
-                  {{ month }}
-                </option>
-              </select>
+              <div class="relative">
+                <button
+                  type="button"
+                  class="flex min-h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-default/55 bg-default/20 px-3 text-sm font-medium text-highlighted shadow-sm transition hover:border-lavender/35 hover:bg-default/30 focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/20"
+                  aria-haspopup="listbox"
+                  :aria-expanded="activeMenu === 'month' ? 'true' : 'false'"
+                  @click="toggleMenu('month')"
+                >
+                  <span class="truncate">{{ currentMonthLabel }}</span>
+                  <BaseIcon name="i-lucide-chevron-down" class="size-4 text-toned transition-transform" :class="activeMenu === 'month' ? 'rotate-180' : ''" />
+                </button>
 
-              <select
-                :value="viewMonth.getFullYear()"
-                class="min-h-10 cursor-pointer rounded-xl border border-default/55 bg-elevated/70 px-3 text-sm font-medium text-highlighted shadow-sm outline-none transition hover:border-lavender/35 hover:bg-elevated focus:border-lavender/55 focus:ring-2 focus:ring-lavender/20"
-                aria-label="Año"
-                @change="setViewYear(Number(($event.target as HTMLSelectElement).value))"
-              >
-                <option v-for="year in yearOptions" :key="year" :value="year">
-                  {{ year }}
-                </option>
-              </select>
+                <div
+                  v-if="activeMenu === 'month'"
+                  class="absolute left-0 top-full z-10 mt-2 max-h-56 w-full overflow-auto rounded-xl border border-lavender/25 bg-elevated p-1 shadow-lg"
+                >
+                  <button
+                    v-for="(month, index) in monthOptions"
+                    :key="month"
+                    type="button"
+                    class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-lavender/10 hover:text-lavender"
+                    :class="viewMonth.getMonth() === index ? 'bg-lavender/10 text-lavender' : 'text-highlighted'"
+                    @click="selectMonth(index)"
+                  >
+                    <span>{{ month }}</span>
+                    <BaseIcon v-if="viewMonth.getMonth() === index" name="i-lucide-check" class="size-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div class="relative">
+                <button
+                  type="button"
+                  class="flex min-h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-default/55 bg-default/20 px-3 text-sm font-medium text-highlighted shadow-sm transition hover:border-lavender/35 hover:bg-default/30 focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/20"
+                  aria-haspopup="listbox"
+                  :aria-expanded="activeMenu === 'year' ? 'true' : 'false'"
+                  @click="toggleMenu('year')"
+                >
+                  <span class="truncate">{{ currentYearLabel }}</span>
+                  <BaseIcon name="i-lucide-chevron-down" class="size-4 text-toned transition-transform" :class="activeMenu === 'year' ? 'rotate-180' : ''" />
+                </button>
+
+                <div
+                  v-if="activeMenu === 'year'"
+                  class="absolute right-0 top-full z-10 mt-2 max-h-56 w-full overflow-auto rounded-xl border border-lavender/25 bg-elevated p-1 shadow-lg"
+                >
+                  <button
+                    v-for="year in yearOptions"
+                    :key="year"
+                    type="button"
+                    class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-lavender/10 hover:text-lavender"
+                    :class="viewMonth.getFullYear() === year ? 'bg-lavender/10 text-lavender' : 'text-highlighted'"
+                    @click="selectYear(year)"
+                  >
+                    <span>{{ year }}</span>
+                    <BaseIcon v-if="viewMonth.getFullYear() === year" name="i-lucide-check" class="size-4" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -482,11 +540,11 @@ function formatSelected(date: Date) {
               v-for="day in calendarDays"
               :key="toIsoDate(day.date)"
               type="button"
-              class="flex h-10 cursor-pointer items-center justify-center rounded-xl text-sm transition"
+              class="flex h-10 cursor-pointer items-center justify-center rounded-xl text-sm font-medium transition"
               :class="[
                 day.isCurrentMonth ? 'text-highlighted' : 'text-toned/45',
                 day.disabled ? 'cursor-not-allowed opacity-40' : 'hover:bg-lavender/10 hover:text-lavender',
-                day.isSelected ? 'bg-lavender text-white shadow-[0_14px_26px_-18px_rgba(86,29,164,0.72)] hover:bg-lavender hover:text-white' : '',
+                day.isSelected ? 'bg-lavender text-white shadow-sm hover:bg-lavender hover:text-white' : '',
                 day.isToday && !day.isSelected ? 'ring-1 ring-inset ring-lavender/30' : '',
               ]"
               :disabled="day.disabled"
