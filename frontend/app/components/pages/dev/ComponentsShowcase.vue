@@ -13,6 +13,7 @@ const demoForm = reactive({
 })
 
 const rawInput = ref('VeriTix')
+const wrappedInput = ref('Search term')
 const rawInputHero = ref('Hero variant')
 const rawPassword = ref('veritix-demo')
 const rawNotes = ref('Reusable textarea control')
@@ -254,7 +255,7 @@ function submitDemoForm() {
               </div>
             </UiPanel>
 
-            <UiPanel class="space-y-5">
+            <UiPanel class="space-y-5 xl:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Avatars and icons
@@ -285,7 +286,7 @@ function submitDemoForm() {
               </div>
             </UiPanel>
 
-            <UiPanel class="space-y-5">
+            <UiPanel class="space-y-5 xl:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Skeletons and pagination
@@ -360,7 +361,7 @@ function submitDemoForm() {
           <UiSectionHeading
             eyebrow="Shared UI"
             title="Reusable blocks."
-            description="Composition helpers that sit above primitives: headings, glass surfaces, labels, and empty states."
+            description="Composition helpers that sit above primitives: headings, labels, and empty states."
           />
 
           <div class="grid gap-6 lg:grid-cols-2">
@@ -392,36 +393,63 @@ function submitDemoForm() {
                 action-to="/events"
               />
             </UiPanel>
+          </div>
+        </section>
 
-            <UiPanel class="space-y-5 lg:col-span-2">
-              <div class="space-y-2">
-                <p class="text-sm font-semibold text-highlighted">
-                  Panel variants
-                </p>
-                <p class="text-sm leading-relaxed text-toned">
-                  The surface component used to frame cards, sections, and controls, including a softer glass variant.
-                </p>
-              </div>
+        <section id="panels" class="space-y-6 scroll-mt-24">
+          <UiSectionHeading
+            eyebrow="Panels"
+            title="Standalone surfaces."
+            description="Show each panel on its own so the surface, spacing, and hierarchy are easy to judge at a glance."
+          />
 
-              <div class="grid gap-4 md:grid-cols-2">
-                <UiPanel variant="glass" padding="sm" radius="md">
-                  <p class="text-sm font-medium text-highlighted">
-                    Subtle panel
-                  </p>
-                  <p class="mt-1 text-sm text-toned">
-                    Lower contrast for nested content.
-                  </p>
-                </UiPanel>
+          <div class="grid gap-6 lg:grid-cols-2">
+            <UiPanel class="space-y-3">
+              <UiMetaLabel tone="accent">
+                Solid
+              </UiMetaLabel>
+              <p class="text-sm font-semibold text-highlighted">
+                Default panel
+              </p>
+              <p class="text-sm leading-relaxed text-toned">
+                The main surface for cards, sections, and grouped content.
+              </p>
+            </UiPanel>
 
-                <UiPanel padding="lg" radius="xl" interactive>
-                  <p class="text-sm font-medium text-highlighted">
-                    Interactive panel
-                  </p>
-                  <p class="mt-1 text-sm text-toned">
-                    Hover and focus states are built in.
-                  </p>
-                </UiPanel>
-              </div>
+            <UiPanel variant="glass" class="space-y-3" padding="sm" radius="md">
+              <UiMetaLabel tone="default">
+                Glass
+              </UiMetaLabel>
+              <p class="text-sm font-semibold text-highlighted">
+                Softer surface
+              </p>
+              <p class="text-sm leading-relaxed text-toned">
+                A lighter surface for secondary content and low-emphasis blocks.
+              </p>
+            </UiPanel>
+
+            <UiPanel padding="lg" radius="xl" interactive class="space-y-3">
+              <UiMetaLabel tone="accent">
+                Interactive
+              </UiMetaLabel>
+              <p class="text-sm font-semibold text-highlighted">
+                Hover-ready panel
+              </p>
+              <p class="text-sm leading-relaxed text-toned">
+                Useful for cards that behave like actions or navigation targets.
+              </p>
+            </UiPanel>
+
+            <UiPanel padding="sm" radius="md" class="space-y-3">
+              <UiMetaLabel tone="default">
+                Compact
+              </UiMetaLabel>
+              <p class="text-sm font-semibold text-highlighted">
+                Dense panel
+              </p>
+              <p class="text-sm leading-relaxed text-toned">
+                A tighter composition for smaller surfaces and side content.
+              </p>
             </UiPanel>
           </div>
         </section>
@@ -429,15 +457,15 @@ function submitDemoForm() {
         <section id="forms" class="space-y-6 scroll-mt-24">
           <UiSectionHeading
             eyebrow="Forms"
-            title="Form primitives."
-            description="Field wrappers and controls used to build the backoffice forms without duplicating patterns."
+            title="Form building blocks."
+            description="Split by the pieces that matter in real screens: full shells, wrapped fields, raw controls, and the date picker."
           />
 
           <div class="grid gap-6 xl:grid-cols-2">
-            <UiPanel class="space-y-5">
+            <UiPanel class="space-y-5 xl:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
-                  FormRoot + FormField
+                  Form shell
                 </p>
                 <p class="text-sm leading-relaxed text-toned">
                   This mirrors the real layout used in the admin area.
@@ -445,18 +473,18 @@ function submitDemoForm() {
               </div>
 
               <FormRoot :state="demoForm" :validate-on="[]" class="space-y-5" @submit="submitDemoForm">
-                <FormField v-model="demoForm.name" name="name" label="Nombre" help="Shown in the header of the demo record." required />
-                <FormField v-model="demoForm.email" name="email" label="Correo" type="email" help="Validation and error rendering are handled by the field." required />
-                <FormPassword v-model="demoForm.password" name="password" label="Contraseña" help="The password control includes a visibility toggle." required />
+                <FormField v-model="demoForm.name" name="name" label="Name" help="Shown in the header of the demo record." required />
+                <FormField v-model="demoForm.email" name="email" label="Email" type="email" help="Validation and error rendering are handled by the field." required />
+                <FormPassword v-model="demoForm.password" name="password" label="Password" help="The password control includes a visibility toggle." required />
                 <FormSelect
                   v-model="demoForm.role"
                   name="role"
-                  label="Rol"
+                  label="Role"
                   :items="formRoleItems"
-                  placeholder="Seleccioná un rol"
+                  placeholder="Select a role"
                   help="Selects share the same form context and error surface."
                 />
-                <FormTextarea v-model="demoForm.notes" name="notes" label="Notas" help="Use it for longer copy, comments, and descriptions." :rows="4" />
+                <FormTextarea v-model="demoForm.notes" name="notes" label="Notes" help="Use it for longer copy, comments, and descriptions." :rows="4" />
 
                 <BaseButton type="submit" variant="primary" leading-icon="i-lucide-send">
                   Submit demo
@@ -467,23 +495,38 @@ function submitDemoForm() {
             <UiPanel class="space-y-5">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
-                  Raw control set
+                  Wrapped fields
                 </p>
                 <p class="text-sm leading-relaxed text-toned">
-                  The lower-level inputs are still available when a wrapper is not needed.
+                  Labels, help text, and validation stay together when the field owns the layout.
                 </p>
               </div>
 
               <div class="space-y-4">
-                <FormInput v-model="rawInput" name="rawInput" placeholder="FormInput with icon" icon="i-lucide-search" />
-                <FormInput v-model="rawInputHero" name="rawInputHero" variant="hero" placeholder="Hero variant" />
-                <FormPassword v-model="rawPassword" name="rawPassword" label="Password control" />
-                <FormTextarea v-model="rawNotes" name="rawNotes" placeholder="Textarea without a label" :rows="4" />
-                <FormSelect v-model="rawRole" name="rawRole" label="Select control" :items="formRoleItems" />
+                <FormField v-model="wrappedInput" name="wrappedInput" label="Search term" help="The wrapper keeps the field readable in denser layouts." />
+                <FormPassword v-model="rawPassword" name="rawPassword" label="Password" help="Password fields still belong in the same form model." />
+                <FormSelect v-model="rawRole" name="rawRole" label="Select" :items="formRoleItems" help="Selects should feel like a first-class field, not a special case." />
+                <FormTextarea v-model="rawNotes" name="rawNotes" label="Notes" help="Use it when the field needs more breathing room." :rows="4" />
               </div>
             </UiPanel>
 
-            <UiPanel class="space-y-5 lg:col-span-2">
+            <UiPanel class="space-y-5">
+              <div class="space-y-2">
+                <p class="text-sm font-semibold text-highlighted">
+                  Raw controls
+                </p>
+                <p class="text-sm leading-relaxed text-toned">
+                  Lower-level inputs are still available when you need to compose a custom layout.
+                </p>
+              </div>
+
+              <div class="space-y-4">
+                <FormInput v-model="rawInputHero" name="rawInputHero" variant="hero" placeholder="Hero variant" />
+                <FormInput v-model="rawInput" name="rawInput" placeholder="FormInput with icon" icon="i-lucide-search" />
+              </div>
+            </UiPanel>
+
+            <UiPanel class="space-y-5 xl:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
                   Date picker
@@ -497,9 +540,9 @@ function submitDemoForm() {
                 <FormDatePicker
                   v-model="rawDate"
                   name="rawDate"
-                  label="Fecha del evento"
-                  help="Seleccioná una fecha para ver el calendario compartido en acción."
-                  placeholder="Elegí una fecha"
+                  label="Event date"
+                  help="Pick a date to see the shared calendar field in action."
+                  placeholder="Choose a date"
                   class="w-full"
                 />
 
@@ -508,10 +551,10 @@ function submitDemoForm() {
                     Value preview
                   </UiMetaLabel>
                   <p class="text-sm text-toned">
-                    {{ rawDate || 'Sin fecha seleccionada' }}
+                    {{ rawDate || 'No date selected' }}
                   </p>
                   <BaseButton variant="outlined" size="sm" leading-icon="i-lucide-trash-2" @click="rawDate = ''">
-                    Limpiar
+                    Clear
                   </BaseButton>
                 </div>
               </div>

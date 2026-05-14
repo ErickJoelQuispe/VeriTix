@@ -3,7 +3,7 @@ definePageMeta({})
 
 useSeoMeta({
   title: 'Dev / Components',
-  description: 'Playground for shared UI primitives, form controls, and toast states.',
+  description: 'Playground for shared UI primitives, panel surfaces, form controls, and toast states.',
 })
 </script>
 

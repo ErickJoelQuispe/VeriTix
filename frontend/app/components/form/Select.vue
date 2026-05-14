@@ -48,6 +48,21 @@ const errorMessage = computed(() => {
   return formContext?.errors[props.name] ?? ''
 })
 
+const helpId = computed(() => `${props.name}-help`)
+const errorId = computed(() => `${props.name}-error`)
+
+const describedBy = computed(() => {
+  if (errorMessage.value) {
+    return errorId.value
+  }
+
+  if (props.help) {
+    return helpId.value
+  }
+
+  return undefined
+})
+
 const selectedItem = computed(() => {
   if (props.multiple) {
     return null
@@ -77,39 +92,18 @@ const triggerLabelClass = computed(() => {
 
 const hasError = computed(() => Boolean(errorMessage.value))
 
-const stateClass = computed(() => {
-  if (hasError.value) {
-    return 'border-error/70 ring-2 ring-error/20'
-  }
-
-  return 'focus-visible:border-lavender/45 focus-visible:ring-2 focus-visible:ring-lavender/30'
-})
-
-const selectClass = computed(() => {
-  const sizeClass = {
-    xs: 'min-h-8 px-3 py-1.5 text-xs',
-    sm: 'min-h-9 px-3.5 py-2 text-sm',
-    md: 'min-h-10 px-4 py-2.5 text-sm',
-    lg: 'min-h-11 px-4.5 py-3 text-base',
-    xl: 'min-h-12 px-5 py-3.5 text-base',
-  }[props.size]
-
+const controlClass = computed(() => {
   return [
-    'relative w-full appearance-none rounded-xl border border-default/55 bg-default/30 text-left text-highlighted shadow-sm transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
-    sizeClass,
-    stateClass.value,
+    'flex min-h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-default/55 bg-default/20 px-3 text-sm font-medium text-highlighted shadow-sm transition hover:border-lavender/35 hover:bg-default/30 focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/20 disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    hasError.value ? 'border-error/70 ring-2 ring-error/20 hover:border-error/70 hover:bg-default/20 focus-visible:border-error/70 focus-visible:ring-error/20' : '',
     hasLeading.value ? 'pl-11' : '',
     'pr-11',
     attrs.class,
   ]
 })
 
-const openClass = computed(() => {
-  if (!isOpen.value || hasError.value) {
-    return ''
-  }
-
-  return 'border-lavender/45 ring-2 ring-lavender/20'
+const panelClass = computed(() => {
+  return 'absolute left-0 top-full z-10 mt-2 max-h-56 w-full overflow-auto rounded-xl border border-lavender/25 bg-elevated p-1 shadow-lg'
 })
 
 function resolveValue(rawValue: string): string | number {
@@ -190,7 +184,7 @@ onBeforeUnmount(() => {
       <BaseIcon
         v-if="props.icon"
         :name="props.icon"
-        class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-toned"
+        class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-lavender/80"
         aria-hidden="true"
       />
 
@@ -202,8 +196,10 @@ onBeforeUnmount(() => {
         :multiple="props.multiple"
         :required="props.required"
         :disabled="props.disabled"
-        :class="selectClass"
+        :class="controlClass"
         :aria-invalid="errorMessage ? 'true' : undefined"
+        :aria-describedby="describedBy"
+        :aria-errormessage="errorMessage ? errorId : undefined"
         @change="handleChange"
       >
         <option v-if="props.placeholder && !props.multiple" value="" disabled>
@@ -232,8 +228,10 @@ onBeforeUnmount(() => {
           type="button"
           v-bind="forwardedAttrs"
           :disabled="props.disabled"
-          :class="[selectClass, openClass]"
+          :class="controlClass"
           :aria-invalid="errorMessage ? 'true' : undefined"
+          :aria-describedby="describedBy"
+          :aria-errormessage="errorMessage ? errorId : undefined"
           aria-haspopup="listbox"
           :aria-expanded="isOpen ? 'true' : 'false'"
           :aria-controls="listboxId"
@@ -242,7 +240,7 @@ onBeforeUnmount(() => {
           <BaseIcon
             v-if="props.icon"
             :name="props.icon"
-            class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-toned"
+            class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-lavender/80"
             aria-hidden="true"
           />
 
@@ -255,7 +253,7 @@ onBeforeUnmount(() => {
           v-if="isOpen"
           :id="listboxId"
           role="listbox"
-          class="absolute z-50 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-lavender/35 bg-default shadow-[0_16px_34px_-24px_rgba(86,29,164,0.42)] ring-1 ring-lavender/20"
+          :class="panelClass"
         >
           <button
             v-for="item in props.items"
@@ -264,8 +262,8 @@ onBeforeUnmount(() => {
             role="option"
             :disabled="item.disabled"
             :aria-selected="selectedItem && String(selectedItem.value) === String(item.value) ? 'true' : 'false'"
-            class="relative block w-full bg-default/45 py-2.5 pl-4 pr-4 text-left text-sm text-highlighted transition-colors hover:bg-[color-mix(in_oklch,var(--color-lavender)_12%,var(--color-elevated))] hover:text-highlighted disabled:cursor-not-allowed disabled:opacity-50"
-            :class="selectedItem && String(selectedItem.value) === String(item.value) ? 'bg-[color-mix(in_oklch,var(--color-lavender)_16%,var(--color-default))] font-medium text-highlighted ring-1 ring-inset ring-lavender/25 shadow-[inset_3px_0_0_var(--color-lavender)]' : ''"
+            class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-lavender/10 hover:text-lavender disabled:cursor-not-allowed disabled:opacity-50"
+            :class="selectedItem && String(selectedItem.value) === String(item.value) ? 'bg-lavender/10 text-lavender' : 'text-highlighted'"
             @click="selectItem(item.value)"
           >
             {{ item.label }}
@@ -276,17 +274,17 @@ onBeforeUnmount(() => {
       <BaseIcon
         v-if="!props.multiple"
         name="i-lucide-chevron-down"
-        class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-toned transition-transform"
+        class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-lavender/70 transition-transform"
         :class="isOpen ? 'rotate-180' : ''"
         aria-hidden="true"
       />
     </div>
 
-    <p v-if="errorMessage" class="text-xs font-medium text-error" role="alert">
+    <p v-if="errorMessage" :id="errorId" class="text-xs font-medium text-error" role="alert">
       {{ errorMessage }}
     </p>
 
-    <p v-else-if="props.help" class="text-xs text-toned">
+    <p v-else-if="props.help" :id="helpId" class="text-xs text-toned">
       {{ props.help }}
     </p>
   </label>
