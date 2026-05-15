@@ -71,7 +71,7 @@ export class ReviewsController {
   // ── DELETE /reviews/:id ──────────────────────────────────────────────────
 
   @Delete(':id')
-  @Roles(Role.BUYER)
+  @Roles(Role.BUYER, Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete a review (BUYER author or ADMIN)' })
   @ApiOkResponse({ description: 'Review deleted successfully.' })
