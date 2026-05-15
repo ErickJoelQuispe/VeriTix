@@ -16,3 +16,10 @@ export {
   UpcomingQueryDto,
   TopEventsQueryDto,
 } from './analytics-response.dto';
+export { BuyerEventsQueryDto } from './buyer-events-query.dto';
+export {
+  BuyerEventItemDto,
+  BuyerEventSummaryDto,
+  BuyerEventVenueDto,
+  BuyerEventFormatDto,
+} from './buyer-event-item.dto';
