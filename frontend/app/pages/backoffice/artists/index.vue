@@ -149,7 +149,7 @@ onMounted(() => {
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-artists-page">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Manage artists" description="Query by name, genre, status, and engagement." />
+          <UiPageHeading eyebrow="Backoffice" title="Artistas" description="Buscá artistas por nombre, género, estado y actividad." />
           <BaseButton
             to="/backoffice/artists/new"
             variant="primary"
@@ -159,19 +159,10 @@ onMounted(() => {
             Nuevo artista
           </BaseButton>
         </div>
-        <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
-          <FormInput v-model="filters.search" placeholder="Search artist or agent" icon="i-lucide-search" :disabled="pending" />
-          <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
-          <FormSelect label="Genre" name="genre" :model-value="filters.genreId || '__all__'" :items="[{ label: 'Genre: all', value: '__all__' }, ...genreFilterOptions.map(genre => ({ label: genre.name, value: genre.id }))]" :disabled="pending" @update:model-value="filters.genreId = $event === '__all__' ? '' : String($event)" />
-          <BaseButton variant="secondary" :loading="pending" @click="applyFilters">
-            Search
-          </BaseButton>
-        </section>
-
         <PagesBackofficeOverviewPanel
-          eyebrow="Filter"
-          title="Narrow list."
-          description="Query by name, genre, status, and engagement."
+          eyebrow="Filtros"
+          title="Lista de artistas"
+          description="Filtrá por nombre, género, estado y cantidad por página sin duplicar controles."
           variant="glass"
         >
           <template #actions>

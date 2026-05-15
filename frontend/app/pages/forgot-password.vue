@@ -16,15 +16,26 @@ const schema = z.object({
 
 const state = reactive({ email: '' })
 const form = useTemplateRef('form')
+const { forgotPassword, pending } = useAuth()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 
 const submitted = ref(false)
+const successMessage = ref('')
 
 async function onSubmit() {
   if (!form.value) {
     return
   }
 
-  submitted.value = true
+  try {
+    const response = await forgotPassword(state.email.trim().toLowerCase())
+    successMessage.value = response.message
+    submitted.value = true
+    notifySuccess(response.message, { id: 'auth-forgot-password-success' })
+  }
+  catch (error) {
+    notifyApiError(error, 'No pudimos enviar el enlace. Por favor, intentá de nuevo.', { id: 'auth-forgot-password-error' })
+  }
 }
 </script>
 
@@ -38,10 +49,10 @@ async function onSubmit() {
         description="Te enviaremos un enlace de un solo uso al email para volver a entrar con seguridad. Recuerda revisar tu carpeta de spam."
       >
         <FormRoot v-if="!submitted" ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
-          <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" required />
+          <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" :disabled="pending" required />
 
           <div class="grid gap-4 pt-6">
-            <BaseButton variant="primary" type="submit" size="lg" block>
+            <BaseButton variant="primary" type="submit" size="lg" block :loading="pending">
               Enviar enlace
             </BaseButton>
             <BaseButton variant="secondary" to="/login" size="lg" block>
@@ -53,7 +64,7 @@ async function onSubmit() {
         <div v-else class="rounded-2xl border px-5 py-6 text-center text-sm sm:px-6" style="border-color: color-mix(in srgb, var(--color-auric-400) 22%, transparent); background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);">
           <BaseIcon name="i-lucide-mail-check" class="mx-auto mb-3 size-8 text-auric-400" />
           <p class="leading-relaxed text-toned">
-            Revisá tu correo: si existe una cuenta, ya te mandamos el enlace.
+            {{ successMessage || 'Revisá tu correo: si existe una cuenta, ya te mandamos el enlace.' }}
           </p>
         </div>
       </AuthPanel>

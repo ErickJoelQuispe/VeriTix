@@ -24,6 +24,14 @@ export interface RegisterResponse {
   message: string
 }
 
+export interface VerifyEmailRequest {
+  token: string
+}
+
+export interface VerifyEmailResponse {
+  message: string
+}
+
 export interface ForgotPasswordRequest {
   email: string
 }

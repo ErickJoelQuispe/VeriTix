@@ -253,8 +253,17 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
     <!-- Primary controls -->
     <div class="grid grid-cols-1 items-end gap-4" :class="primaryGridClass">
       <template v-for="item in primaryControls" :key="item.key">
+        <FormDatePicker
+          v-if="item.kind === 'field' && item.type === 'date'"
+          :name="item.name"
+          :label="item.label"
+          :model-value="item.modelValue"
+          :disabled="item.disabled"
+          :placeholder="item.placeholder || 'Seleccioná una fecha'"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
+        />
         <FormField
-          v-if="item.kind === 'field'"
+          v-else-if="item.kind === 'field'"
           :name="item.name"
           :label="item.label"
           :model-value="item.modelValue"
@@ -270,9 +279,10 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :items="item.items"
           :model-value="String(item.modelValue ?? '')"
+          :placeholder-value="item.key === 'genreId' || item.key === 'formatId' ? item.items?.[0]?.value : undefined"
           size="md"
           :disabled="item.disabled"
-          @update:model-value="item.onUpdate($event)"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
         />
       </template>
     </div>
@@ -280,8 +290,17 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
     <!-- Secondary controls -->
     <div v-if="secondaryControls.length > 0" class="grid grid-cols-1 items-end gap-4" :class="secondaryGridClass">
       <template v-for="item in secondaryControls" :key="item.key">
+        <FormDatePicker
+          v-if="item.kind === 'field' && item.type === 'date'"
+          :name="item.name"
+          :label="item.label"
+          :model-value="item.modelValue"
+          :disabled="item.disabled"
+          :placeholder="item.placeholder || 'Seleccioná una fecha'"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
+        />
         <FormField
-          v-if="item.kind === 'field'"
+          v-else-if="item.kind === 'field'"
           :name="item.name"
           :label="item.label"
           :model-value="item.modelValue"
@@ -297,9 +316,10 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :items="item.items"
           :model-value="String(item.modelValue ?? '')"
+          :placeholder-value="item.key === 'genreId' || item.key === 'formatId' ? item.items?.[0]?.value : undefined"
           size="md"
           :disabled="item.disabled"
-          @update:model-value="item.onUpdate($event)"
+          @update:model-value="item.onUpdate(String($event ?? ''))"
         />
       </template>
     </div>

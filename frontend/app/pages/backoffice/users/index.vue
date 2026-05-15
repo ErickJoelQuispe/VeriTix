@@ -193,7 +193,7 @@ onMounted(() => {
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-users-page">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Manage users" description="Search by status, role, and activity with a concise view." />
+          <UiPageHeading eyebrow="Backoffice" title="Usuarios" description="Buscá usuarios por rol, estado y actividad desde un panel único." />
           <BaseButton
             to="/backoffice/users/new"
             variant="primary"
@@ -203,19 +203,11 @@ onMounted(() => {
             Nuevo usuario
           </BaseButton>
         </div>
-        <section class="grid gap-3 rounded-2xl border border-default/70 bg-elevated/45 p-4 md:grid-cols-[1.25fr_.72fr_.72fr_auto]">
-          <FormInput v-model="filters.search" placeholder="Search name or email" icon="i-lucide-search" :disabled="pending" />
-          <FormSelect label="Role" name="role" :model-value="filters.role || '__all__'" :items="[{ label: 'Role: all', value: '__all__' }, ...roleFilterOptions.map(role => ({ label: role.name, value: role.id }))]" :disabled="pending" @update:model-value="filters.role = $event === '__all__' ? '' : String($event)" />
-          <FormSelect label="Status" name="status" :model-value="filters.isActive || '__all__'" :items="[{ label: 'Status: all', value: '__all__' }, ...statusOptions.map(status => ({ label: status.name, value: status.id }))]" :disabled="pending" @update:model-value="filters.isActive = $event === '__all__' ? '' : String($event)" />
-          <BaseButton variant="secondary" :loading="pending" @click="applyFilters">
-            Search
-          </BaseButton>
-        </section>
 
         <PagesBackofficeOverviewPanel
-          eyebrow="Filter"
-          title="Refine list."
-          description="Search by status, role, and activity with a concise view."
+          eyebrow="Filtros"
+          title="Lista de usuarios"
+          description="Filtrá por rol, estado, actividad y cantidad por página sin duplicar controles."
           variant="glass"
         >
           <template #actions>

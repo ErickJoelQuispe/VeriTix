@@ -54,7 +54,6 @@ describe('useProfile', () => {
 
     expect(apiRequestMock).toHaveBeenCalledWith('/users/me', {
       method: 'GET',
-      headers: expect.any(Object),
     })
     expect(result).toEqual(profileResponse)
     expect(wrapper.vm.user).toEqual(profileResponse)
@@ -88,7 +87,6 @@ describe('useProfile', () => {
     expect(apiRequestMock).toHaveBeenCalledWith('/users/me', {
       method: 'PATCH',
       body: { name: 'Ana María' },
-      headers: expect.any(Object),
     })
     expect(result).toEqual(profileResponse)
   })
@@ -109,7 +107,6 @@ describe('useProfile', () => {
     expect(apiRequestMock).toHaveBeenCalledWith('/users/me/password', {
       method: 'PATCH',
       body: { currentPassword: 'old123', newPassword: 'NewPassword1' },
-      headers: expect.any(Object),
     })
   })
 })

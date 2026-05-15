@@ -117,14 +117,11 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
       <div class="space-y-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <UiPageHeading eyebrow="Backoffice" title="Nuevo usuario" description="Crea una cuenta y asigna su rol operativo." />
-          <BaseButton
+          <BackofficeBackButton
             to="/backoffice/users"
-            variant="primary"
-            size="sm"
-            leading-icon="i-lucide-plus"
           >
             Volver a usuarios
-          </BaseButton>
+          </BackofficeBackButton>
         </div>
         <PagesBackofficeOverviewPanel
           title="Datos del usuario"

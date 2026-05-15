@@ -35,6 +35,8 @@ const form = useTemplateRef('form')
 const showPassword = ref(false)
 const { register, pending } = useAuth()
 const { notifyApiError, notifySuccess } = useAppNotifications()
+const submitted = ref(false)
+const successMessage = ref('')
 
 async function onSubmit() {
   if (!form.value) {
@@ -42,7 +44,7 @@ async function onSubmit() {
   }
 
   try {
-    await register({
+    const response = await register({
       email: state.email.trim().toLowerCase(),
       password: state.password,
       name: state.name.trim(),
@@ -50,8 +52,9 @@ async function onSubmit() {
       phone: state.phone.trim(),
     })
 
-    notifySuccess('Cuenta creada correctamente.', { id: 'auth-register-success' })
-    await navigateTo('/')
+    successMessage.value = response.message
+    submitted.value = true
+    notifySuccess(response.message, { id: 'auth-register-success' })
   }
   catch (error) {
     notifyApiError(error, 'Error al crear la cuenta. Por favor, intentá de nuevo.', { id: 'auth-register-error' })
@@ -68,7 +71,7 @@ async function onSubmit() {
         title="Unite a VeriTix."
         description="Creá tu perfil en segundos y empezá a seguir artistas, venues y eventos."
       >
-        <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
+        <FormRoot v-if="!submitted" ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
           <FormField v-model="state.name" name="name" label="Nombre" placeholder="Tu nombre" icon="i-lucide-user" required />
           <FormField v-model="state.lastName" name="lastName" label="Apellido" placeholder="Tu apellido" icon="i-lucide-user-round" required />
           <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" required />
@@ -84,6 +87,18 @@ async function onSubmit() {
             </BaseButton>
           </div>
         </FormRoot>
+
+        <div v-else class="rounded-2xl border px-5 py-6 text-center text-sm sm:px-6" style="border-color: color-mix(in srgb, var(--color-auric-400) 22%, transparent); background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);">
+          <BaseIcon name="i-lucide-mail-check" class="mx-auto mb-3 size-8 text-auric-400" />
+          <p class="leading-relaxed text-toned">
+            {{ successMessage || 'Revisá tu correo para verificar la cuenta antes de iniciar sesión.' }}
+          </p>
+          <div class="mt-5 flex justify-center">
+            <BaseButton variant="primary" to="/login" size="lg">
+              Ir al inicio de sesión
+            </BaseButton>
+          </div>
+        </div>
 
         <template #meta>
           <span>Al continuar aceptás los términos.</span>

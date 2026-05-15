@@ -1,7 +1,7 @@
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(() => {
   const { requireAuthenticated } = useRouteAccess()
 
-  const redirectTo = await requireAuthenticated('/login')
+  const redirectTo = requireAuthenticated('/login')
 
   if (redirectTo) {
     return navigateTo(redirectTo)

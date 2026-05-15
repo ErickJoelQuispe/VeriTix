@@ -18,7 +18,7 @@ const onNuxtReadyQueue = vi.hoisted(() => {
   const queue: Array<() => void> = []
   return {
     onNuxtReadyMock: vi.fn((cb: () => void) => queue.push(cb)),
-    flushOnNuxtReady() { queue.splice(0).forEach(cb => cb()) },
+    flushOnNuxtReady() { queue.splice(0).forEach((cb) => { cb() }) },
   }
 })
 
@@ -43,17 +43,25 @@ beforeEach(() => {
   vi.clearAllMocks()
 
   apiRequestMock.mockImplementation(async (path: string, _opts?: unknown) => {
-    if (path === '/auth/register') { return { ok: true } }
+    if (path === '/auth/register') { return { message: 'Revisá tu email para verificar la cuenta' } }
+    if (path === '/auth/verify-email') { return { message: 'Email verificado correctamente' } }
+    if (path === '/auth/forgot-password') { return { message: 'If that email exists, you\'ll receive a reset link shortly' } }
+    if (path === '/auth/session') {
+      const authError = new Error('Refresh token no encontrado')
+      Object.assign(authError, { response: { status: 401 } })
+      throw authError
+    }
     if (path === '/auth/login') { return authResponse }
     if (path === '/auth/refresh') { return authResponse }
     if (path === '/auth/logout') { return undefined }
+    if (path === '/auth/reset-password') { return { message: 'Password updated successfully' } }
 
     throw new Error(`Unexpected path: ${path}`)
   })
 })
 
-describe('useAuth — register + login', () => {
-  it('encadena register -> login y aplica el estado autenticado', async () => {
+describe('useAuth — register', () => {
+  it('registra sin iniciar sesión automáticamente', async () => {
     const wrapper = await mountSuspended(AuthHarness)
 
     await wrapper.vm.register({
@@ -75,18 +83,11 @@ describe('useAuth — register + login', () => {
       },
       skipAuthRefresh: true,
     })
-    expect(apiRequestMock).toHaveBeenNthCalledWith(2, '/auth/login', {
-      method: 'POST',
-      body: {
-        email: 'ana@example.com',
-        password: 'Password1',
-      },
-      skipAuthRefresh: true,
-    })
-    expect(wrapper.vm.accessToken).toBe('token-123')
-    expect(wrapper.vm.user).toEqual(authResponse.user)
-    expect(wrapper.vm.isAuthenticated).toBe(true)
-    expect(wrapper.vm.sessionStatus).toBe('authenticated')
+    expect(apiRequestMock).toHaveBeenCalledTimes(1)
+    expect(wrapper.vm.accessToken).toBeNull()
+    expect(wrapper.vm.user).toBeNull()
+    expect(wrapper.vm.isAuthenticated).toBe(false)
+    expect(wrapper.vm.sessionStatus).toBe('guest')
   })
 
   it('aplica el estado autenticado cuando login resuelve', async () => {
@@ -109,6 +110,34 @@ describe('useAuth — register + login', () => {
     expect(wrapper.vm.user).toEqual(authResponse.user)
     expect(wrapper.vm.isAuthenticated).toBe(true)
     expect(wrapper.vm.sessionStatus).toBe('authenticated')
+  })
+})
+
+describe('useAuth — verification and recovery', () => {
+  it('verifica el email con el token provisto', async () => {
+    const wrapper = await mountSuspended(AuthHarness)
+
+    const result = await wrapper.vm.verifyEmail({ token: 'verification-token-123' })
+
+    expect(apiRequestMock).toHaveBeenCalledWith('/auth/verify-email', {
+      method: 'GET',
+      query: { token: 'verification-token-123' },
+      skipAuthRefresh: true,
+    })
+    expect(result).toEqual({ message: 'Email verificado correctamente' })
+  })
+
+  it('solicita el reinicio de contraseña', async () => {
+    const wrapper = await mountSuspended(AuthHarness)
+
+    const result = await wrapper.vm.forgotPassword('recover@example.com')
+
+    expect(apiRequestMock).toHaveBeenCalledWith('/auth/forgot-password', {
+      method: 'POST',
+      body: { email: 'recover@example.com' },
+      skipAuthRefresh: true,
+    })
+    expect(result).toEqual({ message: 'If that email exists, you\'ll receive a reset link shortly' })
   })
 })
 
@@ -153,6 +182,7 @@ describe('useAuth — ensureSession', () => {
   it('retorna true y mantiene authenticated si ya hay sesión', async () => {
     const wrapper = await mountSuspended(AuthHarness)
 
+    apiRequestMock.mockResolvedValueOnce(authResponse)
     await wrapper.vm.login({ email: 'a@a.com', password: 'Password1' })
     vi.clearAllMocks()
 
