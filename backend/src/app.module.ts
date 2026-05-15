@@ -19,6 +19,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { QueuesModule } from './modules/queues/queues.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     ConcertFormatsModule,
     ArtistsModule,
     UploadsModule,
+    FavoritesModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
