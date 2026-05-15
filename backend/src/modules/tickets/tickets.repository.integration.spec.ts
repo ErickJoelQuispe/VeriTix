@@ -302,4 +302,73 @@ describe('TicketsRepository (integration)', () => {
       expect(p2.data).toHaveLength(1);
     });
   });
+
+  // ── TICKET_LIST_SELECT enriched fields ────────────────────────────────────
+
+  describe('TICKET_LIST_SELECT — enriched event fields', () => {
+    it('devuelve imageUrl en el evento del ticket', async () => {
+      await makeTicket();
+
+      const result = await repo.findByBuyer(buyerId, 1, 10);
+      const t = result.data[0];
+
+      // imageUrl may be null (no image set on test fixture event) but the field MUST be present
+      expect(t.event).toHaveProperty('imageUrl');
+    });
+
+    it('devuelve venue con id, name y city en el evento del ticket', async () => {
+      await makeTicket();
+
+      const result = await repo.findByBuyer(buyerId, 1, 10);
+      const t = result.data[0];
+
+      expect(t.event.venue).toBeDefined();
+      expect(t.event.venue).toHaveProperty('id');
+      expect(t.event.venue).toHaveProperty('name');
+      expect(t.event.venue).toHaveProperty('city');
+      expect(t.event.venue.city).toBe('CDMX');
+    });
+
+    it('devuelve format (puede ser null) en el evento del ticket', async () => {
+      await makeTicket();
+
+      const result = await repo.findByBuyer(buyerId, 1, 10);
+      const t = result.data[0];
+
+      // Format is optional — the fixture event has no format, so format should be null or defined
+      expect(t.event).toHaveProperty('format');
+    });
+  });
+
+  // ── findByBuyerWithEvents() ───────────────────────────────────────────────
+
+  describe('findByBuyerWithEvents()', () => {
+    it('devuelve todos los tickets del buyer con event enriquecido', async () => {
+      await makeTicket();
+      await makeTicket();
+
+      const result = await repo.findByBuyerWithEvents(buyerId);
+
+      expect(result.length).toBeGreaterThanOrEqual(2);
+      const t = result[0];
+      expect(t.event.id).toBe(eventId);
+      expect(t.event).toHaveProperty('imageUrl');
+      expect(t.event.venue).toBeDefined();
+      expect(t.event.venue.city).toBe('CDMX');
+    });
+
+    it('devuelve array vacío si el buyer no tiene tickets', async () => {
+      const result = await repo.findByBuyerWithEvents('00000000-0000-0000-0000-000000000000');
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('incluye el status del ticket', async () => {
+      await makeTicket();
+
+      const result = await repo.findByBuyerWithEvents(buyerId);
+
+      expect(result[0].status).toBe('ACTIVE');
+    });
+  });
 });
