@@ -1,43 +1,16 @@
 export function useRouteAccess() {
-  const { ensureSession, isAuthenticated, sessionStatus, user } = useAuth()
+  const { isAuthenticated, user } = useAuth()
 
   const isBackofficeUser = computed(() => user.value?.role === 'ADMIN')
 
-  async function ensureSessionSafe(): Promise<boolean | 'unknown'> {
-    try {
-      const sessionReady = await ensureSession()
-
-      if (sessionReady) {
-        return true
-      }
-
-      return sessionStatus.value === 'guest' ? false : 'unknown'
-    }
-    catch {
-      return import.meta.server ? 'unknown' : false
-    }
-  }
-
-  async function requireAuthenticated(redirectTo = '/login'): Promise<string | undefined> {
-    const sessionReady = await ensureSessionSafe()
-
-    if (sessionReady === 'unknown') {
-      return
-    }
-
-    if (!sessionReady || !isAuthenticated.value) {
+  function requireAuthenticated(redirectTo = '/login'): string | undefined {
+    if (!isAuthenticated.value) {
       return redirectTo
     }
   }
 
-  async function requireBackofficeAccess(): Promise<string | undefined> {
-    const sessionReady = await ensureSessionSafe()
-
-    if (sessionReady === 'unknown') {
-      return
-    }
-
-    if (!sessionReady || !isAuthenticated.value) {
+  function requireBackofficeAccess(): string | undefined {
+    if (!isAuthenticated.value) {
       return '/login'
     }
 
@@ -46,10 +19,8 @@ export function useRouteAccess() {
     }
   }
 
-  async function redirectIfAuthenticated(redirectTo = '/users/me'): Promise<string | undefined> {
-    const sessionReady = await ensureSessionSafe()
-
-    if (sessionReady && isAuthenticated.value) {
+  function redirectIfAuthenticated(redirectTo = '/users/me'): string | undefined {
+    if (isAuthenticated.value) {
       return redirectTo
     }
   }

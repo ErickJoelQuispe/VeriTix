@@ -1,9 +1,7 @@
 import type { ChangePasswordRequest, UpdateProfileRequest, UserProfile } from '~~/shared/types'
-import { buildAuthHeaders } from '@/utils/apiAuth'
 import { normalizeApiError } from '@/utils/apiError'
 
 export function useProfile() {
-  const accessToken = useState<string | null>('auth-access-token', () => null)
   const user = useState<UserProfile | null>('auth-user', () => null)
   const pending = useState<boolean>('profile-pending', () => false)
 
@@ -16,7 +14,6 @@ export function useProfile() {
     try {
       const profile = await apiRequest<UserProfile>('/users/me', {
         method: 'GET',
-        headers: buildAuthHeaders(accessToken.value, true),
       })
 
       user.value = profile
@@ -42,7 +39,6 @@ export function useProfile() {
       const profile = await apiRequest<UserProfile, UpdateProfileRequest>('/users/me', {
         method: 'PATCH',
         body: payload,
-        headers: buildAuthHeaders(accessToken.value, true),
       })
 
       user.value = profile
@@ -68,7 +64,6 @@ export function useProfile() {
       await apiRequest<void, ChangePasswordRequest>('/users/me/password', {
         method: 'PATCH',
         body: payload,
-        headers: buildAuthHeaders(accessToken.value, true),
       })
     }
     catch (error) {

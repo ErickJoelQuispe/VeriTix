@@ -8,7 +8,6 @@ import { compactQuery, trimToUndefined } from '../../shared/query'
 
 export function useBackofficeUsersRepository() {
   const apiRequest = useApiRequest()
-  const { requireBackofficeHeaders } = useBackofficeApi()
 
   async function listUsers({
     pageValue,
@@ -25,7 +24,6 @@ export function useBackofficeUsersRepository() {
   }): Promise<PaginatedResponse<BackofficeUserRecord>> {
     return apiRequest<PaginatedResponse<BackofficeUserRecord>>('/admin/users', {
       method: 'GET',
-      headers: requireBackofficeHeaders(),
       query: compactQuery({
         page: pageValue,
         limit: pageSize,
@@ -39,7 +37,6 @@ export function useBackofficeUsersRepository() {
   async function getUser(userId: string): Promise<BackofficeUserRecord> {
     return apiRequest<BackofficeUserRecord>(`/admin/users/${userId}`, {
       method: 'GET',
-      headers: requireBackofficeHeaders(),
     })
   }
 
@@ -50,7 +47,6 @@ export function useBackofficeUsersRepository() {
       '/admin/users',
       {
         method: 'POST',
-        headers: requireBackofficeHeaders(),
         body: payload,
       },
     )
@@ -64,7 +60,6 @@ export function useBackofficeUsersRepository() {
       `/admin/users/${userId}`,
       {
         method: 'PATCH',
-        headers: requireBackofficeHeaders(),
         body: payload,
       },
     )
@@ -73,7 +68,6 @@ export function useBackofficeUsersRepository() {
   async function deleteUser(userId: string): Promise<void> {
     await apiRequest(`/admin/users/${userId}`, {
       method: 'DELETE',
-      headers: requireBackofficeHeaders(),
     })
   }
 
@@ -88,7 +82,6 @@ export function useBackofficeUsersRepository() {
 
     return apiRequest<BackofficeUserRecord | null>('/admin/users/by-email', {
       method: 'GET',
-      headers: requireBackofficeHeaders(),
       query: { email: normalizedEmail },
     })
   }
