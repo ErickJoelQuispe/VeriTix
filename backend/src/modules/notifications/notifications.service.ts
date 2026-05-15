@@ -6,6 +6,8 @@ import { generateOrderConfirmationEmail } from './templates/order-confirmation.t
 import { generateRefundEmail } from './templates/refund.template';
 import { generateEventReminderEmail } from './templates/event-reminder.template';
 import { generatePasswordResetEmail } from './templates/password-reset.template';
+import { generateFavoriteAlertEmail } from './templates/favorite-alert.template';
+import { generateTransferInviteEmail } from './templates/transfer-invite.template';
 
 @Injectable()
 export class NotificationsService implements OnModuleInit {
@@ -105,6 +107,51 @@ export class NotificationsService implements OnModuleInit {
       });
     } catch (error) {
       this.logger.error(`Failed to send password reset email to ${to}`, error);
+    }
+  }
+
+  async sendFavoriteAlert(params: {
+    to: string;
+    userName: string;
+    eventName: string;
+    alertType: 'SELLING_OUT' | 'NEW_TICKET_TYPE';
+    eventUrl: string;
+  }): Promise<void> {
+    const { to, userName, eventName, alertType, eventUrl } = params;
+    const subject =
+      alertType === 'SELLING_OUT'
+        ? `${eventName} is almost sold out — act fast!`
+        : `New ticket type available for ${eventName}`;
+    try {
+      await this.resend.emails.send({
+        from: this.fromEmail,
+        to,
+        subject,
+        html: generateFavoriteAlertEmail({ userName, eventName, alertType, eventUrl }),
+      });
+    } catch (error) {
+      this.logger.error(`Failed to send favorite alert to ${to} for event "${eventName}"`, error);
+    }
+  }
+
+  async sendTransferInvite(params: {
+    to: string;
+    senderName: string;
+    eventName: string;
+    eventDate: string;
+    acceptUrl: string;
+    isNewUser: boolean;
+  }): Promise<void> {
+    const { to, senderName, eventName, eventDate, acceptUrl, isNewUser } = params;
+    try {
+      await this.resend.emails.send({
+        from: this.fromEmail,
+        to,
+        subject: `${senderName} sent you a ticket for ${eventName}`,
+        html: generateTransferInviteEmail({ senderName, eventName, eventDate, acceptUrl, isNewUser }),
+      });
+    } catch (error) {
+      this.logger.error(`Failed to send transfer invite to ${to} for event "${eventName}"`, error);
     }
   }
 }
