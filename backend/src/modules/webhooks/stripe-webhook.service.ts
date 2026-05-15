@@ -3,8 +3,9 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { OrderStatus, PaymentStatus, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
+import { FAVORITE_ALERT_THRESHOLD } from '../../common/constants';
 import { NotificationsService } from '../notifications/notifications.service';
-import { TICKET_EMAIL_QUEUE } from '../queues/constants/queue-names';
+import { FAVORITE_ALERT_QUEUE, TICKET_EMAIL_QUEUE } from '../queues/constants/queue-names';
 import { ReminderScheduler } from '../queues/reminder.scheduler';
 import { TicketsGenerator } from '../tickets/tickets.generator';
 
@@ -42,6 +43,7 @@ export class StripeWebhookService {
     private readonly notificationsService: NotificationsService,
     private readonly reminderScheduler: ReminderScheduler,
     @InjectQueue(TICKET_EMAIL_QUEUE) private readonly ticketEmailQueue: Queue,
+    @InjectQueue(FAVORITE_ALERT_QUEUE) private readonly favoriteAlertQueue: Queue,
   ) {}
 
   // ── checkout.session.completed ───────────────────────────────────────────
@@ -137,6 +139,16 @@ export class StripeWebhookService {
     } catch (error) {
       this.logger.error(
         `Error enviando notificaciones para order ${payment.orderId}`,
+        error,
+      );
+    }
+
+    // Sell-out alert check — outside transaction, non-blocking
+    try {
+      await this.checkAndEnqueueSellOutAlert(payment.orderId);
+    } catch (error) {
+      this.logger.error(
+        `Error checking sell-out threshold for order ${payment.orderId}`,
         error,
       );
     }
@@ -240,6 +252,39 @@ export class StripeWebhookService {
     });
 
     this.logger.log(`Payment ${payment.id} marcado FAILED: ${failureReason}`);
+  }
+
+  // ── sell-out alert check ─────────────────────────────────────────────────
+
+  private async checkAndEnqueueSellOutAlert(orderId: string): Promise<void> {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      select: { eventId: true },
+    });
+
+    if (!order?.eventId) return;
+
+    const ticketTypes = await this.prisma.ticketType.findMany({
+      where: { eventId: order.eventId },
+      select: { availableQuantity: true, totalQuantity: true },
+    });
+
+    if (ticketTypes.length === 0) return;
+
+    const totalCapacity = ticketTypes.reduce((sum, tt) => sum + tt.totalQuantity, 0);
+    const remaining = ticketTypes.reduce((sum, tt) => sum + tt.availableQuantity, 0);
+
+    if (totalCapacity === 0) return;
+
+    if (remaining / totalCapacity < FAVORITE_ALERT_THRESHOLD) {
+      await this.favoriteAlertQueue.add('selling-out', {
+        eventId: order.eventId,
+        alertType: 'SELLING_OUT',
+      });
+      this.logger.log(
+        `Sell-out alert enqueued for event ${order.eventId} (${remaining}/${totalCapacity} remaining)`,
+      );
+    }
   }
 
   // ── charge.refunded ──────────────────────────────────────────────────────
