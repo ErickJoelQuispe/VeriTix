@@ -30,6 +30,7 @@ import { CurrentUser, Public, Roles } from '@common/decorators';
 import { PaginatedResponse, PaginationQueryDto } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import { Role } from '../../generated/prisma/enums';
+import { ReviewsService } from '../reviews/reviews.service';
 import { AccessStatsService } from '../tickets/access-stats.service';
 import {
   BuyerEventItemDto,
@@ -54,6 +55,7 @@ export class EventsController {
   constructor(
     private readonly eventsService: EventsService,
     private readonly accessStatsService: AccessStatsService,
+    private readonly reviewsService: ReviewsService,
   ) {}
 
   @Post()
@@ -171,6 +173,18 @@ export class EventsController {
     return this.accessStatsService.getStream(id).pipe(
       map((snapshot) => ({ data: snapshot }) as MessageEvent),
     );
+  }
+
+  // NOTE: GET /events/:id/reviews MUST be before GET /events/:id
+  @Get(':id/reviews')
+  @Public()
+  @ApiOperation({ summary: 'List public reviews for an event (no auth required)' })
+  @ApiOkResponse({ description: 'Paginated list of reviews for the event.' })
+  getEventReviews(
+    @Param('id') eventId: string,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.reviewsService.findByEvent(eventId, { page: query.page, limit: query.limit });
   }
 
   @Get(':id')

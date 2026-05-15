@@ -20,6 +20,7 @@ import { QueuesModule } from './modules/queues/queues.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
     ArtistsModule,
     UploadsModule,
     FavoritesModule,
+    ReviewsModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
