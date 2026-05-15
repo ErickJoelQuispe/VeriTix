@@ -6,11 +6,13 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtPayload } from '@common/interfaces';
 import { CacheService } from '../../cache';
-import { EventStatus, Role } from '../../generated/prisma/enums';
+import { EventStatus, Role, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEventDto, EventQueryDto, TopEventsQueryDto, UpcomingQueryDto, UpdateEventDto } from './dto';
 import { EventsRepository } from './events.repository';
 import { EventsService } from './events.service';
+import { TicketsRepository } from '../tickets/tickets.repository';
+import { BuyerEventsQueryDto } from './dto/buyer-events-query.dto';
 
 // ── Mock data ────────────────────────────────────────────────────────────────
 
@@ -78,6 +80,10 @@ const mockEventsRepository = {
   findMetricsById: jest.fn(),
 };
 
+const mockTicketsRepository = {
+  findByBuyerWithEvents: jest.fn(),
+};
+
 const mockPrismaService = {
   venue: {
     findUnique: jest.fn(),
@@ -99,6 +105,7 @@ const mockCacheService = {
 describe('EventsService', () => {
   let service: EventsService;
   let repo: jest.Mocked<EventsRepository>;
+  let ticketsRepo: jest.Mocked<TicketsRepository>;
   let prisma: typeof mockPrismaService;
   let cache: typeof mockCacheService;
 
@@ -107,6 +114,7 @@ describe('EventsService', () => {
       providers: [
         EventsService,
         { provide: EventsRepository, useValue: mockEventsRepository },
+        { provide: TicketsRepository, useValue: mockTicketsRepository },
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: CacheService, useValue: mockCacheService },
       ],
@@ -114,6 +122,7 @@ describe('EventsService', () => {
 
     service = module.get<EventsService>(EventsService);
     repo = module.get(EventsRepository) as jest.Mocked<EventsRepository>;
+    ticketsRepo = module.get(TicketsRepository) as jest.Mocked<TicketsRepository>;
     prisma = module.get(PrismaService);
     cache = module.get(CacheService);
   });
@@ -888,6 +897,198 @@ describe('EventsService', () => {
       const result = await service.getEventMetrics('uuid-event-1', adminUser);
 
       expect(result.topTicketType).toBeNull();
+    });
+  });
+
+  // ── findBuyerEvents() — B6: dominantStatus logic ─────────────────────────
+
+  describe('findBuyerEvents() — dominantStatus', () => {
+    const futureDate = new Date(Date.now() + 86_400_000 * 30); // 30 days ahead
+
+    const makeTicket = (id: string, eventId: string, status: TicketStatus, eventDate = futureDate) => ({
+      id,
+      status,
+      event: {
+        id: eventId,
+        name: `Event ${eventId}`,
+        eventDate,
+        imageUrl: null,
+        venue: { id: 'v1', name: 'Venue', city: 'CDMX' },
+        format: null,
+      },
+    });
+
+    it('should compute dominantStatus=ACTIVE when tickets are [ACTIVE, USED]', async () => {
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([
+        makeTicket('t1', 'evt-1', TicketStatus.ACTIVE),
+        makeTicket('t2', 'evt-1', TicketStatus.USED),
+      ]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].dominantStatus).toBe(TicketStatus.ACTIVE);
+    });
+
+    it('should compute dominantStatus=USED when tickets are [USED, CANCELLED]', async () => {
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([
+        makeTicket('t1', 'evt-1', TicketStatus.USED),
+        makeTicket('t2', 'evt-1', TicketStatus.CANCELLED),
+      ]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data[0].dominantStatus).toBe(TicketStatus.USED);
+    });
+
+    it('should compute dominantStatus=CANCELLED when tickets are [CANCELLED, REFUNDED] (same level)', async () => {
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([
+        makeTicket('t1', 'evt-1', TicketStatus.CANCELLED),
+        makeTicket('t2', 'evt-1', TicketStatus.REFUNDED),
+      ]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      // CANCELLED and REFUNDED are equal priority — dominant is the first encountered at max level
+      expect([TicketStatus.CANCELLED, TicketStatus.REFUNDED]).toContain(result.data[0].dominantStatus);
+    });
+
+    it('should correctly group tickets from multiple events', async () => {
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([
+        makeTicket('t1', 'evt-A', TicketStatus.ACTIVE),
+        makeTicket('t2', 'evt-A', TicketStatus.USED),
+        makeTicket('t3', 'evt-B', TicketStatus.CANCELLED),
+        makeTicket('t4', 'evt-B', TicketStatus.CANCELLED),
+      ]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data).toHaveLength(2);
+      const evtA = result.data.find((d) => d.event.id === 'evt-A')!;
+      const evtB = result.data.find((d) => d.event.id === 'evt-B')!;
+      expect(evtA.dominantStatus).toBe(TicketStatus.ACTIVE);
+      expect(evtA.ticketCount).toBe(2);
+      expect(evtB.dominantStatus).toBe(TicketStatus.CANCELLED);
+      expect(evtB.ticketCount).toBe(2);
+    });
+  });
+
+  // ── findBuyerEvents() — B7: grouping + pagination + filtering ────────────
+
+  describe('findBuyerEvents() — grouping, filtering, pagination', () => {
+    const makeEvent = (id: string, daysOffset: number) => ({
+      id,
+      name: `Event ${id}`,
+      eventDate: new Date(Date.now() + 86_400_000 * daysOffset),
+      imageUrl: null,
+      venue: { id: 'v1', name: 'Venue', city: 'CDMX' },
+      format: null,
+    });
+
+    it('should group 15 tickets from 5 events into 5 groups', async () => {
+      const tickets = Array.from({ length: 15 }, (_, i) => ({
+        id: `t${i}`,
+        status: TicketStatus.ACTIVE,
+        event: makeEvent(`evt-${Math.floor(i / 3)}`, 10 + Math.floor(i / 3)),
+      }));
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue(tickets);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data).toHaveLength(5);
+      for (const item of result.data) {
+        expect(item.ticketCount).toBe(3);
+      }
+    });
+
+    it('should filter out past events when upcoming=true', async () => {
+      const pastDate = new Date(Date.now() - 86_400_000); // yesterday
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([
+        {
+          id: 't1',
+          status: TicketStatus.ACTIVE,
+          event: { id: 'evt-future', name: 'Future', eventDate: new Date(Date.now() + 86_400_000), imageUrl: null, venue: { id: 'v1', name: 'V', city: 'C' }, format: null },
+        },
+        {
+          id: 't2',
+          status: TicketStatus.USED,
+          event: { id: 'evt-past', name: 'Past', eventDate: pastDate, imageUrl: null, venue: { id: 'v1', name: 'V', city: 'C' }, format: null },
+        },
+      ]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].event.id).toBe('evt-future');
+    });
+
+    it('should return only past events when upcoming=false', async () => {
+      const pastDate = new Date(Date.now() - 86_400_000);
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([
+        {
+          id: 't1',
+          status: TicketStatus.ACTIVE,
+          event: { id: 'evt-future', name: 'Future', eventDate: new Date(Date.now() + 86_400_000), imageUrl: null, venue: { id: 'v1', name: 'V', city: 'C' }, format: null },
+        },
+        {
+          id: 't2',
+          status: TicketStatus.USED,
+          event: { id: 'evt-past', name: 'Past', eventDate: pastDate, imageUrl: null, venue: { id: 'v1', name: 'V', city: 'C' }, format: null },
+        },
+      ]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: false, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].event.id).toBe('evt-past');
+    });
+
+    it('should paginate correctly: page=2, limit=2 over 5 events returns 2 events', async () => {
+      const tickets = Array.from({ length: 5 }, (_, i) => ({
+        id: `t${i}`,
+        status: TicketStatus.ACTIVE,
+        event: makeEvent(`evt-${i}`, 10 + i),
+      }));
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue(tickets);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 2, limit: 2 } as BuyerEventsQueryDto);
+
+      expect(result.data).toHaveLength(2);
+      expect(result.meta.total).toBe(5);
+      expect(result.meta.page).toBe(2);
+      expect(result.meta.limit).toBe(2);
+      // page=2, limit=2 → items at index 2,3 (sorted by eventDate ASC)
+      expect(result.data[0].event.id).toBe('evt-2');
+      expect(result.data[1].event.id).toBe('evt-3');
+    });
+
+    it('should return empty data when buyer has no tickets', async () => {
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data).toHaveLength(0);
+      expect(result.meta.total).toBe(0);
+    });
+
+    it('should order events by eventDate ASC', async () => {
+      ticketsRepo.findByBuyerWithEvents.mockResolvedValue([
+        {
+          id: 't1',
+          status: TicketStatus.ACTIVE,
+          event: makeEvent('evt-later', 20),
+        },
+        {
+          id: 't2',
+          status: TicketStatus.ACTIVE,
+          event: makeEvent('evt-sooner', 5),
+        },
+      ]);
+
+      const result = await service.findBuyerEvents('buyer-1', { upcoming: true, page: 1, limit: 20 } as BuyerEventsQueryDto);
+
+      expect(result.data[0].event.id).toBe('evt-sooner');
+      expect(result.data[1].event.id).toBe('evt-later');
     });
   });
 });
