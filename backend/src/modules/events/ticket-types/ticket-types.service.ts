@@ -4,8 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { Role } from '../../../generated/prisma/enums';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { FAVORITE_ALERT_QUEUE } from '../../queues/constants/queue-names';
 import { CreateTicketTypeDto, TicketTypeResponseDto, UpdateTicketTypeDto } from './dto';
 import { TicketTypeRecord, TicketTypesRepository } from './ticket-types.repository';
 
@@ -14,6 +17,7 @@ export class TicketTypesService {
   constructor(
     private readonly ticketTypesRepository: TicketTypesRepository,
     private readonly prisma: PrismaService,
+    @InjectQueue(FAVORITE_ALERT_QUEUE) private readonly favoriteAlertQueue: Queue,
   ) {}
 
   // ── Private helpers ──────────────────────────────────────────────────────
@@ -85,6 +89,13 @@ export class TicketTypesService {
     await this.validateCapacity(eventId, event.maxCapacity, dto.totalQuantity);
 
     const created = await this.ticketTypesRepository.create(eventId, dto);
+
+    // Notify favorited-event buyers about the new ticket type (fire-and-forget)
+    void this.favoriteAlertQueue.add('new-ticket-type', {
+      eventId,
+      alertType: 'NEW_TICKET_TYPE',
+    });
+
     return this.toResponse(created);
   }
 
