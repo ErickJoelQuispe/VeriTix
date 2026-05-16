@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserTicket } from '~~/shared/types'
+import type { Review, UserTicket } from '~~/shared/types'
 
 definePageMeta({
   middleware: 'auth',
@@ -13,6 +13,7 @@ const eventId = route.params.id as string
 const { events, fetchMyEvents } = useMyEvents()
 const { tickets, isLoading: isLoadingTickets, fetchMyTickets } = useMyTickets()
 const { orders, isLoading: isLoadingOrders, fetchMyOrders } = useMyOrders()
+const { myReview, fetchMyReview } = useReview(eventId)
 
 // Fetch all data in parallel on mount
 onMounted(async () => {
@@ -20,6 +21,7 @@ onMounted(async () => {
     fetchMyEvents({ page: 1, limit: 100 }),
     fetchMyTickets(1, 100),
     fetchMyOrders(1, 100),
+    fetchMyReview(),
   ])
 })
 
@@ -44,6 +46,16 @@ const hasUsedTicket = computed(() =>
 // ── Tab state ─────────────────────────────────────────────────────────────────
 
 const activeTab = ref<'tickets' | 'orders' | 'review'>('tickets')
+
+// ── Review handlers ───────────────────────────────────────────────────────────
+
+function onReviewSubmitted(review: Review) {
+  myReview.value = review
+}
+
+function onReviewDeleted() {
+  myReview.value = null
+}
 
 // ── Ticket modal ──────────────────────────────────────────────────────────────
 
@@ -109,8 +121,15 @@ useSeoMeta({
             </template>
 
             <template v-else-if="activeTab === 'review'">
-              <div class="py-8 text-center text-toned">
-                Reseñas próximamente
+              <div class="space-y-8">
+                <ReviewReviewForm
+                  :event-id="eventId"
+                  :existing-review="myReview"
+                  :has-used-ticket="hasUsedTicket"
+                  @submitted="onReviewSubmitted"
+                  @deleted="onReviewDeleted"
+                />
+                <ReviewReviewList :event-id="eventId" />
               </div>
             </template>
           </div>
