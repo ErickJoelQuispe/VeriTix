@@ -93,3 +93,63 @@ export interface TransferRequiresRegistration {
   transferToken: string
   recipientEmail: string
 }
+
+// ── User Tickets ──────────────────────────────────────────────────────────────
+
+export interface UserTicket {
+  id: string
+  hash: string
+  status: TicketStatus
+  purchaseDate: string
+  ticketType: { name: string; price: number }
+  event: { id: string; name: string; eventDate: string }
+  orderItem: { id: string }
+}
+
+export interface UserTicketDetail extends UserTicket {
+  qrPayload: string
+  validatedAt: string | null
+  createdAt: string
+  order: { id: string; totalAmount: number }
+  validatedBy: { name: string; lastName: string } | null
+}
+
+// ── User Orders ───────────────────────────────────────────────────────────────
+
+export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED' | 'EXPIRED'
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
+
+export interface OrderItem {
+  id: string
+  quantity: number
+  unitPrice: number
+  subtotal: number
+  ticketType: { id: string; name: string; price: number }
+}
+
+export interface OrderPayment {
+  id: string
+  amount: number
+  currency: string
+  status: PaymentStatus
+  provider: string
+  providerPaymentId: string | null
+  failureReason: string | null
+  paidAt: string | null
+  createdAt: string
+}
+
+export interface UserOrder {
+  id: string
+  totalAmount: number
+  status: OrderStatus
+  createdAt: string
+  event: { id: string; name: string; eventDate: string }
+  checkoutUrl: string | null
+}
+
+export interface UserOrderDetail extends UserOrder {
+  updatedAt: string
+  items: OrderItem[]
+  payments: OrderPayment[]
+}
