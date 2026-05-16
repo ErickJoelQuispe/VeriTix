@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { OptionalJwtAuthGuard } from '@common/guards';
 import { PrismaModule } from '../../prisma/prisma.module';
-import { AuthModule } from '../auth/auth.module';
 import { TRANSFER_EXPIRY_QUEUE } from '../queues/constants/queue-names';
 import { TransferExpiryProcessor } from './processors/transfer-expiry.processor';
 import { TicketTransfersController } from './ticket-transfers.controller';
@@ -12,7 +11,6 @@ import { TicketTransfersService } from './ticket-transfers.service';
 @Module({
   imports: [
     PrismaModule,
-    AuthModule,
     BullModule.registerQueue({ name: TRANSFER_EXPIRY_QUEUE }),
   ],
   controllers: [TicketTransfersController],
