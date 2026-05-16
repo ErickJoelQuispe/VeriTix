@@ -5,11 +5,17 @@ const props = defineProps<{
   order: UserOrder
 }>()
 
-const { fetchOrderDetail } = useMyOrders()
+const emit = defineEmits<{
+  cancelled: [orderId: string]
+}>()
+
+const { fetchOrderDetail, cancelMyOrder } = useMyOrders()
 
 const detail = ref<UserOrderDetail | null>(null)
 const isLoadingDetail = ref(false)
 const isExpanded = ref(false)
+const isCancelling = ref(false)
+const cancelError = ref<string | null>(null)
 
 async function handleExpand(val: string | string[] | null) {
   const opened = !!val && (Array.isArray(val) ? val.length > 0 : true)
@@ -73,6 +79,23 @@ const formattedPaidAt = (paidAt: string | null): string => {
   return new Intl.DateTimeFormat('es-AR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(paidAt))
 }
 
+async function handleCancel() {
+  if (!confirm('¿Cancelar esta orden?')) return
+  isCancelling.value = true
+  cancelError.value = null
+  try {
+    await cancelMyOrder(props.order.id)
+    emit('cancelled', props.order.id)
+  }
+  catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'No se pudo cancelar la orden.'
+    cancelError.value = msg
+  }
+  finally {
+    isCancelling.value = false
+  }
+}
+
 // Build UAccordion items array — header label is the order summary
 const accordionItems = computed(() => [
   {
@@ -108,9 +131,10 @@ const accordionItems = computed(() => [
 
       <!-- Expanded content -->
       <div class="border-t border-default/65 px-4 py-4 sm:px-5">
-        <!-- Complete payment CTA (PENDING with checkout URL) -->
-        <div v-if="order.status === 'PENDING' && order.checkoutUrl" class="mb-4">
+        <!-- PENDING actions: complete payment + cancel order -->
+        <div v-if="order.status === 'PENDING'" class="mb-4 flex flex-wrap items-center gap-2">
           <BaseButton
+            v-if="order.checkoutUrl"
             variant="primary"
             size="sm"
             leading-icon="i-lucide-credit-card"
@@ -120,7 +144,23 @@ const accordionItems = computed(() => [
           >
             Completar pago
           </BaseButton>
+
+          <BaseButton
+            variant="danger"
+            size="sm"
+            leading-icon="i-lucide-x-circle"
+            :loading="isCancelling"
+            :disabled="isCancelling"
+            @click="handleCancel"
+          >
+            Cancelar orden
+          </BaseButton>
         </div>
+
+        <!-- Cancel error message -->
+        <p v-if="cancelError" class="mb-3 text-sm text-error">
+          {{ cancelError }}
+        </p>
 
         <!-- Loading detail -->
         <template v-if="isLoadingDetail">

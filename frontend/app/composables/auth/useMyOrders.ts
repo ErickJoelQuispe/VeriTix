@@ -3,7 +3,7 @@ import type { PaginatedResponse } from '~~/shared/api/types'
 import { useOrdersRepository } from '@/repositories/ordersRepository'
 
 export function useMyOrders() {
-  const { listMyOrders, getOrderDetail } = useOrdersRepository()
+  const { listMyOrders, getOrderDetail, cancelOrder } = useOrdersRepository()
   const { getApiErrorMessage } = useApiErrorMessage()
 
   const orders = ref<UserOrder[]>([])
@@ -37,6 +37,10 @@ export function useMyOrders() {
     return getOrderDetail(id)
   }
 
+  async function cancelMyOrder(id: string): Promise<void> {
+    return cancelOrder(id)
+  }
+
   return {
     orders,
     total,
@@ -44,5 +48,6 @@ export function useMyOrders() {
     error,
     fetchMyOrders,
     fetchOrderDetail,
+    cancelMyOrder,
   }
 }

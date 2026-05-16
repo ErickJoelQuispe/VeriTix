@@ -25,8 +25,17 @@ export function useOrdersRepository() {
     return apiRequest<UserOrderDetail>(`/orders/${id}`)
   }
 
+  /**
+   * PATCH /orders/:id/cancel
+   * Cancels a PENDING order (owner or admin only). Returns 204 No Content.
+   */
+  async function cancelOrder(id: string): Promise<void> {
+    return apiRequest<void>(`/orders/${id}/cancel`, { method: 'PATCH' })
+  }
+
   return {
     listMyOrders,
     getOrderDetail,
+    cancelOrder,
   }
 }
