@@ -49,8 +49,19 @@ export function useTicketsRepository() {
     return mapTicketDetail(response)
   }
 
+  // Alias used by new my-events components
+  const getTicketDetail = getTicket
+
+  function getTicketPdfUrl(id: string): string {
+    const config = useRuntimeConfig()
+    const base = config.public.apiBase.replace(/\/$/, '')
+    return `${base}/tickets/${id}/pdf`
+  }
+
   return {
     listMyTickets,
     getTicket,
+    getTicketDetail,
+    getTicketPdfUrl,
   }
 }

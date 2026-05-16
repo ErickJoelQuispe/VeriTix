@@ -47,8 +47,17 @@ export function useOrdersRepository() {
     return mapOrderDetail(response)
   }
 
+  // Aliases used by new my-events components
+  const getOrderDetail = getOrder
+
+  async function cancelOrder(id: string): Promise<void> {
+    await apiRequest<void>(`/orders/${id}/cancel`, { method: 'PATCH' })
+  }
+
   return {
     listMyOrders,
     getOrder,
+    getOrderDetail,
+    cancelOrder,
   }
 }

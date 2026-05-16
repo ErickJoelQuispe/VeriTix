@@ -4,19 +4,32 @@ import { normalizeApiError } from '@/utils/apiError'
 import { useTicketsRepository } from '@/repositories/ticketsRepository'
 
 export function useMyTickets() {
-  const { listMyTickets, getTicket } = useTicketsRepository()
+  const { listMyTickets, getTicket, getTicketPdfUrl } = useTicketsRepository()
   const { getApiErrorMessage, getApiErrorStatus, isApiSessionExpiredError } = useApiErrorMessage()
 
+  const tickets = ref<UserTicket[]>([])
+  const total = ref(0)
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
+
   async function fetchMyTickets(page = 1, limit = 12): Promise<PaginatedResponse<UserTicket>> {
+    isLoading.value = true
+    error.value = null
     try {
-      return await listMyTickets(page, limit)
+      const response = await listMyTickets(page, limit)
+      tickets.value = response.data
+      total.value = response.meta.total
+      return response
     }
-    catch (error) {
-      normalizeApiError(error, 'No pudimos cargar tus entradas.', {
+    catch (err) {
+      normalizeApiError(err, 'No pudimos cargar tus entradas.', {
         getApiErrorStatus,
         getApiErrorMessage,
         isApiSessionExpiredError,
       })
+    }
+    finally {
+      isLoading.value = false
     }
   }
 
@@ -24,8 +37,8 @@ export function useMyTickets() {
     try {
       return await getTicket(id)
     }
-    catch (error) {
-      normalizeApiError(error, 'No pudimos cargar el detalle de la entrada.', {
+    catch (err) {
+      normalizeApiError(err, 'No pudimos cargar el detalle de la entrada.', {
         getApiErrorStatus,
         getApiErrorMessage,
         isApiSessionExpiredError,
@@ -33,13 +46,11 @@ export function useMyTickets() {
     }
   }
 
-  function getTicketPdfUrl(id: string): string {
-    const config = useRuntimeConfig()
-    const base = config.public.apiBase.replace(/\/$/, '')
-    return `${base}/tickets/${id}/pdf`
-  }
-
   return {
+    tickets,
+    total,
+    isLoading,
+    error,
     fetchMyTickets,
     fetchTicketDetail,
     getTicketPdfUrl,
