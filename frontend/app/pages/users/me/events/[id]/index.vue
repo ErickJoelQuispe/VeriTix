@@ -106,7 +106,7 @@ useSeoMeta({
           <!-- Tab content -->
           <div class="min-h-[200px]">
             <template v-if="activeTab === 'tickets'">
-              <TicketTicketList
+              <TicketList
                 :tickets="eventTickets"
                 :is-loading="isLoadingTickets"
                 @open-ticket="openModal"
@@ -114,7 +114,7 @@ useSeoMeta({
             </template>
 
             <template v-else-if="activeTab === 'orders'">
-              <OrderOrderList
+              <OrderList
                 :orders="eventOrders"
                 :is-loading="isLoadingOrders"
               />
@@ -122,21 +122,21 @@ useSeoMeta({
 
             <template v-else-if="activeTab === 'review'">
               <div class="space-y-8">
-                <ReviewReviewForm
+                <ReviewForm
                   :event-id="eventId"
                   :existing-review="myReview"
                   :has-used-ticket="hasUsedTicket"
                   @submitted="onReviewSubmitted"
                   @deleted="onReviewDeleted"
                 />
-                <ReviewReviewList :event-id="eventId" />
+                <ReviewList :event-id="eventId" />
               </div>
             </template>
           </div>
         </template>
 
         <!-- Ticket Modal -->
-        <TicketTicketModal
+        <TicketModal
           v-model:open="isModalOpen"
           :ticket="selectedTicket"
           @transfer-initiated="isModalOpen = false"
