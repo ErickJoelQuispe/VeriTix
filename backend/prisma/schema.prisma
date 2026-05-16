@@ -431,5 +431,6 @@ model TicketTransfer {
 
   @@index([senderId])
   @@index([recipientEmail])
+  @@index([status, expiresAt])
   @@map("ticket_transfers")
 }

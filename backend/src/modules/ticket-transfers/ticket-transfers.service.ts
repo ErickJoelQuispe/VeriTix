@@ -98,8 +98,7 @@ export class TicketTransfersService {
       ? `${frontendUrl}/register?transferToken=${transfer.token}`
       : `${frontendUrl}/ticket-transfers/accept?token=${transfer.token}`;
 
-    const senderName = `${(ticket as any).buyer?.name ?? 'Someone'}`;
-    // Re-fetch sender name from prisma since ticket include doesn't have buyer by default
+    // Re-fetch sender name from prisma since ticket include doesn't have buyer
     const sender = await this.prisma.user.findUnique({
       where: { id: senderId },
       select: { name: true },
@@ -108,8 +107,8 @@ export class TicketTransfersService {
     await this.notificationsService.sendTransferInvite({
       to: dto.recipientEmail,
       senderName: sender?.name ?? 'Someone',
-      eventName: (ticket as any).event?.name ?? '',
-      eventDate: (ticket as any).event?.eventDate?.toISOString() ?? '',
+      eventName: ticket.event.name,
+      eventDate: ticket.event.eventDate.toISOString(),
       acceptUrl,
       isNewUser,
     });
