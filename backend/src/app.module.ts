@@ -21,6 +21,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { TicketTransfersModule } from './modules/ticket-transfers/ticket-transfers.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
     UploadsModule,
     FavoritesModule,
     ReviewsModule,
+    TicketTransfersModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
