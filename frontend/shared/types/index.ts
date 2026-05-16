@@ -1,4 +1,5 @@
 export * from './auth'
 export * from './backoffice'
 export * from './domain'
+export * from './my-events'
 export * from './user'
