@@ -4,7 +4,7 @@ import { AppCacheModule } from '../../cache';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { FAVORITE_ALERT_QUEUE } from '../queues/constants/queue-names';
 import { ReviewsModule } from '../reviews/reviews.module';
-import { TicketsRepository } from '../tickets/tickets.repository';
+import { TicketsModule } from '../tickets/tickets.module';
 import { EventArtistsController } from './event-artists/event-artists.controller';
 import { EventArtistsRepository } from './event-artists/event-artists.repository';
 import { EventArtistsService } from './event-artists/event-artists.service';
@@ -21,12 +21,12 @@ import { TicketTypesService } from './ticket-types/ticket-types.service';
     AppCacheModule,
     BullModule.registerQueue({ name: FAVORITE_ALERT_QUEUE }),
     ReviewsModule,
+    TicketsModule,
   ],
   controllers: [EventsController, TicketTypesController, EventArtistsController],
   providers: [
     EventsService,
     EventsRepository,
-    TicketsRepository,
     TicketTypesService,
     TicketTypesRepository,
     EventArtistsService,
