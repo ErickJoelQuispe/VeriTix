@@ -40,6 +40,7 @@ export const ORDER_LIST_SELECT = {
 
 export const ORDER_DETAIL_SELECT = {
   id: true,
+  buyerId: true,
   totalAmount: true,
   status: true,
   createdAt: true,
