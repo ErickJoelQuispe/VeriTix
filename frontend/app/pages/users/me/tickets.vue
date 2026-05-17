@@ -4,7 +4,6 @@ import type { UserTicket } from '~~/shared/types'
 import { formatEventDate } from '@/utils/date-formatters'
 
 definePageMeta({
-  layout: 'account',
   middleware: 'auth',
 })
 
@@ -32,7 +31,7 @@ const meta = ref<PaginationMeta>({
   hasPrev: false,
 })
 
-const statusConfig: Record<string, { label: string; color: 'success' | 'neutral' | 'error' | 'warning'; icon: string }> = {
+const statusConfig: Record<string, { label: string, color: 'success' | 'neutral' | 'error' | 'warning', icon: string }> = {
   ACTIVE: { label: 'Activa', color: 'success', icon: 'i-lucide-circle-check' },
   USED: { label: 'Usada', color: 'neutral', icon: 'i-lucide-circle-dot' },
   CANCELLED: { label: 'Cancelada', color: 'error', icon: 'i-lucide-circle-x' },
@@ -88,11 +87,17 @@ onMounted(() => {
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer class="relative">
       <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
-        <UiPageHeading
-          eyebrow="Mi cuenta"
-          title="Entradas"
-          description="Consultá tus entradas compradas, descargalas en PDF y verificá su estado de validación."
-        />
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <UiPageHeading
+            eyebrow="Mi cuenta"
+            title="Entradas"
+            description="Consultá tus entradas compradas, descargalas en PDF y verificá su estado de validación."
+          />
+
+          <BaseButton to="/users/me/orders" variant="secondary" size="sm" leading-icon="i-lucide-shopping-bag">
+            Ver órdenes
+          </BaseButton>
+        </div>
 
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
           <section class="space-y-6">
