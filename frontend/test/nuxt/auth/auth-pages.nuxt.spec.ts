@@ -69,18 +69,18 @@ defaultAuthMock = {
 }
 
 function mockGuestAuth() {
-    useAuthMock.mockReturnValue({
-      ensureSession: ensureSessionMock,
-      isAuthenticated: ref(false),
-      forgotPassword: forgotPasswordMock,
-      login: loginMock,
-      pending: ref(false),
-      refreshStatus: ref('idle'),
-      register: registerMock,
-      verifyEmail: verifyEmailMock,
-      sessionStatus: ref('unknown'),
-      user: ref(null),
-    })
+  useAuthMock.mockReturnValue({
+    ensureSession: ensureSessionMock,
+    isAuthenticated: ref(false),
+    forgotPassword: forgotPasswordMock,
+    login: loginMock,
+    pending: ref(false),
+    refreshStatus: ref('idle'),
+    register: registerMock,
+    verifyEmail: verifyEmailMock,
+    sessionStatus: ref('unknown'),
+    user: ref(null),
+  })
 }
 
 beforeEach(() => {

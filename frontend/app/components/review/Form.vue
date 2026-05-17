@@ -120,7 +120,7 @@ async function handleDelete() {
       <p class="text-sm font-medium text-toned">
         Calificación
       </p>
-      <UiStarRating
+      <ReviewStarRating
         v-model="formState.rating"
         :readonly="false"
         size="md"

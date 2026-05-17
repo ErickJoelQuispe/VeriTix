@@ -114,7 +114,7 @@ useSeoMeta({
             </template>
 
             <template v-else-if="activeTab === 'orders'">
-              <UiOrderList
+              <OrderList
                 :orders="eventOrders"
                 :is-loading="isLoadingOrders"
               />

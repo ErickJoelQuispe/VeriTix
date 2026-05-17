@@ -94,7 +94,7 @@ function formatDate(dateStr: string): string {
                 <span class="text-sm font-semibold text-highlighted">
                   {{ review.user.name }} {{ review.user.lastName }}
                 </span>
-                <UiStarRating :model-value="review.rating" :readonly="true" size="sm" />
+                <ReviewStarRating :model-value="review.rating" :readonly="true" size="sm" />
                 <span class="text-xs text-muted">
                   {{ formatDate(review.createdAt) }}
                 </span>
