@@ -482,10 +482,6 @@ onMounted(() => {
                   </UiMetaLabel>
 
                   <div class="flex flex-col gap-3">
-                    <BaseButton to="/users/me/tickets" variant="secondary" size="md">
-                      Mis entradas
-                    </BaseButton>
-
                     <BaseButton to="/users/me/orders" variant="secondary" size="md">
                       Mis órdenes
                     </BaseButton>
