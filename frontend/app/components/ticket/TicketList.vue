@@ -7,7 +7,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'open-ticket': [ticket: UserTicket]
+  openTicket: [ticket: UserTicket]
 }>()
 
 function statusBadgeColor(status: TicketStatus): 'success' | 'neutral' | 'error' | 'warning' {
@@ -84,7 +84,7 @@ function formattedPrice(price: number) {
           variant="outlined"
           size="xs"
           trailing-icon="i-lucide-arrow-right"
-          @click="emit('open-ticket', ticket)"
+          @click="emit('openTicket', ticket)"
         >
           Ver QR
         </BaseButton>

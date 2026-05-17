@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import { createError, getHeader, getRouterParam, send, setResponseHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {

@@ -60,7 +60,6 @@ function orderStatusColor(status: OrderStatus): 'success' | 'neutral' | 'error' 
     PAID: 'success',
     CANCELLED: 'neutral',
     REFUNDED: 'error',
-    EXPIRED: 'neutral',
   }
   return map[status]
 }
@@ -71,7 +70,6 @@ function orderStatusLabel(status: OrderStatus): string {
     PAID: 'Pagada',
     CANCELLED: 'Cancelada',
     REFUNDED: 'Reembolsada',
-    EXPIRED: 'Expirada',
   }
   return map[status]
 }
@@ -79,7 +77,7 @@ function orderStatusLabel(status: OrderStatus): string {
 function paymentStatusColor(status: PaymentStatus): 'success' | 'neutral' | 'error' | 'warning' {
   const map: Record<PaymentStatus, 'success' | 'neutral' | 'error' | 'warning'> = {
     PENDING: 'warning',
-    PAID: 'success',
+    COMPLETED: 'success',
     FAILED: 'error',
     REFUNDED: 'neutral',
   }
@@ -181,10 +179,18 @@ onMounted(() => {
               <table class="w-full text-sm">
                 <thead>
                   <tr class="border-b border-default/65 text-left text-xs text-muted">
-                    <th class="pb-2 font-medium">Tipo</th>
-                    <th class="pb-2 text-right font-medium">Cant.</th>
-                    <th class="pb-2 text-right font-medium">P. Unit.</th>
-                    <th class="pb-2 text-right font-medium">Subtotal</th>
+                    <th class="pb-2 font-medium">
+                      Tipo
+                    </th>
+                    <th class="pb-2 text-right font-medium">
+                      Cant.
+                    </th>
+                    <th class="pb-2 text-right font-medium">
+                      P. Unit.
+                    </th>
+                    <th class="pb-2 text-right font-medium">
+                      Subtotal
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -193,8 +199,12 @@ onMounted(() => {
                     :key="item.id"
                     class="border-b border-default/40 last:border-0"
                   >
-                    <td class="py-2 text-toned">{{ item.ticketType.name }}</td>
-                    <td class="py-2 text-right text-toned">{{ item.quantity }}</td>
+                    <td class="py-2 text-toned">
+                      {{ item.ticketType.name }}
+                    </td>
+                    <td class="py-2 text-right text-toned">
+                      {{ item.quantity }}
+                    </td>
                     <td class="py-2 text-right text-toned">
                       {{ new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.unitPrice) }}
                     </td>
@@ -293,10 +303,18 @@ onMounted(() => {
               <table class="w-full text-sm">
                 <thead>
                   <tr class="border-b border-default/65 text-left text-xs text-muted">
-                    <th class="pb-2 font-medium">Tipo</th>
-                    <th class="pb-2 text-right font-medium">Cant.</th>
-                    <th class="pb-2 text-right font-medium">P. Unit.</th>
-                    <th class="pb-2 text-right font-medium">Subtotal</th>
+                    <th class="pb-2 font-medium">
+                      Tipo
+                    </th>
+                    <th class="pb-2 text-right font-medium">
+                      Cant.
+                    </th>
+                    <th class="pb-2 text-right font-medium">
+                      P. Unit.
+                    </th>
+                    <th class="pb-2 text-right font-medium">
+                      Subtotal
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -305,8 +323,12 @@ onMounted(() => {
                     :key="item.id"
                     class="border-b border-default/40 last:border-0"
                   >
-                    <td class="py-2 text-toned">{{ item.ticketType.name }}</td>
-                    <td class="py-2 text-right text-toned">{{ item.quantity }}</td>
+                    <td class="py-2 text-toned">
+                      {{ item.ticketType.name }}
+                    </td>
+                    <td class="py-2 text-right text-toned">
+                      {{ item.quantity }}
+                    </td>
                     <td class="py-2 text-right text-toned">
                       {{ new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.unitPrice) }}
                     </td>

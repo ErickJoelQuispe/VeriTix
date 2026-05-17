@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  'transfer-initiated': []
+  'transferInitiated': []
 }>()
 
 const isOpen = computed({
@@ -107,7 +107,7 @@ function handleDownloadPdf() {
 
 function handleTransferSuccess() {
   showTransferForm.value = false
-  emit('transfer-initiated')
+  emit('transferInitiated')
   emit('update:open', false)
 }
 </script>
