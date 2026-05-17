@@ -140,7 +140,7 @@ async function handlePageChange(next: number) {
         <!-- Grid de cards -->
         <template v-else>
           <div class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <UsersUserEventCard
+            <UsersEventCard
               v-for="item in events"
               :key="item.event.id"
               :item="item"

@@ -79,6 +79,7 @@ async function handleSubmit() {
 }
 
 async function handleDelete() {
+  // eslint-disable-next-line no-alert
   const confirmed = confirm('¿Eliminar tu reseña?')
   if (!confirmed) { return }
 
