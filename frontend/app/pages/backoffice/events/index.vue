@@ -465,7 +465,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex shrink-0 flex-wrap items-center justify-start gap-2.5 pt-1 sm:justify-end sm:pt-0">
-                  <BaseButton variant="secondary" size="sm" class="!rounded-md border-default/55 bg-default/55 hover:bg-default/70" :to="event.to">
+                  <BaseButton variant="secondary" size="sm" class="rounded-md! border-default/55 bg-default/55 hover:bg-default/70" :to="event.to">
                     Editar
                   </BaseButton>
                   <PagesBackofficeDeleteAction
