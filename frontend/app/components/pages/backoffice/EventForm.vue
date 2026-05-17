@@ -253,10 +253,10 @@ watch(() => [
       placeholder="Selecciona generos"
     />
 
-    <BackofficeFormActions>
+    <div class="flex justify-end border-t border-default/55 pt-6">
       <BaseButton variant="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting" data-testid="event-form-submit">
         {{ submitLabel }}
       </BaseButton>
-    </BackofficeFormActions>
+    </div>
   </FormRoot>
 </template>

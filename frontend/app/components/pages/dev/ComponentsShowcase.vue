@@ -404,7 +404,7 @@ function submitDemoForm() {
                     The shared footer used to align primary and secondary actions.
                   </p>
 
-                  <BackofficeFormActions>
+                  <div class="flex justify-end border-t border-default/55 pt-6">
                     <div class="flex gap-3">
                       <BaseButton variant="outlined" size="sm">
                         Cancel
@@ -413,7 +413,7 @@ function submitDemoForm() {
                         Save
                       </BaseButton>
                     </div>
-                  </BackofficeFormActions>
+                  </div>
                 </UiPanel>
 
                 <UiPanel variant="glass" padding="md" radius="md" class="space-y-3">

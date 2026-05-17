@@ -113,11 +113,9 @@ onMounted(() => {
       <div class="space-y-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <UiPageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
-          <BackofficeBackButton
-            to="/backoffice/events"
-          >
+          <BaseButton to="/backoffice/events" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
             Volver a eventos
-          </BackofficeBackButton>
+          </BaseButton>
         </div>
         <PagesBackofficeOverviewPanel
           title="Datos del evento"

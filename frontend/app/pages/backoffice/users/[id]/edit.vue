@@ -153,11 +153,9 @@ onMounted(() => {
       <div class="space-y-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <UiPageHeading eyebrow="Backoffice" title="Editar usuario" description="Actualiza perfil, permisos y estado de acceso del usuario." />
-          <BackofficeBackButton
-            to="/backoffice/users"
-          >
+          <BaseButton to="/backoffice/users" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
             Volver a usuarios
-          </BackofficeBackButton>
+          </BaseButton>
         </div>
         <PagesBackofficeOverviewPanel
           title="Datos del usuario"
