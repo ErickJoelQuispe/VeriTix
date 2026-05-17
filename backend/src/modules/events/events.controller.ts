@@ -98,11 +98,9 @@ export class EventsController {
 
   // NOTE: GET /events/mine MUST be declared before GET /events/:id to avoid route conflict
   @Get('mine')
-  @Roles(Role.BUYER)
   @ApiBearerAuth('access-token')
-  @ApiOperation({ summary: 'Eventos comprados por el buyer autenticado (agrupados por evento)' })
-  @ApiOkResponse({ description: 'Lista paginada de eventos con tickets del buyer.' })
-  @ApiForbiddenResponse({ description: 'Acceso restringido a compradores.' })
+  @ApiOperation({ summary: 'Eventos comprados por el usuario autenticado (agrupados por evento)' })
+  @ApiOkResponse({ description: 'Lista paginada de eventos con tickets del usuario autenticado.' })
   findBuyerEvents(
     @CurrentUser() user: JwtPayload,
     @Query() query: BuyerEventsQueryDto,

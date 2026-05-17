@@ -9,37 +9,43 @@ import MyEventDetailPage from '@/pages/users/me/events/[id]/index.vue'
 
 const EVENT_ID = 'event-abc'
 
-const makeEventItem = (id: string = EVENT_ID) => ({
-  event: {
+function makeEventItem(id: string = EVENT_ID) {
+  return {
+    event: {
+      id,
+      name: `Event ${id}`,
+      eventDate: '2026-09-01T20:00:00Z',
+      imageUrl: null,
+      venue: { id: 'venue-1', name: 'Movistar Arena', city: 'Buenos Aires' },
+      format: { id: 'format-1', name: 'Concert' },
+    },
+    ticketCount: 2,
+    dominantStatus: 'ACTIVE' as const,
+  }
+}
+
+function makeTicket(id: string, eventId: string = EVENT_ID) {
+  return {
     id,
-    name: `Event ${id}`,
-    eventDate: '2026-09-01T20:00:00Z',
-    imageUrl: null,
-    venue: { id: 'venue-1', name: 'Movistar Arena', city: 'Buenos Aires' },
-    format: { id: 'format-1', name: 'Concert' },
-  },
-  ticketCount: 2,
-  dominantStatus: 'ACTIVE' as const,
-})
+    hash: `hash${id}abcdef1234`,
+    status: 'ACTIVE' as const,
+    purchaseDate: '2026-04-01T10:00:00Z',
+    ticketType: { name: 'Pista General', price: 75 },
+    event: { id: eventId, name: 'Event', eventDate: '2026-09-01T20:00:00Z' },
+    orderItem: { id: `order-item-${id}` },
+  }
+}
 
-const makeTicket = (id: string, eventId: string = EVENT_ID) => ({
-  id,
-  hash: `hash${id}abcdef1234`,
-  status: 'ACTIVE' as const,
-  purchaseDate: '2026-04-01T10:00:00Z',
-  ticketType: { name: 'Pista General', price: 75 },
-  event: { id: eventId, name: 'Event', eventDate: '2026-09-01T20:00:00Z' },
-  orderItem: { id: `order-item-${id}` },
-})
-
-const makeOrder = (id: string, eventId: string = EVENT_ID) => ({
-  id,
-  totalAmount: 150,
-  status: 'PAID' as const,
-  createdAt: '2026-04-01T10:00:00Z',
-  event: { id: eventId, name: 'Event', eventDate: '2026-09-01T20:00:00Z' },
-  checkoutUrl: null,
-})
+function makeOrder(id: string, eventId: string = EVENT_ID) {
+  return {
+    id,
+    totalAmount: 150,
+    status: 'PAID' as const,
+    createdAt: '2026-04-01T10:00:00Z',
+    event: { id: eventId, name: 'Event', eventDate: '2026-09-01T20:00:00Z' },
+    checkoutUrl: null,
+  }
+}
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -115,7 +121,7 @@ beforeEach(() => {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('MyEventDetailPage — /users/me/events/[id]', () => {
+describe('myEventDetailPage — /users/me/events/[id]', () => {
   it('renders UserEventHeader with the correct event name', async () => {
     const wrapper = await mountSuspended(MyEventDetailPage)
     await flushPromises()

@@ -39,9 +39,7 @@ const AuthHarness = defineComponent({
   template: '<div />',
 })
 
-beforeEach(() => {
-  vi.clearAllMocks()
-
+function mockDefaultApiResponses() {
   apiRequestMock.mockImplementation(async (path: string, _opts?: unknown) => {
     if (path === '/auth/register') { return { message: 'Revisá tu email para verificar la cuenta' } }
     if (path === '/auth/verify-email') { return { message: 'Email verificado correctamente' } }
@@ -58,6 +56,13 @@ beforeEach(() => {
 
     throw new Error(`Unexpected path: ${path}`)
   })
+}
+
+mockDefaultApiResponses()
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  mockDefaultApiResponses()
 })
 
 describe('useAuth — register', () => {

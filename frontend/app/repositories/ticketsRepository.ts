@@ -3,6 +3,8 @@ import type { PaginatedResponse } from '~~/shared/api/types'
 import type { UserTicket, UserTicketDetail } from '~~/shared/types'
 import { compactQuery } from '~~/shared/query'
 
+const TRAILING_SLASH_RE = /\/$/
+
 function mapTicketListItem(item: TicketListApiItem): UserTicket {
   return {
     id: item.id,
@@ -54,7 +56,7 @@ export function useTicketsRepository() {
 
   function getTicketPdfUrl(id: string): string {
     const config = useRuntimeConfig()
-    const base = config.public.apiBase.replace(/\/$/, '')
+    const base = config.public.apiBase.replace(TRAILING_SLASH_RE, '')
     return `${base}/tickets/${id}/pdf`
   }
 

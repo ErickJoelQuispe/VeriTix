@@ -1,4 +1,4 @@
-import type { TransferResult, TransferRequiresRegistration } from '~~/shared/types/my-events'
+import type { TransferRequiresRegistration, TransferResult } from '~~/shared/types/my-events'
 import { getQuery } from 'h3'
 import { proxyBackendRequest } from '~~/server/utils/backend-proxy'
 

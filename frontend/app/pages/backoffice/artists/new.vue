@@ -76,11 +76,9 @@ onMounted(() => {
       <div class="space-y-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <UiPageHeading eyebrow="Backoffice" title="Nuevo artista" description="Crea un artista y dejalo listo para asociar a eventos." />
-          <BackofficeBackButton
-            to="/backoffice/artists"
-          >
+          <BaseButton to="/backoffice/artists" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
             Volver a artistas
-          </BackofficeBackButton>
+          </BaseButton>
         </div>
         <PagesBackofficeOverviewPanel
           title="Datos del artista"

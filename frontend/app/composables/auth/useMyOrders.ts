@@ -1,8 +1,8 @@
 import type { CreateOrderRequest } from '~~/shared/api/orders'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { UserOrder, UserOrderDetail } from '~~/shared/types'
-import { normalizeApiError } from '@/utils/apiError'
 import { useOrdersRepository } from '@/repositories/ordersRepository'
+import { normalizeApiError } from '@/utils/apiError'
 
 export function useMyOrders() {
   const { listMyOrders, getOrder, cancelOrder, createOrder: repoCreateOrder } = useOrdersRepository()

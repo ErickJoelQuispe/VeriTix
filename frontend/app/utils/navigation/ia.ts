@@ -22,7 +22,6 @@ export const MAIN_NAV_ITEMS: AppNavItem[] = [
 
 export const ACCOUNT_NAV_ITEMS: AccountNavItem[] = [
   { label: 'Perfil', to: '/users/me', icon: 'i-lucide-user' },
-  { label: 'Entradas', to: '/users/me/tickets', icon: 'i-lucide-ticket' },
   { label: 'Órdenes', to: '/users/me/orders', icon: 'i-lucide-shopping-bag' },
   { label: 'Seguridad', to: '/users/me#seguridad', icon: 'i-lucide-shield' },
 ]

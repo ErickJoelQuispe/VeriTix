@@ -22,14 +22,30 @@ const paginatedResponse = {
   meta: { page: 1, limit: 20, total: 1, totalPages: 1, hasNext: false, hasPrev: false },
 }
 
+const pastEventItem = {
+  ...eventItem,
+  event: {
+    ...eventItem.event,
+    id: 'event-2',
+    name: 'Jazz Night',
+  },
+}
+
+const pastPaginatedResponse = {
+  data: [pastEventItem],
+  meta: { page: 1, limit: 20, total: 1, totalPages: 1, hasNext: false, hasPrev: false },
+}
+
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
-const { apiRequestMock, useApiRequestMock } = vi.hoisted(() => {
-  const apiRequestMock = vi.fn()
-  return { apiRequestMock, useApiRequestMock: vi.fn(() => apiRequestMock) }
+const { listMyEventsMock, useMyEventsRepositoryMock } = vi.hoisted(() => {
+  const listMyEventsMock = vi.fn()
+  return { listMyEventsMock, useMyEventsRepositoryMock: vi.fn(() => ({ listMyEvents: listMyEventsMock })) }
 })
 
-mockNuxtImport('useApiRequest', () => useApiRequestMock)
+vi.mock('@/repositories/myEventsRepository', () => ({
+  useMyEventsRepository: useMyEventsRepositoryMock,
+}))
 
 // ── Harness ───────────────────────────────────────────────────────────────────
 
@@ -48,45 +64,40 @@ beforeEach(() => {
 
 describe('useMyEvents — fetchMyEvents', () => {
   it('returns list and updates state when API succeeds', async () => {
-    apiRequestMock.mockResolvedValueOnce(paginatedResponse)
+    listMyEventsMock
+      .mockResolvedValueOnce(paginatedResponse)
+      .mockResolvedValueOnce(pastPaginatedResponse)
 
     const wrapper = await mountSuspended(Harness)
     await wrapper.vm.fetchMyEvents()
 
-    expect(wrapper.vm.events).toHaveLength(1)
+    expect(wrapper.vm.events).toHaveLength(2)
     expect(wrapper.vm.events[0]?.event.name).toBe('Rock Fest')
-    expect(wrapper.vm.total).toBe(1)
+    expect(wrapper.vm.events[1]?.event.name).toBe('Jazz Night')
+    expect(wrapper.vm.total).toBe(2)
     expect(wrapper.vm.isLoading).toBe(false)
     expect(wrapper.vm.error).toBeNull()
   })
 
   it('passes upcoming=true to the API', async () => {
-    apiRequestMock.mockResolvedValueOnce(paginatedResponse)
+    listMyEventsMock.mockResolvedValueOnce(paginatedResponse)
 
     const wrapper = await mountSuspended(Harness)
     await wrapper.vm.fetchMyEvents({ upcoming: true })
 
-    expect(apiRequestMock).toHaveBeenCalledWith(
-      '/events/mine',
-      expect.objectContaining({
-        method: 'GET',
-        query: expect.objectContaining({ upcoming: true }),
-      }),
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ upcoming: true }),
     )
   })
 
   it('passes upcoming=false to the API', async () => {
-    apiRequestMock.mockResolvedValueOnce(paginatedResponse)
+    listMyEventsMock.mockResolvedValueOnce(paginatedResponse)
 
     const wrapper = await mountSuspended(Harness)
     await wrapper.vm.fetchMyEvents({ upcoming: false })
 
-    expect(apiRequestMock).toHaveBeenCalledWith(
-      '/events/mine',
-      expect.objectContaining({
-        method: 'GET',
-        query: expect.objectContaining({ upcoming: false }),
-      }),
+    expect(listMyEventsMock).toHaveBeenCalledWith(
+      expect.objectContaining({ upcoming: false }),
     )
   })
 
@@ -95,7 +106,7 @@ describe('useMyEvents — fetchMyEvents', () => {
       response: { status: 500 },
       data: { message: 'Internal server error' },
     })
-    apiRequestMock.mockRejectedValueOnce(apiError)
+    listMyEventsMock.mockRejectedValueOnce(apiError)
 
     const wrapper = await mountSuspended(Harness)
 

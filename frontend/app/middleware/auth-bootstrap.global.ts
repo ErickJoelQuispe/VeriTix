@@ -5,12 +5,5 @@ export default defineNuxtRouteMiddleware(async () => {
     return
   }
 
-  try {
-    await ensureSession()
-  }
-  catch {
-    if (sessionStatus.value === 'unknown') {
-      sessionStatus.value = 'guest'
-    }
-  }
+  await ensureSession()
 })

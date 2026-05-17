@@ -63,6 +63,7 @@ defaultAuthMock = {
   forgotPassword: vi.fn(),
   register: vi.fn(),
   verifyEmail: vi.fn(),
+  refreshStatus: ref('idle'),
   sessionStatus: ref('unknown'),
   user: ref(null),
 }
@@ -74,6 +75,7 @@ function mockGuestAuth() {
     forgotPassword: forgotPasswordMock,
     login: loginMock,
     pending: ref(false),
+    refreshStatus: ref('idle'),
     register: registerMock,
     verifyEmail: verifyEmailMock,
     sessionStatus: ref('unknown'),

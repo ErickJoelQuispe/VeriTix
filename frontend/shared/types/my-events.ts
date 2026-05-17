@@ -7,8 +7,8 @@ export interface EnrichedEvent {
   name: string
   eventDate: string
   imageUrl: string | null
-  venue: { id: string; name: string; city: string }
-  format: { id: string; name: string } | null
+  venue: { id: string, name: string, city: string }
+  format: { id: string, name: string } | null
 }
 
 // ── My Events ─────────────────────────────────────────────────────────────────

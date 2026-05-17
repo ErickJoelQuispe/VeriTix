@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { MAIN_NAV_ITEMS, MY_EVENTS_NAV_ITEM } from '~/utils/navigation/ia'
+
 const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
 const accountMenuItems = useAccountMenuItems(() => user.value?.role === 'ADMIN')
@@ -8,6 +10,10 @@ const showGuestActions = computed(() => {
 })
 
 const showAccountMenu = computed(() => {
+  return sessionStatus.value !== 'unknown' && isAuthenticated.value
+})
+
+const showMyEventsLink = computed(() => {
   return sessionStatus.value !== 'unknown' && isAuthenticated.value
 })
 
@@ -39,7 +45,7 @@ const accountSubtitle = computed(() => {
   return user.value?.email || 'Gestioná tu perfil y ajustes'
 })
 
-const { navItems: mainNavItems } = useNavigation()
+const mainNavItems = MAIN_NAV_ITEMS
 
 const headerClass = 'sticky top-0 z-40 border-b border-default/55 bg-default/75 backdrop-blur-md'
 
@@ -110,6 +116,17 @@ function isMainNavActive(path: string): boolean {
             </template>
 
             <template v-else-if="showAccountMenu">
+              <BaseButton
+                v-if="showMyEventsLink"
+                :to="MY_EVENTS_NAV_ITEM.to"
+                variant="outlined"
+                size="sm"
+                leading-icon="i-lucide-calendar-range"
+                class="hidden sm:inline-flex"
+              >
+                {{ MY_EVENTS_NAV_ITEM.label }}
+              </BaseButton>
+
               <UiAccountMenu
                 :title="accountDisplayName"
                 :subtitle="accountSubtitle"

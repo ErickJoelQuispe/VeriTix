@@ -40,6 +40,7 @@ function handleCancelled(orderId: string) {
         v-for="order in localOrders"
         :key="order.id"
         :order="order"
+        :force-open="localOrders.length === 1"
         @cancelled="handleCancelled"
       />
     </template>

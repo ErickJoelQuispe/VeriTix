@@ -52,11 +52,11 @@ onMounted(() => {
         title="Activá tu cuenta."
         :description="status === 'success' ? 'Ya podés iniciar sesión con tu cuenta verificada.' : 'Usamos este paso para validar tu correo antes de habilitar el acceso.'"
       >
-        <div class="rounded-2xl border px-5 py-6 text-center text-sm sm:px-6" style="border-color: color-mix(in srgb, var(--color-auric-400) 22%, transparent); background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);">
+        <div class="rounded-2xl border border-warning/25 bg-warning/8 px-5 py-6 text-center text-sm shadow-sm sm:px-6">
           <BaseIcon
             :name="status === 'success' ? 'i-lucide-badge-check' : status === 'error' ? 'i-lucide-circle-alert' : 'i-lucide-loader-circle'"
             class="mx-auto mb-3 size-8"
-            :class="status === 'success' ? 'text-emerald-400' : status === 'error' ? 'text-red-400' : 'text-auric-400 animate-spin'"
+            :class="status === 'success' ? 'text-success' : status === 'error' ? 'text-error' : 'text-warning animate-spin'"
           />
 
           <p class="leading-relaxed text-toned">

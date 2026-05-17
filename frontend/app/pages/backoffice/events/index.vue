@@ -307,23 +307,56 @@ onMounted(() => {
 
             <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 text-sm text-toned sm:p-4">
               <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <PagesBackofficeSegmentedControl
-                  :items="catalogModeItems"
-                  :active-value="catalogMode"
-                  size="md"
-                  @select="setCatalogMode"
-                />
+                <div class="flex flex-wrap items-center gap-1.5 rounded-2xl border border-default/70 bg-elevated/80 p-1">
+                  <BaseButton
+                    v-for="item in catalogModeItems"
+                    :key="item.value"
+                    variant="outlined"
+                    size="md"
+                    :leading-icon="item.icon"
+                    class="min-w-0 border-transparent shadow-none transition-all duration-200"
+                    :class="catalogMode === item.value
+                      ? 'border-primary/45! bg-primary/20 text-highlighted shadow-sm ring-1 ring-primary/30 hover:bg-primary/24 hover:ring-primary/40'
+                      : 'text-toned hover:-translate-y-px hover:border-default/55 hover:bg-default/70 hover:text-highlighted hover:shadow-sm'"
+                    :aria-current="catalogMode === item.value ? 'page' : undefined"
+                    @click="setCatalogMode(item.value)"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <span>{{ item.label }}</span>
+                      <span
+                        v-if="catalogMode === item.value"
+                        aria-hidden="true"
+                        class="h-1.5 w-3 rounded-full bg-primary/90"
+                      />
+                    </span>
+                  </BaseButton>
+                </div>
 
                 <div
                   v-if="catalogMode === 'published'"
-                  class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4"
+                  class="flex flex-wrap items-center gap-1.5 rounded-2xl border border-default/70 bg-elevated/80 p-1"
                 >
-                  <PagesBackofficeSegmentedControl
-                    :items="quickWindowItems"
-                    :active-value="quickWindow"
+                  <BaseButton
+                    v-for="item in quickWindowItems"
+                    :key="item.value"
+                    variant="outlined"
                     size="md"
-                    @select="setQuickWindow"
-                  />
+                    class="min-w-0 border-transparent shadow-none transition-all duration-200"
+                    :class="quickWindow === item.value
+                      ? 'border-primary/45! bg-primary/20 text-highlighted shadow-sm ring-1 ring-primary/30 hover:bg-primary/24 hover:ring-primary/40'
+                      : 'text-toned hover:-translate-y-px hover:border-default/55 hover:bg-default/70 hover:text-highlighted hover:shadow-sm'"
+                    :aria-current="quickWindow === item.value ? 'page' : undefined"
+                    @click="setQuickWindow(item.value)"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <span>{{ item.label }}</span>
+                      <span
+                        v-if="quickWindow === item.value"
+                        aria-hidden="true"
+                        class="h-1.5 w-3 rounded-full bg-primary/90"
+                      />
+                    </span>
+                  </BaseButton>
                 </div>
               </div>
             </div>

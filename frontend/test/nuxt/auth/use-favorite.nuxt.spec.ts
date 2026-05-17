@@ -2,91 +2,75 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
 
-// ── Mocks ─────────────────────────────────────────────────────────────────────
+const { getFavoriteStatusMock, toggleFavoriteMock, useFavoritesRepositoryMock } = vi.hoisted(() => {
+  const getFavoriteStatusMock = vi.fn()
+  const toggleFavoriteMock = vi.fn()
 
-const { apiRequestMock, useApiRequestMock } = vi.hoisted(() => {
-  const apiRequestMock = vi.fn()
-  return { apiRequestMock, useApiRequestMock: vi.fn(() => apiRequestMock) }
+  return {
+    getFavoriteStatusMock,
+    toggleFavoriteMock,
+    useFavoritesRepositoryMock: vi.fn(() => ({
+      getFavoriteStatus: getFavoriteStatusMock,
+      toggleFavorite: toggleFavoriteMock,
+    })),
+  }
 })
 
-mockNuxtImport('useApiRequest', () => useApiRequestMock)
+vi.mock('@/repositories/favoritesRepository', () => ({
+  useFavoritesRepository: useFavoritesRepositoryMock,
+}))
 
-// ── Harness factory ───────────────────────────────────────────────────────────
-
-function makeHarness(eventId: string) {
-  return defineComponent({
-    setup() {
-      return useFavorite(eventId)
-    },
-    template: '<div />',
-  })
-}
+const Harness = defineComponent({
+  setup() {
+    return useFavorite('event-1')
+  },
+  template: '<div />',
+})
 
 beforeEach(() => {
   vi.clearAllMocks()
+  getFavoriteStatusMock.mockResolvedValue({ isFavorite: false })
+  toggleFavoriteMock.mockResolvedValue({ isFavorite: true })
 })
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+describe('useFavorite', () => {
+  it('checks the current favorite status', async () => {
+    getFavoriteStatusMock.mockResolvedValueOnce({ isFavorite: true })
 
-describe('useFavorite — checkFavorite', () => {
-  it('sets isFavorited to true when API returns isFavorite: true', async () => {
-    apiRequestMock.mockResolvedValueOnce({ isFavorite: true })
+    const wrapper = await mountSuspended(Harness)
 
-    const wrapper = await mountSuspended(makeHarness('event-1'))
     await wrapper.vm.checkFavorite()
 
+    expect(getFavoriteStatusMock).toHaveBeenCalledWith('event-1')
     expect(wrapper.vm.isFavorited).toBe(true)
     expect(wrapper.vm.isLoading).toBe(false)
   })
 
-  it('sets isFavorited to false when API returns isFavorite: false', async () => {
-    apiRequestMock.mockResolvedValueOnce({ isFavorite: false })
-
-    const wrapper = await mountSuspended(makeHarness('event-2'))
-    await wrapper.vm.checkFavorite()
-
-    expect(wrapper.vm.isFavorited).toBe(false)
-  })
-})
-
-describe('useFavorite — toggle', () => {
-  it('toggles from false to true when API returns isFavorite: true', async () => {
-    apiRequestMock.mockResolvedValueOnce({ isFavorite: true })
-
-    const wrapper = await mountSuspended(makeHarness('event-1'))
-    expect(wrapper.vm.isFavorited).toBe(false)
+  it('updates favorite state when toggle succeeds', async () => {
+    const wrapper = await mountSuspended(Harness)
 
     await wrapper.vm.toggle()
 
+    expect(toggleFavoriteMock).toHaveBeenCalledWith('event-1')
     expect(wrapper.vm.isFavorited).toBe(true)
+    expect(wrapper.vm.error).toBeNull()
     expect(wrapper.vm.isLoading).toBe(false)
   })
 
-  it('toggles from true to false when API returns isFavorite: false', async () => {
-    // Prime the state to true first
-    apiRequestMock.mockResolvedValueOnce({ isFavorite: true })
-    const wrapper = await mountSuspended(makeHarness('event-1'))
-    await wrapper.vm.checkFavorite()
-    expect(wrapper.vm.isFavorited).toBe(true)
+  it('reverts state, stores the message, and rethrows when toggle fails', async () => {
+    const error = Object.assign(new Error('Network error'), {
+      data: { message: 'No se pudo guardar' },
+      response: { status: 500 },
+    })
 
-    // Now toggle off
-    apiRequestMock.mockResolvedValueOnce({ isFavorite: false })
-    await wrapper.vm.toggle()
+    const wrapper = await mountSuspended(Harness)
+    wrapper.vm.isFavorited = false
+    toggleFavoriteMock.mockRejectedValueOnce(error)
 
-    expect(wrapper.vm.isFavorited).toBe(false)
-  })
-
-  it('reverts to previous state when API throws', async () => {
-    const wrapper = await mountSuspended(makeHarness('event-1'))
-    // Initial state: false
-    expect(wrapper.vm.isFavorited).toBe(false)
-
-    apiRequestMock.mockRejectedValueOnce(new Error('Network failure'))
-
-    // Should revert back to false after error
-    await wrapper.vm.toggle()
+    await expect(wrapper.vm.toggle()).rejects.toThrow(error)
 
     expect(wrapper.vm.isFavorited).toBe(false)
+    expect(wrapper.vm.error).toBe('No se pudo guardar')
     expect(wrapper.vm.isLoading).toBe(false)
   })
 })

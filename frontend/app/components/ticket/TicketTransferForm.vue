@@ -21,7 +21,7 @@ const formState = reactive({ recipientEmail: '' })
 const successMessage = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
 
-const { initiateTicketTransfer, isLoading, resetState } = useTicketTransfer()
+const { initiateTicketTransfer, isLoading } = useTicketTransfer()
 
 async function handleSubmit() {
   errorMessage.value = null
@@ -46,7 +46,6 @@ async function handleSubmit() {
 }
 
 function handleCancel() {
-  resetState()
   emit('cancel')
 }
 </script>
