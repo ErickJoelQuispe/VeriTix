@@ -1,8 +1,111 @@
 <script setup lang="ts">
+import type { AccountMenuItem } from '@/composables/ui/useAccountMenuItems'
+
 const toastQueue = useToastQueue()
 
 const paginationPage = ref(3)
 const popoverOpen = ref(false)
+const accountMenuOpen = ref(true)
+
+const accountMenuItems: AccountMenuItem[] = [
+  {
+    label: 'Backoffice',
+    description: 'Events, users, and artists',
+    to: '/backoffice',
+    icon: 'i-lucide-shield-check',
+  },
+  {
+    label: 'Settings',
+    description: 'Profile, contact, and security',
+    to: '/users/me',
+    icon: 'i-lucide-settings-2',
+  },
+  {
+    label: 'Sign out',
+    description: 'Leave VeriTix safely',
+    to: '/users/me/logout',
+    icon: 'i-lucide-log-out',
+  },
+]
+
+interface EmptyStateExample {
+  title: string
+  description: string
+  icon: string
+  actionLabel?: string
+  actionTo?: string
+}
+
+const emptyStateExamples: EmptyStateExample[] = [
+  {
+    title: 'No search results',
+    description: 'Try a broader term or clear one filter to surface matching tickets.',
+    actionLabel: 'Browse events',
+    actionTo: '/events',
+    icon: 'i-lucide-inbox',
+  },
+  {
+    title: 'Nothing here yet',
+    description: 'This section stays quiet until the first record is created.',
+    icon: 'i-lucide-ticket',
+  },
+]
+
+interface PaginationExample {
+  label: string
+  description: string
+  page: number
+  total: number
+  itemsPerPage: number
+  size: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  variant: 'solid' | 'outline' | 'soft' | 'subtle' | 'ghost'
+  color: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
+  activeColor: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
+  activeVariant: 'solid' | 'outline' | 'soft' | 'subtle' | 'ghost'
+  showEdges: boolean
+}
+
+const paginationExamples: PaginationExample[] = [
+  {
+    label: 'Compact xs',
+    description: 'Smallest footprint for dense tables and compact toolbars.',
+    page: 2,
+    total: 40,
+    itemsPerPage: 5,
+    size: 'xs',
+    variant: 'ghost',
+    color: 'neutral',
+    activeColor: 'primary',
+    activeVariant: 'soft',
+    showEdges: false,
+  },
+  {
+    label: 'Outlined secondary',
+    description: 'Neutral outline with a stronger active page treatment.',
+    page: 3,
+    total: 120,
+    itemsPerPage: 10,
+    size: 'md',
+    variant: 'outline',
+    color: 'secondary',
+    activeColor: 'secondary',
+    activeVariant: 'solid',
+    showEdges: true,
+  },
+  {
+    label: 'Soft warning',
+    description: 'A warmer treatment for highlighted review flows.',
+    page: 4,
+    total: 90,
+    itemsPerPage: 10,
+    size: 'lg',
+    variant: 'soft',
+    color: 'warning',
+    activeColor: 'warning',
+    activeVariant: 'solid',
+    showEdges: false,
+  },
+]
 
 const demoForm = reactive({
   name: 'Camila Torres',
@@ -190,6 +293,38 @@ function submitDemoForm() {
                   </BaseButton>
                 </div>
               </div>
+
+              <div class="space-y-3">
+                <p class="text-xs font-medium tracking-wide text-toned uppercase">
+                  States and links
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <BaseButton variant="secondary" loading>
+                    Saving
+                  </BaseButton>
+
+                  <div class="sm:col-span-2">
+                    <BaseButton variant="primary" block class="w-full">
+                      Block action
+                    </BaseButton>
+                  </div>
+
+                  <BaseButton to="/events" variant="outlined" leading-icon="i-lucide-calendar-days">
+                    Router link
+                  </BaseButton>
+
+                  <BaseButton
+                    href="https://example.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    variant="reversed"
+                    leading-icon="i-lucide-arrow-up-right"
+                  >
+                    Href link
+                  </BaseButton>
+                </div>
+              </div>
             </UiPanel>
 
             <UiPanel class="space-y-6 lg:col-span-2">
@@ -300,17 +435,58 @@ function submitDemoForm() {
                 <BaseSkeleton class="h-24 w-full" />
               </div>
 
-              <BasePagination
-                v-model:page="paginationPage"
-                :total="120"
-                :items-per-page="10"
-                show-edges
-                class="justify-start"
-              />
+              <div class="space-y-3 rounded-2xl border border-default/55 bg-default/20 p-4">
+                <div class="space-y-1">
+                  <p class="text-xs font-medium tracking-wide text-toned uppercase">
+                    Interactive baseline
+                  </p>
+                  <p class="text-sm text-toned">
+                    The shared default keeps edges visible and page changes live.
+                  </p>
+                </div>
 
-              <p class="text-xs text-toned">
-                Current page: {{ paginationPage }}
-              </p>
+                <BasePagination
+                  v-model:page="paginationPage"
+                  :total="120"
+                  :items-per-page="10"
+                  show-edges
+                  class="justify-start"
+                />
+
+                <p class="text-xs text-toned">
+                  Current page: {{ paginationPage }}
+                </p>
+              </div>
+
+              <div class="grid gap-4 xl:grid-cols-3">
+                <div
+                  v-for="example in paginationExamples"
+                  :key="example.label"
+                  class="space-y-3 rounded-2xl border border-default/55 bg-default/20 p-4"
+                >
+                  <div class="space-y-1">
+                    <p class="text-sm font-medium text-highlighted">
+                      {{ example.label }}
+                    </p>
+                    <p class="text-sm leading-relaxed text-toned">
+                      {{ example.description }}
+                    </p>
+                  </div>
+
+                  <BasePagination
+                    :page="example.page"
+                    :total="example.total"
+                    :items-per-page="example.itemsPerPage"
+                    :size="example.size"
+                    :variant="example.variant"
+                    :color="example.color"
+                    :active-color="example.activeColor"
+                    :active-variant="example.activeVariant"
+                    :show-edges="example.showEdges"
+                    class="justify-start"
+                  />
+                </div>
+              </div>
             </UiPanel>
 
             <UiPanel class="space-y-5">
@@ -435,6 +611,62 @@ function submitDemoForm() {
                 </UiPanel>
               </div>
             </UiPanel>
+
+            <UiPanel class="space-y-5 lg:col-span-2">
+              <div class="space-y-2">
+                <p class="text-sm font-medium text-highlighted">
+                  Empty state
+                </p>
+                <p class="text-sm leading-relaxed text-toned">
+                  Use it when a filter, search, or permissions view has nothing to show.
+                </p>
+              </div>
+
+              <div class="grid gap-4 lg:grid-cols-2">
+                <UiEmptyState
+                  v-for="example in emptyStateExamples"
+                  :key="example.title"
+                  :icon="example.icon"
+                  :title="example.title"
+                  :description="example.description"
+                  :action-label="example.actionLabel"
+                  :action-to="example.actionTo"
+                  class="rounded-2xl border border-default/55 bg-default/20 px-4"
+                />
+              </div>
+            </UiPanel>
+
+            <UiPanel class="space-y-5 lg:col-span-2">
+              <div class="space-y-2">
+                <p class="text-sm font-medium text-highlighted">
+                  Account menu
+                </p>
+                <p class="text-sm leading-relaxed text-toned">
+                  The header menu combines profile context with navigational actions.
+                </p>
+              </div>
+
+              <div class="flex justify-start">
+                <UiAccountMenu
+                  v-model:open="accountMenuOpen"
+                  class="w-fit"
+                  title="Marina Torres"
+                  subtitle="Organizer"
+                  :items="accountMenuItems"
+                  avatar-alt="Marina Torres"
+                  avatar-initials="MT"
+                  trigger-label="Open account menu"
+                  align="start"
+                  side="bottom"
+                  :side-offset="12"
+                  trigger-size="xl"
+                />
+              </div>
+
+              <p class="text-xs text-toned">
+                Opened by default so the menu content is visible in the showcase.
+              </p>
+            </UiPanel>
           </div>
         </section>
 
@@ -442,7 +674,7 @@ function submitDemoForm() {
           <UiSectionHeading
             eyebrow="Panels"
             title="Standalone surfaces."
-            description="Show each panel on its own so the surface, spacing, and hierarchy are easy to judge at a glance."
+            description="Show each panel on its own so the surface, spacing, hierarchy, and subtle variants are easy to judge at a glance."
           />
 
           <div class="grid gap-6 lg:grid-cols-2">
@@ -467,6 +699,18 @@ function submitDemoForm() {
               </p>
               <p class="text-sm leading-relaxed text-toned">
                 A lighter surface for secondary content and low-emphasis blocks.
+              </p>
+            </UiPanel>
+
+            <UiPanel variant="transparent" class="space-y-3" padding="lg" radius="xl">
+              <UiMetaLabel tone="default">
+                Transparent
+              </UiMetaLabel>
+              <p class="text-sm font-semibold text-highlighted">
+                Bare surface
+              </p>
+              <p class="text-sm leading-relaxed text-toned">
+                Use it when the layout needs spacing and structure without an extra visual block.
               </p>
             </UiPanel>
 
