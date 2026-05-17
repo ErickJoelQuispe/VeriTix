@@ -4,7 +4,7 @@ export function useTicketTypesRepository() {
   const apiRequest = useApiRequest()
 
   async function getByEvent(eventId: string): Promise<TicketType[]> {
-    return apiRequest<TicketType[]>(`/api/events/${eventId}/ticket-types`, {
+    return apiRequest<TicketType[]>(`/events/${eventId}/ticket-types`, {
       method: 'GET',
     })
   }
