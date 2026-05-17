@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MY_EVENTS_NAV_ITEM } from '~/utils/navigation/ia'
+import { MAIN_NAV_ITEMS, MY_EVENTS_NAV_ITEM } from '~/utils/navigation/ia'
 
 const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
@@ -45,7 +45,7 @@ const accountSubtitle = computed(() => {
   return user.value?.email || 'Gestioná tu perfil y ajustes'
 })
 
-const { navItems: mainNavItems } = useNavigation()
+const mainNavItems = MAIN_NAV_ITEMS
 
 const headerClass = 'sticky top-0 z-40 border-b border-default/55 bg-default/75 backdrop-blur-md'
 

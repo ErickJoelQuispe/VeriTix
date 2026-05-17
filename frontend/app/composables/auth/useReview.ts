@@ -27,9 +27,6 @@ export function useReview(eventId: string) {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Set externally from the event detail page once tickets are fetched
-  const hasUsedTicket = ref(false)
-
   /**
    * Fetches public reviews for the event and extracts the current user's review.
    * Since there is no GET /reviews/mine endpoint, we load all reviews and filter
@@ -146,7 +143,6 @@ export function useReview(eventId: string) {
     total,
     isLoading,
     error,
-    hasUsedTicket,
     fetchMyReview,
     fetchPublicReviews,
     submitReview,
