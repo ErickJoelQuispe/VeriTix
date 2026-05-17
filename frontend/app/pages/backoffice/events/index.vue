@@ -62,10 +62,8 @@ const filters = reactive({
   artistName: '',
 })
 
-const quickWindowOptions = QUICK_WINDOW_OPTIONS
-
 const quickWindowItems = computed(() => {
-  return quickWindowOptions.map(option => ({
+  return QUICK_WINDOW_OPTIONS.map(option => ({
     value: option.value,
     label: option.label,
   }))
@@ -79,10 +77,6 @@ function setQuickWindow(value: string) {
 
 const priorityIssueCount = computed(() => {
   return requiresAttention.value.reduce((total, event) => total + event.issues.length, 0)
-})
-
-const catalogModeItems = computed(() => {
-  return CATALOG_MODE_ITEMS
 })
 
 const catalogSummary = computed(() => {
@@ -309,7 +303,7 @@ onMounted(() => {
               <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex flex-wrap items-center gap-1.5 rounded-2xl border border-default/70 bg-elevated/80 p-1">
                   <BaseButton
-                    v-for="item in catalogModeItems"
+                    v-for="item in CATALOG_MODE_ITEMS"
                     :key="item.value"
                     variant="outlined"
                     size="md"
