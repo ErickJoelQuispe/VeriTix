@@ -4,7 +4,6 @@ import type {
   BackofficeUpdateUserPayload,
 } from '~~/shared/types'
 import { useBackofficeUsersRepository } from '@/repositories/backofficeUsersRepository'
-import { normalizeCreateUserPayload } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo usuario | Backoffice VeriTix' })
@@ -90,7 +89,7 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
       return
     }
 
-    await createBackofficeUser(normalizeCreateUserPayload(payload))
+    await createBackofficeUser(payload)
 
     notifySuccess('Usuario creado correctamente.', { id: 'admin-users-create-success' })
     await navigateTo('/backoffice/users')

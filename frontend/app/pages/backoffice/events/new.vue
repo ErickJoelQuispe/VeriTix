@@ -6,7 +6,6 @@ import type {
   VenueOption,
 } from '~~/shared/types'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
-import { normalizeEventPayload } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo evento | Backoffice VeriTix' })
@@ -49,12 +48,10 @@ async function createEvent(payload: BackofficeEventPayload) {
     return
   }
 
-  const normalizedPayload = normalizeEventPayload(payload)
-
   submitting.value = true
 
   try {
-    await createBackofficeEvent(normalizedPayload)
+    await createBackofficeEvent(payload)
 
     notifySuccess('Evento creado correctamente.', { id: 'admin-events-create-success' })
     await navigateTo('/backoffice/events')

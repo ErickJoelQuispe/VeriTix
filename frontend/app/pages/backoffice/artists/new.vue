@@ -4,7 +4,6 @@ import type {
   GenreOption,
 } from '~~/shared/types'
 import { useBackofficeArtistsRepository } from '@/repositories/backofficeArtistsRepository'
-import { normalizeArtistPayload } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo artista | Backoffice VeriTix' })
@@ -42,12 +41,10 @@ async function createArtist(payload: BackofficeArtistPayload) {
     return
   }
 
-  const normalizedPayload = normalizeArtistPayload(payload)
-
   submitting.value = true
 
   try {
-    await createBackofficeArtist(normalizedPayload)
+    await createBackofficeArtist(payload)
 
     notifySuccess('Artista creado correctamente.', { id: 'admin-artists-create-success' })
     await navigateTo('/backoffice/artists')
