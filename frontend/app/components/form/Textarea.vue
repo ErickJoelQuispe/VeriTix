@@ -26,8 +26,16 @@ const attrs = useAttrs()
 const formContext = useFormContext()
 
 const forwardedAttrs = computed(() => {
-  const { class: _class, ...rest } = attrs
+  const { class: _class, id: _id, ...rest } = attrs
   return rest
+})
+
+const textareaId = computed(() => {
+  if (typeof attrs.id === 'string') {
+    return attrs.id
+  }
+
+  return props.name ? `form-textarea-${props.name}` : undefined
 })
 
 const errorMessage = computed(() => {
@@ -74,12 +82,13 @@ watch(modelValue, () => {
 
 <template>
   <div v-if="props.label" class="space-y-2">
-    <UiMetaLabel as="span">
+    <UiMetaLabel as="label" :for="textareaId">
       {{ props.label }}
       <span v-if="props.required" class="text-warning" aria-hidden="true">*</span>
     </UiMetaLabel>
 
     <textarea
+      :id="textareaId"
       v-model="modelValue"
       v-bind="forwardedAttrs"
       :name="props.name || undefined"
@@ -100,6 +109,7 @@ watch(modelValue, () => {
 
   <textarea
     v-else
+    :id="textareaId"
     v-model="modelValue"
     v-bind="forwardedAttrs"
     :name="props.name || undefined"
