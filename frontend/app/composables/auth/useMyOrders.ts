@@ -1,10 +1,11 @@
+import type { CreateOrderRequest } from '~~/shared/api/orders'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { UserOrder, UserOrderDetail } from '~~/shared/types'
 import { normalizeApiError } from '@/utils/apiError'
 import { useOrdersRepository } from '@/repositories/ordersRepository'
 
 export function useMyOrders() {
-  const { listMyOrders, getOrder, cancelOrder } = useOrdersRepository()
+  const { listMyOrders, getOrder, cancelOrder, createOrder: repoCreateOrder } = useOrdersRepository()
   const { getApiErrorMessage, getApiErrorStatus, isApiSessionExpiredError } = useApiErrorMessage()
 
   const orders = ref<UserOrder[]>([])
@@ -50,6 +51,21 @@ export function useMyOrders() {
     return cancelOrder(id)
   }
 
+  async function createOrder(
+    payload: CreateOrderRequest,
+  ): Promise<UserOrderDetail & { checkoutUrl: string }> {
+    try {
+      return await repoCreateOrder(payload)
+    }
+    catch (err) {
+      normalizeApiError(err, 'No pudimos crear la orden.', {
+        getApiErrorStatus,
+        getApiErrorMessage,
+        isApiSessionExpiredError,
+      })
+    }
+  }
+
   return {
     orders,
     total,
@@ -58,5 +74,6 @@ export function useMyOrders() {
     fetchMyOrders,
     fetchOrderDetail,
     cancelMyOrder,
+    createOrder,
   }
 }
