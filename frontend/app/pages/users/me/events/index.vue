@@ -31,7 +31,7 @@ onMounted(() => {
 })
 
 async function setUpcoming(value: boolean) {
-  if (value === upcoming.value) return
+  if (value === upcoming.value) { return }
   upcoming.value = value
   page.value = 1
   await loadEvents()
@@ -51,11 +51,10 @@ async function handleToggleFavorite(eventId: string) {
   }
 }
 
-const totalPages = computed(() => Math.ceil(total.value / LIMIT))
 const showPagination = computed(() => total.value > LIMIT && !error.value)
 
 async function handlePageChange(next: number) {
-  if (next === page.value) return
+  if (next === page.value) { return }
   page.value = next
   await loadEvents()
 }

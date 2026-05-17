@@ -7,18 +7,20 @@ import MyEventsPage from '@/pages/users/me/events/index.vue'
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
-const makeEventItem = (id: string) => ({
-  event: {
-    id,
-    name: `Event ${id}`,
-    eventDate: '2026-09-01T20:00:00Z',
-    imageUrl: null,
-    venue: { id: 'venue-1', name: 'Movistar Arena', city: 'Buenos Aires' },
-    format: null,
-  },
-  ticketCount: 2,
-  dominantStatus: 'ACTIVE' as const,
-})
+function makeEventItem(id: string) {
+  return {
+    event: {
+      id,
+      name: `Event ${id}`,
+      eventDate: '2026-09-01T20:00:00Z',
+      imageUrl: null,
+      venue: { id: 'venue-1', name: 'Movistar Arena', city: 'Buenos Aires' },
+      format: null,
+    },
+    ticketCount: 2,
+    dominantStatus: 'ACTIVE' as const,
+  }
+}
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -80,7 +82,7 @@ beforeEach(() => {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('MyEventsPage — /users/me/events', () => {
+describe('myEventsPage — /users/me/events', () => {
   it('renders skeleton while loading', async () => {
     mockEventsState({ isLoading: true })
 

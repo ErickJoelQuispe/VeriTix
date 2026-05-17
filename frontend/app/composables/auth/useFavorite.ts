@@ -33,7 +33,7 @@ export function useFavorite(eventId: string) {
    * 3. On error: revert to prior state and surface the error via toast
    */
   async function toggle(): Promise<void> {
-    if (isLoading.value) return
+    if (isLoading.value) { return }
 
     const previous = isFavorited.value
     isFavorited.value = !previous

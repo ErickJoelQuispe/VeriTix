@@ -5,8 +5,8 @@ export interface TicketListApiItem {
   hash: string
   status: TicketStatusApi
   purchaseDate: string
-  ticketType: { name: string; price: number }
-  event: { id: string; name: string; eventDate: string }
+  ticketType: { name: string, price: number }
+  event: { id: string, name: string, eventDate: string }
   orderItem: { id: string }
 }
 
@@ -14,6 +14,6 @@ export interface TicketDetailApiItem extends TicketListApiItem {
   qrPayload: string
   validatedAt: string | null
   createdAt: string
-  order: { id: string; totalAmount: number }
-  validatedBy: { name: string; lastName: string } | null
+  order: { id: string, totalAmount: number }
+  validatedBy: { name: string, lastName: string } | null
 }

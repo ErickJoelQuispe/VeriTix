@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserTicket, TicketStatus } from '~~/shared/types'
+import type { TicketStatus, UserTicket } from '~~/shared/types'
 
 defineProps<{
   tickets: UserTicket[]
@@ -10,7 +10,7 @@ const emit = defineEmits<{
   'open-ticket': [ticket: UserTicket]
 }>()
 
-const statusBadgeColor = (status: TicketStatus): 'success' | 'neutral' | 'error' | 'warning' => {
+function statusBadgeColor(status: TicketStatus): 'success' | 'neutral' | 'error' | 'warning' {
   const map: Record<TicketStatus, 'success' | 'neutral' | 'error' | 'warning'> = {
     ACTIVE: 'success',
     USED: 'neutral',
@@ -20,7 +20,7 @@ const statusBadgeColor = (status: TicketStatus): 'success' | 'neutral' | 'error'
   return map[status]
 }
 
-const statusBadgeLabel = (status: TicketStatus): string => {
+function statusBadgeLabel(status: TicketStatus): string {
   const map: Record<TicketStatus, string> = {
     ACTIVE: 'Activo',
     USED: 'Usado',
@@ -32,8 +32,9 @@ const statusBadgeLabel = (status: TicketStatus): string => {
 
 const truncatedHash = (hash: string) => hash.slice(0, 8)
 
-const formattedPrice = (price: number) =>
-  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(price)
+function formattedPrice(price: number) {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(price)
+}
 </script>
 
 <template>

@@ -52,7 +52,7 @@ beforeEach(() => {
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
-describe('ReviewForm', () => {
+describe('reviewForm', () => {
   it('shows lock message and hides form when hasUsedTicket is false', async () => {
     const wrapper = await mountSuspended(ReviewForm, {
       props: {

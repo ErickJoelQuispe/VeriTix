@@ -6,7 +6,7 @@ import StarRating from '@/components/ui/StarRating.vue'
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
 
-describe('StarRating', () => {
+describe('starRating', () => {
   it('renders 3 filled and 2 empty stars when modelValue is 3', async () => {
     const wrapper = await mountSuspended(StarRating, {
       props: {

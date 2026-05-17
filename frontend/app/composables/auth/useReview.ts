@@ -1,8 +1,8 @@
-import { z } from 'zod'
 import type { PaginationMeta } from '~~/shared/api/types'
 import type { Review } from '~~/shared/types'
-import { normalizeApiError } from '@/utils/apiError'
+import { z } from 'zod'
 import { useReviewsRepository } from '@/repositories/reviewsRepository'
+import { normalizeApiError } from '@/utils/apiError'
 
 // ── Validation schema ─────────────────────────────────────────────────────────
 
@@ -36,7 +36,7 @@ export function useReview(eventId: string) {
    * by userId client-side. For large review counts a higher limit is used.
    */
   async function fetchMyReview(): Promise<void> {
-    if (!user.value?.id) return
+    if (!user.value?.id) { return }
 
     isLoading.value = true
     error.value = null
@@ -117,7 +117,7 @@ export function useReview(eventId: string) {
    * Deletes the current user's review.
    */
   async function removeReview(): Promise<void> {
-    if (!myReview.value) return
+    if (!myReview.value) { return }
 
     isLoading.value = true
     error.value = null

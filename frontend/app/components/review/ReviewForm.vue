@@ -80,7 +80,7 @@ async function handleSubmit() {
 
 async function handleDelete() {
   const confirmed = confirm('¿Eliminar tu reseña?')
-  if (!confirmed) return
+  if (!confirmed) { return }
 
   isDeleting.value = true
   submitError.value = null

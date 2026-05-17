@@ -1,5 +1,4 @@
-import { createError, getRouterParam, send, setResponseHeader } from 'h3'
-import { getHeader } from 'h3'
+import { createError, getHeader, getRouterParam, send, setResponseHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -13,8 +12,8 @@ export default defineEventHandler(async (event) => {
   const headers = new Headers()
   const authHeader = getHeader(event, 'authorization')
   const cookieHeader = getHeader(event, 'cookie')
-  if (authHeader) headers.set('authorization', authHeader)
-  if (cookieHeader) headers.set('cookie', cookieHeader)
+  if (authHeader) { headers.set('authorization', authHeader) }
+  if (cookieHeader) { headers.set('cookie', cookieHeader) }
 
   const response = await $fetch.raw<ArrayBuffer>(`/tickets/${id}/pdf`, {
     baseURL: config.backendApiBase,

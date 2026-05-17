@@ -1,7 +1,7 @@
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { MyEventItem } from '~~/shared/types'
-import { normalizeApiError } from '@/utils/apiError'
 import { useMyEventsRepository } from '@/repositories/myEventsRepository'
+import { normalizeApiError } from '@/utils/apiError'
 
 export function useMyEvents() {
   const { listMyEvents } = useMyEventsRepository()
@@ -21,6 +21,27 @@ export function useMyEvents() {
     error.value = null
 
     try {
+      if (params.upcoming === undefined) {
+        const [upcomingResponse, pastResponse] = await Promise.all([
+          listMyEvents({ upcoming: true, page: params.page, limit: params.limit }),
+          listMyEvents({ upcoming: false, page: params.page, limit: params.limit }),
+        ])
+
+        const combined = [...upcomingResponse.data, ...pastResponse.data]
+        const uniqueEvents = Array.from(new Map(combined.map(item => [item.event.id, item])).values())
+
+        events.value = uniqueEvents
+        total.value = upcomingResponse.meta.total + pastResponse.meta.total
+
+        return {
+          data: uniqueEvents,
+          meta: {
+            ...upcomingResponse.meta,
+            total: total.value,
+          },
+        }
+      }
+
       const response = await listMyEvents(params)
       events.value = response.data
       total.value = response.meta.total

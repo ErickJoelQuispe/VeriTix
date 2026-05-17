@@ -25,6 +25,6 @@ export interface UserTicketDetail extends UserTicket {
   qrPayload: string
   validatedAt: string | null
   createdAt: string
-  order: { id: string; totalAmount: number }
-  validatedBy: { name: string; lastName: string } | null
+  order: { id: string, totalAmount: number }
+  validatedBy: { name: string, lastName: string } | null
 }

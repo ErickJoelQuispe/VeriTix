@@ -19,24 +19,28 @@ const UModalStub = defineComponent({
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
-const makeTicket = (status: 'ACTIVE' | 'USED' | 'CANCELLED' | 'REFUNDED' = 'ACTIVE') => ({
-  id: 'ticket-1',
-  hash: 'abcdef1234567890',
-  status,
-  purchaseDate: '2026-04-01T10:00:00Z',
-  ticketType: { name: 'Pista General', price: 75 },
-  event: { id: 'event-1', name: 'Rock Fest', eventDate: '2026-09-01T20:00:00Z' },
-  orderItem: { id: 'order-item-1' },
-})
+function makeTicket(status: 'ACTIVE' | 'USED' | 'CANCELLED' | 'REFUNDED' = 'ACTIVE') {
+  return {
+    id: 'ticket-1',
+    hash: 'abcdef1234567890',
+    status,
+    purchaseDate: '2026-04-01T10:00:00Z',
+    ticketType: { name: 'Pista General', price: 75 },
+    event: { id: 'event-1', name: 'Rock Fest', eventDate: '2026-09-01T20:00:00Z' },
+    orderItem: { id: 'order-item-1' },
+  }
+}
 
-const makeTicketDetail = (status: 'ACTIVE' | 'USED' = 'ACTIVE') => ({
-  ...makeTicket(status),
-  qrPayload: 'qr-payload-hash',
-  validatedAt: status === 'USED' ? '2026-09-01T21:35:00Z' : null,
-  createdAt: '2026-04-01T10:00:00Z',
-  order: { id: 'order-1', totalAmount: 150 },
-  validatedBy: status === 'USED' ? { name: 'Carlos', lastName: 'Martínez' } : null,
-})
+function makeTicketDetail(status: 'ACTIVE' | 'USED' = 'ACTIVE') {
+  return {
+    ...makeTicket(status),
+    qrPayload: 'qr-payload-hash',
+    validatedAt: status === 'USED' ? '2026-09-01T21:35:00Z' : null,
+    createdAt: '2026-04-01T10:00:00Z',
+    order: { id: 'order-1', totalAmount: 150 },
+    validatedBy: status === 'USED' ? { name: 'Carlos', lastName: 'Martínez' } : null,
+  }
+}
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -73,7 +77,7 @@ beforeEach(() => {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('TicketModal', () => {
+describe('ticketModal', () => {
   it('does not render QR when modal is closed', async () => {
     const wrapper = await mountSuspended(TicketModal, {
       props: {
