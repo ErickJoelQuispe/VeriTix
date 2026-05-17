@@ -40,7 +40,7 @@ const formattedTotal = computed(() => {
       <div class="mx-auto max-w-lg space-y-8 text-center">
         <div class="space-y-4">
           <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-success/15">
-            <BaseIcon name="i-lucide-check-circle" class="size-8 text-success" />
+            <BaseIcon name="i-lucide-circle-check" class="size-8 text-success" />
           </div>
 
           <div class="space-y-2">
@@ -90,12 +90,12 @@ const formattedTotal = computed(() => {
         </div>
 
         <BaseButton
-          to="/users/me/tickets"
+          to="/users/me/events"
           variant="primary"
           size="lg"
           class="w-full"
         >
-          Ver mis entradas
+          Ver mis eventos
         </BaseButton>
       </div>
     </BaseContainer>
