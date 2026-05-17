@@ -1,4 +1,4 @@
-import type { OrderDetailApiItem, OrderListApiItem } from '~~/shared/api/orders'
+import type { CreateOrderRequest, CreateOrderResponse, OrderDetailApiItem, OrderListApiItem } from '~~/shared/api/orders'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { UserOrder, UserOrderDetail } from '~~/shared/types'
 import { compactQuery } from '~~/shared/query'
@@ -54,10 +54,25 @@ export function useOrdersRepository() {
     await apiRequest<void>(`/orders/${id}/cancel`, { method: 'PATCH' })
   }
 
+  async function createOrder(
+    payload: CreateOrderRequest,
+  ): Promise<UserOrderDetail & { checkoutUrl: string }> {
+    const response = await apiRequest<CreateOrderResponse>('/orders', {
+      method: 'POST',
+      body: payload,
+    })
+
+    return {
+      ...mapOrderDetail(response),
+      checkoutUrl: response.checkoutUrl,
+    }
+  }
+
   return {
     listMyOrders,
     getOrder,
     getOrderDetail,
     cancelOrder,
+    createOrder,
   }
 }
