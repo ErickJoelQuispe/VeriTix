@@ -25,10 +25,11 @@ defineProps<{
 
     <!-- Order accordions -->
     <template v-else>
-      <OrderAccordion
+      <UiOrderAccordion
         v-for="order in orders"
         :key="order.id"
         :order="order"
+        :force-open="orders.length === 1"
       />
     </template>
   </div>
