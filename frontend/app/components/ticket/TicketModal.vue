@@ -113,89 +113,132 @@ function handleTransferSuccess() {
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" :title="ticket?.ticketType.name ?? 'Entrada'">
-    <template #body>
-      <div class="flex flex-col items-center gap-5 py-2">
-        <!-- QR Code (client-only — not SSR safe) -->
-        <ClientOnly>
-          <div class="flex items-center justify-center">
-            <img
-              v-if="qrDataUrl"
-              :src="qrDataUrl"
-              alt="QR de la entrada"
-              class="size-[200px] rounded-xl"
-              width="200"
-              height="200"
-            />
-            <BaseSkeleton v-else class="size-[200px] rounded-xl" />
-          </div>
+  <!-- Overlay backdrop -->
+  <Teleport to="body">
+    <Transition name="vtx-modal">
+      <div
+        v-if="isOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        @click.self="isOpen = false"
+      >
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-default/80 backdrop-blur-sm" @click="isOpen = false" />
 
-          <template #fallback>
-            <BaseSkeleton class="size-[200px] rounded-xl" />
-          </template>
-        </ClientOnly>
-
-        <!-- Status and ticket type -->
-        <div class="flex items-center gap-3">
-          <BaseBadge kind="status" size="sm" :color="statusBadgeColor">
-            {{ statusBadgeLabel }}
-          </BaseBadge>
-          <span class="text-sm font-semibold text-highlighted">
-            {{ ticket?.ticketType.name }}
-          </span>
-        </div>
-
-        <!-- Hash -->
-        <p class="font-mono text-sm text-muted">
-          Hash: {{ truncatedHash }}
-        </p>
-
-        <!-- Validated info (USED only) -->
-        <div
-          v-if="ticket?.status === 'USED' && detail"
-          class="w-full rounded-xl border border-default/65 bg-elevated/45 px-4 py-3 text-sm"
+        <!-- Panel -->
+        <UiPanel
+          variant="glass"
+          padding="xl"
+          radius="xl"
+          class="relative z-10 w-full max-w-sm"
         >
-          <p class="text-toned">
-            Validado: <span class="font-medium text-highlighted">{{ formattedValidatedAt ?? '—' }}</span>
-          </p>
-          <p v-if="detail.validatedBy" class="mt-1 text-toned">
-            Por: <span class="font-medium text-highlighted">{{ detail.validatedBy.name }} {{ detail.validatedBy.lastName }}</span>
-          </p>
-        </div>
-
-        <!-- Transfer form (ACTIVE only) -->
-        <template v-if="ticket?.status === 'ACTIVE'">
-          <div v-if="showTransferForm" class="w-full">
-            <TicketTransferForm
-              :ticket-id="ticket.id"
-              @success="handleTransferSuccess"
-              @cancel="showTransferForm = false"
-            />
-          </div>
-
-          <div v-else class="flex w-full items-center gap-3">
+          <!-- Header -->
+          <div class="mb-5 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-highlighted">
+              {{ ticket?.ticketType.name ?? 'Entrada' }}
+            </h2>
             <BaseButton
               variant="outlined"
-              size="sm"
-              leading-icon="i-lucide-download"
-              class="flex-1"
-              @click="handleDownloadPdf"
+              size="xs"
+              leading-icon="i-lucide-x"
+              @click="isOpen = false"
             >
-              Descargar PDF
-            </BaseButton>
-
-            <BaseButton
-              variant="secondary"
-              size="sm"
-              leading-icon="i-lucide-send"
-              class="flex-1"
-              @click="showTransferForm = true"
-            >
-              Transferir
+              <span class="sr-only">Cerrar</span>
             </BaseButton>
           </div>
-        </template>
+
+          <div class="flex flex-col items-center gap-5">
+            <!-- QR Code (client-only — not SSR safe) -->
+            <ClientOnly>
+              <div class="flex items-center justify-center">
+                <img
+                  v-if="qrDataUrl"
+                  :src="qrDataUrl"
+                  alt="QR de la entrada"
+                  class="size-[200px] rounded-xl"
+                  width="200"
+                  height="200"
+                />
+                <BaseSkeleton v-else class="size-[200px] rounded-xl" />
+              </div>
+              <template #fallback>
+                <BaseSkeleton class="size-[200px] rounded-xl" />
+              </template>
+            </ClientOnly>
+
+            <!-- Status and ticket type -->
+            <div class="flex items-center gap-3">
+              <BaseBadge kind="status" size="sm" :color="statusBadgeColor">
+                {{ statusBadgeLabel }}
+              </BaseBadge>
+              <span class="text-sm font-semibold text-highlighted">
+                {{ ticket?.ticketType.name }}
+              </span>
+            </div>
+
+            <!-- Hash -->
+            <p class="font-mono text-sm text-muted">
+              Hash: {{ truncatedHash }}
+            </p>
+
+            <!-- Validated info (USED only) -->
+            <div
+              v-if="ticket?.status === 'USED' && detail"
+              class="w-full rounded-xl border border-default/65 bg-elevated/45 px-4 py-3 text-sm"
+            >
+              <p class="text-toned">
+                Validado: <span class="font-medium text-highlighted">{{ formattedValidatedAt ?? '—' }}</span>
+              </p>
+              <p v-if="detail.validatedBy" class="mt-1 text-toned">
+                Por: <span class="font-medium text-highlighted">{{ detail.validatedBy.name }} {{ detail.validatedBy.lastName }}</span>
+              </p>
+            </div>
+
+            <!-- Transfer form (ACTIVE only) -->
+            <template v-if="ticket?.status === 'ACTIVE'">
+              <div v-if="showTransferForm" class="w-full">
+                <TicketTransferForm
+                  :ticket-id="ticket.id"
+                  @success="handleTransferSuccess"
+                  @cancel="showTransferForm = false"
+                />
+              </div>
+
+              <div v-else class="flex w-full items-center gap-3">
+                <BaseButton
+                  variant="outlined"
+                  size="sm"
+                  leading-icon="i-lucide-download"
+                  class="flex-1"
+                  @click="handleDownloadPdf"
+                >
+                  Descargar PDF
+                </BaseButton>
+
+                <BaseButton
+                  variant="secondary"
+                  size="sm"
+                  leading-icon="i-lucide-send"
+                  class="flex-1"
+                  @click="showTransferForm = true"
+                >
+                  Transferir
+                </BaseButton>
+              </div>
+            </template>
+          </div>
+        </UiPanel>
       </div>
-    </template>
-  </UModal>
+    </Transition>
+  </Teleport>
 </template>
+
+<style scoped>
+.vtx-modal-enter-active,
+.vtx-modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+.vtx-modal-enter-from,
+.vtx-modal-leave-to {
+  opacity: 0;
+}
+</style>
