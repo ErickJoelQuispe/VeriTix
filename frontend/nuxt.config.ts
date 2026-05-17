@@ -19,6 +19,7 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/fonts', '@nuxt/test-utils/module'],
 
+
   imports: {
     dirs: ['~/composables', '~/composables/**'],
   },
@@ -36,6 +37,7 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
     optimizeDeps: {
       include: ['@vue/devtools-core', '@vue/devtools-kit', 'zod'],
+      exclude: ['@zxing/browser'],
     },
     server: {
       allowedHosts: ['cwtg.xyz', 'localhost'],

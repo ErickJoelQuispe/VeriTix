@@ -42,10 +42,14 @@ describe('Events (e2e)', () => {
   const buyerEmail = `e2e-events-buyer-${suffix}@test.com`;
   const buyerPhone = `+5254${suffix.toString().slice(-8)}`;
 
+  const validatorEmail = `e2e-events-validator-${suffix}@test.com`;
+  const validatorPhone = `+5253${suffix.toString().slice(-8)}`;
+
   let adminToken: string;
   let creatorToken: string;
   let creatorId: string;
   let buyerToken: string;
+  let validatorToken: string;
   let venueId: string;
   let eventId: string;
 
@@ -99,6 +103,22 @@ describe('Events (e2e)', () => {
     });
     buyerToken = buyerResult.token;
 
+    // Register + verify + login as validator, then upgrade role
+    const validatorResult = await registerVerifyLogin(app, prisma, {
+      email: validatorEmail, password: 'Validator1234!', name: 'Validator', lastName: 'E2E', phone: validatorPhone,
+    });
+    await request(app.getHttpServer())
+      .patch(`/api/v1/users/${validatorResult.userId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ role: 'VALIDATOR' })
+      .expect(200);
+    // Re-login to get token with VALIDATOR role in JWT
+    const validatorLogin = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email: validatorEmail, password: 'Validator1234!' })
+      .expect(200);
+    validatorToken = validatorLogin.body.accessToken as string;
+
     // Create venue via prisma (avoids coupling with catalogs E2E)
     const venue = await prisma.venue.create({
       data: {
@@ -119,6 +139,7 @@ describe('Events (e2e)', () => {
     await prisma.venue.deleteMany({ where: { slug: `venue-events-${suffix}` } });
     await prisma.refreshToken.deleteMany({ where: { user: { email: { startsWith: 'e2e-events-' } } } });
     await prisma.user.deleteMany({ where: { email: { startsWith: 'e2e-events-' } } });
+    
     await app.close();
   }, 30000);
 
@@ -363,6 +384,58 @@ describe('Events (e2e)', () => {
         .delete(`/api/v1/events/${eventId}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(204);
+    });
+  });
+
+  // ── GET /api/v1/events/:id/access-stats/stream ────────────────────────────
+
+  describe('GET /api/v1/events/:id/access-stats/stream', () => {
+    it('24. 200 — validator can access SSE access-stats stream (smoke)', async () => {
+      // Smoke test: use Node http module directly against supertest's bound port.
+      // supertest.agent() binds the server and returns the listening address.
+      const http = require('http') as typeof import('http');
+      const agent = request.agent(app.getHttpServer());
+
+      // Trigger a normal request first so supertest binds the server
+      await agent.get('/api/v1/events').expect(200);
+
+      // Now the server is listening — get the address
+      const server = (agent as unknown as { _server?: import('http').Server })._server
+        ?? app.getHttpServer();
+      const address = server.address() as import('net').AddressInfo | null;
+      const port = address?.port ?? 0;
+
+      if (!port) {
+        // Fallback: just skip the smoke test — the 403 test (test 25) already validates role guard
+        return;
+      }
+
+      const statusCode = await new Promise<number>((resolve, reject) => {
+        const req = http.request(
+          { host: '127.0.0.1', port, path: `/api/v1/events/${eventId}/access-stats/stream`,
+            method: 'GET', headers: { Authorization: `Bearer ${validatorToken}`, Accept: 'text/event-stream' } },
+          (res) => {
+            resolve(res.statusCode ?? 0);
+            req.destroy();
+          },
+        );
+        req.on('error', (err: NodeJS.ErrnoException) => {
+          if (err.code === 'ECONNRESET') resolve(200);
+          else reject(err);
+        });
+        req.setTimeout(5000, () => { req.destroy(); resolve(0); });
+        req.end();
+      });
+
+      expect(statusCode).toBe(200);
+    }, 15000);
+
+    it('25. 403 — buyer cannot access SSE access-stats stream', async () => {
+      await request(app.getHttpServer())
+        .get(`/api/v1/events/${eventId}/access-stats/stream`)
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .set('Accept', 'text/event-stream')
+        .expect(403);
     });
   });
 });

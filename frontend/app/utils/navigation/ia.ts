@@ -33,3 +33,8 @@ export const BACKOFFICE_NAV_ITEMS: BackofficeNavItem[] = [
   { label: 'Artistas', to: '/backoffice/artists', icon: 'i-lucide-mic-2' },
   { label: 'Venues', to: '/backoffice/venues', icon: 'i-lucide-building-2' },
 ]
+
+export const VALIDATOR_NAV_ITEMS: AccountNavItem[] = [
+  { label: 'Panel Validador', to: '/validator', icon: 'i-lucide-scan-qr-code' },
+  { label: 'Escanear QR', to: '/validator/scan', icon: 'i-lucide-camera' },
+]
