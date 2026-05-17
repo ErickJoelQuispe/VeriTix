@@ -128,15 +128,13 @@ async function handleDelete() {
     </div>
 
     <div class="space-y-2">
-      <label class="block text-sm font-medium text-toned" for="review-comment">
-        Comentario
-      </label>
-      <textarea
-        id="review-comment"
+      <FormTextarea
         v-model="formState.comment"
-        class="w-full resize-none rounded-xl border border-default/65 bg-transparent px-4 py-3 text-sm text-highlighted placeholder:text-muted/60 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
+        name="comment"
+        label="Comentario"
         placeholder="Contá cómo fue..."
         :rows="4"
+        size="md"
         maxlength="1000"
       />
       <p class="text-right text-xs text-muted">

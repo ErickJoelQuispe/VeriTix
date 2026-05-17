@@ -46,6 +46,7 @@ export function useFavorite(eventId: string) {
     catch (err) {
       isFavorited.value = previous
       error.value = getApiErrorMessage(err, 'No pudimos actualizar el favorito.')
+      throw err
     }
     finally {
       isLoading.value = false

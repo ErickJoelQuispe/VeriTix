@@ -88,8 +88,8 @@ async function onSubmit() {
           </div>
         </FormRoot>
 
-        <div v-else class="rounded-2xl border px-5 py-6 text-center text-sm sm:px-6" style="border-color: color-mix(in srgb, var(--color-auric-400) 22%, transparent); background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);">
-          <BaseIcon name="i-lucide-mail-check" class="mx-auto mb-3 size-8 text-auric-400" />
+        <div v-else class="rounded-2xl border border-warning/25 bg-warning/8 px-5 py-6 text-center text-sm shadow-sm sm:px-6">
+          <BaseIcon name="i-lucide-mail-check" class="mx-auto mb-3 size-8 text-warning" />
           <p class="leading-relaxed text-toned">
             {{ successMessage || 'Revisá tu correo para verificar la cuenta antes de iniciar sesión.' }}
           </p>
