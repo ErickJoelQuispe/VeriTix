@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import type { TicketType } from '~~/shared/types/domain'
 import { formatEventDate } from '@/utils/date-formatters'
+import { useTicketTypesRepository } from '@/repositories/ticketTypesRepository'
 
 const route = useRoute()
 const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
+const { isAuthenticated } = useAuth()
+const { add: addToast } = useToastQueue()
 
 const roleLabels: Record<string, string> = {
   HEADLINER: 'Cabeza de cartel',
@@ -14,6 +18,64 @@ const eventId = computed(() => (typeof route.params.id === 'string' ? route.para
 
 const { data: event, status, error } = await usePublicEvent(eventId)
 const { data: lineup, status: lineupStatus, error: lineupError } = await usePublicEventArtists(eventId)
+
+// ── Ticket Types ──────────────────────────────────────────────────────────────
+const ticketTypes = ref<TicketType[]>([])
+const loadingTicketTypes = ref(false)
+
+onMounted(async () => {
+  if (!eventId.value) return
+  loadingTicketTypes.value = true
+  try {
+    ticketTypes.value = await useTicketTypesRepository().getByEvent(eventId.value)
+  }
+  catch {
+    // Silent — no ticket types available
+  }
+  finally {
+    loadingTicketTypes.value = false
+  }
+})
+
+// ── Selection & Purchase ──────────────────────────────────────────────────────
+const selection = ref<Array<{ ticketTypeId: string; quantity: number; unitPrice: number }>>([])
+const buyLoading = ref(false)
+
+const canBuy = computed(() => selection.value.some(item => item.quantity > 0))
+
+function handleSelectionUpdate(items: Array<{ ticketTypeId: string; quantity: number; unitPrice: number }>) {
+  selection.value = items
+}
+
+async function handleBuy() {
+  if (!canBuy.value || buyLoading.value) return
+
+  if (!isAuthenticated.value) {
+    await navigateTo(`/login?redirect=/events/${eventId.value}`)
+    return
+  }
+
+  buyLoading.value = true
+  try {
+    const { createOrder } = useMyOrders()
+    const order = await createOrder({
+      eventId: eventId.value,
+      items: selection.value.map(item => ({
+        ticketTypeId: item.ticketTypeId,
+        quantity: item.quantity,
+      })),
+    })
+    await navigateTo(order.checkoutUrl, { external: true })
+  }
+  catch (err: unknown) {
+    const { getApiErrorMessage: getMsg } = useApiErrorMessage()
+    const message = getMsg(err, 'No pudimos procesar tu compra. Intentá de nuevo.')
+    addToast({ title: 'Error al comprar', description: message, color: 'error' })
+  }
+  finally {
+    buyLoading.value = false
+  }
+}
 
 useSeoMeta({
   title: () => (event.value ? `${event.value.name} | VeriTix` : 'Evento | VeriTix'),
@@ -217,6 +279,33 @@ function formatPerformanceTime(value: string | Date | null): string {
               <p v-else class="text-sm leading-relaxed text-toned">
                 No hay descripción pública para este evento todavía.
               </p>
+            </div>
+
+            <!-- Ticket Types & Purchase -->
+            <div class="space-y-4 border-t border-default/55 pt-7">
+              <div class="space-y-2">
+                <UiMetaLabel>Entradas</UiMetaLabel>
+                <p class="text-sm leading-relaxed text-toned">
+                  Seleccioná el tipo de entrada y la cantidad.
+                </p>
+              </div>
+
+              <CheckoutTicketTypeSelector
+                :ticket-types="ticketTypes"
+                :loading="loadingTicketTypes"
+                @update:selection="handleSelectionUpdate"
+              />
+
+              <BaseButton
+                variant="primary"
+                size="lg"
+                class="w-full"
+                :disabled="!canBuy || loadingTicketTypes || buyLoading"
+                :loading="buyLoading"
+                @click="handleBuy"
+              >
+                Comprar
+              </BaseButton>
             </div>
 
             <div class="space-y-4 border-t border-default/55 pt-7">
