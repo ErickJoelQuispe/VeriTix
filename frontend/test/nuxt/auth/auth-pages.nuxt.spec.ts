@@ -63,22 +63,24 @@ defaultAuthMock = {
   forgotPassword: vi.fn(),
   register: vi.fn(),
   verifyEmail: vi.fn(),
+  refreshStatus: ref('idle'),
   sessionStatus: ref('unknown'),
   user: ref(null),
 }
 
 function mockGuestAuth() {
-  useAuthMock.mockReturnValue({
-    ensureSession: ensureSessionMock,
-    isAuthenticated: ref(false),
-    forgotPassword: forgotPasswordMock,
-    login: loginMock,
-    pending: ref(false),
-    register: registerMock,
-    verifyEmail: verifyEmailMock,
-    sessionStatus: ref('unknown'),
-    user: ref(null),
-  })
+    useAuthMock.mockReturnValue({
+      ensureSession: ensureSessionMock,
+      isAuthenticated: ref(false),
+      forgotPassword: forgotPasswordMock,
+      login: loginMock,
+      pending: ref(false),
+      refreshStatus: ref('idle'),
+      register: registerMock,
+      verifyEmail: verifyEmailMock,
+      sessionStatus: ref('unknown'),
+      user: ref(null),
+    })
 }
 
 beforeEach(() => {
