@@ -15,6 +15,20 @@ export const ORDER_LIST_SELECT = {
       id: true,
       name: true,
       eventDate: true,
+      imageUrl: true,
+      venue: {
+        select: {
+          id: true,
+          name: true,
+          city: true,
+        },
+      },
+      format: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   },
   payments: {
@@ -26,6 +40,7 @@ export const ORDER_LIST_SELECT = {
 
 export const ORDER_DETAIL_SELECT = {
   id: true,
+  buyerId: true,
   totalAmount: true,
   status: true,
   createdAt: true,
@@ -77,7 +92,14 @@ export type OrderListItem = {
   totalAmount: unknown; // Prisma Decimal — convertir con Number()
   status: OrderStatus;
   createdAt: Date;
-  event: { id: string; name: string; eventDate: Date };
+  event: {
+    id: string;
+    name: string;
+    eventDate: Date;
+    imageUrl: string | null;
+    venue: { id: string; name: string; city: string };
+    format: { id: string; name: string } | null;
+  };
   payments: { providerSessionId: string | null }[];
 };
 

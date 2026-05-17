@@ -10,8 +10,6 @@ const props = withDefaults(defineProps<{
   label?: string
   help?: string
   required?: boolean
-  color?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
-  variant?: 'outline' | 'soft' | 'subtle' | 'ghost' | 'none'
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   rows?: number
 }>(), {
@@ -19,8 +17,6 @@ const props = withDefaults(defineProps<{
   label: '',
   help: '',
   required: false,
-  color: 'neutral',
-  variant: 'subtle',
   size: 'lg',
   rows: 5,
 })
@@ -45,10 +41,6 @@ const errorMessage = computed(() => {
 const hasError = computed(() => Boolean(errorMessage.value))
 
 const stateClass = computed(() => {
-  if (props.variant === 'none') {
-    return ''
-  }
-
   if (hasError.value) {
     return 'border-error/70 ring-2 ring-error/20'
   }
@@ -65,18 +57,9 @@ const textareaClass = computed(() => {
     xl: 'px-5 py-3.5 text-base',
   }[props.size]
 
-  const variantClass = {
-    outline: 'border border-default/60 bg-default/20 shadow-sm',
-    soft: 'border border-default/55 bg-elevated/45 shadow-sm',
-    subtle: 'border border-default/55 bg-default/30 shadow-sm',
-    ghost: 'border border-transparent bg-transparent shadow-none',
-    none: 'border-0 bg-transparent px-0 shadow-none focus-visible:ring-0',
-  }[props.variant]
-
   return [
-    'w-full rounded-xl text-highlighted placeholder:text-toned/70 transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    'w-full rounded-xl border border-default/55 bg-default/30 text-highlighted placeholder:text-toned/70 shadow-sm transition-all duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     sizeClass,
-    variantClass,
     stateClass.value,
     attrs.class,
   ]

@@ -3,11 +3,10 @@ import type {
   BackofficeVenueListQuery,
   BackofficeVenueRecord,
 } from '~~/shared/types'
-import { compactQuery } from '../../shared/query'
+import { compactQuery } from '~~/shared/query'
 
 export function useBackofficeVenuesRepository() {
   const apiRequest = useApiRequest()
-  const { requireBackofficeHeaders } = useBackofficeApi()
 
   async function listVenues(
     query: BackofficeVenueListQuery,
@@ -16,7 +15,6 @@ export function useBackofficeVenuesRepository() {
       '/admin/venues',
       {
         method: 'GET',
-        headers: requireBackofficeHeaders(),
         query: compactQuery({
           page: query.pageValue,
           limit: query.pageSize,

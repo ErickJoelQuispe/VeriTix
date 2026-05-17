@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OrderStatus, PaymentStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { TICKET_EMAIL_QUEUE } from '../queues/constants/queue-names';
+import { FAVORITE_ALERT_QUEUE, TICKET_EMAIL_QUEUE } from '../queues/constants/queue-names';
 import { ReminderScheduler } from '../queues/reminder.scheduler';
 import { TicketsGenerator } from '../tickets/tickets.generator';
 import { StripeWebhookService } from './stripe-webhook.service';
@@ -54,6 +54,8 @@ const mockPrismaService = {
   },
   ticketType: {
     update: jest.fn(),
+    aggregate: jest.fn(),
+    findMany: jest.fn(),
   },
   ticket: {
     updateMany: jest.fn(),
@@ -78,6 +80,10 @@ const mockTicketEmailQueue = {
   add: jest.fn(),
 };
 
+const mockFavoriteAlertQueue = {
+  add: jest.fn(),
+};
+
 // ── Suite ─────────────────────────────────────────────────────────────────────
 
 describe('StripeWebhookService', () => {
@@ -94,6 +100,7 @@ describe('StripeWebhookService', () => {
         { provide: NotificationsService, useValue: mockNotificationsService },
         { provide: ReminderScheduler, useValue: mockReminderScheduler },
         { provide: getQueueToken(TICKET_EMAIL_QUEUE), useValue: mockTicketEmailQueue },
+        { provide: getQueueToken(FAVORITE_ALERT_QUEUE), useValue: mockFavoriteAlertQueue },
       ],
     }).compile();
 
@@ -622,6 +629,72 @@ describe('StripeWebhookService', () => {
       await service.handleChargeRefunded(chargeData);
 
       expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── sell-out alert (C7) ───────────────────────────────────────────────────
+
+  describe('handleCheckoutSessionCompleted() — sell-out alert', () => {
+    const sessionData = {
+      id: 'cs_test_sellout',
+      payment_intent: 'pi_test_sellout',
+      metadata: { orderId: 'uuid-order-2' },
+    };
+
+    beforeEach(() => {
+      prisma.payment.findUnique.mockResolvedValue({
+        id: 'uuid-payment-2',
+        orderId: 'uuid-order-2',
+        status: PaymentStatus.PENDING,
+      });
+      prisma.payment.update.mockResolvedValue({});
+      prisma.order.update.mockResolvedValue({
+        eventId: 'uuid-event-1',
+        id: 'uuid-order-2',
+      });
+      prisma.order.findUnique.mockResolvedValue({
+        ...mockOrderForConfirmation,
+        eventId: 'uuid-event-1',
+      });
+      mockTicketsGenerator.generateForOrder.mockResolvedValue(undefined);
+      mockNotificationsService.sendOrderConfirmation.mockResolvedValue(undefined);
+      mockReminderScheduler.scheduleReminders.mockResolvedValue(undefined);
+      mockTicketEmailQueue.add.mockResolvedValue(undefined);
+      mockFavoriteAlertQueue.add.mockResolvedValue(undefined);
+      prisma.$transaction.mockImplementation(async (cb: any) => {
+        const tx = {
+          payment: { update: prisma.payment.update },
+          order: { update: prisma.order.update },
+        };
+        return cb(tx);
+      });
+    });
+
+    it('enqueues a SELLING_OUT job when remaining tickets drop below threshold', async () => {
+      // 9 available out of 100 total = 9% < 10% threshold
+      prisma.ticketType.findMany.mockResolvedValue([
+        { availableQuantity: 5, totalQuantity: 60 },
+        { availableQuantity: 4, totalQuantity: 40 },
+      ]);
+
+      await service.handleCheckoutSessionCompleted(sessionData);
+
+      expect(mockFavoriteAlertQueue.add).toHaveBeenCalledWith(
+        'selling-out',
+        expect.objectContaining({ alertType: 'SELLING_OUT' }),
+      );
+    });
+
+    it('does not enqueue a SELLING_OUT job when remaining tickets are above threshold', async () => {
+      // 50 available out of 100 total = 50% > 10% threshold
+      prisma.ticketType.findMany.mockResolvedValue([
+        { availableQuantity: 25, totalQuantity: 60 },
+        { availableQuantity: 25, totalQuantity: 40 },
+      ]);
+
+      await service.handleCheckoutSessionCompleted(sessionData);
+
+      expect(mockFavoriteAlertQueue.add).not.toHaveBeenCalled();
     });
   });
 });

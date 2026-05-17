@@ -6,6 +6,19 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 // ── Select constants ──────────────────────────────────────────────────────────
 
+/**
+ * Enriched event select reusable by buyer-events, favorites, and other
+ * modules that need event data without the full detail.
+ */
+export const EVENT_ENRICHED_SELECT = {
+  id: true,
+  name: true,
+  eventDate: true,
+  imageUrl: true,
+  venue: { select: { id: true, name: true, city: true } },
+  format: { select: { id: true, name: true } },
+} as const;
+
 export const EVENT_LIST_SELECT = {
   id: true,
   name: true,

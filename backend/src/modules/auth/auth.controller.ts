@@ -95,6 +95,32 @@ export class AuthController {
     return response;
   }
 
+  // ── Estado de sesión ───────────────────────────────────────────────────────
+
+  @Public()
+  @Get('session')
+  @HttpCode(HttpStatus.OK)
+  @ApiCookieAuth(REFRESH_COOKIE)
+  @ApiOperation({
+    summary: 'Leer sesión activa',
+    description:
+      'Valida el refresh token de la cookie HTTP-only sin rotarlo y devuelve un access token nuevo ' +
+      'solo para bootstrap SSR/hidratación. No modifica la cookie del navegador.',
+  })
+  @ApiOkResponse({
+    description: 'Sesión activa leída correctamente.',
+    type: AuthResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Refresh token ausente, inválido o revocado.',
+  })
+  async session(@Req() req: Request): Promise<AuthResponseDto> {
+    const token = req.cookies?.[REFRESH_COOKIE] as string | undefined;
+    if (!token) throw new UnauthorizedException('Refresh token no encontrado');
+
+    return this.authService.session(token);
+  }
+
   // ── Verificar email ────────────────────────────────────────────────────────
 
   @Public()

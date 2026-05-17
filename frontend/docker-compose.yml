@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
+      args:
+        NUXT_APP_BASE_URL: /verifront/
     container_name: veritix_frontend
     restart: unless-stopped
     ports:

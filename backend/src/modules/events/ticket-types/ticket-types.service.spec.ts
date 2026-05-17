@@ -3,9 +3,11 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
+import { getQueueToken } from '@nestjs/bullmq';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Role } from '../../../generated/prisma/enums';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { FAVORITE_ALERT_QUEUE } from '../../queues/constants/queue-names';
 import { CreateTicketTypeDto, UpdateTicketTypeDto } from './dto';
 import { TicketTypesRepository } from './ticket-types.repository';
 import { TicketTypesService } from './ticket-types.service';
@@ -44,6 +46,10 @@ const mockTicketTypesRepository = {
   delete: jest.fn(),
 };
 
+const mockFavoriteAlertQueue = {
+  add: jest.fn(),
+};
+
 const mockPrismaService = {
   event: {
     findUnique: jest.fn(),
@@ -66,6 +72,7 @@ describe('TicketTypesService', () => {
         TicketTypesService,
         { provide: TicketTypesRepository, useValue: mockTicketTypesRepository },
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: getQueueToken(FAVORITE_ALERT_QUEUE), useValue: mockFavoriteAlertQueue },
       ],
     }).compile();
 
@@ -100,6 +107,19 @@ describe('TicketTypesService', () => {
       });
       expect(repo.create).toHaveBeenCalledWith('uuid-event-1', dto);
       expect(result.price).toBe(Number(mockTicketType.price));
+    });
+
+    it('should enqueue a NEW_TICKET_TYPE alert after creating a ticket type', async () => {
+      prisma.event.findUnique.mockResolvedValue(mockEvent);
+      prisma.ticketType.aggregate.mockResolvedValue({ _sum: { totalQuantity: 400 } });
+      repo.create.mockResolvedValue(mockTicketType);
+
+      await service.create('uuid-event-1', 'uuid-creator-1', Role.CREATOR, dto);
+
+      expect(mockFavoriteAlertQueue.add).toHaveBeenCalledWith(
+        'new-ticket-type',
+        { eventId: 'uuid-event-1', alertType: 'NEW_TICKET_TYPE' },
+      );
     });
 
     it('should create a ticket type when user is ADMIN', async () => {

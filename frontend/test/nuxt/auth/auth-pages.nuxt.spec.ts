@@ -6,6 +6,7 @@ import { ref } from 'vue'
 import ForgotPasswordPage from '@/pages/forgot-password.vue'
 import LoginPage from '@/pages/login.vue'
 import RegisterPage from '@/pages/register.vue'
+import VerifyEmailPage from '@/pages/verify-email.vue'
 
 let defaultAuthMock: any
 
@@ -15,13 +16,18 @@ const {
   navigateToMock,
   notifyApiErrorMock,
   notifySuccessMock,
+  forgotPasswordMock,
+  verifyEmailMock,
+  routeMock,
   registerMock,
   useAppNotificationsMock,
   useAuthMock,
+  useRouteMock,
   onNuxtReadyMock,
 } = vi.hoisted(() => {
   const notifyApiErrorMock = vi.fn()
   const notifySuccessMock = vi.fn()
+  const routeMock = { query: { token: 'verification-token-123' } }
 
   return {
     ensureSessionMock: vi.fn().mockResolvedValue(false),
@@ -29,12 +35,16 @@ const {
     navigateToMock: vi.fn((to: string) => to),
     notifyApiErrorMock,
     notifySuccessMock,
+    forgotPasswordMock: vi.fn(),
+    verifyEmailMock: vi.fn(),
+    routeMock,
     registerMock: vi.fn(),
     useAppNotificationsMock: vi.fn(() => ({
       notifyApiError: notifyApiErrorMock,
       notifySuccess: notifySuccessMock,
     })),
     useAuthMock: vi.fn(() => defaultAuthMock),
+    useRouteMock: vi.fn(() => routeMock),
     onNuxtReadyMock: vi.fn((callback: () => void) => callback()),
   }
 })
@@ -42,6 +52,7 @@ const {
 mockNuxtImport('navigateTo', () => navigateToMock)
 mockNuxtImport('useAppNotifications', () => useAppNotificationsMock)
 mockNuxtImport('useAuth', () => useAuthMock)
+mockNuxtImport('useRoute', () => useRouteMock)
 mockNuxtImport('onNuxtReady', () => onNuxtReadyMock)
 
 defaultAuthMock = {
@@ -49,7 +60,9 @@ defaultAuthMock = {
   isAuthenticated: ref(false),
   login: vi.fn(),
   pending: ref(false),
+  forgotPassword: vi.fn(),
   register: vi.fn(),
+  verifyEmail: vi.fn(),
   sessionStatus: ref('unknown'),
   user: ref(null),
 }
@@ -58,9 +71,11 @@ function mockGuestAuth() {
   useAuthMock.mockReturnValue({
     ensureSession: ensureSessionMock,
     isAuthenticated: ref(false),
+    forgotPassword: forgotPasswordMock,
     login: loginMock,
     pending: ref(false),
     register: registerMock,
+    verifyEmail: verifyEmailMock,
     sessionStatus: ref('unknown'),
     user: ref(null),
   })
@@ -70,6 +85,10 @@ beforeEach(() => {
   vi.clearAllMocks()
   ensureSessionMock.mockResolvedValue(false)
   mockGuestAuth()
+  routeMock.query.token = 'verification-token-123'
+  forgotPasswordMock.mockResolvedValue({ message: 'If that email exists, you\'ll receive a reset link shortly' })
+  registerMock.mockResolvedValue({ message: 'Revisá tu email para verificar tu cuenta' })
+  verifyEmailMock.mockResolvedValue({ message: 'Email verificado correctamente' })
 })
 
 describe('login page', () => {
@@ -116,9 +135,7 @@ describe('login page', () => {
 })
 
 describe('register page', () => {
-  it('normaliza el payload, registra y navega al inicio', async () => {
-    registerMock.mockResolvedValueOnce(undefined)
-
+  it('normaliza el payload y muestra el aviso de verificación', async () => {
     const wrapper = await mountSuspended(RegisterPage)
 
     await wrapper.get('input[name="name"]').setValue('Ana')
@@ -138,9 +155,13 @@ describe('register page', () => {
       password: 'Password1',
       phone: '+34958123456',
     })
-    expect(notifySuccessMock).toHaveBeenCalledWith('Cuenta creada correctamente.', { id: 'auth-register-success' })
+    expect(notifySuccessMock).toHaveBeenCalledWith(
+      'Revisá tu email para verificar tu cuenta',
+      { id: 'auth-register-success' },
+    )
     expect(notifyApiErrorMock).not.toHaveBeenCalled()
-    expect(navigateToMock).toHaveBeenCalledWith('/')
+    expect(navigateToMock).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('Revisá tu email para verificar tu cuenta')
   })
 
   it('reporta el error y no navega cuando falla', async () => {
@@ -169,8 +190,30 @@ describe('register page', () => {
   })
 })
 
+describe('verify email page', () => {
+  it('verifica el correo y muestra el estado exitoso', async () => {
+    const wrapper = await mountSuspended(VerifyEmailPage)
+
+    await flushPromises()
+
+    expect(verifyEmailMock).toHaveBeenCalledWith({ token: 'verification-token-123' })
+    expect(wrapper.text()).toContain('Email verificado correctamente')
+  })
+
+  it('muestra un error cuando falta el token', async () => {
+    routeMock.query.token = ''
+
+    const wrapper = await mountSuspended(VerifyEmailPage)
+
+    await flushPromises()
+
+    expect(verifyEmailMock).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('Falta el token de verificación.')
+  })
+})
+
 describe('forgot password page', () => {
-  it('muestra el estado de recuperación después de enviar un email válido', async () => {
+  it('solicita el enlace de recuperación y muestra el estado final', async () => {
     const wrapper = await mountSuspended(ForgotPasswordPage)
 
     expect(wrapper.text()).not.toContain('Revisá tu correo: si existe una cuenta, ya te mandamos el enlace.')
@@ -180,6 +223,8 @@ describe('forgot password page', () => {
 
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Revisá tu correo: si existe una cuenta, ya te mandamos el enlace.')
+    expect(forgotPasswordMock).toHaveBeenCalledWith('recover@example.com')
+    expect(notifySuccessMock).toHaveBeenCalledWith('If that email exists, you\'ll receive a reset link shortly', { id: 'auth-forgot-password-success' })
+    expect(wrapper.text()).toContain('If that email exists, you\'ll receive a reset link shortly')
   })
 })

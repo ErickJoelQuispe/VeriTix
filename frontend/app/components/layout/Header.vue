@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { MAIN_NAV_ITEMS } from '@/utils/navigation/ia'
-
 const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
 const accountMenuItems = useAccountMenuItems(() => user.value?.role === 'ADMIN')
@@ -41,7 +39,7 @@ const accountSubtitle = computed(() => {
   return user.value?.email || 'Gestioná tu perfil y ajustes'
 })
 
-const mainNavItems = MAIN_NAV_ITEMS
+const { navItems: mainNavItems } = useNavigation()
 
 const headerClass = 'sticky top-0 z-40 border-b border-default/55 bg-default/75 backdrop-blur-md'
 
@@ -159,9 +157,3 @@ function isMainNavActive(path: string): boolean {
     </BaseContainer>
   </header>
 </template>
-
-<style scoped>
-.vtx-header-brand-link:hover .vtx-header-brand-prism {
-    filter: drop-shadow(0 0 14px color-mix(in oklch, var(--color-accent) 34%, transparent));
-}
-</style>

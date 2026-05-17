@@ -60,9 +60,11 @@ const lineupErrorMessage = computed(() => {
   return getApiErrorMessage(lineupError.value, 'No pudimos cargar el lineup público en este momento.')
 })
 
+const WHITESPACE_RE = /\s+/
+
 function artistInitials(name: string): string {
   return name
-    .split(/\s+/)
+    .split(WHITESPACE_RE)
     .filter(Boolean)
     .slice(0, 2)
     .map(word => word.charAt(0).toUpperCase())
@@ -101,14 +103,14 @@ function formatPerformanceTime(value: string | Date | null): string {
               v-if="event.imageUrl"
               :src="event.imageUrl"
               :alt="`Imagen de ${event.name}`"
-              class="min-h-88 w-full object-cover lg:min-h-[42rem]"
+              class="min-h-88 w-full object-cover lg:min-h-168"
               width="1200"
               height="1600"
               sizes="(max-width: 1023px) 100vw, 58vw"
               placeholder
             />
 
-            <div v-else class="flex min-h-88 items-center justify-center px-8 py-16 text-center lg:min-h-[42rem]">
+            <div v-else class="flex min-h-88 items-center justify-center px-8 py-16 text-center lg:min-h-168">
               <div class="max-w-sm space-y-4">
                 <BaseIcon name="i-lucide-image-off" class="mx-auto size-10 text-muted" />
                 <div class="space-y-2">
@@ -254,7 +256,7 @@ function formatPerformanceTime(value: string | Date | null): string {
                       placeholder
                     />
                   </div>
-                  <BaseAvatar v-else :text="artistInitials(artistItem.artist.name)" size="lg" class="!size-14 border border-default/55" />
+                  <BaseAvatar v-else :text="artistInitials(artistItem.artist.name)" size="lg" class="size-14! border border-default/55" />
 
                   <div class="min-w-0 flex-1 space-y-1">
                     <div class="flex flex-wrap items-center gap-2">

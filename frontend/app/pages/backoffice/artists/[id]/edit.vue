@@ -96,48 +96,53 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
-    title="Editar artista"
-    description="Actualiza la ficha del artista y su información pública."
-    primary-action-to="/backoffice/artists"
-    primary-action-label="Volver a artistas"
-  >
-    <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
-        title="Datos del artista"
-        description="Edita identidad, metadata y clasificación por género."
-        variant="glass"
-      >
-        <template #actions>
-          <div v-if="artist" class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ genres?.length || 0 }} géneros
-            </BaseBadge>
-            <BaseBadge kind="status" :color="artist.isActive ? 'success' : 'neutral'" size="sm" class="min-w-24 justify-center">
-              {{ artist.isActive ? 'ACTIVO' : 'INACTIVO' }}
-            </BaseBadge>
-          </div>
-        </template>
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Editar artista" description="Actualiza la ficha del artista y su información pública." />
+          <BackofficeBackButton
+            to="/backoffice/artists"
+          >
+            Volver a artistas
+          </BackofficeBackButton>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del artista"
+          description="Edita identidad, metadata y clasificación por género."
+          variant="glass"
+        >
+          <template #actions>
+            <div v-if="artist" class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ genres?.length || 0 }} géneros
+              </BaseBadge>
+              <BaseBadge kind="status" :color="artist.isActive ? 'success' : 'neutral'" size="sm" class="min-w-24 justify-center">
+                {{ artist.isActive ? 'ACTIVO' : 'INACTIVO' }}
+              </BaseBadge>
+            </div>
+          </template>
 
-        <template v-if="loading">
-          <div class="space-y-4">
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-24 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-          </div>
-        </template>
+          <template v-if="loading">
+            <div class="space-y-4">
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-24 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+            </div>
+          </template>
 
-        <BackofficeArtistForm
-          v-else-if="artist"
-          v-model:dirty="isFormDirty"
-          :initial-value="artist"
-          :genres="genres"
-          :submitting="submitting"
-          submit-label="Guardar cambios"
-          @submit="updateArtist"
-        />
-      </BackofficeOverviewPanel>
-    </div>
-  </BackofficePageShell>
+          <PagesBackofficeArtistForm
+            v-else-if="artist"
+            v-model:dirty="isFormDirty"
+            :initial-value="artist"
+            :genres="genres"
+            :submitting="submitting"
+            submit-label="Guardar cambios"
+            @submit="updateArtist"
+          />
+        </PagesBackofficeOverviewPanel>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

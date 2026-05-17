@@ -27,11 +27,14 @@ import {
 } from '@nestjs/swagger';
 import { Observable, map } from 'rxjs';
 import { CurrentUser, Public, Roles } from '@common/decorators';
-import { PaginationQueryDto } from '@common/dto';
+import { PaginatedResponse, PaginationQueryDto } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import { Role } from '../../generated/prisma/enums';
+import { ReviewsService } from '../reviews/reviews.service';
 import { AccessStatsService } from '../tickets/access-stats.service';
 import {
+  BuyerEventItemDto,
+  BuyerEventsQueryDto,
   CreateEventDto,
   EventDetailResponseDto,
   EventListResponseDto,
@@ -52,6 +55,7 @@ export class EventsController {
   constructor(
     private readonly eventsService: EventsService,
     private readonly accessStatsService: AccessStatsService,
+    private readonly reviewsService: ReviewsService,
   ) {}
 
   @Post()
@@ -90,6 +94,20 @@ export class EventsController {
     @Query() query: PaginationQueryDto,
   ) {
     return this.eventsService.findMyEvents(user.sub, query.page, query.limit);
+  }
+
+  // NOTE: GET /events/mine MUST be declared before GET /events/:id to avoid route conflict
+  @Get('mine')
+  @Roles(Role.BUYER)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Eventos comprados por el buyer autenticado (agrupados por evento)' })
+  @ApiOkResponse({ description: 'Lista paginada de eventos con tickets del buyer.' })
+  @ApiForbiddenResponse({ description: 'Acceso restringido a compradores.' })
+  findBuyerEvents(
+    @CurrentUser() user: JwtPayload,
+    @Query() query: BuyerEventsQueryDto,
+  ): Promise<PaginatedResponse<BuyerEventItemDto>> {
+    return this.eventsService.findBuyerEvents(user.sub, query);
   }
 
   @Get('upcoming')
@@ -155,6 +173,18 @@ export class EventsController {
     return this.accessStatsService.getStream(id).pipe(
       map((snapshot) => ({ data: snapshot }) as MessageEvent),
     );
+  }
+
+  // NOTE: GET /events/:id/reviews MUST be before GET /events/:id
+  @Get(':id/reviews')
+  @Public()
+  @ApiOperation({ summary: 'List public reviews for an event (no auth required)' })
+  @ApiOkResponse({ description: 'Paginated list of reviews for the event.' })
+  getEventReviews(
+    @Param('id') eventId: string,
+    @Query() query: PaginationQueryDto,
+  ) {
+    return this.reviewsService.findByEvent(eventId, { page: query.page, limit: query.limit });
   }
 
   @Get(':id')

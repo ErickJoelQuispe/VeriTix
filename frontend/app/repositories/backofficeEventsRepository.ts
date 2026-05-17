@@ -14,7 +14,6 @@ import { buildCatalogQuery } from '@/utils/backoffice/eventsCatalog'
 
 export function useBackofficeEventsRepository() {
   const apiRequest = useApiRequest()
-  const { requireBackofficeHeaders } = useBackofficeApi()
 
   async function getFormOptions(): Promise<{
     venues: VenueOption[]
@@ -47,7 +46,6 @@ export function useBackofficeEventsRepository() {
   }): Promise<PaginatedResponse<BackofficeEventRecord>> {
     return apiRequest<PaginatedResponse<BackofficeEventRecord>>('/admin/events', {
       method: 'GET',
-      headers: requireBackofficeHeaders(),
       query: buildCatalogQuery({
         pageValue,
         pageSize,
@@ -60,21 +58,18 @@ export function useBackofficeEventsRepository() {
   async function listRequiresAttention(): Promise<BackofficeRequiresAttentionRecord[]> {
     return apiRequest<BackofficeRequiresAttentionRecord[]>('/admin/events/requires-attention', {
       method: 'GET',
-      headers: requireBackofficeHeaders(),
     })
   }
 
   async function getEvent(eventId: string): Promise<BackofficeEventDetail> {
     return apiRequest<BackofficeEventDetail>(`/admin/events/${eventId}`, {
       method: 'GET',
-      headers: requireBackofficeHeaders(),
     })
   }
 
   async function createEvent(payload: BackofficeEventPayload): Promise<BackofficeEventDetail> {
     return apiRequest<BackofficeEventDetail, BackofficeEventPayload>('/admin/events', {
       method: 'POST',
-      headers: requireBackofficeHeaders(),
       body: payload,
     })
   }
@@ -82,7 +77,6 @@ export function useBackofficeEventsRepository() {
   async function updateEvent(eventId: string, payload: BackofficeEventPayload): Promise<BackofficeEventDetail> {
     return apiRequest<BackofficeEventDetail, BackofficeEventPayload>(`/admin/events/${eventId}`, {
       method: 'PATCH',
-      headers: requireBackofficeHeaders(),
       body: payload,
     })
   }
@@ -90,7 +84,6 @@ export function useBackofficeEventsRepository() {
   async function deleteEvent(eventId: string): Promise<void> {
     await apiRequest(`/admin/events/${eventId}`, {
       method: 'DELETE',
-      headers: requireBackofficeHeaders(),
     })
   }
 

@@ -1,7 +1,7 @@
 import type { PublicArtistDetailApiItem, PublicArtistListApiItem } from '~~/shared/api/public-artists'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { ArtistCatalogFilters } from '~~/shared/types'
-import { compactQuery } from '../../shared/query'
+import { compactQuery } from '~~/shared/query'
 
 export function usePublicArtistsRepository() {
   const apiRequest = useApiRequest()

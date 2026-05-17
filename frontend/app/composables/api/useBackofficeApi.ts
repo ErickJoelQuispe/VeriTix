@@ -1,13 +1,6 @@
 import type { UserRole } from '~~/shared/types'
-import { buildAuthHeaders } from '@/utils/apiAuth'
 
 export function useBackofficeApi() {
-  const { accessToken } = useAuth()
-
-  function requireBackofficeHeaders(): HeadersInit {
-    return buildAuthHeaders(accessToken.value, true)
-  }
-
   const roleOptions: Array<{ value: UserRole, label: string }> = [
     { value: 'ADMIN', label: 'Administrador' },
     { value: 'CREATOR', label: 'Creador' },
@@ -17,6 +10,5 @@ export function useBackofficeApi() {
 
   return {
     roleOptions,
-    requireBackofficeHeaders,
   }
 }

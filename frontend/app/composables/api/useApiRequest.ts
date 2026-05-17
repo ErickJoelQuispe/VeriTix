@@ -1,4 +1,3 @@
-
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
 type ApiQueryValue = string | number | boolean | undefined

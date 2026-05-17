@@ -108,53 +108,58 @@ onMounted(() => {
 </script>
 
 <template>
-  <BackofficePageShell
-    title="Editar evento"
-    description="Actualiza la ficha del evento y su configuración operativa."
-    primary-action-to="/backoffice/events"
-    primary-action-label="Volver a eventos"
-  >
-    <div class="mx-auto max-w-5xl space-y-5">
-      <BackofficeOverviewPanel
-        title="Datos del evento"
-        description="Edita los campos principales del evento seleccionado."
-        variant="glass"
-      >
-        <template #actions>
-          <div v-if="event" class="flex flex-wrap items-center gap-2.5">
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ venues?.length || 0 }} venues
-            </BaseBadge>
-            <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-              {{ formats?.length || 0 }} formatos
-            </BaseBadge>
-            <BaseBadge kind="status" :color="getStatusTone(event.status)" size="sm" class="min-w-24 justify-center">
-              {{ event.status }}
-            </BaseBadge>
-          </div>
-        </template>
+  <section class="py-10 sm:py-12 lg:py-14">
+    <BaseContainer>
+      <div class="space-y-8">
+        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <UiPageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
+          <BackofficeBackButton
+            to="/backoffice/events"
+          >
+            Volver a eventos
+          </BackofficeBackButton>
+        </div>
+        <PagesBackofficeOverviewPanel
+          title="Datos del evento"
+          description="Edita los campos principales del evento seleccionado."
+          variant="glass"
+        >
+          <template #actions>
+            <div v-if="event" class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ venues?.length || 0 }} venues
+              </BaseBadge>
+              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
+                {{ formats?.length || 0 }} formatos
+              </BaseBadge>
+              <BaseBadge kind="status" :color="getStatusTone(event.status)" size="sm" class="min-w-24 justify-center">
+                {{ event.status }}
+              </BaseBadge>
+            </div>
+          </template>
 
-        <template v-if="loading">
-          <div class="space-y-4">
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-            <BaseSkeleton class="h-24 w-full rounded-xl" />
-            <BaseSkeleton class="h-12 w-full rounded-xl" />
-          </div>
-        </template>
+          <template v-if="loading">
+            <div class="space-y-4">
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSkeleton class="h-24 w-full rounded-xl" />
+              <BaseSkeleton class="h-12 w-full rounded-xl" />
+            </div>
+          </template>
 
-        <BackofficeEventForm
-          v-else-if="event"
-          v-model:dirty="isFormDirty"
-          :initial-value="event"
-          :venues="venues"
-          :genres="genres"
-          :formats="formats"
-          :submitting="submitting"
-          submit-label="Guardar cambios"
-          @submit="updateEvent"
-        />
-      </BackofficeOverviewPanel>
-    </div>
-  </BackofficePageShell>
+          <PagesBackofficeEventForm
+            v-else-if="event"
+            v-model:dirty="isFormDirty"
+            :initial-value="event"
+            :venues="venues"
+            :genres="genres"
+            :formats="formats"
+            :submitting="submitting"
+            submit-label="Guardar cambios"
+            @submit="updateEvent"
+          />
+        </PagesBackofficeOverviewPanel>
+      </div>
+    </BaseContainer>
+  </section>
 </template>

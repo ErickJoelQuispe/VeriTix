@@ -21,7 +21,7 @@ function readQueryPage(value: unknown): number {
 useSeoMeta({
   title: 'Artistas | VeriTix',
   description:
-    'Explorá artistas por nombre, género, país y estado para encontrar el perfil adecuado más rápido.',
+    'Explorá artistas por nombre, género y país para encontrar el perfil adecuado más rápido.',
 })
 
 const searchDraft = ref(readQueryValue(route.query.search))
@@ -31,7 +31,6 @@ const filters = computed(() => ({
   search: readQueryValue(route.query.search),
   genreId: readQueryValue(route.query.genreId),
   country: readQueryValue(route.query.country),
-  isActive: readQueryValue(route.query.isActive),
   page: readQueryPage(route.query.page),
 }))
 
@@ -47,12 +46,6 @@ const genreItems = computed(() => [
     value: genre.id,
   })),
 ])
-
-const statusItems = [
-  { label: 'Todos los estados', value: ALL_OPTION_VALUE },
-  { label: 'Activo', value: 'true' },
-  { label: 'Inactivo', value: 'false' },
-]
 
 watch(
   () => filters.value.search,
@@ -87,7 +80,6 @@ const resultsContext = computed(() => {
     filters.value.search ? `artista: “${filters.value.search}”` : '',
     selectedGenreLabel.value ? `género: ${selectedGenreLabel.value}` : '',
     filters.value.country ? `país: ${filters.value.country}` : '',
-    filters.value.isActive ? `estado: ${filters.value.isActive === 'true' ? 'activo' : 'inactivo'}` : '',
   ].filter(Boolean)
 
   if (segments.length === 0) {
@@ -102,14 +94,13 @@ const activeFilterCount = computed(
     filters.value.search,
     filters.value.genreId,
     filters.value.country,
-    filters.value.isActive,
   ].filter(Boolean).length,
 )
 
 const resultsStats = computed(() => [
-  { label: 'Resultados', value: meta.value.total },
-  { label: 'Página', value: `${meta.value.page}/${Math.max(meta.value.totalPages, 1)}` },
-  { label: 'Filtros', value: activeFilterCount.value },
+  { label: 'Resultados', value: meta.value.total, icon: 'i-lucide-chart-column' },
+  { label: 'Página', value: `${meta.value.page}/${Math.max(meta.value.totalPages, 1)}`, icon: 'i-lucide-layers-3' },
+  { label: 'Filtros', value: activeFilterCount.value, icon: 'i-lucide-sliders-horizontal' },
 ])
 
 const isPending = computed(() => status.value === 'pending')
@@ -133,13 +124,11 @@ async function updateFilters(next: Partial<typeof filters.value>) {
   const shouldResetPage = next.search !== undefined
     || next.genreId !== undefined
     || next.country !== undefined
-    || next.isActive !== undefined
 
   const query = {
     search: next.search ?? filters.value.search,
     genreId: next.genreId ?? filters.value.genreId,
     country: next.country ?? filters.value.country,
-    isActive: next.isActive ?? filters.value.isActive,
     page: shouldResetPage ? 1 : (next.page ?? filters.value.page),
   }
 
@@ -149,7 +138,6 @@ async function updateFilters(next: Partial<typeof filters.value>) {
       search: query.search || undefined,
       genreId: query.genreId || undefined,
       country: query.country || undefined,
-      isActive: query.isActive || undefined,
       page: query.page > 1 ? String(query.page) : undefined,
     },
   })
@@ -185,7 +173,7 @@ async function handlePageChange(page: number) {
           <UiPageHeading
             eyebrow="Descubrimiento"
             title="Artistas"
-            description="Explorá artistas por nombre, género, país y estado para filtrar la cartelera con rapidez."
+            description="Explorá artistas por nombre, género y país para filtrar la cartelera con rapidez."
           />
 
           <UiPanel
@@ -193,7 +181,7 @@ async function handlePageChange(page: number) {
             variant="glass"
             radius="xl"
             padding="lg"
-            class="space-y-6"
+            class="relative z-10 space-y-6"
             @submit.prevent="submitSearch"
           >
             <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -232,7 +220,7 @@ async function handlePageChange(page: number) {
               </div>
             </div>
 
-            <div class="grid gap-4 lg:grid-cols-3">
+            <div class="grid gap-4 lg:grid-cols-2">
               <FormInput
                 v-model="searchDraft"
                 label="Nombre del artista"
@@ -241,7 +229,7 @@ async function handlePageChange(page: number) {
                 icon="i-lucide-search"
                 size="md"
                 :disabled="isPending"
-                class="lg:col-span-3"
+                class="lg:col-span-2"
               />
 
               <FormInput
@@ -249,7 +237,7 @@ async function handlePageChange(page: number) {
                 label="País"
                 name="country"
                 placeholder="ES, MX, CO"
-                icon="i-lucide-globe-2"
+                icon="i-lucide-globe"
                 size="md"
                 :disabled="isPending"
               />
@@ -259,25 +247,13 @@ async function handlePageChange(page: number) {
                 name="genreId"
                 :model-value="filters.genreId || ALL_OPTION_VALUE"
                 :items="genreItems"
+                :placeholder-value="ALL_OPTION_VALUE"
+                icon="i-lucide-music-2"
                 size="md"
                 :disabled="isPending"
                 @update:model-value="
                   updateFilters({
                     genreId: $event === ALL_OPTION_VALUE ? '' : String($event),
-                  })
-                "
-              />
-
-              <FormSelect
-                label="Estado"
-                name="isActive"
-                :model-value="filters.isActive || ALL_OPTION_VALUE"
-                :items="statusItems"
-                size="md"
-                :disabled="isPending"
-                @update:model-value="
-                  updateFilters({
-                    isActive: $event === ALL_OPTION_VALUE ? '' : String($event),
                   })
                 "
               />
@@ -297,7 +273,15 @@ async function handlePageChange(page: number) {
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <BaseBadge v-for="stat in resultsStats" :key="stat.label" kind="info" size="sm">
+              <BaseBadge
+                v-for="stat in resultsStats"
+                :key="stat.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="stat.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
                 {{ stat.label }}: {{ stat.value }}
               </BaseBadge>
             </div>

@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PaginatedResponse } from '@common/dto';
+import { PaginatedResponse, createPaginatedResponse } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import {
   CACHE_KEYS,
@@ -12,9 +12,12 @@ import {
   CACHE_TTL_SHORT,
   CacheService,
 } from '../../cache';
-import { EventStatus, OrderStatus, Role } from '../../generated/prisma/enums';
+import { EventStatus, OrderStatus, Role, TicketStatus } from '../../generated/prisma/enums';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TicketsRepository } from '../tickets/tickets.repository';
 import {
+  BuyerEventItemDto,
+  BuyerEventsQueryDto,
   CreateEventDto,
   EventDetailResponseDto,
   EventListResponseDto,
@@ -33,10 +36,26 @@ import {
   EventsRepository,
 } from './events.repository';
 
+// ── Pure helper: dominant status priority ──────────────────────────────────────
+// Priority: ACTIVE(3) > USED(2) > CANCELLED(1) = REFUNDED(1)
+const STATUS_PRIORITY: Record<TicketStatus, number> = {
+  [TicketStatus.ACTIVE]: 3,
+  [TicketStatus.USED]: 2,
+  [TicketStatus.CANCELLED]: 1,
+  [TicketStatus.REFUNDED]: 1,
+};
+
+export function computeDominantStatus(statuses: TicketStatus[]): TicketStatus {
+  return statuses.reduce((best, current) =>
+    STATUS_PRIORITY[current] > STATUS_PRIORITY[best] ? current : best,
+  );
+}
+
 @Injectable()
 export class EventsService {
   constructor(
     private readonly eventsRepository: EventsRepository,
+    private readonly ticketsRepository: TicketsRepository,
     private readonly prisma: PrismaService,
     private readonly cache: CacheService,
   ) {}
@@ -135,6 +154,57 @@ export class EventsService {
       page,
       limit,
     ) as Promise<PaginatedResponse<EventListResponseDto>>;
+  }
+
+  async findBuyerEvents(
+    userId: string,
+    query: BuyerEventsQueryDto,
+  ): Promise<PaginatedResponse<BuyerEventItemDto>> {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const upcoming = query.upcoming !== false; // default true
+
+    // 1. Fetch all tickets with enriched event data
+    const tickets = await this.ticketsRepository.findByBuyerWithEvents(userId);
+
+    // 2. Group by eventId in memory
+    const groups = new Map<string, { event: BuyerEventItemDto['event']; statuses: TicketStatus[] }>();
+    for (const ticket of tickets) {
+      const existing = groups.get(ticket.event.id);
+      if (existing) {
+        existing.statuses.push(ticket.status);
+      } else {
+        groups.set(ticket.event.id, {
+          event: ticket.event,
+          statuses: [ticket.status],
+        });
+      }
+    }
+
+    // 3. Build items with ticketCount and dominantStatus
+    const now = new Date();
+    let items: BuyerEventItemDto[] = Array.from(groups.values())
+      .map((group) => ({
+        event: group.event,
+        ticketCount: group.statuses.length,
+        dominantStatus: computeDominantStatus(group.statuses),
+      }));
+
+    // 4. Filter by upcoming
+    if (upcoming) {
+      items = items.filter((item) => item.event.eventDate > now);
+    } else {
+      items = items.filter((item) => item.event.eventDate <= now);
+    }
+
+    // 5. Sort by eventDate ASC
+    items.sort((a, b) => a.event.eventDate.getTime() - b.event.eventDate.getTime());
+
+    // 6. Paginate in memory
+    const total = items.length;
+    const paginated = items.slice((page - 1) * limit, page * limit);
+
+    return createPaginatedResponse(paginated, total, page, limit);
   }
 
   async findOne(

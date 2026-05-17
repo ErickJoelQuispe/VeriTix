@@ -1,7 +1,7 @@
 import type { PublicVenueDetailApiItem, PublicVenueListApiItem } from '~~/shared/api/public-venues'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { VenueCatalogFilters } from '~~/shared/types'
-import { compactQuery } from '../../shared/query'
+import { compactQuery } from '~~/shared/query'
 
 export function usePublicVenuesRepository() {
   const apiRequest = useApiRequest()

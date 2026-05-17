@@ -1,7 +1,7 @@
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(() => {
   const { requireBackofficeAccess } = useRouteAccess()
 
-  const redirectTo = await requireBackofficeAccess()
+  const redirectTo = requireBackofficeAccess()
 
   if (redirectTo) {
     return navigateTo(redirectTo)

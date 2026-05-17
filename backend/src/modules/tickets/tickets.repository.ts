@@ -5,6 +5,26 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 // ── Select constants ──────────────────────────────────────────────────────────
 
+export const TICKET_EVENT_SELECT = {
+  id: true,
+  name: true,
+  eventDate: true,
+  imageUrl: true,
+  venue: {
+    select: {
+      id: true,
+      name: true,
+      city: true,
+    },
+  },
+  format: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+} as const;
+
 export const TICKET_LIST_SELECT = {
   id: true,
   hash: true,
@@ -17,11 +37,7 @@ export const TICKET_LIST_SELECT = {
     },
   },
   event: {
-    select: {
-      id: true,
-      name: true,
-      eventDate: true,
-    },
+    select: TICKET_EVENT_SELECT,
   },
   orderItem: {
     select: { id: true },
@@ -44,11 +60,7 @@ export const TICKET_DETAIL_SELECT = {
     },
   },
   event: {
-    select: {
-      id: true,
-      name: true,
-      eventDate: true,
-    },
+    select: TICKET_EVENT_SELECT,
   },
   orderItem: {
     select: { id: true },
@@ -67,7 +79,24 @@ export const TICKET_DETAIL_SELECT = {
   },
 } as const;
 
+export const TICKET_BUYER_WITH_EVENT_SELECT = {
+  id: true,
+  status: true,
+  event: {
+    select: TICKET_EVENT_SELECT,
+  },
+} as const;
+
 // ── Types ─────────────────────────────────────────────────────────────────────
+
+export type TicketEventEnriched = {
+  id: string;
+  name: string;
+  eventDate: Date;
+  imageUrl: string | null;
+  venue: { id: string; name: string; city: string };
+  format: { id: string; name: string } | null;
+};
 
 export type TicketListItem = {
   id: string;
@@ -75,7 +104,7 @@ export type TicketListItem = {
   status: TicketStatus;
   purchaseDate: Date;
   ticketType: { name: string; price: unknown };
-  event: { id: string; name: string; eventDate: Date };
+  event: TicketEventEnriched;
   orderItem: { id: string };
 };
 
@@ -89,10 +118,16 @@ export type TicketDetail = {
   createdAt: Date;
   buyerId: string;
   ticketType: { name: string; price: unknown };
-  event: { id: string; name: string; eventDate: Date };
+  event: TicketEventEnriched;
   orderItem: { id: string };
   order: { id: string; totalAmount: unknown };
   validatedBy: { name: string; lastName: string } | null;
+};
+
+export type TicketWithEvent = {
+  id: string;
+  status: TicketStatus;
+  event: TicketEventEnriched;
 };
 
 // ── Repository ────────────────────────────────────────────────────────────────
@@ -100,6 +135,17 @@ export type TicketDetail = {
 @Injectable()
 export class TicketsRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Returns all tickets for a buyer with enriched event data (imageUrl, venue, format).
+   * Pagination is intentionally omitted — callers group and paginate in-memory.
+   */
+  findByBuyerWithEvents(buyerId: string): Promise<TicketWithEvent[]> {
+    return this.prisma.ticket.findMany({
+      where: { buyerId },
+      select: TICKET_BUYER_WITH_EVENT_SELECT,
+    }) as Promise<TicketWithEvent[]>;
+  }
 
   async findByBuyer(
     buyerId: string,

@@ -9,7 +9,6 @@ const props = withDefaults(defineProps<{
   label?: string
   help?: string
   required?: boolean
-  color?: InputColor
   variant?: InputVariant
   size?: InputSize
   type?: string
@@ -20,7 +19,6 @@ const props = withDefaults(defineProps<{
   label: '',
   help: '',
   required: false,
-  color: 'neutral',
   variant: 'subtle',
   size: 'lg',
   type: 'text',
@@ -28,8 +26,7 @@ const props = withDefaults(defineProps<{
   placeholder: '',
   icon: undefined,
 })
-type InputColor = 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
-type InputVariant = 'outline' | 'soft' | 'subtle' | 'ghost' | 'hero' | 'elevated' | 'none'
+type InputVariant = 'subtle' | 'hero'
 type InputSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 const modelValue = defineModel<string | number | undefined>()
@@ -70,10 +67,6 @@ const describedBy = computed(() => {
 const hasError = computed(() => Boolean(errorMessage.value))
 
 const stateClass = computed(() => {
-  if (props.variant === 'none') {
-    return ''
-  }
-
   if (hasError.value) {
     return 'border-error/70 ring-2 ring-error/20'
   }
@@ -91,25 +84,20 @@ const inputClass = computed(() => {
   }[props.size]
 
   const variantClass = {
-    outline: 'border border-default/60 bg-default/20 shadow-sm',
-    soft: 'border border-default/55 bg-elevated/45 shadow-sm',
     subtle: 'border border-default/55 bg-default/30 shadow-sm',
-    ghost: 'border border-transparent bg-transparent shadow-none',
     hero: 'rounded-full border border-default/50 bg-linear-to-br from-white/10 to-white/5 shadow-lg backdrop-blur-sm',
-    elevated: 'border border-default/60 bg-elevated/80 shadow-sm ring-1 ring-inset ring-white/8',
-    none: 'border-0 bg-transparent px-0 shadow-none focus-visible:ring-0',
   }[props.variant]
 
   const hasLeading = Boolean(props.icon || slots.leading)
   const hasTrailing = Boolean(slots.trailing)
 
-  const leadingPaddingClass = hasLeading && props.variant !== 'none'
+  const leadingPaddingClass = hasLeading
     ? props.variant === 'hero'
       ? 'pl-12'
       : 'pl-11'
     : ''
 
-  const trailingPaddingClass = hasTrailing && props.variant !== 'none'
+  const trailingPaddingClass = hasTrailing
     ? props.variant === 'hero'
       ? 'pr-32 sm:pr-36'
       : 'pr-11'

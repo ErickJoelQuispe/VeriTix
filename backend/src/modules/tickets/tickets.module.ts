@@ -12,6 +12,6 @@ import { TicketsService } from './tickets.service';
   imports: [PrismaModule, ConfigModule],
   controllers: [TicketsController],
   providers: [TicketsService, TicketsRepository, TicketsGenerator, TicketPdfService, AccessStatsService],
-  exports: [TicketsGenerator, AccessStatsService],
+  exports: [TicketsGenerator, AccessStatsService, TicketsRepository],
 })
 export class TicketsModule {}

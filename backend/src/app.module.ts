@@ -19,6 +19,9 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { QueuesModule } from './modules/queues/queues.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { TicketTransfersModule } from './modules/ticket-transfers/ticket-transfers.module';
 
 @Module({
   imports: [
@@ -62,6 +65,9 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     ConcertFormatsModule,
     ArtistsModule,
     UploadsModule,
+    FavoritesModule,
+    ReviewsModule,
+    TicketTransfersModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

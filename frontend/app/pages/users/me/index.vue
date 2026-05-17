@@ -3,6 +3,7 @@ import type { UserRole } from '~~/shared/types'
 import { z } from 'zod'
 
 definePageMeta({
+  layout: 'account',
   middleware: 'auth',
 })
 
@@ -194,186 +195,143 @@ onMounted(() => {
 </script>
 
 <template>
-  <UsersSettingsShell
-    title="Perfil y seguridad"
-    description="Actualiza tus datos personales y protege el acceso a tu cuenta desde un único espacio más claro."
-    tone="minimal"
-  >
-    <section class="space-y-6">
-      <div v-if="!initialized" class="space-y-4">
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-        <BaseSkeleton class="h-11 rounded-2xl" />
-      </div>
-
-      <div v-else class="space-y-6">
-        <article class="rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
-          <div class="space-y-2 border-b border-default/55 pb-5">
-            <UiMetaLabel>
-              Perfil
-            </UiMetaLabel>
-            <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
-              Datos personales
-            </h2>
-            <p class="max-w-2xl text-sm leading-relaxed text-toned">
-              Revisá la información visible de tu cuenta y mantené al día tus datos de contacto.
-            </p>
-          </div>
-
-          <FormRoot
-            :state="profileState"
-            :schema="profileSchema"
-            :validate-on="[]"
-            class="space-y-6 pt-6"
-            @submit="submitProfile"
-          >
-            <UsersProfileFields
-              v-model:name="profileState.name"
-              v-model:last-name="profileState.lastName"
-              v-model:phone="profileState.phone"
-              v-model:avatar-url="profileState.avatarUrl"
-            />
-
-            <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
-              <span class="text-sm text-toned">
-                Datos visibles y de contacto.
-              </span>
-
-              <BaseButton
-                variant="primary"
-                type="submit"
-                size="lg"
-                class="vtx-profile-submit px-6"
-                :loading="profileSubmitting"
-                :disabled="!hasProfileChanges"
-              >
-                Guardar perfil
-              </BaseButton>
-            </div>
-          </FormRoot>
-        </article>
-
-        <article id="seguridad" class="scroll-mt-28 rounded-panel border border-default bg-elevated/40 p-5 sm:p-7">
-          <div class="space-y-2 border-b border-default/55 pb-5">
-            <UiMetaLabel>
-              Seguridad
-            </UiMetaLabel>
-            <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
-              Acceso a la cuenta
-            </h2>
-            <p class="max-w-2xl text-sm leading-relaxed text-toned">
-              Cambiá tu contraseña y gestioná el cierre de sesión desde el mismo bloque de seguridad.
-            </p>
-          </div>
-
-          <FormRoot
-            :state="passwordState"
-            :schema="passwordSchema"
-            :validate-on="[]"
-            class="space-y-6 pt-6"
-            @submit="submitPassword"
-          >
-            <UsersPasswordFields
-              v-model:current-password="passwordState.currentPassword"
-              v-model:new-password="passwordState.newPassword"
-              v-model:confirm-password="passwordState.confirmPassword"
-              v-model:show-current-password="showCurrentPassword"
-              v-model:show-new-password="showNewPassword"
-              v-model:show-confirm-password="showConfirmPassword"
-            />
-
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span class="text-sm text-toned">
-                Acceso y protección de la cuenta.
-              </span>
-
-              <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <BaseButton
-                  variant="secondary"
-                  to="/users/me/logout"
-                  size="lg"
-                  class="px-6"
-                >
-                  Cerrar sesión
-                </BaseButton>
-
-                <BaseButton
-                  variant="primary"
-                  type="submit"
-                  size="lg"
-                  class="vtx-profile-submit px-6"
-                  :loading="passwordSubmitting"
-                >
-                  Actualizar contraseña
-                </BaseButton>
-              </div>
-            </div>
-          </FormRoot>
-        </article>
-      </div>
-    </section>
-
-    <template #aside>
-      <ClientOnly>
-        <UsersProfileAside
-          :initials="profileInitials"
-          :full-name="`${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim()"
-          :email="user?.email ?? 'Sin email'"
-          :avatar-configured="Boolean(profileState.avatarUrl.trim())"
-          :phone="profileState.phone"
-          :is-admin="isAdmin"
-          :role-view="roleView"
+  <section class="relative py-10 sm:py-14 lg:py-16">
+    <BaseContainer class="relative">
+      <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
+        <UiPageHeading
+          eyebrow="Mi cuenta"
+          title="Perfil y seguridad"
+          description="Actualizá tus datos personales y protegé el acceso a tu cuenta."
         />
 
-        <template #fallback>
-          <div class="rounded-panel border border-default bg-elevated/35 p-5 sm:p-6" aria-hidden="true">
-            <BaseSkeleton class="h-16 w-16 rounded-2xl" />
-            <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
-            <BaseSkeleton class="mt-2 h-4 w-44 rounded" />
-          </div>
-        </template>
-      </ClientOnly>
-    </template>
-  </UsersSettingsShell>
+        <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
+          <section class="space-y-6">
+            <div v-if="!initialized" class="space-y-4">
+              <BaseSkeleton class="h-52 rounded-2xl" />
+              <BaseSkeleton class="h-64 rounded-2xl" />
+            </div>
+
+            <div v-else class="space-y-6">
+              <UiPanel variant="glass" radius="lg" padding="md" class="space-y-6">
+                <div class="space-y-1 border-b border-default/55 pb-5">
+                  <UiMetaLabel tone="accent">
+                    Perfil
+                  </UiMetaLabel>
+                  <h2 class="text-xl font-semibold text-highlighted">
+                    Datos personales
+                  </h2>
+                  <p class="max-w-2xl text-sm leading-relaxed text-toned">
+                    Revisá la información visible de tu cuenta y mantené al día tus datos de contacto.
+                  </p>
+                </div>
+
+                <FormRoot
+                  :state="profileState"
+                  :schema="profileSchema"
+                  :validate-on="[]"
+                  class="space-y-6"
+                  @submit="submitProfile"
+                >
+                  <UsersProfileFields
+                    v-model:name="profileState.name"
+                    v-model:last-name="profileState.lastName"
+                    v-model:phone="profileState.phone"
+                    v-model:avatar-url="profileState.avatarUrl"
+                  />
+
+                  <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span class="text-sm text-toned">Datos visibles y de contacto.</span>
+                    <BaseButton
+                      variant="primary"
+                      type="submit"
+                      size="md"
+                      :loading="profileSubmitting"
+                      :disabled="!hasProfileChanges"
+                    >
+                      Guardar perfil
+                    </BaseButton>
+                  </div>
+                </FormRoot>
+              </UiPanel>
+
+              <UiPanel id="seguridad" variant="glass" radius="lg" padding="md" class="scroll-mt-28 space-y-6">
+                <div class="space-y-1 border-b border-default/55 pb-5">
+                  <UiMetaLabel tone="accent">
+                    Seguridad
+                  </UiMetaLabel>
+                  <h2 class="text-xl font-semibold text-highlighted">
+                    Acceso a la cuenta
+                  </h2>
+                  <p class="max-w-2xl text-sm leading-relaxed text-toned">
+                    Cambiá tu contraseña y gestioná el cierre de sesión desde el mismo bloque de seguridad.
+                  </p>
+                </div>
+
+                <FormRoot
+                  :state="passwordState"
+                  :schema="passwordSchema"
+                  :validate-on="[]"
+                  class="space-y-6"
+                  @submit="submitPassword"
+                >
+                  <UsersPasswordFields
+                    v-model:current-password="passwordState.currentPassword"
+                    v-model:new-password="passwordState.newPassword"
+                    v-model:confirm-password="passwordState.confirmPassword"
+                    v-model:show-current-password="showCurrentPassword"
+                    v-model:show-new-password="showNewPassword"
+                    v-model:show-confirm-password="showConfirmPassword"
+                  />
+
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <span class="text-sm text-toned">Acceso y protección de la cuenta.</span>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      <BaseButton
+                        variant="secondary"
+                        to="/users/me/logout"
+                        size="md"
+                      >
+                        Cerrar sesión
+                      </BaseButton>
+                      <BaseButton
+                        variant="primary"
+                        type="submit"
+                        size="md"
+                        :loading="passwordSubmitting"
+                      >
+                        Actualizar contraseña
+                      </BaseButton>
+                    </div>
+                  </div>
+                </FormRoot>
+              </UiPanel>
+            </div>
+          </section>
+
+          <aside class="space-y-6">
+            <ClientOnly>
+              <UiPanel variant="glass" radius="lg" padding="md">
+                <UsersProfileAside
+                  :initials="profileInitials"
+                  :full-name="`${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim()"
+                  :email="user?.email ?? 'Sin email'"
+                  :avatar-configured="Boolean(profileState.avatarUrl.trim())"
+                  :phone="profileState.phone"
+                  :is-admin="isAdmin"
+                  :role-view="roleView"
+                />
+              </UiPanel>
+
+              <template #fallback>
+                <div class="space-y-4" aria-hidden="true">
+                  <BaseSkeleton class="h-48 rounded-2xl" />
+                  <BaseSkeleton class="h-24 rounded-2xl" />
+                </div>
+              </template>
+            </ClientOnly>
+          </aside>
+        </div>
+      </div>
+    </BaseContainer>
+  </section>
 </template>
-
-<style scoped>
-@reference "@/assets/css/main.css";
-
-.vtx-profile-submit {
-  border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-primary) 10%, transparent),
-    color-mix(in srgb, var(--color-primary) 6%, transparent)
-  );
-  color: var(--color-highlighted);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.05),
-    0 14px 28px -24px color-mix(in srgb, var(--color-primary) 42%, transparent);
-  transition:
-    transform 0.15s ease-out,
-    border-color 0.15s ease-out,
-    background-color 0.15s ease-out,
-    box-shadow 0.15s ease-out,
-    color 0.15s ease-out;
-}
-
-.vtx-profile-submit:hover {
-  border-color: color-mix(in srgb, var(--color-primary) 26%, transparent);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-primary) 12%, transparent),
-    color-mix(in srgb, var(--color-primary) 8%, transparent)
-  );
-  color: white;
-  transform: translateY(-1px);
-  box-shadow: 0 18px 30px -24px color-mix(in srgb, var(--color-primary) 50%, transparent);
-}
-
-.vtx-profile-submit:active {
-  transform: translateY(1px);
-}
-</style>

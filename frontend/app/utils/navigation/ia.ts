@@ -7,6 +7,12 @@ export interface BackofficeNavItem extends AppNavItem {
   icon: string
 }
 
+export interface AccountNavItem extends AppNavItem {
+  icon: string
+}
+
+export const MY_EVENTS_NAV_ITEM: AppNavItem = { label: 'Mis Eventos', to: '/users/me/events' }
+
 export const MAIN_NAV_ITEMS: AppNavItem[] = [
   { label: 'Inicio', to: '/' },
   { label: 'Eventos', to: '/events' },
@@ -14,9 +20,15 @@ export const MAIN_NAV_ITEMS: AppNavItem[] = [
   { label: 'Venues', to: '/venues' },
 ]
 
+export const ACCOUNT_NAV_ITEMS: AccountNavItem[] = [
+  { label: 'Perfil', to: '/users/me', icon: 'i-lucide-user' },
+  { label: 'Entradas', to: '/users/me/tickets', icon: 'i-lucide-ticket' },
+  { label: 'Órdenes', to: '/users/me/orders', icon: 'i-lucide-shopping-bag' },
+  { label: 'Seguridad', to: '/users/me#seguridad', icon: 'i-lucide-shield' },
+]
+
 export const BACKOFFICE_NAV_ITEMS: BackofficeNavItem[] = [
-  { label: 'Backoffice', to: '/backoffice', icon: 'i-lucide-grid-2x2' },
-  { label: 'Dashboard', to: '/backoffice/dashboard', icon: 'i-lucide-layout-dashboard' },
+  { label: 'Dashboard', to: '/backoffice', icon: 'i-lucide-layout-dashboard' },
   { label: 'Eventos', to: '/backoffice/events', icon: 'i-lucide-calendar-range' },
   { label: 'Usuarios', to: '/backoffice/users', icon: 'i-lucide-users' },
   { label: 'Artistas', to: '/backoffice/artists', icon: 'i-lucide-mic-2' },

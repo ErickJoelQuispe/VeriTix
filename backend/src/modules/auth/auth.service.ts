@@ -68,6 +68,18 @@ export class AuthService {
     return this.buildTokenPair(user);
   }
 
+  async session(refreshToken: string): Promise<AuthResponseDto> {
+    const { user } = await this.resolveRefreshUser(refreshToken);
+
+    const accessToken = await this.jwtTokenService.signAccess({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return { accessToken, user: this.toUserDto(user) };
+  }
+
   async verifyEmail(token: string): Promise<{ message: string }> {
     const user = await this.authRepository.findByVerificationToken(token);
 
@@ -81,26 +93,10 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string): Promise<AuthResponseDto & TokenPair> {
-    let payload: { sub: string; jti: string };
-
-    try {
-      payload = await this.jwtTokenService.verifyRefresh(refreshToken);
-    } catch {
-      throw new UnauthorizedException('Refresh token inválido o expirado');
-    }
-
-    const stored = await this.authRepository.findRefreshToken(payload.jti);
-    if (!stored || stored.expiresAt < new Date()) {
-      throw new UnauthorizedException('Refresh token revocado o expirado');
-    }
-
-    const user = await this.authRepository.findById(payload.sub);
-    if (!user || !user.isActive) {
-      throw new UnauthorizedException('Usuario no encontrado o inactivo');
-    }
+    const { user, jti } = await this.resolveRefreshUser(refreshToken);
 
     // Rotación: eliminar token anterior y emitir uno nuevo
-    await this.authRepository.deleteRefreshToken(payload.jti);
+    await this.authRepository.deleteRefreshToken(jti);
     return this.buildTokenPair(user);
   }
 
@@ -143,6 +139,28 @@ export class AuthService {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+
+  private async resolveRefreshUser(refreshToken: string): Promise<{ user: User, jti: string }> {
+    let payload: { sub: string; jti: string };
+
+    try {
+      payload = await this.jwtTokenService.verifyRefresh(refreshToken);
+    } catch {
+      throw new UnauthorizedException('Refresh token inválido o expirado');
+    }
+
+    const stored = await this.authRepository.findRefreshToken(payload.jti);
+    if (!stored || stored.expiresAt < new Date()) {
+      throw new UnauthorizedException('Refresh token revocado o expirado');
+    }
+
+    const user = await this.authRepository.findById(payload.sub);
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('Usuario no encontrado o inactivo');
+    }
+
+    return { user, jti: payload.jti };
+  }
 
   private async buildTokenPair(
     user: User,

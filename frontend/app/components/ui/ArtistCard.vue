@@ -21,7 +21,7 @@ const featuredGenres = computed(() => props.artist.genres.slice(0, 3))
 
 <template>
   <UiPanel as="article" interactive radius="xl" padding="none" class="group flex h-full flex-col overflow-hidden">
-    <div class="relative aspect-4/3 overflow-hidden border-b border-white/10 bg-elevated/30">
+    <div class="relative aspect-4/3 overflow-hidden border-b border-white/10 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 bg-elevated/30">
       <NuxtImg
         v-if="artist.imageUrl"
         :src="artist.imageUrl"
@@ -79,7 +79,7 @@ const featuredGenres = computed(() => props.artist.genres.slice(0, 3))
         </BaseBadge>
       </div>
 
-      <div class="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4">
+      <div class="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35">
         <p class="text-xs leading-relaxed text-muted">
           {{ artist.genres.length }} género{{ artist.genres.length === 1 ? '' : 's' }} asociado{{ artist.genres.length === 1 ? '' : 's' }}
         </p>
