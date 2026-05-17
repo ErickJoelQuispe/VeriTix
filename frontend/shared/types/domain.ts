@@ -112,3 +112,15 @@ export interface VenueOption {
   name: string
   city: string
 }
+
+export interface TicketType {
+  id: string
+  name: string
+  description: string | null
+  price: number
+  availableQuantity: number
+  maxPerUser: number
+  isActive: boolean
+  saleStartDate: string | null
+  saleEndDate: string | null
+}
