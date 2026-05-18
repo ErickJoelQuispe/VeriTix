@@ -18,6 +18,7 @@ const cameraError = ref<string | null>(null)
 // scanError = transient read error shown as a toast-like message, video stays visible
 const scanError = ref<string | null>(null)
 const isScanning = ref(false)
+const debugText = ref<string>('')
 
 // Camera reader instance — typed loosely to avoid SSR issues
 let codeReader: { decodeFromVideoDevice: (deviceId: string | null, videoElement: HTMLVideoElement, callback: (result: unknown, err?: unknown) => void) => Promise<unknown> } | null = null
@@ -66,6 +67,7 @@ async function startCamera() {
           // Debounce: only process if same text confirmed twice within window
           if (text !== lastScannedText) {
             lastScannedText = text
+            debugText.value = text
             console.log('[QR]', JSON.stringify(text))
             if (scanDebounceTimer) clearTimeout(scanDebounceTimer)
             scanDebounceTimer = setTimeout(async () => {
