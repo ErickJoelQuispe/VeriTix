@@ -68,15 +68,6 @@ function isActiveItem(to: string): boolean {
         />
       </slot>
 
-      <div class="vtx-account-trigger-copy hidden min-w-0 flex-1 sm:block">
-        <p class="vtx-account-trigger-title truncate">
-          {{ props.title }}
-        </p>
-        <p class="vtx-account-trigger-subtitle truncate">
-          {{ props.subtitle }}
-        </p>
-      </div>
-
       <BaseIcon
         name="i-lucide-chevron-down"
         class="vtx-account-trigger-chevron"
@@ -142,37 +133,17 @@ function isActiveItem(to: string): boolean {
 @reference "@/assets/css/main.css";
 
 .vtx-account-trigger {
-  @apply inline-flex cursor-pointer items-center gap-2.5 rounded-full px-3 py-2;
+  @apply inline-flex cursor-pointer items-center gap-2 rounded-full px-2.5 py-2;
   border: 0;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03)),
-    color-mix(in srgb, var(--color-elevated) 88%, black);
-  border: 1px solid rgb(255 255 255 / 0.06);
+  background: color-mix(in srgb, var(--color-elevated) 97%, black);
+  border: 1px solid color-mix(in srgb, var(--color-toned) 7%, transparent);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.05),
-    0 14px 28px -26px rgb(0 0 0 / 0.72);
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 6px 14px -16px rgb(0 0 0 / 0.34);
   transition:
     background-color 0.16s ease-out,
     box-shadow 0.16s ease-out,
     transform 0.16s ease-out;
-}
-
-.vtx-account-trigger-copy {
-  @apply min-w-0 text-left;
-}
-
-.vtx-account-trigger-title {
-  color: var(--color-highlighted);
-  font-size: 0.86rem;
-  font-weight: 500;
-  line-height: 1.1;
-}
-
-.vtx-account-trigger-subtitle {
-  margin-top: 0.1rem;
-  color: color-mix(in srgb, var(--color-toned) 68%, transparent);
-  font-size: 0.66rem;
-  line-height: 1.1;
 }
 
 .vtx-account-trigger-chevron {
@@ -180,7 +151,7 @@ function isActiveItem(to: string): boolean {
   height: 0.9rem;
   color: color-mix(in srgb, var(--color-toned) 72%, transparent);
   transition: transform 0.18s ease-out, color 0.18s ease-out;
-  opacity: 0.82;
+  opacity: 0.78;
 }
 
 .vtx-account-trigger.is-open .vtx-account-trigger-chevron {
@@ -189,48 +160,37 @@ function isActiveItem(to: string): boolean {
 }
 
 .vtx-account-trigger.is-open {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.11), rgb(255 255 255 / 0.05)),
-    color-mix(in srgb, var(--color-elevated) 84%, black);
-  border-color: color-mix(in srgb, var(--color-accent) 22%, rgb(255 255 255 / 0.06));
+  background: color-mix(in srgb, var(--color-elevated) 98%, black);
+  border-color: color-mix(in srgb, var(--color-accent) 8%, var(--color-toned) 12%);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.08),
-    0 0 0 1px color-mix(in srgb, var(--color-accent) 14%, transparent),
-    0 20px 34px -26px rgb(0 0 0 / 0.8);
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 8%, transparent),
+    0 8px 18px -18px rgb(0 0 0 / 0.38);
 }
 
 .vtx-account-trigger:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px rgb(239 170 71 / 0.28),
-    0 0 0 5px rgb(239 170 71 / 0.07),
-    inset 0 0 0 1px rgb(255 255 255 / 0.05);
+    0 0 0 2px color-mix(in srgb, var(--color-primary) 28%, transparent),
+    0 0 0 5px color-mix(in srgb, var(--color-primary) 8%, transparent),
+    inset 0 0 0 1px rgb(255 255 255 / 0.04);
 }
 
 .vtx-account-trigger:hover {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.04)),
-    color-mix(in srgb, var(--color-elevated) 86%, black);
+  background: color-mix(in srgb, var(--color-elevated) 97%, black);
+  border-color: color-mix(in srgb, var(--color-toned) 9%, transparent);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.08),
-    0 18px 34px -26px rgb(0 0 0 / 0.8);
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 8px 18px -18px rgb(0 0 0 / 0.34);
   transform: translateY(-1px);
 }
 
 .vtx-account-trigger:active {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.07), rgb(255 255 255 / 0.04)),
-    color-mix(in srgb, var(--color-elevated) 86%, black);
+  background: color-mix(in srgb, var(--color-elevated) 92%, black);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.05),
-    0 8px 18px -20px rgb(0 0 0 / 0.72);
+    0 5px 12px -14px rgb(0 0 0 / 0.3);
   transform: translateY(0);
-}
-
-.vtx-account-avatar {
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.08),
-    0 8px 18px -14px rgb(0 0 0 / 0.85);
 }
 
 .vtx-account-panel {
