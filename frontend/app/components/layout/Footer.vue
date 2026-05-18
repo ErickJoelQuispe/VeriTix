@@ -14,7 +14,7 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
           frequency.
         </h3>
 
-        <div v-if="isBackofficeRoute" class="grid gap-10 sm:grid-cols-2 lg:ml-auto lg:grid-cols-3 lg:gap-16">
+        <div v-if="isBackofficeRoute" class="grid w-full grid-cols-2 gap-x-10 gap-y-8 sm:grid-cols-3 lg:ml-auto lg:w-auto lg:grid-cols-3 lg:gap-16">
           <div>
             <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
               Backoffice
@@ -73,7 +73,7 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
           </div>
         </div>
 
-        <div v-else class="grid gap-10 sm:grid-cols-2 lg:ml-auto lg:grid-cols-3 lg:gap-16">
+        <div v-else class="grid w-full grid-cols-2 gap-x-10 gap-y-8 sm:grid-cols-3 lg:ml-auto lg:w-auto lg:grid-cols-3 lg:gap-16">
           <div>
             <p class="mb-4 text-xs tracking-[0.12em] text-muted uppercase">
               Discover
@@ -143,7 +143,7 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
         </div>
       </div>
 
-      <div class="mt-14 flex items-center justify-between border-t border-default/75 pt-6 text-xs tracking-wide text-muted uppercase">
+      <div class="vtx-footer-separator mt-14 flex flex-col gap-3 pt-6 text-xs tracking-wide text-muted uppercase sm:flex-row sm:items-center sm:justify-between">
         <p class="font-display text-lg normal-case text-highlighted">
           VeriTix
         </p>
@@ -152,3 +152,11 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
     </BaseContainer>
   </footer>
 </template>
+
+<style scoped>
+@reference "@/assets/css/main.css";
+
+.vtx-footer-separator {
+  border-top: 1px solid color-mix(in srgb, var(--color-toned) 32%, transparent);
+}
+</style>
