@@ -94,7 +94,7 @@ const hasError = computed(() => Boolean(errorMessage.value))
 
 const controlClass = computed(() => {
   return [
-    'flex min-h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-default/55 bg-default/20 px-3 text-sm font-medium text-highlighted shadow-sm transition hover:border-lavender/35 hover:bg-default/30 focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/20 disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    'flex min-h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-default/55 bg-default/30 px-3 text-sm font-medium text-highlighted shadow-sm transition hover:border-lavender/35 hover:bg-default/35 focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/20 disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     hasError.value ? 'border-error/70 ring-2 ring-error/20 hover:border-error/70 hover:bg-default/20 focus-visible:border-error/70 focus-visible:ring-error/20' : '',
     hasLeading.value ? 'pl-11' : '',
     'pr-11',
@@ -184,7 +184,7 @@ onBeforeUnmount(() => {
       <BaseIcon
         v-if="props.icon"
         :name="props.icon"
-        class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-lavender/80"
+        class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/45 opacity-75"
         aria-hidden="true"
       />
 
@@ -240,7 +240,7 @@ onBeforeUnmount(() => {
           <BaseIcon
             v-if="props.icon"
             :name="props.icon"
-            class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-lavender/80"
+            class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/45 opacity-75"
             aria-hidden="true"
           />
 
@@ -274,7 +274,7 @@ onBeforeUnmount(() => {
       <BaseIcon
         v-if="!props.multiple"
         name="i-lucide-chevron-down"
-        class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-lavender/70 transition-transform"
+        class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-white/45 opacity-75 transition-transform"
         :class="isOpen ? 'rotate-180' : ''"
         aria-hidden="true"
       />
