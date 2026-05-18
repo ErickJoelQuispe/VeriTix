@@ -241,10 +241,10 @@ watch(
               <BaseButton
                 v-if="showMyEventsLink"
                 :to="MY_EVENTS_NAV_ITEM.to"
-                variant="outlined"
+                variant="secondary"
                 size="sm"
                 leading-icon="i-lucide-calendar-range"
-                class="hidden sm:inline-flex"
+                class="hidden rounded-full! px-4.5! sm:inline-flex"
               >
                 {{ MY_EVENTS_NAV_ITEM.label }}
               </BaseButton>
