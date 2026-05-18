@@ -7,7 +7,7 @@ withDefaults(defineProps<{
 }>(), {
   description: '',
   eyebrow: '',
-  variant: 'solid',
+  variant: 'glass',
 })
 </script>
 

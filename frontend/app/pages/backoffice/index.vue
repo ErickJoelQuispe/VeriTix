@@ -256,7 +256,7 @@ onMounted(() => {
         <!-- Activity + Attention -->
         <div class="grid gap-6 xl:grid-cols-2">
           <!-- Actividad reciente -->
-          <PagesBackofficeOverviewPanel title="Actividad reciente" description="Próximos eventos en la agenda.">
+          <PagesBackofficeOverviewPanel title="Actividad reciente" description="Próximos eventos en la agenda." variant="glass">
             <template #actions>
               <BaseButton variant="outlined" size="sm" to="/backoffice/events" trailing-icon="i-lucide-arrow-right">
                 Ver todos
