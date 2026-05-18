@@ -26,6 +26,7 @@ useSeoMeta({
 
 const searchDraft = ref(readQueryValue(route.query.search))
 const cityDraft = ref(readQueryValue(route.query.city))
+const filtersOpen = ref(false)
 
 const filters = computed(() => ({
   search: readQueryValue(route.query.search),
@@ -181,7 +182,7 @@ async function handlePageChange(page: number) {
             class="relative z-10 space-y-6"
             @submit.prevent="submitSearch"
           >
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div class="space-y-1">
                 <UiMetaLabel as="h2" tone="accent">
                   Filtros
@@ -189,6 +190,95 @@ async function handlePageChange(page: number) {
                 <p class="text-sm leading-relaxed text-toned">
                   Buscá por nombre o dirección y afiná por ciudad o tipo.
                 </p>
+              </div>
+
+              <div class="flex flex-col gap-2 lg:hidden">
+                <BaseButton
+                  variant="outlined"
+                  type="button"
+                  size="sm"
+                  class="w-full"
+                  :disabled="isPending"
+                  leading-icon="i-lucide-sliders-horizontal"
+                  @click="filtersOpen = !filtersOpen"
+                >
+                  Filtros ({{ activeFilterCount }})
+                </BaseButton>
+
+                <p class="text-xs leading-relaxed text-muted">
+                  <span v-if="activeFilterCount">
+                    {{ activeFilterCount }} filtro{{ activeFilterCount === 1 ? '' : 's' }} activo{{ activeFilterCount === 1 ? '' : 's' }}
+                  </span>
+                  <span v-else>
+                    Sin filtros activos.
+                  </span>
+                </p>
+              </div>
+
+              <div class="hidden gap-2 lg:flex">
+                <BaseButton
+                  variant="outlined"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  :disabled="isPending"
+                  leading-icon="i-lucide-rotate-ccw"
+                  @click="clearFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
+
+                <BaseButton
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  :loading="isPending"
+                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
+                >
+                  Buscar
+                </BaseButton>
+              </div>
+            </div>
+
+            <div class="space-y-6 lg:block" :class="filtersOpen ? 'block' : 'hidden'">
+              <div class="grid gap-4 lg:grid-cols-2">
+                <FormInput
+                  v-model="searchDraft"
+                  label="Nombre o dirección"
+                  name="search"
+                  placeholder="Buscá por venue o dirección"
+                  icon="i-lucide-search"
+                  size="md"
+                  :disabled="isPending"
+                  class="lg:col-span-2"
+                />
+
+                <FormInput
+                  v-model="cityDraft"
+                  label="Ciudad"
+                  name="city"
+                  placeholder="Granada, CDMX, Bogotá"
+                  icon="i-lucide-map-pin"
+                  size="md"
+                  :disabled="isPending"
+                />
+
+                <FormSelect
+                  label="Tipo"
+                  name="type"
+                  :model-value="filters.type || ALL_OPTION_VALUE"
+                  :items="venueTypeItems"
+                  :placeholder-value="ALL_OPTION_VALUE"
+                  icon="i-lucide-building-2"
+                  size="md"
+                  :disabled="isPending"
+                  @update:model-value="
+                    updateFilters({
+                      type: $event === ALL_OPTION_VALUE ? '' : String($event),
+                    })
+                  "
+                />
               </div>
 
               <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -215,45 +305,6 @@ async function handlePageChange(page: number) {
                   Buscar
                 </BaseButton>
               </div>
-            </div>
-
-            <div class="grid gap-4 lg:grid-cols-2">
-              <FormInput
-                v-model="searchDraft"
-                label="Nombre o dirección"
-                name="search"
-                placeholder="Buscá por venue o dirección"
-                icon="i-lucide-search"
-                size="md"
-                :disabled="isPending"
-                class="lg:col-span-2"
-              />
-
-              <FormInput
-                v-model="cityDraft"
-                label="Ciudad"
-                name="city"
-                placeholder="Granada, CDMX, Bogotá"
-                icon="i-lucide-map-pin"
-                size="md"
-                :disabled="isPending"
-              />
-
-              <FormSelect
-                label="Tipo"
-                name="type"
-                :model-value="filters.type || ALL_OPTION_VALUE"
-                :items="venueTypeItems"
-                :placeholder-value="ALL_OPTION_VALUE"
-                icon="i-lucide-building-2"
-                size="md"
-                :disabled="isPending"
-                @update:model-value="
-                  updateFilters({
-                    type: $event === ALL_OPTION_VALUE ? '' : String($event),
-                  })
-                "
-              />
             </div>
           </UiPanel>
         </div>

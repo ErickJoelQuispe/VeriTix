@@ -25,7 +25,7 @@ const venueTypeLabel = computed(() => venueTypeLabels[props.venue.type] ?? props
 
 <template>
   <UiPanel as="article" interactive radius="xl" padding="none" class="group flex h-full flex-col overflow-hidden">
-    <div class="relative aspect-4/3 overflow-hidden border-b border-white/10 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 bg-elevated/30">
+    <div class="relative aspect-video overflow-hidden border-b border-white/10 bg-elevated/30 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 sm:aspect-4/3">
       <NuxtImg
         v-if="venue.imageUrl"
         :src="venue.imageUrl"
@@ -58,18 +58,18 @@ const venueTypeLabel = computed(() => venueTypeLabels[props.venue.type] ?? props
       </div>
     </div>
 
-    <div class="flex flex-1 flex-col gap-4 p-5 sm:p-6">
+    <div class="flex flex-1 flex-col gap-3 p-4 sm:p-6">
       <div class="space-y-2">
-        <h3 class="text-lg font-semibold leading-tight text-highlighted">
+        <h3 class="text-base font-semibold leading-tight text-highlighted sm:text-lg">
           {{ venue.name }}
         </h3>
 
-        <p class="text-sm leading-relaxed text-toned">
+        <p class="line-clamp-2 text-sm leading-relaxed text-toned">
           {{ venue.address }}
         </p>
       </div>
 
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-1.5 sm:gap-2">
         <BaseBadge kind="tag" size="sm">
           {{ featuredLabel }}
         </BaseBadge>
@@ -78,16 +78,17 @@ const venueTypeLabel = computed(() => venueTypeLabels[props.venue.type] ?? props
         </BaseBadge>
       </div>
 
-      <div class="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35">
+      <div class="mt-auto flex flex-col gap-3 border-t border-white/10 pt-3 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 sm:flex-row sm:items-center sm:justify-between sm:pt-4">
         <p class="text-xs leading-relaxed text-muted">
           {{ venue.state ? venue.state : 'Sin estado/provincia' }}
         </p>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
           <BaseButton
             :to="`/venues/${venue.id}`"
             variant="secondary"
             size="sm"
+            class="w-full sm:w-auto"
             trailing-icon="i-lucide-arrow-right"
           >
             Ver venue
@@ -98,6 +99,7 @@ const venueTypeLabel = computed(() => venueTypeLabels[props.venue.type] ?? props
             :href="venue.website"
             variant="outlined"
             size="sm"
+            class="w-full sm:w-auto"
             target="_blank"
             rel="noreferrer"
             trailing-icon="i-lucide-arrow-up-right"
