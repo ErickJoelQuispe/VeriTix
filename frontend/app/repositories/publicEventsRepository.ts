@@ -25,7 +25,7 @@ export function toIsoString(
   return typeof value === 'string' ? value : value.toISOString()
 }
 
-export function buildFallbackImage(seed: string): string {
+function buildFallbackImage(seed: string): string {
   return `https://picsum.photos/seed/${seed}/900/1200`
 }
 

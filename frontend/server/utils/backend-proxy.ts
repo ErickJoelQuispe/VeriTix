@@ -52,7 +52,7 @@ function normalizeBackendError(error: unknown): never {
   })
 }
 
-function buildProxyHeaders(event: H3Event, path: string, headersInit?: HeadersInit): Headers {
+function buildProxyHeaders(event: H3Event, headersInit?: HeadersInit): Headers {
   const headers = new Headers(headersInit)
 
   const cookieHeader = getHeader(event, 'cookie')
@@ -115,7 +115,7 @@ export async function proxyBackendRequest<TResponse, TBody extends BodyInit | ob
       method: options.method,
       body: options.body,
       query: options.query,
-      headers: buildProxyHeaders(event, path, options.headers),
+      headers: buildProxyHeaders(event, options.headers),
     })
 
     setResponseStatus(event, response.status)

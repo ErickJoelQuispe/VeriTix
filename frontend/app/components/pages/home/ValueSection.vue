@@ -59,10 +59,6 @@ const valuePillars = [
 <style scoped>
 @reference "@/assets/css/main.css";
 
-.vtx-section-fade {
-  animation: section-fade-in 700ms ease-out both;
-}
-
 .vtx-value-pillar {
   @apply px-0 py-5 md:px-6 md:py-0;
 }
@@ -86,25 +82,5 @@ const valuePillars = [
   mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
   pointer-events: none;
   opacity: 0.18;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .vtx-section-fade {
-    @apply opacity-100;
-    animation: none;
-    transform: none;
-  }
-}
-
-@keyframes section-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 </style>

@@ -54,28 +54,4 @@ const featuredEvents = computed(() => {
 
 <style scoped>
 @reference "@/assets/css/main.css";
-
-.vtx-section-fade {
-  animation: section-fade-in 700ms ease-out both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .vtx-section-fade {
-    @apply opacity-100;
-    animation: none;
-    transform: none;
-  }
-}
-
-@keyframes section-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 </style>

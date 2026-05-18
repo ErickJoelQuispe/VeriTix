@@ -11,7 +11,6 @@ import {
   readPageQuery,
   withDefinedQuery,
 } from '~~/server/utils/request'
-import { toUiPaginatedResponse } from '~~/shared/api/pagination'
 
 function normalizeArtistsCatalogQuery(event: H3Event) {
   return withDefinedQuery({
@@ -43,5 +42,5 @@ export default createCachedHandler(async (event) => {
     query: normalizedQuery,
   })
 
-  return toUiPaginatedResponse(response)
+  return response
 }, artistsListCachePolicy)

@@ -4,7 +4,7 @@ import type {
   BackofficeUserRecord,
 } from '~~/shared/types'
 import { useBackofficeUsersRepository } from '@/repositories/backofficeUsersRepository'
-import { hasUserSemanticChanges, normalizeUpdateUserPayload } from '@/utils/backoffice/formSafeRails'
+import { hasUserSemanticChanges } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar usuario | Backoffice VeriTix' })
@@ -107,9 +107,7 @@ async function updateUser(payload: BackofficeUpdateUserPayload) {
     return
   }
 
-  const normalizedPayload = normalizeUpdateUserPayload(payload)
-
-  if (!hasUserSemanticChanges(user.value, normalizedPayload)) {
+  if (!hasUserSemanticChanges(user.value, payload)) {
     notifyInfo('No hay cambios para guardar.', { id: 'admin-users-no-changes' })
     return
   }
@@ -117,13 +115,13 @@ async function updateUser(payload: BackofficeUpdateUserPayload) {
   submitting.value = true
 
   try {
-    const hasAvailableEmail = await validateEmailAvailability(normalizedPayload.email ?? '')
+    const hasAvailableEmail = await validateEmailAvailability(payload.email ?? '')
 
     if (!hasAvailableEmail) {
       return
     }
 
-    user.value = await updateBackofficeUser(userId.value, normalizedPayload)
+    user.value = await updateBackofficeUser(userId.value, payload)
 
     notifySuccess('Usuario actualizado correctamente.', { id: 'admin-users-update-success' })
   }
