@@ -18,7 +18,6 @@ const cameraError = ref<string | null>(null)
 // scanError = transient read error shown as a toast-like message, video stays visible
 const scanError = ref<string | null>(null)
 const isScanning = ref(false)
-const debugText = ref<string>('')
 
 // Camera reader instance — typed loosely to avoid SSR issues
 let codeReader: { decodeFromVideoDevice: (deviceId: string | null, videoElement: HTMLVideoElement, callback: (result: unknown, err?: unknown) => void) => Promise<unknown> } | null = null
@@ -67,12 +66,9 @@ async function startCamera() {
           // Debounce: only process if same text confirmed twice within window
           if (text !== lastScannedText) {
             lastScannedText = text
-            debugText.value = text
-            console.log('[QR]', JSON.stringify(text))
             if (scanDebounceTimer) clearTimeout(scanDebounceTimer)
             scanDebounceTimer = setTimeout(async () => {
               if (!isValidPayload(text)) {
-                console.log('[QR] invalid format, ignored')
                 return
               }
               scanError.value = null
@@ -213,11 +209,7 @@ onUnmounted(() => {
                 Centrá el código QR dentro del recuadro
               </p>
 
-              <!-- DEBUG: remove after testing -->
-              <div v-if="debugText" class="rounded-lg bg-black/80 p-2 text-xs text-green-400 break-all font-mono">
-                <p class="text-white/50 mb-1">QR detectado:</p>
-                {{ debugText }}
-              </div>
+
             </div>
           </UiPanel>
         </template>
