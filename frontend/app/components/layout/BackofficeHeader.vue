@@ -119,7 +119,7 @@ watch(
             >
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-full border border-default/60 bg-elevated/90 px-4 py-2 text-sm font-medium text-highlighted shadow-[0_10px_24px_-20px_rgb(0_0_0_/_0.8)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+                class="inline-flex items-center gap-2 rounded-full border border-default/60 bg-elevated/90 px-4 py-2 text-sm font-medium text-highlighted shadow-[0_10px_24px_-20px_rgb(0_0_0/0.8)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
                 :aria-expanded="mobileMenuOpen"
                 aria-controls="backoffice-mobile-menu"
                 aria-label="Abrir menú de backoffice"
@@ -274,7 +274,7 @@ watch(
 @reference "@/assets/css/main.css";
 
 .vtx-backoffice-mobile-panel {
-  @apply w-[min(22rem,calc(100vw-1rem))] overflow-hidden rounded-[1.5rem] border p-2 shadow-[0_30px_64px_-44px_rgb(0_0_0_/_0.86)];
+  @apply w-[min(22rem,calc(100vw-1rem))] overflow-hidden rounded-3xl border p-2 shadow-[0_30px_64px_-44px_rgb(0_0_0/0.86)];
   background-color: var(--color-elevated);
   border-color: color-mix(in srgb, var(--color-lavender) 14%, color-mix(in srgb, var(--color-border) 82%, white));
   backdrop-filter: none;

@@ -154,14 +154,14 @@ function handleTransferSuccess() {
                   v-if="qrDataUrl"
                   :src="qrDataUrl"
                   alt="QR de la entrada"
-                  class="size-[200px] rounded-xl"
+                  class="size-50 rounded-xl"
                   width="200"
                   height="200"
                 >
-                <BaseSkeleton v-else class="size-[200px] rounded-xl" />
+                <BaseSkeleton v-else class="size-50 rounded-xl" />
               </div>
               <template #fallback>
-                <BaseSkeleton class="size-[200px] rounded-xl" />
+                <BaseSkeleton class="size-50 rounded-xl" />
               </template>
             </ClientOnly>
 

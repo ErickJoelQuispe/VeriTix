@@ -107,7 +107,7 @@ watch(() => props.src, () => {
       decoding="async"
       @error="handleImageError"
     >
-    <span v-else class="relative z-[1] font-semibold uppercase leading-none tracking-[0.06em] text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)]">
+    <span v-else class="relative z-1 font-semibold uppercase leading-none tracking-[0.06em] text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.45)]">
       {{ initials }}
     </span>
   </div>
