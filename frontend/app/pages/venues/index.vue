@@ -217,7 +217,18 @@ async function handlePageChange(page: number) {
 
               <div class="hidden gap-2 lg:flex">
                 <BaseButton
-                  variant="outlined"
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="isPending"
+                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
+                >
+                  Buscar
+                </BaseButton>
+
+                <BaseButton
+                  variant="reversed"
                   type="button"
                   size="sm"
                   class="w-full sm:w-auto"
@@ -226,17 +237,6 @@ async function handlePageChange(page: number) {
                   @click="clearFilters"
                 >
                   Limpiar filtros
-                </BaseButton>
-
-                <BaseButton
-                  variant="primary"
-                  type="submit"
-                  size="sm"
-                  class="w-full sm:w-auto"
-                  :loading="isPending"
-                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
-                >
-                  Buscar
                 </BaseButton>
               </div>
 
@@ -284,7 +284,18 @@ async function handlePageChange(page: number) {
 
               <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
                 <BaseButton
-                  variant="outlined"
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="isPending"
+                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
+                >
+                  Buscar
+                </BaseButton>
+
+                <BaseButton
+                  variant="reversed"
                   type="button"
                   size="sm"
                   class="w-full sm:w-auto"
@@ -293,17 +304,6 @@ async function handlePageChange(page: number) {
                   @click="clearFilters"
                 >
                   Limpiar filtros
-                </BaseButton>
-
-                <BaseButton
-                  variant="primary"
-                  type="submit"
-                  size="sm"
-                  class="w-full sm:w-auto"
-                  :loading="isPending"
-                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
-                >
-                  Buscar
                 </BaseButton>
               </div>
             </div>
