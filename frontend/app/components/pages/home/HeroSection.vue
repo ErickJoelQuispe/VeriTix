@@ -13,8 +13,8 @@ function onSearch() {
     class="vtx-section-fade relative scroll-mt-36 py-14 sm:scroll-mt-40 sm:py-16 lg:scroll-mt-44 lg:py-24"
   >
     <BaseContainer>
-      <div class="relative grid items-center gap-10 lg:grid-cols-[1.15fr_.85fr] lg:gap-12">
-        <div class="space-y-8 animate-hero-reveal">
+      <div class="relative grid items-start gap-10 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:gap-12">
+        <div class="relative z-10 space-y-8 pr-20 sm:pr-28 lg:pr-0 animate-hero-reveal">
           <h1 class="space-y-3 font-display text-6xl leading-[0.9] text-highlighted md:text-7xl lg:text-8xl">
             <span class="relative inline-block">
               <svg class="vtx-hero-diamond absolute -left-17 top-1/2 hidden h-20 w-20 -translate-y-1/2 opacity-96 md:-left-20 md:h-22 md:w-22 lg:block" viewBox="0 0 64 64" aria-hidden="true">
@@ -106,8 +106,8 @@ function onSearch() {
           </div>
         </div>
 
-        <div class="animate-hero-reveal">
-          <PagesHomeCrystalPrism />
+        <div class="pointer-events-none absolute -right-2 -top-12 z-0 w-44 opacity-70 sm:-right-4 sm:-top-14 sm:w-52 md:-right-6 md:-top-16 md:w-60 lg:static lg:w-full lg:max-w-md lg:opacity-100 animate-hero-reveal">
+          <PagesHomeCrystalPrism compact />
         </div>
       </div>
     </BaseContainer>
