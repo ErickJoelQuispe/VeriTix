@@ -119,8 +119,8 @@ function goToPage(nextPage: number) {
 </script>
 
 <template>
-  <nav v-bind="forwardedAttrs" class="flex flex-col items-center gap-3 sm:flex-row" :class="[paginationClass]" aria-label="Pagination">
-    <div v-if="showEdges" class="flex items-center gap-2">
+  <nav v-bind="forwardedAttrs" class="flex items-center gap-2 overflow-x-auto whitespace-nowrap sm:overflow-visible" :class="[paginationClass]" aria-label="Pagination">
+    <div v-if="showEdges" class="flex shrink-0 items-center gap-2">
       <button
         type="button"
         class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
@@ -154,13 +154,13 @@ function goToPage(nextPage: number) {
       </button>
     </div>
 
-    <div class="flex items-center gap-1">
+    <div class="flex shrink-0 items-center gap-1">
       <template v-for="(item, index) in pageItems" :key="`${item}-${index}`">
-        <span v-if="item === 'ellipsis'" class="inline-flex h-10 w-10 items-center justify-center text-toned/70">…</span>
+        <span v-if="item === 'ellipsis'" class="inline-flex h-10 w-10 shrink-0 items-center justify-center text-toned/70">…</span>
         <button
           v-else
           type="button"
-          class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
+          class="inline-flex shrink-0 items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
           :class="[buttonSizeClass, pageStateClass(Number(item))]"
           :disabled="disabled"
           :aria-current="item === currentPage ? 'page' : undefined"
@@ -171,7 +171,7 @@ function goToPage(nextPage: number) {
       </template>
     </div>
 
-    <div v-if="showEdges" class="flex items-center gap-2">
+    <div v-if="showEdges" class="flex shrink-0 items-center gap-2">
       <button
         type="button"
         class="inline-flex items-center justify-center rounded-lg border font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30"
