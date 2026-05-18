@@ -66,10 +66,11 @@ async function startCamera() {
           // Debounce: only process if same text confirmed twice within window
           if (text !== lastScannedText) {
             lastScannedText = text
+            console.log('[QR]', JSON.stringify(text))
             if (scanDebounceTimer) clearTimeout(scanDebounceTimer)
             scanDebounceTimer = setTimeout(async () => {
               if (!isValidPayload(text)) {
-                // QR detected but not a VeriTix ticket — ignore silently
+                console.log('[QR] invalid format, ignored')
                 return
               }
               scanError.value = null
