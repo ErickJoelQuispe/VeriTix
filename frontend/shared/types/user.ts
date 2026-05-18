@@ -20,6 +20,7 @@ export interface UserProfile extends UserIdentity {
 export interface UpdateProfileRequest {
   name?: string
   lastName?: string
+  email?: string
   phone?: string
   avatarUrl?: string
 }

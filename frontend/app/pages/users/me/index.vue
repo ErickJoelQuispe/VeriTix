@@ -14,6 +14,7 @@ useSeoMeta({
 const profileSchema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
   lastName: z.string().min(1, 'El apellido es obligatorio'),
+  email: z.string().email('Ingresá un email válido').or(z.literal('')),
   phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'El teléfono debe estar en formato E.164 (ej: +34958123456)').or(z.literal('')),
   avatarUrl: z.string().url('Ingresá una URL válida').or(z.literal('')),
 })
@@ -33,6 +34,7 @@ const passwordSchema = z.object({
 const profileState = reactive({
   name: '',
   lastName: '',
+  email: '',
   phone: '',
   avatarUrl: '',
 })
@@ -53,15 +55,7 @@ const showConfirmPassword = ref(false)
 const { user, fetchProfile, updateProfile, changePassword } = useProfile()
 const { notifyApiError, notifyInfo, notifySuccess } = useAppNotifications()
 
-const roleViews: Record<UserRole, { title: string, capabilities: string[] }> = {
-  BUYER: {
-    title: 'Acceso de comprador',
-    capabilities: [
-      'Datos para compras y facturación',
-      'Historial y uso de entradas',
-      'Avisos relacionados con eventos',
-    ],
-  },
+const roleViews: Partial<Record<Exclude<UserRole, 'BUYER'>, { title: string, capabilities: string[] }>> = {
   CREATOR: {
     title: 'Acceso de creador',
     capabilities: [
@@ -93,6 +87,10 @@ const roleView = computed(() => {
     return null
   }
 
+  if (user.value.role === 'BUYER') {
+    return null
+  }
+
   return roleViews[user.value.role]
 })
 
@@ -108,6 +106,7 @@ const hasProfileChanges = computed(() => {
   return (
     profileState.name.trim() !== user.value?.name
     || profileState.lastName.trim() !== user.value?.lastName
+    || profileState.email.trim() !== (user.value?.email ?? '')
     || profileState.phone.trim() !== (user.value?.phone ?? '')
     || profileState.avatarUrl.trim() !== (user.value?.avatarUrl ?? '')
   )
@@ -120,6 +119,7 @@ function applyProfileState() {
 
   profileState.name = user.value.name
   profileState.lastName = user.value.lastName
+  profileState.email = user.value.email
   profileState.phone = user.value.phone ?? ''
   profileState.avatarUrl = user.value.avatarUrl ?? ''
 }
@@ -149,6 +149,7 @@ async function submitProfile() {
     await updateProfile({
       name: profileState.name.trim(),
       lastName: profileState.lastName.trim(),
+      email: profileState.email.trim(),
       phone: profileState.phone.trim(),
       avatarUrl: profileState.avatarUrl.trim() || undefined,
     })
@@ -199,8 +200,6 @@ onMounted(() => {
           eyebrow="Ajustes"
           title="Perfil y seguridad"
           description="Actualiza tus datos personales y protege el acceso a tu cuenta desde un único espacio más claro."
-          action-label="Cerrar sesión"
-          action-to="/users/me/logout"
         />
 
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
@@ -264,6 +263,16 @@ onMounted(() => {
                           required
                         />
                       </div>
+
+                      <FormField
+                        v-model="profileState.avatarUrl"
+                        name="avatarUrl"
+                        label="Avatar URL"
+                        help="Opcional"
+                        type="url"
+                        placeholder="https://..."
+                        icon="i-lucide-image"
+                      />
                     </section>
 
                     <section class="space-y-4 border-b border-default/55 pb-6">
@@ -278,6 +287,16 @@ onMounted(() => {
 
                       <div class="grid gap-4">
                         <FormField
+                          v-model="profileState.email"
+                          name="email"
+                          label="Email"
+                          type="email"
+                          placeholder="tu@email.com"
+                          icon="i-lucide-mail"
+                          required
+                        />
+
+                        <FormField
                           v-model="profileState.phone"
                           name="phone"
                           label="Teléfono"
@@ -285,16 +304,6 @@ onMounted(() => {
                           type="tel"
                           placeholder="+34958123456"
                           icon="i-lucide-phone"
-                        />
-
-                        <FormField
-                          v-model="profileState.avatarUrl"
-                          name="avatarUrl"
-                          label="Avatar URL"
-                          help="Opcional"
-                          type="url"
-                          placeholder="https://..."
-                          icon="i-lucide-image"
                         />
                       </div>
                     </section>
@@ -325,10 +334,10 @@ onMounted(() => {
                     Seguridad
                   </UiMetaLabel>
                   <h2 class="text-2xl font-semibold text-highlighted sm:text-3xl">
-                    Acceso a la cuenta
+                    Cambiar contraseña
                   </h2>
                   <p class="max-w-2xl text-sm leading-relaxed text-toned">
-                    Cambiá tu contraseña y gestioná el cierre de sesión desde el mismo bloque de seguridad.
+                    Actualizá tu clave desde este bloque de seguridad.
                   </p>
                 </div>
 
@@ -336,19 +345,14 @@ onMounted(() => {
                   :state="passwordState"
                   :schema="passwordSchema"
                   :validate-on="[]"
-                  class="space-y-6 pt-6"
+                  class="space-y-8 pt-6"
                   @submit="submitPassword"
                 >
-                  <div class="space-y-6">
+                  <div class="space-y-8">
                     <div class="space-y-2">
-                      <div>
-                        <UiMetaLabel>
-                          Seguridad
-                        </UiMetaLabel>
-                        <h3 class="mt-3 text-2xl font-semibold text-highlighted">
-                          Cambiar contraseña
-                        </h3>
-                      </div>
+                      <h3 class="text-2xl font-semibold text-highlighted">
+                        Cambiar contraseña
+                      </h3>
 
                       <p class="text-sm leading-relaxed text-toned">
                         Usá una clave nueva con al menos 8 caracteres, una mayúscula y un número.
@@ -366,7 +370,7 @@ onMounted(() => {
                       @update:show="showCurrentPassword = $event"
                     />
 
-                    <div class="grid gap-5 lg:grid-cols-2">
+                    <div class="grid gap-6 lg:grid-cols-2">
                       <FormPassword
                         v-model="passwordState.newPassword"
                         name="newPassword"
@@ -392,11 +396,7 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <span class="text-sm text-toned">
-                      Acceso y protección de la cuenta.
-                    </span>
-
+                  <div class="flex justify-end pt-1">
                     <BaseButton
                       variant="primary"
                       type="submit"
@@ -415,40 +415,43 @@ onMounted(() => {
           <aside class="space-y-8">
             <ClientOnly>
               <div class="space-y-8">
-                <section class="relative vtx-profile-presence space-y-5 border-b border-default/55 pb-8">
+                <section class="space-y-5 border-b border-default/55 pb-8">
                   <div class="flex items-center gap-4">
-                    <div class="vtx-profile-avatar flex size-16 shrink-0 items-center justify-center rounded-2xl text-lg font-semibold text-highlighted">
-                      {{ profileInitials }}
-                    </div>
+                    <BaseAvatar
+                      :src="profileState.avatarUrl.trim() || user?.avatarUrl || undefined"
+                      :text="profileInitials"
+                      size="xl"
+                      class="size-16!"
+                    />
 
-                    <div>
+                    <div class="space-y-1">
                       <UiMetaLabel>
                         Identidad visible
                       </UiMetaLabel>
-                      <p class="mt-2 text-lg font-semibold text-highlighted">
+                      <p class="text-lg font-semibold text-highlighted">
                         {{ `${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim() }}
                       </p>
-                      <p class="mt-1 text-sm text-toned">
+                      <p class="text-sm text-toned">
                         {{ user?.email ?? 'Sin email' }}
                       </p>
                     </div>
                   </div>
 
                   <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <div class="vtx-profile-signal">
+                    <div class="space-y-1">
                       <UiMetaLabel>
                         Avatar
                       </UiMetaLabel>
-                      <p class="mt-2 text-sm font-semibold text-highlighted">
+                      <p class="text-sm font-semibold text-highlighted">
                         {{ profileState.avatarUrl.trim() ? 'Configurado' : 'Sin personalizar' }}
                       </p>
                     </div>
 
-                    <div class="vtx-profile-signal">
+                    <div class="space-y-1">
                       <UiMetaLabel>
                         Teléfono
                       </UiMetaLabel>
-                      <p class="mt-2 text-sm font-semibold text-highlighted">
+                      <p class="text-sm font-semibold text-highlighted">
                         {{ profileState.phone || 'Pendiente' }}
                       </p>
                     </div>
@@ -485,6 +488,10 @@ onMounted(() => {
                     <BaseButton to="/users/me/orders" variant="secondary" size="md">
                       Mis órdenes
                     </BaseButton>
+
+                    <BaseButton to="/users/me/logout" variant="reversed" size="md">
+                      Cerrar sesión
+                    </BaseButton>
                   </div>
                 </section>
               </div>
@@ -509,32 +516,6 @@ onMounted(() => {
 
 .vtx-settings-shell {
   isolation: isolate;
-}
-
-.vtx-profile-presence::before {
-  @apply absolute -left-2 top-0 hidden h-28 w-28 rounded-full blur-3xl lg:block;
-  content: '';
-  background: radial-gradient(circle at center, rgb(239 170 71 / 0.16), rgb(255 255 255 / 0));
-}
-
-.vtx-profile-avatar {
-  border: 1px solid rgb(239 170 71 / 0.45);
-  background:
-    radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.86), rgb(255 255 255 / 0) 38%),
-    linear-gradient(135deg, rgb(239 170 71 / 0.4), rgb(44 189 230 / 0.4), rgb(240 100 127 / 0.28));
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.04),
-    0 18px 34px -24px rgb(239 170 71 / 0.8);
-}
-
-.vtx-profile-signal {
-  @apply relative pl-4;
-}
-
-.vtx-profile-signal::before {
-  @apply absolute bottom-0 left-0 top-0 w-0.5 rounded-full;
-  content: '';
-  background: linear-gradient(180deg, rgb(239 170 71 / 0.9), rgb(44 189 230 / 0.8));
 }
 
 .vtx-profile-role::after {
