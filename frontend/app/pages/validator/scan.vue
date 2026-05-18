@@ -33,10 +33,23 @@ const isResultState = computed(() =>
 // Errors that are safe to ignore — not a real problem, just no QR detected yet
 const IGNORED_ERRORS = new Set(['NotFoundException', 'ChecksumException', 'FormatException'])
 
+// AES-GCM payload format: hex:hex:hex (iv:authTag:ciphertext)
+const QR_PAYLOAD_REGEX = /^[0-9a-f]+:[0-9a-f]+:[0-9a-f]+$/i
+
+// Debounce: avoid firing on partial/noisy reads
+let lastScannedText = ''
+let scanDebounceTimer: ReturnType<typeof setTimeout> | null = null
+const SCAN_DEBOUNCE_MS = 300
+
+function isValidPayload(text: string): boolean {
+  return QR_PAYLOAD_REGEX.test(text.trim())
+}
+
 async function startCamera() {
   if (!videoRef.value) return
   cameraError.value = null
   scanError.value = null
+  lastScannedText = ''
 
   try {
     // Dynamic import — SSR safe: never runs on server
@@ -46,11 +59,23 @@ async function startCamera() {
     await (codeReader as unknown as { decodeFromVideoDevice: (deviceId: string | null, videoElement: HTMLVideoElement, callback: (result: { getText: () => string } | null, err?: unknown) => void) => Promise<{ stop: () => void }> }).decodeFromVideoDevice(
       null,
       videoRef.value,
-      async (result, err) => {
+      (result, err) => {
         if (result) {
-          scanError.value = null
-          const text = (result as { getText: () => string }).getText()
-          await submitPayload(text)
+          const text = (result as { getText: () => string }).getText().trim()
+
+          // Debounce: only process if same text confirmed twice within window
+          if (text !== lastScannedText) {
+            lastScannedText = text
+            if (scanDebounceTimer) clearTimeout(scanDebounceTimer)
+            scanDebounceTimer = setTimeout(async () => {
+              if (!isValidPayload(text)) {
+                // QR detected but not a VeriTix ticket — ignore silently
+                return
+              }
+              scanError.value = null
+              await submitPayload(text)
+            }, SCAN_DEBOUNCE_MS)
+          }
         }
         else if (err) {
           const name = (err as { name?: string }).name ?? ''
@@ -81,6 +106,12 @@ async function startCamera() {
 }
 
 function stopCamera() {
+  if (scanDebounceTimer) {
+    clearTimeout(scanDebounceTimer)
+    scanDebounceTimer = null
+  }
+  lastScannedText = ''
+
   if (stopFn) {
     try {
       stopFn()
@@ -103,6 +134,11 @@ function stopCamera() {
 
 async function handleScanAnother() {
   scanError.value = null
+  lastScannedText = ''
+  if (scanDebounceTimer) {
+    clearTimeout(scanDebounceTimer)
+    scanDebounceTimer = null
+  }
   reset()
   await startCamera()
 }
