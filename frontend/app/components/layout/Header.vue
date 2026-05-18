@@ -14,8 +14,16 @@ const showAccountMenu = computed(() => {
   return sessionStatus.value !== 'unknown' && isAuthenticated.value
 })
 
-const showMyEventsLink = computed(() => {
-  return sessionStatus.value !== 'unknown' && isAuthenticated.value
+const accountMenuLinks = computed(() => {
+  return [
+    {
+      label: MY_EVENTS_NAV_ITEM.label,
+      description: 'Consultá tus reservas y tickets',
+      to: MY_EVENTS_NAV_ITEM.to,
+      icon: 'i-lucide-calendar-range',
+    },
+    ...accountMenuItems.value,
+  ]
 })
 
 const accountAvatarAlt = computed(() => {
@@ -54,15 +62,7 @@ const mobileUserLinks = computed(() => {
     return []
   }
 
-  return [
-    {
-      label: MY_EVENTS_NAV_ITEM.label,
-      description: 'Revisá tus eventos y accesos',
-      to: MY_EVENTS_NAV_ITEM.to,
-      icon: 'i-lucide-calendar-range',
-    },
-    ...accountMenuItems.value,
-  ]
+  return accountMenuLinks.value
 })
 
 const headerClass = 'sticky top-0 z-40 border-b border-default/55 bg-default/75 backdrop-blur-md'
@@ -238,21 +238,10 @@ watch(
             </template>
 
             <template v-else-if="showAccountMenu">
-              <BaseButton
-                v-if="showMyEventsLink"
-                :to="MY_EVENTS_NAV_ITEM.to"
-                variant="secondary"
-                size="sm"
-                leading-icon="i-lucide-calendar-range"
-                class="hidden rounded-full! px-4.5! sm:inline-flex"
-              >
-                {{ MY_EVENTS_NAV_ITEM.label }}
-              </BaseButton>
-
               <UiAccountMenu
                 :title="accountDisplayName"
                 :subtitle="accountSubtitle"
-                :items="accountMenuItems"
+                :items="accountMenuLinks"
                 :avatar-alt="accountAvatarAlt"
                 :avatar-initials="accountInitials"
                 :avatar-src="user?.avatarUrl || undefined"
