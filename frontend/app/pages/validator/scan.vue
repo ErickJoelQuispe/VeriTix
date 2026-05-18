@@ -13,7 +13,10 @@ const router = useRouter()
 const { state, result, submitPayload, reset } = useValidator()
 
 const videoRef = ref<HTMLVideoElement | null>(null)
+// cameraError = fatal error that prevents camera from starting at all
 const cameraError = ref<string | null>(null)
+// scanError = transient read error shown as a toast-like message, video stays visible
+const scanError = ref<string | null>(null)
 const isScanning = ref(false)
 
 // Camera reader instance — typed loosely to avoid SSR issues
@@ -27,31 +30,45 @@ const isResultState = computed(() =>
   || state.value === 'not_found',
 )
 
+// Errors that are safe to ignore — not a real problem, just no QR detected yet
+const IGNORED_ERRORS = new Set(['NotFoundException', 'ChecksumException', 'FormatException'])
+
 async function startCamera() {
   if (!videoRef.value) return
   cameraError.value = null
+  scanError.value = null
 
   try {
     // Dynamic import — SSR safe: never runs on server
     const { BrowserMultiFormatReader } = await import('@zxing/browser')
     codeReader = new BrowserMultiFormatReader()
-    isScanning.value = true
 
     await (codeReader as unknown as { decodeFromVideoDevice: (deviceId: string | null, videoElement: HTMLVideoElement, callback: (result: { getText: () => string } | null, err?: unknown) => void) => Promise<{ stop: () => void }> }).decodeFromVideoDevice(
       null,
       videoRef.value,
       async (result, err) => {
         if (result) {
+          scanError.value = null
           const text = (result as { getText: () => string }).getText()
           await submitPayload(text)
         }
-        else if (err && (err as { name?: string }).name !== 'NotFoundException') {
-          // Ignore NotFoundException — it just means no QR in current frame
-          cameraError.value = 'Error al leer el QR. Intentá de nuevo.'
+        else if (err) {
+          const name = (err as { name?: string }).name ?? ''
+          if (!IGNORED_ERRORS.has(name)) {
+            // Real read error — show inline but keep video alive
+            scanError.value = 'Error al leer el QR. Intentá de nuevo.'
+          }
         }
       },
     ).then((controls: { stop: () => void }) => {
       stopFn = controls.stop.bind(controls)
+      isScanning.value = true
+      // Samsung/Chrome mobile fix: force play() after zxing assigns srcObject
+      if (videoRef.value) {
+        videoRef.value.play().catch(() => {
+          // Autoplay policy — non-fatal, stream is still active
+        })
+      }
     }).catch(() => {
       cameraError.value = 'No se pudo acceder a la cámara. Verificá los permisos.'
       isScanning.value = false
@@ -85,6 +102,7 @@ function stopCamera() {
 }
 
 async function handleScanAnother() {
+  scanError.value = null
   reset()
   await startCamera()
 }
@@ -120,7 +138,7 @@ onUnmounted(() => {
         <template v-if="!isResultState">
           <UiPanel variant="glass" radius="md" padding="md">
             <div class="space-y-4">
-              <!-- Camera error fallback -->
+              <!-- Fatal camera error: can't start at all -->
               <div v-if="cameraError" class="flex flex-col items-center gap-3 py-6 text-center">
                 <div class="flex size-12 items-center justify-center rounded-xl border border-error/20 bg-error/10">
                   <BaseIcon name="i-lucide-camera-off" class="size-6 text-error" />
@@ -133,8 +151,8 @@ onUnmounted(() => {
                 </BaseButton>
               </div>
 
-              <!-- Video element for camera -->
-              <div v-else class="relative overflow-hidden rounded-xl bg-black aspect-video">
+              <!-- Video element — always mounted so zxing always has a DOM target -->
+              <div :class="cameraError ? 'hidden' : 'relative overflow-hidden rounded-xl bg-black aspect-video'">
                 <video
                   ref="videoRef"
                   class="h-full w-full object-cover"
@@ -145,6 +163,10 @@ onUnmounted(() => {
                 <!-- Scanning overlay -->
                 <div v-if="isScanning" class="absolute inset-0 flex items-center justify-center">
                   <div class="size-48 rounded-2xl border-2 border-primary/70 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]" />
+                </div>
+                <!-- Transient scan error — overlaid, video stays visible -->
+                <div v-if="scanError" class="absolute bottom-2 left-2 right-2 rounded-lg bg-black/70 px-3 py-2 text-center text-xs text-error">
+                  {{ scanError }}
                 </div>
               </div>
 
