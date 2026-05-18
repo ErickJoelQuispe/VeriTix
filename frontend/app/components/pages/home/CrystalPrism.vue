@@ -7,7 +7,7 @@ withDefaults(defineProps<{ compact?: boolean }>(), {
 <template>
   <div
     class="orb-wrapper relative mx-auto aspect-square w-full max-w-md"
-    :class="compact && 'orb-wrapper--compact max-w-[13rem] sm:max-w-[15rem] md:max-w-[16rem]'"
+    :class="compact && 'orb-wrapper--compact'"
   >
     <div class="orb-ambient orb-ambient--top" />
     <div class="orb-ambient orb-ambient--bottom" />
@@ -42,7 +42,14 @@ withDefaults(defineProps<{ compact?: boolean }>(), {
 }
 
 .orb-wrapper--compact {
-  transform: rotate(195deg) scale(0.92);
+  transform: rotate(195deg);
+}
+
+@media (max-width: 639px) {
+  .orb-wrapper--compact {
+    max-width: 13rem;
+    transform: rotate(195deg) scale(0.92);
+  }
 }
 
 .orb-ambient,
