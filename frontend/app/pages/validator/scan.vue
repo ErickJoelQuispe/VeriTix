@@ -212,6 +212,12 @@ onUnmounted(() => {
               <p class="text-center text-xs text-muted">
                 Centrá el código QR dentro del recuadro
               </p>
+
+              <!-- DEBUG: remove after testing -->
+              <div v-if="debugText" class="rounded-lg bg-black/80 p-2 text-xs text-green-400 break-all font-mono">
+                <p class="text-white/50 mb-1">QR detectado:</p>
+                {{ debugText }}
+              </div>
             </div>
           </UiPanel>
         </template>
