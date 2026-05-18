@@ -94,8 +94,9 @@ const hasError = computed(() => Boolean(errorMessage.value))
 
 const controlClass = computed(() => {
   return [
-    'flex min-h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-default/55 bg-default/30 px-3 text-sm font-medium text-highlighted shadow-sm transition hover:border-lavender/35 hover:bg-default/35 focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/20 disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
+    'flex min-h-10 w-full cursor-pointer items-center justify-between rounded-xl border border-default/55 bg-default/30 px-3 text-sm font-medium text-highlighted shadow-sm transition hover:border-lavender/45 hover:ring-2 hover:ring-lavender/30 focus-visible:border-lavender/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/30 disabled:cursor-not-allowed disabled:border-default/40 disabled:bg-default/15 disabled:text-toned disabled:opacity-70',
     hasError.value ? 'border-error/70 ring-2 ring-error/20 hover:border-error/70 hover:bg-default/20 focus-visible:border-error/70 focus-visible:ring-error/20' : '',
+    isOpen.value ? 'border-lavender/45 ring-2 ring-lavender/30' : '',
     hasLeading.value ? 'pl-11' : '',
     'pr-11',
     attrs.class,
