@@ -93,7 +93,7 @@ function formatCreatedAt(value: string | Date): string {
         </NuxtLink>
 
         <div class="grid gap-8 lg:grid-cols-[minmax(280px,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-          <div class="overflow-hidden rounded-3xl border border-default/55 bg-elevated/20 shadow-soft">
+          <div class="overflow-hidden rounded-3xl border border-default/55 bg-elevated/20 shadow-sm">
             <NuxtImg
               v-if="venue.imageUrl"
               :src="venue.imageUrl"

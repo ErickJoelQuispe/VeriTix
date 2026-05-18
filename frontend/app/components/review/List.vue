@@ -5,7 +5,6 @@ const props = defineProps<{
 
 const { reviews, total, isLoading, error, publicMeta, fetchPublicReviews } = useReview(props.eventId)
 
-const currentPage = ref(1)
 const LIMIT = 10
 
 onMounted(async () => {
@@ -13,7 +12,6 @@ onMounted(async () => {
 })
 
 async function changePage(page: number) {
-  currentPage.value = page
   await fetchPublicReviews(page)
 }
 
@@ -28,10 +26,6 @@ function formatDate(dateStr: string): string {
     year: 'numeric',
   }).format(new Date(dateStr))
 }
-
-const totalPages = computed(() =>
-  publicMeta.value ? Math.ceil(publicMeta.value.total / LIMIT) : 0,
-)
 </script>
 
 <template>
@@ -100,7 +94,7 @@ const totalPages = computed(() =>
                 <span class="text-sm font-semibold text-highlighted">
                   {{ review.user.name }} {{ review.user.lastName }}
                 </span>
-                <UiStarRating :model-value="review.rating" :readonly="true" size="sm" />
+                <ReviewStarRating :model-value="review.rating" :readonly="true" size="sm" />
                 <span class="text-xs text-muted">
                   {{ formatDate(review.createdAt) }}
                 </span>
@@ -117,9 +111,10 @@ const totalPages = computed(() =>
       <!-- Pagination -->
       <div v-if="total > LIMIT" class="flex justify-center pt-2">
         <BasePagination
-          :current-page="currentPage"
-          :total-pages="totalPages"
-          @update:current-page="changePage"
+          :page="publicMeta?.page ?? 1"
+          :total="total"
+          :items-per-page="LIMIT"
+          @update:page="changePage"
         />
       </div>
     </template>

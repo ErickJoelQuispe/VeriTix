@@ -1,18 +1,5 @@
 export type CurrencyCode = 'USD' | 'EUR' | 'COP'
 
-export interface Money {
-  amount: number
-  currency: CurrencyCode
-}
-
-export interface Genre {
-  id: string
-  slug: string
-  name: string
-  icon: string
-  accent: string
-}
-
 export interface EventVenueSummary {
   id: string
   name: string

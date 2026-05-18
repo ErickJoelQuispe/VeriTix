@@ -96,10 +96,10 @@ useSeoMeta({
         <!-- Event found -->
         <template v-else>
           <!-- Header -->
-          <UsersUserEventHeader :event="currentEventItem.event" />
+          <UsersEventHeader :event="currentEventItem.event" />
 
           <!-- Tabs -->
-          <UsersUserEventTabs
+          <UsersEventTabs
             v-model:active-tab="activeTab"
           />
 

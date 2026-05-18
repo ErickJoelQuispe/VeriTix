@@ -8,8 +8,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'toggle-favorite': []
-  'view-detail': []
+  toggleFavorite: []
+  viewDetail: []
 }>()
 
 const statusBadgeColor = computed((): 'success' | 'neutral' | 'error' | 'warning' => {
@@ -124,7 +124,7 @@ const ticketLabel = computed(() =>
           :leading-icon="isFavorited ? 'i-lucide-heart' : 'i-lucide-heart'"
           :class="isFavorited ? 'text-error border-error/40' : ''"
           aria-label="Alternar favorito"
-          @click.stop="emit('toggle-favorite')"
+          @click.stop="emit('toggleFavorite')"
         >
           {{ isFavorited ? 'Guardado' : 'Guardar' }}
         </BaseButton>
@@ -133,7 +133,7 @@ const ticketLabel = computed(() =>
           variant="secondary"
           size="sm"
           trailing-icon="i-lucide-arrow-right"
-          @click.stop="emit('view-detail')"
+          @click.stop="emit('viewDetail')"
         >
           Ver detalles
         </BaseButton>

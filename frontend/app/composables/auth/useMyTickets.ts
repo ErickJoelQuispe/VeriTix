@@ -1,7 +1,7 @@
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { UserTicket, UserTicketDetail } from '~~/shared/types'
-import { normalizeApiError } from '@/utils/apiError'
 import { useTicketsRepository } from '@/repositories/ticketsRepository'
+import { normalizeApiError } from '@/utils/apiError'
 
 export function useMyTickets() {
   const { listMyTickets, getTicket, getTicketPdfUrl } = useTicketsRepository()

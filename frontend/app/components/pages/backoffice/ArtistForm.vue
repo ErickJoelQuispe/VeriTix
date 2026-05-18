@@ -174,10 +174,10 @@ watch(() => [
       placeholder="Seleccioná géneros"
     />
 
-    <BackofficeFormActions>
+    <div class="flex justify-end border-t border-default/55 pt-6">
       <BaseButton variant="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting">
         {{ submitLabel }}
       </BaseButton>
-    </BackofficeFormActions>
+    </div>
   </FormRoot>
 </template>

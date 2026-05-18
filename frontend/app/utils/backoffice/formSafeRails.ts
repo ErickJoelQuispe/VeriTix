@@ -51,22 +51,21 @@ function toEventComparablePayload(event: BackofficeEventDetail): BackofficeEvent
 }
 
 export function hasEventSemanticChanges(event: BackofficeEventDetail, payload: BackofficeEventPayload): boolean {
-  const normalizedPayload = normalizeEventPayload(payload)
   const comparableEvent = toEventComparablePayload(event)
 
   return (
-    normalizedPayload.name !== comparableEvent.name
-    || normalizedPayload.description !== comparableEvent.description
-    || normalizedPayload.eventDate !== comparableEvent.eventDate
-    || normalizedPayload.doorsOpenTime !== comparableEvent.doorsOpenTime
-    || normalizedPayload.startSale !== comparableEvent.startSale
-    || normalizedPayload.endSale !== comparableEvent.endSale
-    || normalizedPayload.maxCapacity !== comparableEvent.maxCapacity
-    || normalizedPayload.venueId !== comparableEvent.venueId
-    || normalizedPayload.imageUrl !== comparableEvent.imageUrl
-    || normalizedPayload.currency !== comparableEvent.currency
-    || normalizedPayload.formatId !== comparableEvent.formatId
-    || !areStringArraysEqual(normalizedPayload.genreIds, comparableEvent.genreIds)
+    payload.name !== comparableEvent.name
+    || payload.description !== comparableEvent.description
+    || payload.eventDate !== comparableEvent.eventDate
+    || payload.doorsOpenTime !== comparableEvent.doorsOpenTime
+    || payload.startSale !== comparableEvent.startSale
+    || payload.endSale !== comparableEvent.endSale
+    || payload.maxCapacity !== comparableEvent.maxCapacity
+    || payload.venueId !== comparableEvent.venueId
+    || payload.imageUrl !== comparableEvent.imageUrl
+    || payload.currency !== comparableEvent.currency
+    || payload.formatId !== comparableEvent.formatId
+    || !areStringArraysEqual(payload.genreIds, comparableEvent.genreIds)
   )
 }
 
@@ -97,18 +96,17 @@ function toArtistComparablePayload(artist: BackofficeArtistRecord): BackofficeAr
 }
 
 export function hasArtistSemanticChanges(artist: BackofficeArtistRecord, payload: BackofficeArtistPayload): boolean {
-  const normalizedPayload = normalizeArtistPayload(payload)
   const comparableArtist = toArtistComparablePayload(artist)
 
   return (
-    normalizedPayload.name !== comparableArtist.name
-    || normalizedPayload.slug !== comparableArtist.slug
-    || normalizedPayload.bio !== comparableArtist.bio
-    || normalizedPayload.imageUrl !== comparableArtist.imageUrl
-    || normalizedPayload.country !== comparableArtist.country
-    || normalizedPayload.website !== comparableArtist.website
-    || normalizedPayload.isActive !== comparableArtist.isActive
-    || !areStringArraysEqual(normalizedPayload.genreIds, comparableArtist.genreIds)
+    payload.name !== comparableArtist.name
+    || payload.slug !== comparableArtist.slug
+    || payload.bio !== comparableArtist.bio
+    || payload.imageUrl !== comparableArtist.imageUrl
+    || payload.country !== comparableArtist.country
+    || payload.website !== comparableArtist.website
+    || payload.isActive !== comparableArtist.isActive
+    || !areStringArraysEqual(payload.genreIds, comparableArtist.genreIds)
   )
 }
 
@@ -150,17 +148,16 @@ function toUserComparablePayload(user: BackofficeUserRecord): BackofficeUpdateUs
 }
 
 export function hasUserSemanticChanges(user: BackofficeUserRecord, payload: BackofficeUpdateUserPayload): boolean {
-  const normalizedPayload = normalizeUpdateUserPayload(payload)
   const comparableUser = toUserComparablePayload(user)
 
   return (
-    normalizedPayload.email !== comparableUser.email
-    || normalizedPayload.phone !== comparableUser.phone
-    || normalizedPayload.name !== comparableUser.name
-    || normalizedPayload.lastName !== comparableUser.lastName
-    || normalizedPayload.avatarUrl !== comparableUser.avatarUrl
-    || normalizedPayload.role !== comparableUser.role
-    || normalizedPayload.isActive !== comparableUser.isActive
-    || normalizedPayload.emailVerified !== comparableUser.emailVerified
+    payload.email !== comparableUser.email
+    || payload.phone !== comparableUser.phone
+    || payload.name !== comparableUser.name
+    || payload.lastName !== comparableUser.lastName
+    || payload.avatarUrl !== comparableUser.avatarUrl
+    || payload.role !== comparableUser.role
+    || payload.isActive !== comparableUser.isActive
+    || payload.emailVerified !== comparableUser.emailVerified
   )
 }

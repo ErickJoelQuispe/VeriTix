@@ -5,11 +5,12 @@ defineProps<{
   event: EnrichedEvent
 }>()
 
-const formattedDate = (eventDate: string) =>
-  new Intl.DateTimeFormat('es-AR', {
+function formattedDate(eventDate: string) {
+  return new Intl.DateTimeFormat('es-AR', {
     dateStyle: 'long',
     timeStyle: 'short',
   }).format(new Date(eventDate))
+}
 </script>
 
 <template>

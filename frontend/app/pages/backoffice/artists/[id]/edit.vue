@@ -5,7 +5,7 @@ import type {
   GenreOption,
 } from '~~/shared/types'
 import { useBackofficeArtistsRepository } from '@/repositories/backofficeArtistsRepository'
-import { hasArtistSemanticChanges, normalizeArtistPayload } from '@/utils/backoffice/formSafeRails'
+import { hasArtistSemanticChanges } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar artista | Backoffice VeriTix' })
@@ -63,9 +63,7 @@ async function updateArtist(payload: BackofficeArtistPayload) {
     return
   }
 
-  const normalizedPayload = normalizeArtistPayload(payload)
-
-  if (!hasArtistSemanticChanges(artist.value, normalizedPayload)) {
+  if (!hasArtistSemanticChanges(artist.value, payload)) {
     notifyInfo('No hay cambios para guardar.', { id: 'admin-artists-no-changes' })
     return
   }
@@ -73,7 +71,7 @@ async function updateArtist(payload: BackofficeArtistPayload) {
   submitting.value = true
 
   try {
-    artist.value = await updateBackofficeArtist(artistId.value, normalizedPayload)
+    artist.value = await updateBackofficeArtist(artistId.value, payload)
 
     notifySuccess('Artista actualizado correctamente.', { id: 'admin-artists-update-success' })
   }
@@ -101,11 +99,9 @@ onMounted(() => {
       <div class="space-y-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <UiPageHeading eyebrow="Backoffice" title="Editar artista" description="Actualiza la ficha del artista y su información pública." />
-          <BackofficeBackButton
-            to="/backoffice/artists"
-          >
+          <BaseButton to="/backoffice/artists" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
             Volver a artistas
-          </BackofficeBackButton>
+          </BaseButton>
         </div>
         <PagesBackofficeOverviewPanel
           title="Datos del artista"

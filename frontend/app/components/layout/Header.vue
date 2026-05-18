@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { MAIN_NAV_ITEMS, MY_EVENTS_NAV_ITEM } from '~/utils/navigation/ia'
+
 const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
 const accountMenuItems = useAccountMenuItems(() => user.value?.role === 'ADMIN')
@@ -8,6 +10,10 @@ const showGuestActions = computed(() => {
 })
 
 const showAccountMenu = computed(() => {
+  return sessionStatus.value !== 'unknown' && isAuthenticated.value
+})
+
+const showMyEventsLink = computed(() => {
   return sessionStatus.value !== 'unknown' && isAuthenticated.value
 })
 
@@ -39,7 +45,7 @@ const accountSubtitle = computed(() => {
   return user.value?.email || 'Gestioná tu perfil y ajustes'
 })
 
-const { navItems: mainNavItems } = useNavigation()
+const mainNavItems = MAIN_NAV_ITEMS
 
 const headerClass = 'sticky top-0 z-40 border-b border-default/55 bg-default/75 backdrop-blur-md'
 
@@ -110,6 +116,17 @@ function isMainNavActive(path: string): boolean {
             </template>
 
             <template v-else-if="showAccountMenu">
+              <BaseButton
+                v-if="showMyEventsLink"
+                :to="MY_EVENTS_NAV_ITEM.to"
+                variant="outlined"
+                size="sm"
+                leading-icon="i-lucide-calendar-range"
+                class="hidden sm:inline-flex"
+              >
+                {{ MY_EVENTS_NAV_ITEM.label }}
+              </BaseButton>
+
               <UiAccountMenu
                 :title="accountDisplayName"
                 :subtitle="accountSubtitle"
@@ -120,36 +137,10 @@ function isMainNavActive(path: string): boolean {
               />
             </template>
 
-            <div
-              v-else
-              class="inline-flex items-center gap-2.5 rounded-full px-3 py-2"
-              aria-hidden="true"
-            >
-              <div
-                class="inline-flex size-12 items-center justify-center rounded-full bg-elevated/45 ring-1 ring-default/55"
-              >
-                <BaseIcon name="i-lucide-loader-2" class="size-4 animate-spin text-muted" />
-              </div>
-              <div class="hidden min-w-0 flex-1 space-y-1 sm:block">
-                <div class="h-3 w-28 rounded bg-elevated/45" />
-                <div class="h-2.5 w-36 rounded bg-elevated/40" />
-              </div>
-              <div class="size-4 rounded-full bg-elevated/45" />
-            </div>
+            <LayoutHeaderLoadingState v-else />
 
             <template #fallback>
-              <div class="inline-flex items-center gap-2.5 rounded-full px-3 py-2" aria-hidden="true">
-                <div
-                  class="inline-flex size-12 items-center justify-center rounded-full bg-elevated/45 ring-1 ring-default/55"
-                >
-                  <BaseIcon name="i-lucide-loader-2" class="size-4 animate-spin text-muted" />
-                </div>
-                <div class="hidden min-w-0 flex-1 space-y-1 sm:block">
-                  <div class="h-3 w-28 rounded bg-elevated/45" />
-                  <div class="h-2.5 w-36 rounded bg-elevated/40" />
-                </div>
-                <div class="size-4 rounded-full bg-elevated/45" />
-              </div>
+              <LayoutHeaderLoadingState />
             </template>
           </ClientOnly>
         </div>

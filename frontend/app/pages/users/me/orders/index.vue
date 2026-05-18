@@ -4,7 +4,6 @@ import type { UserOrder } from '~~/shared/types'
 import { formatEventDate } from '@/utils/date-formatters'
 
 definePageMeta({
-  layout: 'account',
   middleware: 'auth',
 })
 
@@ -32,7 +31,7 @@ const meta = ref<PaginationMeta>({
   hasPrev: false,
 })
 
-const statusConfig: Record<string, { label: string; color: 'success' | 'neutral' | 'error' | 'warning'; icon: string }> = {
+const statusConfig: Record<string, { label: string, color: 'success' | 'neutral' | 'error' | 'warning', icon: string }> = {
   PENDING: { label: 'Pendiente', color: 'warning', icon: 'i-lucide-clock' },
   PAID: { label: 'Pagada', color: 'success', icon: 'i-lucide-circle-check' },
   CANCELLED: { label: 'Cancelada', color: 'error', icon: 'i-lucide-circle-x' },
@@ -91,11 +90,17 @@ onMounted(() => {
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer class="relative">
       <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
-        <UiPageHeading
-          eyebrow="Mi cuenta"
-          title="Órdenes"
-          description="Consultá tus órdenes de compra, su estado de pago y completá las que estén pendientes."
-        />
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <UiPageHeading
+            eyebrow="Mi cuenta"
+            title="Órdenes"
+            description="Consultá tus órdenes de compra, su estado de pago y completá las que estén pendientes."
+          />
+
+          <BaseButton to="/users/me" variant="secondary" size="sm" leading-icon="i-lucide-user">
+            Ajustes de cuenta
+          </BaseButton>
+        </div>
 
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
           <section class="space-y-6">

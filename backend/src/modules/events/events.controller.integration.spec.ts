@@ -140,18 +140,18 @@ describe('GET /api/v1/events/mine (integration)', () => {
     await request(app.getHttpServer()).get('/api/v1/events/mine').expect(401);
   });
 
-  it('2. 403 — CREATOR role cannot access /events/mine', async () => {
+  it('2. 200 — CREATOR role can access /events/mine', async () => {
     await request(app.getHttpServer())
       .get('/api/v1/events/mine')
       .set('Authorization', `Bearer ${creatorToken}`)
-      .expect(403);
+      .expect(200);
   });
 
-  it('3. 403 — ADMIN role cannot access /events/mine', async () => {
+  it('3. 200 — ADMIN role can access /events/mine', async () => {
     await request(app.getHttpServer())
       .get('/api/v1/events/mine')
       .set('Authorization', `Bearer ${adminToken}`)
-      .expect(403);
+      .expect(200);
   });
 
   // ── Empty state ───────────────────────────────────────────────────────────

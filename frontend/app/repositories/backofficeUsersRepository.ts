@@ -109,7 +109,6 @@ export function useBackofficeUsersRepository() {
     createUser,
     updateUser,
     deleteUser,
-    findUserByEmail,
     isEmailTaken,
   }
 }

@@ -98,7 +98,7 @@ function formatPerformanceTime(value: string | Date | null): string {
         </NuxtLink>
 
         <div class="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-start">
-          <div class="overflow-hidden rounded-3xl border border-default/55 bg-elevated/20 shadow-soft">
+          <div class="overflow-hidden rounded-3xl border border-default/55 bg-elevated/20 shadow-sm">
             <NuxtImg
               v-if="event.imageUrl"
               :src="event.imageUrl"

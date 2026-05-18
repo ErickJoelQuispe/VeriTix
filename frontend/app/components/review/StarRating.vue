@@ -42,7 +42,7 @@ function handleMouseLeave() {
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (props.readonly) return
+  if (props.readonly) { return }
 
   const current = props.modelValue || 0
 
@@ -68,8 +68,7 @@ function handleKeydown(event: KeyboardEvent) {
       v-for="star in stars"
       :key="star.index"
       type="button"
-      :class="[
-        'focus:outline-none',
+      class="focus:outline-none" :class="[
         readonly ? 'cursor-default pointer-events-none' : 'cursor-pointer',
       ]"
       :disabled="readonly"

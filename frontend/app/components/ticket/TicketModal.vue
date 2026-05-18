@@ -8,12 +8,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  'transfer-initiated': []
+  'transferInitiated': []
 }>()
 
 const isOpen = computed({
   get: () => props.open,
-  set: (value) => emit('update:open', value),
+  set: value => emit('update:open', value),
 })
 
 const { fetchTicketDetail } = useMyTickets()
@@ -24,7 +24,7 @@ const qrDataUrl = ref<string | null>(null)
 const showTransferForm = ref(false)
 
 async function loadDetail() {
-  if (!props.ticket) return
+  if (!props.ticket) { return }
   isLoadingDetail.value = true
   qrDataUrl.value = null
   detail.value = null
@@ -71,7 +71,7 @@ const truncatedHash = computed(() =>
 )
 
 const statusBadgeColor = computed(() => {
-  if (!props.ticket) return 'neutral' as const
+  if (!props.ticket) { return 'neutral' as const }
   const map = {
     ACTIVE: 'success' as const,
     USED: 'neutral' as const,
@@ -82,7 +82,7 @@ const statusBadgeColor = computed(() => {
 })
 
 const statusBadgeLabel = computed(() => {
-  if (!props.ticket) return ''
+  if (!props.ticket) { return '' }
   const map = {
     ACTIVE: 'Activo',
     USED: 'Usado',
@@ -93,7 +93,7 @@ const statusBadgeLabel = computed(() => {
 })
 
 const formattedValidatedAt = computed(() => {
-  if (!detail.value?.validatedAt) return null
+  if (!detail.value?.validatedAt) { return null }
   return new Intl.DateTimeFormat('es-AR', {
     dateStyle: 'long',
     timeStyle: 'short',
@@ -101,13 +101,13 @@ const formattedValidatedAt = computed(() => {
 })
 
 function handleDownloadPdf() {
-  if (!props.ticket) return
+  if (!props.ticket) { return }
   window.open(`/api/tickets/${props.ticket.id}/pdf`, '_blank')
 }
 
 function handleTransferSuccess() {
   showTransferForm.value = false
-  emit('transfer-initiated')
+  emit('transferInitiated')
   emit('update:open', false)
 }
 </script>
@@ -157,7 +157,7 @@ function handleTransferSuccess() {
                   class="size-[200px] rounded-xl"
                   width="200"
                   height="200"
-                />
+                >
                 <BaseSkeleton v-else class="size-[200px] rounded-xl" />
               </div>
               <template #fallback>

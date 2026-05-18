@@ -383,14 +383,13 @@ async function handlePageChange(page: number) {
             </div>
           </div>
 
-          <div
-            v-else-if="events.length === 0"
-            class="rounded-2xl border border-default/65 bg-default/8 px-6 py-14 text-center"
-          >
-            <p class="text-lg font-semibold text-highlighted">
-              No hay eventos para estos filtros.
-            </p>
-          </div>
+          <UiPanel v-else-if="events.length === 0" variant="glass" radius="xl" padding="xl">
+            <UiEmptyState
+              icon="i-lucide-calendar-x"
+              title="No hay eventos para estos filtros."
+              description="Probá limpiar filtros o ajustar la búsqueda para ver más resultados."
+            />
+          </UiPanel>
 
           <div v-else class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
             <UiEventCard v-for="event in events" :key="event.id" :event="event" />

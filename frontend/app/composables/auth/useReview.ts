@@ -1,8 +1,8 @@
-import { z } from 'zod'
 import type { PaginationMeta } from '~~/shared/api/types'
 import type { Review } from '~~/shared/types'
-import { normalizeApiError } from '@/utils/apiError'
+import { z } from 'zod'
 import { useReviewsRepository } from '@/repositories/reviewsRepository'
+import { normalizeApiError } from '@/utils/apiError'
 
 // ── Validation schema ─────────────────────────────────────────────────────────
 
@@ -27,16 +27,13 @@ export function useReview(eventId: string) {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Set externally from the event detail page once tickets are fetched
-  const hasUsedTicket = ref(false)
-
   /**
    * Fetches public reviews for the event and extracts the current user's review.
    * Since there is no GET /reviews/mine endpoint, we load all reviews and filter
    * by userId client-side. For large review counts a higher limit is used.
    */
   async function fetchMyReview(): Promise<void> {
-    if (!user.value?.id) return
+    if (!user.value?.id) { return }
 
     isLoading.value = true
     error.value = null
@@ -117,7 +114,7 @@ export function useReview(eventId: string) {
    * Deletes the current user's review.
    */
   async function removeReview(): Promise<void> {
-    if (!myReview.value) return
+    if (!myReview.value) { return }
 
     isLoading.value = true
     error.value = null
@@ -146,7 +143,6 @@ export function useReview(eventId: string) {
     total,
     isLoading,
     error,
-    hasUsedTicket,
     fetchMyReview,
     fetchPublicReviews,
     submitReview,

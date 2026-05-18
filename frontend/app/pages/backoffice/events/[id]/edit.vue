@@ -7,7 +7,7 @@ import type {
   VenueOption,
 } from '~~/shared/types'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
-import { hasEventSemanticChanges, normalizeEventPayload } from '@/utils/backoffice/formSafeRails'
+import { hasEventSemanticChanges } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Editar evento | Backoffice VeriTix' })
@@ -80,9 +80,7 @@ async function updateEvent(payload: BackofficeEventPayload) {
     return
   }
 
-  const normalizedPayload = normalizeEventPayload(payload)
-
-  if (!hasEventSemanticChanges(event.value, normalizedPayload)) {
+  if (!hasEventSemanticChanges(event.value, payload)) {
     notifyInfo('No hay cambios para guardar.', { id: 'admin-events-no-changes' })
     return
   }
@@ -90,7 +88,7 @@ async function updateEvent(payload: BackofficeEventPayload) {
   submitting.value = true
 
   try {
-    event.value = await updateBackofficeEvent(eventId.value, normalizedPayload)
+    event.value = await updateBackofficeEvent(eventId.value, payload)
 
     notifySuccess('Evento actualizado correctamente.', { id: 'admin-events-update-success' })
   }
@@ -113,11 +111,9 @@ onMounted(() => {
       <div class="space-y-8">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <UiPageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
-          <BackofficeBackButton
-            to="/backoffice/events"
-          >
+          <BaseButton to="/backoffice/events" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
             Volver a eventos
-          </BackofficeBackButton>
+          </BaseButton>
         </div>
         <PagesBackofficeOverviewPanel
           title="Datos del evento"

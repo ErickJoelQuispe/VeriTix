@@ -45,6 +45,11 @@ mockNuxtImport('useApiRequest', () => useApiRequestMock)
 const { useAuthMock } = vi.hoisted(() => {
   return {
     useAuthMock: vi.fn(() => ({
+      ensureSession: vi.fn().mockResolvedValue(true),
+      isAuthenticated: { value: true },
+      pending: { value: false },
+      refreshStatus: { value: 'idle' },
+      sessionStatus: { value: 'authenticated' },
       user: { value: { id: 'user-1', email: 'ana@example.com', role: 'BUYER' } },
     })),
   }

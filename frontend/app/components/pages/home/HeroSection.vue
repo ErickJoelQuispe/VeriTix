@@ -117,10 +117,6 @@ function onSearch() {
 <style scoped>
 @reference "@/assets/css/main.css";
 
-.vtx-section-fade {
-  animation: section-fade-in 700ms ease-out both;
-}
-
 .vtx-prismatic-text {
   background-image: linear-gradient(135deg, var(--color-primary), var(--color-error), var(--color-secondary));
   -webkit-background-clip: text;
@@ -137,23 +133,10 @@ function onSearch() {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vtx-section-fade,
   .animate-hero-reveal {
     animation: none;
     opacity: 1;
     transform: none;
-  }
-}
-
-@keyframes section-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
