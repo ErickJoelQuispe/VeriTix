@@ -214,7 +214,7 @@ onMounted(() => {
             </div>
 
             <template v-else>
-              <UiPanel as="article" variant="transparent" padding="xl" radius="xl" class="space-y-0">
+              <UiPanel as="article" variant="glass" padding="xl" radius="xl" class="space-y-0">
                 <div class="space-y-2 border-b border-default/55 pb-5">
                   <UiMetaLabel>
                     Perfil
@@ -319,7 +319,7 @@ onMounted(() => {
                 </FormRoot>
               </UiPanel>
 
-              <UiPanel id="seguridad" as="article" variant="transparent" padding="xl" radius="xl" class="scroll-mt-28 space-y-0">
+              <UiPanel id="seguridad" as="article" variant="glass" padding="xl" radius="xl" class="scroll-mt-28 space-y-0">
                 <div class="space-y-2 border-b border-default/55 pb-5">
                   <UiMetaLabel>
                     Seguridad
@@ -490,7 +490,7 @@ onMounted(() => {
               </div>
 
               <template #fallback>
-                <UiPanel variant="transparent" padding="xl" radius="xl" class="space-y-0" aria-hidden="true">
+                <UiPanel variant="glass" padding="xl" radius="xl" class="space-y-0" aria-hidden="true">
                   <BaseSkeleton class="h-16 w-16 rounded-2xl" />
                   <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
                   <BaseSkeleton class="mt-2 h-4 w-44 rounded" />

@@ -702,15 +702,15 @@ function submitDemoForm() {
               </p>
             </UiPanel>
 
-            <UiPanel variant="transparent" class="space-y-3" padding="lg" radius="xl">
+            <UiPanel variant="glass" class="space-y-3" padding="lg" radius="xl">
               <UiMetaLabel tone="default">
-                Transparent
+                Glass
               </UiMetaLabel>
               <p class="text-sm font-semibold text-highlighted">
-                Bare surface
+                Softer surface
               </p>
               <p class="text-sm leading-relaxed text-toned">
-                Use it when the layout needs spacing and structure without an extra visual block.
+                A lighter surface for secondary content and low-emphasis blocks.
               </p>
             </UiPanel>
 
