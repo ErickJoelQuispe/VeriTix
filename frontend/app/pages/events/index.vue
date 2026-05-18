@@ -281,7 +281,7 @@ async function handlePageChange(page: number) {
                   label="Nombre del artista"
                   name="artistName"
                   placeholder="Buscá por artista"
-                  icon="i-lucide-mic-2"
+                  icon="i-lucide-user-round-search"
                   size="md"
                   :disabled="isPending"
                 />
@@ -374,7 +374,7 @@ async function handlePageChange(page: number) {
                   label="Nombre del artista"
                   name="artistName"
                   placeholder="Buscá por artista"
-                  icon="i-lucide-mic-2"
+                  icon="i-lucide-user-round-search"
                   size="md"
                   :disabled="isPending"
                 />

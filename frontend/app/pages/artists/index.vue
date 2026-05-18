@@ -242,6 +242,7 @@ async function handlePageChange(page: number) {
                   Buscar
                 </BaseButton>
               </div>
+
             </div>
 
             <div class="space-y-6 lg:block" :class="filtersOpen ? 'block' : 'hidden'">
@@ -284,7 +285,7 @@ async function handlePageChange(page: number) {
                 />
               </div>
 
-              <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
                 <BaseButton
                   variant="outlined"
                   type="button"
