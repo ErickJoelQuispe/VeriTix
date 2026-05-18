@@ -94,6 +94,8 @@ const roleView = computed(() => {
   return roleViews[user.value.role]
 })
 
+const isAdminRole = computed(() => user.value?.role === 'ADMIN')
+
 const profileInitials = computed(() => {
   const initials = [profileState.name || user.value?.name, profileState.lastName || user.value?.lastName]
     .map(value => value?.trim()?.charAt(0)?.toUpperCase() ?? '')
@@ -208,10 +210,11 @@ onMounted(() => {
           eyebrow="Ajustes"
           title="Perfil y seguridad"
           description="Actualiza tus datos personales y protege el acceso a tu cuenta desde un único espacio más claro."
+          class="vtx-settings-heading-divider"
         />
 
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
-          <div class="min-w-0 space-y-6">
+          <div class="order-last min-w-0 space-y-6 xl:order-first">
             <div v-if="!initialized" class="space-y-4">
               <BaseSkeleton class="h-11 rounded-2xl" />
               <BaseSkeleton class="h-11 rounded-2xl" />
@@ -222,7 +225,7 @@ onMounted(() => {
 
             <template v-else>
               <UiPanel as="article" variant="glass" padding="xl" radius="xl" class="space-y-0">
-                <div class="space-y-2 border-b border-default/55 pb-5">
+                <div class="space-y-2 vtx-settings-divider pb-5">
                   <UiMetaLabel>
                     Perfil
                   </UiMetaLabel>
@@ -242,7 +245,7 @@ onMounted(() => {
                   @submit="submitProfile"
                 >
                   <div class="space-y-6">
-                    <section class="space-y-4 border-b border-default/55 pb-6">
+                    <section class="space-y-4 vtx-settings-divider pb-6">
                       <div class="space-y-2">
                         <h3 class="text-lg font-semibold text-highlighted">
                           Identidad
@@ -283,7 +286,7 @@ onMounted(() => {
                       />
                     </section>
 
-                    <section class="space-y-4 border-b border-default/55 pb-6">
+                    <section class="space-y-4 vtx-settings-divider pb-6">
                       <div class="space-y-2">
                         <h3 class="text-lg font-semibold text-highlighted">
                           Contacto
@@ -337,7 +340,7 @@ onMounted(() => {
               </UiPanel>
 
               <UiPanel id="seguridad" as="article" variant="glass" padding="xl" radius="xl" class="scroll-mt-28 space-y-0">
-                <div class="space-y-2 border-b border-default/55 pb-5">
+                <div class="space-y-2 vtx-settings-divider pb-5">
                   <UiMetaLabel>
                     Seguridad
                   </UiMetaLabel>
@@ -411,10 +414,10 @@ onMounted(() => {
             </template>
           </div>
 
-          <aside class="space-y-8">
+          <aside class="order-first space-y-8 xl:order-last">
             <ClientOnly>
               <div class="space-y-8">
-                <section class="space-y-5 border-b border-default/55 pb-8">
+                <section class="space-y-5 pb-8">
                   <div class="flex items-center gap-4">
                     <BaseAvatar
                       :src="profileState.avatarUrl.trim() || user?.avatarUrl || undefined"
@@ -457,21 +460,25 @@ onMounted(() => {
                   </div>
                 </section>
 
-                <section v-if="roleView" class="relative vtx-profile-role space-y-4 border-b border-default/55 pb-8">
-                  <div>
+                <section v-if="roleView" class="space-y-4 pb-8">
+                  <div class="space-y-1.5">
                     <UiMetaLabel tone="accent">
                       {{ roleView.title }}
                     </UiMetaLabel>
+
+                    <p class="text-sm leading-relaxed text-toned">
+                      {{ isAdminRole ? 'Acceso ampliado para soporte y gestión.' : 'Capacidades específicas de tu cuenta.' }}
+                    </p>
                   </div>
 
-                  <ul class="space-y-3">
+                  <ul class="space-y-2.5">
                     <li
                       v-for="capability in roleView.capabilities"
                       :key="capability"
-                      class="flex items-start gap-3 text-sm leading-relaxed text-toned"
+                      class="flex items-start gap-2.5 text-sm leading-relaxed text-toned"
                     >
-                      <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/14 text-primary">
-                        <BaseIcon name="i-lucide-check" class="size-3.5" />
+                      <span class="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary">
+                        <BaseIcon name="i-lucide-check" class="size-2.5" />
                       </span>
                       <span>{{ capability }}</span>
                     </li>
@@ -517,10 +524,8 @@ onMounted(() => {
   isolation: isolate;
 }
 
-.vtx-profile-role::after {
-  @apply absolute right-0 top-0 hidden h-20 w-20 rounded-full blur-2xl lg:block;
-  content: '';
-  background: radial-gradient(circle at center, rgb(44 189 230 / 0.14), rgb(255 255 255 / 0));
+.vtx-settings-heading-divider {
+  border-bottom-color: color-mix(in srgb, var(--color-toned) 22%, transparent);
 }
 
 </style>

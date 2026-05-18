@@ -428,8 +428,8 @@ async function handlePageChange(page: number) {
         </div>
 
         <section class="space-y-6">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div class="space-y-1">
+          <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
+            <div class="space-y-1 sm:text-left">
               <UiMetaLabel tone="accent">
                 Resultados
               </UiMetaLabel>
@@ -438,7 +438,7 @@ async function handlePageChange(page: number) {
               </p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
               <BaseBadge
                 v-for="stat in resultsChips"
                 :key="stat.label"
