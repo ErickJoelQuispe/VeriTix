@@ -26,13 +26,13 @@ const hasAction = computed(() => Boolean(props.actionLabel && props.actionTo))
   <header class="border-b border-white/16 pb-8 pt-3 sm:pt-4">
     <div
       data-test="page-heading-content"
-      class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
+      class="relative flex min-w-0 flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
       :class="center ? 'items-center text-center lg:flex-col' : ''"
     >
       <div
         data-test="page-heading-title-group"
-        class="space-y-4"
-        :class="center ? 'mx-auto max-w-4xl' : 'max-w-4xl'"
+        class="min-w-0 space-y-4"
+        :class="center ? 'mx-auto max-w-4xl' : 'max-w-4xl lg:flex-1'"
       >
         <UiMetaLabel
           v-if="eyebrow"

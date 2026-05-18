@@ -12,7 +12,7 @@ export interface BackofficeOption {
   name: string
 }
 
-export type BackofficeFilterVisibility = 'city' | 'artistName' | 'pageSize' | 'genre' | 'format' | 'dateRange'
+export type BackofficeFilterVisibility = 'city' | 'artistName' | 'pageSize' | 'genre' | 'format' | 'role' | 'status' | 'dateRange'
 
 export interface BackofficeFilterOption {
   label: string
@@ -40,6 +40,7 @@ export interface BackofficeFilterSelectControl {
   modelValue: string | number
   items: BackofficeFilterOption[]
   size?: 'sm' | 'md' | 'lg'
+  placeholderValue?: string | number
   disabled?: boolean
   onUpdate: (value: string | number) => void
 }

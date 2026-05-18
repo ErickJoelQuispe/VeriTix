@@ -40,7 +40,7 @@ const statusOptions: BackofficeOption[] = [
 const filters = reactive({
   search: '',
   role: '',
-  isActive: '',
+  status: '',
 })
 
 const roleFilterOptions = computed(() => {
@@ -124,7 +124,7 @@ async function loadUsers(targetPage = page.value) {
       pageSize: pageSize.value,
       search: filters.search,
       role: filters.role,
-      isActive: filters.isActive,
+      isActive: filters.status,
     })
 
     users.value = response.data
@@ -152,7 +152,7 @@ function applyFilters() {
 function resetFilters() {
   filters.search = ''
   filters.role = ''
-  filters.isActive = ''
+  filters.status = ''
   page.value = 1
   void loadUsers(1)
 }
@@ -192,17 +192,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-users-page">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Usuarios" description="Buscá usuarios por rol, estado y actividad desde un panel único." />
-          <BaseButton
-            to="/backoffice/users/new"
-            variant="primary"
-            size="sm"
-            leading-icon="i-lucide-plus"
-          >
-            Nuevo usuario
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Usuarios"
+          description="Buscá usuarios por rol, estado y actividad desde un panel único."
+          action-label="Nuevo usuario"
+          action-to="/backoffice/users/new"
+        />
 
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
@@ -225,19 +221,20 @@ onMounted(() => {
             <PagesBackofficeFiltersBar
               v-model:search="filters.search"
               v-model:page-size="pageSize"
-              v-model:genre-id="filters.role"
-              v-model:format-id="filters.isActive"
+              v-model:role="filters.role"
+              v-model:status="filters.status"
               :page-size-options="pageSizeOptions"
-              :genres="roleFilterOptions"
-              :formats="statusOptions"
-              :visible-filters="['pageSize', 'genre', 'format']"
+              :roles="roleFilterOptions"
+              :statuses="statusOptions"
+              :visible-filters="['pageSize', 'role', 'status']"
               search-label="Buscar usuario"
               search-placeholder="Nombre o correo"
-              genre-label="Rol"
-              genre-all-label="Todos los roles"
-              genre-name="role"
-              format-label="Estado"
-              format-name="isActive"
+              role-label="Rol"
+              role-all-label="Todos los roles"
+              role-name="role"
+              status-label="Estado"
+              status-all-label="Todos los estados"
+              status-name="status"
               :loading="pending"
               class="w-full"
             />

@@ -26,7 +26,7 @@ const statusOptions: BackofficeOption[] = [
 const filters = reactive({
   search: '',
   city: '',
-  isActive: '',
+  status: '',
 })
 
 const toolbarChips = computed(() => {
@@ -47,7 +47,7 @@ async function loadVenues(targetPage = page.value) {
       pageSize: pageSize.value,
       search: filters.search,
       city: filters.city,
-      isActive: filters.isActive,
+      isActive: filters.status,
     })
 
     venues.value = response.data
@@ -81,7 +81,7 @@ function applyFilters() {
 function resetFilters() {
   filters.search = ''
   filters.city = ''
-  filters.isActive = ''
+  filters.status = ''
   page.value = 1
   void loadVenues(1)
 }
@@ -122,11 +122,14 @@ onMounted(() => {
             <PagesBackofficeFiltersBar
               v-model:search="filters.search"
               v-model:city="filters.city"
-              v-model:format-id="filters.isActive"
-              :formats="statusOptions"
-              :visible-filters="['city', 'format']"
-              format-label="Estado"
-              format-name="isActive"
+              v-model:status="filters.status"
+              :statuses="statusOptions"
+              :visible-filters="['city', 'status']"
+              search-label="Buscar recinto"
+              search-placeholder="Nombre o dirección"
+              status-label="Estado"
+              status-all-label="Todos los estados"
+              status-name="status"
               :loading="pending"
               class="w-full"
             />

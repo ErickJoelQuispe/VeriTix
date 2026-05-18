@@ -40,7 +40,7 @@ const statusOptions: BackofficeOption[] = [
 const filters = reactive({
   search: '',
   genreId: '',
-  isActive: '',
+  status: '',
 })
 
 const genreFilterOptions = computed<BackofficeOption[]>(() => {
@@ -90,7 +90,7 @@ async function loadArtists(targetPage = page.value) {
       pageSize: pageSize.value,
       search: filters.search,
       genreId: filters.genreId,
-      isActive: filters.isActive,
+      isActive: filters.status,
     })
 
     artists.value = response.data
@@ -113,7 +113,7 @@ function applyFilters() {
 function resetFilters() {
   filters.search = ''
   filters.genreId = ''
-  filters.isActive = ''
+  filters.status = ''
   page.value = 1
   void loadArtists(1)
 }
@@ -148,17 +148,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-artists-page">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Artistas" description="Buscá artistas por nombre, género, estado y actividad." />
-          <BaseButton
-            to="/backoffice/artists/new"
-            variant="primary"
-            size="sm"
-            leading-icon="i-lucide-plus"
-          >
-            Nuevo artista
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Artistas"
+          description="Buscá artistas por nombre, género, estado y actividad."
+          action-label="Nuevo artista"
+          action-to="/backoffice/artists/new"
+        />
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
           title="Lista de artistas"
@@ -181,17 +177,18 @@ onMounted(() => {
               v-model:search="filters.search"
               v-model:page-size="pageSize"
               v-model:genre-id="filters.genreId"
-              v-model:format-id="filters.isActive"
+              v-model:status="filters.status"
               :page-size-options="pageSizeOptions"
               :genres="genreFilterOptions"
-              :formats="statusOptions"
-              :visible-filters="['pageSize', 'genre', 'format']"
+              :statuses="statusOptions"
+              :visible-filters="['pageSize', 'genre', 'status']"
               search-label="Buscar artista"
               search-placeholder="Nombre del artista"
               genre-label="Género"
               genre-name="genreId"
-              format-label="Estado"
-              format-name="isActive"
+              status-label="Estado"
+              status-all-label="Todos los estados"
+              status-name="status"
               :loading="pending"
               class="w-full"
             />

@@ -22,6 +22,10 @@ interface Props {
   artistLabel?: string
   artistFieldName?: string
   artistPlaceholder?: string
+  role?: string
+  roleLabel?: string
+  roleAllLabel?: string
+  roleName?: string
   pageSize?: number
   pageSizeOptions?: Array<{ label: string, value: string | number }>
   pageSizeLabel?: string
@@ -30,9 +34,16 @@ interface Props {
   genreLabel?: string
   genreAllLabel?: string
   genreName?: string
+  status?: string
   formatId?: string
   formatLabel?: string
+  formatAllLabel?: string
   formatName?: string
+  roles?: Array<{ id: string, name: string }>
+  statusLabel?: string
+  statusAllLabel?: string
+  statusName?: string
+  statuses?: Array<{ id: string, name: string }>
   dateFrom?: string
   dateFromLabel?: string
   dateFromName?: string
@@ -59,6 +70,10 @@ const props = withDefaults(defineProps<Props>(), {
   artistLabel: 'Artista',
   artistFieldName: 'artistName',
   artistPlaceholder: '',
+  role: '',
+  roleLabel: 'Rol',
+  roleAllLabel: 'Todos los roles',
+  roleName: 'role',
   pageSize: 12,
   pageSizeOptions: () => [],
   pageSizeLabel: 'Por página',
@@ -67,9 +82,16 @@ const props = withDefaults(defineProps<Props>(), {
   genreLabel: 'Género',
   genreAllLabel: 'Todos los géneros',
   genreName: 'genreId',
+  status: '',
   formatId: '',
   formatLabel: 'Formato',
+  formatAllLabel: 'Todos los formatos',
   formatName: 'formatId',
+  roles: () => [],
+  statusLabel: 'Estado',
+  statusAllLabel: 'Todos los estados',
+  statusName: 'status',
+  statuses: () => [],
   dateFrom: '',
   dateFromLabel: 'Desde',
   dateFromName: 'dateFrom',
@@ -79,16 +101,18 @@ const props = withDefaults(defineProps<Props>(), {
   genres: () => [],
   formats: () => [],
   loading: false,
-  visibleFilters: () => ['city', 'artistName', 'pageSize', 'genre', 'format', 'dateRange'],
+  visibleFilters: () => ['city', 'artistName', 'pageSize', 'genre', 'format', 'role', 'status', 'dateRange'],
 })
 
 const emit = defineEmits<{
   (e: 'update:search', value: string): void
   (e: 'update:city', value: string): void
   (e: 'update:artistName', value: string): void
+  (e: 'update:role', value: string): void
   (e: 'update:pageSize', value: number): void
   (e: 'update:genreId', value: string): void
   (e: 'update:formatId', value: string): void
+  (e: 'update:status', value: string): void
   (e: 'update:dateFrom', value: string): void
   (e: 'update:dateTo', value: string): void
 }>()
@@ -130,8 +154,26 @@ const genreOptions = computed<BackofficeFilterOption[]>(() => {
 
 const formatOptions = computed<BackofficeFilterOption[]>(() => {
   return [
-    { label: 'Todos los formatos', value: ALL_OPTION_VALUE },
+    { label: props.formatAllLabel, value: ALL_OPTION_VALUE },
     ...props.formats.map(f => ({ label: f.name, value: f.id })),
+  ]
+})
+
+const roleOptions = computed<BackofficeFilterOption[]>(() => {
+  const items = props.roles.length > 0 ? props.roles : props.genres
+
+  return [
+    { label: props.roleAllLabel, value: ALL_OPTION_VALUE },
+    ...items.map(role => ({ label: role.name, value: role.id })),
+  ]
+})
+
+const statusOptions = computed<BackofficeFilterOption[]>(() => {
+  const items = props.statuses.length > 0 ? props.statuses : props.formats
+
+  return [
+    { label: props.statusAllLabel, value: ALL_OPTION_VALUE },
+    ...items.map(status => ({ label: status.name, value: status.id })),
   ]
 })
 
@@ -188,6 +230,19 @@ const primaryControls = computed<BackofficeFilterControl[]>(() => {
     }))
   }
 
+  if (props.visibleFilters.includes('role')) {
+    controls.push(createSelectControl({
+      key: 'role',
+      name: props.roleName,
+      label: props.roleLabel,
+      modelValue: props.role || ALL_OPTION_VALUE,
+      items: roleOptions.value,
+      placeholderValue: ALL_OPTION_VALUE,
+      disabled: props.loading,
+      onUpdate: value => emit('update:role', value === ALL_OPTION_VALUE ? '' : String(value)),
+    }))
+  }
+
   return controls
 })
 
@@ -224,6 +279,7 @@ const secondaryControls = computed<BackofficeFilterControl[]>(() => {
       label: props.genreLabel,
       modelValue: props.genreId || ALL_OPTION_VALUE,
       items: genreOptions.value,
+      placeholderValue: ALL_OPTION_VALUE,
       disabled: props.loading,
       onUpdate: value => emit('update:genreId', value === ALL_OPTION_VALUE ? '' : String(value)),
     }))
@@ -236,8 +292,22 @@ const secondaryControls = computed<BackofficeFilterControl[]>(() => {
       label: props.formatLabel,
       modelValue: props.formatId || ALL_OPTION_VALUE,
       items: formatOptions.value,
+      placeholderValue: ALL_OPTION_VALUE,
       disabled: props.loading,
       onUpdate: value => emit('update:formatId', value === ALL_OPTION_VALUE ? '' : String(value)),
+    }))
+  }
+
+  if (props.visibleFilters.includes('status')) {
+    controls.push(createSelectControl({
+      key: 'status',
+      name: props.statusName,
+      label: props.statusLabel,
+      modelValue: props.status || ALL_OPTION_VALUE,
+      items: statusOptions.value,
+      placeholderValue: ALL_OPTION_VALUE,
+      disabled: props.loading,
+      onUpdate: value => emit('update:status', value === ALL_OPTION_VALUE ? '' : String(value)),
     }))
   }
 
@@ -259,10 +329,11 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :model-value="item.modelValue"
           :disabled="item.disabled"
+          size="md"
           :placeholder="item.placeholder || 'Seleccioná una fecha'"
           @update:model-value="item.onUpdate(String($event ?? ''))"
         />
-        <FormField
+        <FormInput
           v-else-if="item.kind === 'field'"
           :name="item.name"
           :label="item.label"
@@ -271,6 +342,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :icon="item.icon"
           :type="item.type"
           :disabled="item.disabled"
+          size="md"
           @update:model-value="item.onUpdate(String($event ?? ''))"
         />
         <FormSelect
@@ -279,7 +351,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :items="item.items"
           :model-value="String(item.modelValue ?? '')"
-          :placeholder-value="item.key === 'genreId' || item.key === 'formatId' ? item.items?.[0]?.value : undefined"
+          :placeholder-value="item.placeholderValue"
           size="md"
           :disabled="item.disabled"
           @update:model-value="item.onUpdate(String($event ?? ''))"
@@ -296,10 +368,11 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :model-value="item.modelValue"
           :disabled="item.disabled"
+          size="md"
           :placeholder="item.placeholder || 'Seleccioná una fecha'"
           @update:model-value="item.onUpdate(String($event ?? ''))"
         />
-        <FormField
+        <FormInput
           v-else-if="item.kind === 'field'"
           :name="item.name"
           :label="item.label"
@@ -308,6 +381,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :icon="item.icon"
           :type="item.type"
           :disabled="item.disabled"
+          size="md"
           @update:model-value="item.onUpdate(String($event ?? ''))"
         />
         <FormSelect
@@ -316,7 +390,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :items="item.items"
           :model-value="String(item.modelValue ?? '')"
-          :placeholder-value="item.key === 'genreId' || item.key === 'formatId' ? item.items?.[0]?.value : undefined"
+          :placeholder-value="item.placeholderValue"
           size="md"
           :disabled="item.disabled"
           @update:model-value="item.onUpdate(String($event ?? ''))"

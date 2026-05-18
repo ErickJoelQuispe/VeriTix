@@ -242,17 +242,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-events-page">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Manage events" description="Search, filter, and update event records with a compact overview." />
-          <BaseButton
-            to="/backoffice/events/new"
-            variant="primary"
-            size="sm"
-            leading-icon="i-lucide-plus"
-          >
-            Nuevo evento
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Manage events"
+          description="Search, filter, and update event records with a compact overview."
+          action-label="Nuevo evento"
+          action-to="/backoffice/events/new"
+        />
 
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
@@ -294,6 +290,8 @@ onMounted(() => {
               :formats="formats"
               :loading="catalogPending || filtersPending"
               :visible-filters="catalogMode === 'published' ? ['city', 'artistName', 'genre', 'format', 'dateRange'] : ['city']"
+              search-label="Buscar evento"
+              search-placeholder="Nombre del evento"
               class="w-full"
             />
 
