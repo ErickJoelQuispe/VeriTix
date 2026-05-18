@@ -14,7 +14,7 @@ function onSearch() {
   >
     <BaseContainer>
       <div class="relative grid items-start gap-10 lg:grid-cols-[1.15fr_.85fr] lg:items-center lg:gap-12">
-        <div class="relative z-10 space-y-8 pr-20 sm:pr-28 lg:pr-0 animate-hero-reveal">
+        <div class="relative z-10 space-y-8 pr-6 sm:pr-14 lg:pr-0 animate-hero-reveal">
           <h1 class="space-y-3 font-display text-6xl leading-[0.9] text-highlighted md:text-7xl lg:text-8xl">
             <span class="relative inline-block">
               <svg class="vtx-hero-diamond absolute -left-17 top-1/2 hidden h-20 w-20 -translate-y-1/2 opacity-96 md:-left-20 md:h-22 md:w-22 lg:block" viewBox="0 0 64 64" aria-hidden="true">
@@ -53,7 +53,7 @@ function onSearch() {
             The pristine way to discover, filter, and book live events.
           </p>
 
-          <form class="space-y-3" @submit.prevent="onSearch">
+          <form class="space-y-4" @submit.prevent="onSearch">
             <FormInput
               v-model="query"
               placeholder="Buscá artista, ciudad o género..."
@@ -84,25 +84,16 @@ function onSearch() {
             </FormInput>
 
             <!-- Hint Text -->
-            <p class="flex items-center gap-2 px-4 text-xs text-toned/90">
+            <p class="flex items-start gap-2 px-1 text-xs leading-relaxed text-toned/90 sm:px-4">
               <BaseIcon name="i-lucide-sparkles" class="h-3.5 w-3.5 text-primary" aria-hidden="true" />
               <span>Descubrí conciertos progresivos y eventos únicos</span>
             </p>
           </form>
 
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <p class="text-sm text-toned">
               {{ pending ? 'Actualizando cartel...' : `Eventos visibles: ${results.length}` }}
             </p>
-
-            <BaseButton
-              variant="secondary"
-              to="#generos"
-              size="sm"
-              class="px-4"
-            >
-              Explorar géneros
-            </BaseButton>
           </div>
         </div>
 
