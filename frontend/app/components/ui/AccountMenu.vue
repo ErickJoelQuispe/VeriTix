@@ -46,7 +46,15 @@ const popoverContent = computed(() => ({
 const triggerAvatarSize = computed(() => props.triggerSize)
 
 function isActiveItem(to: string): boolean {
-  return route.path === to || route.path.startsWith(`${to}/`)
+  if (route.path === to) {
+    return true
+  }
+
+  if (to === '/users/me') {
+    return false
+  }
+
+  return route.path.startsWith(`${to}/`)
 }
 </script>
 
