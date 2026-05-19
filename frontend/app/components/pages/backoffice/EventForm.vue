@@ -244,13 +244,12 @@ watch(() => [
       <FormSelect v-model="selectedFormatId" name="formatId" label="Formato" :items="formatOptions" />
     </div>
 
-    <FormSelect
+    <FormTagSelect
       v-model="state.genreIds"
       name="genreIds"
       label="Generos"
       :items="genreOptions"
-      multiple
-      placeholder="Selecciona generos"
+      placeholder="Seleccioná generos"
     />
 
     <div class="flex justify-end border-t border-default/55 pt-6">
