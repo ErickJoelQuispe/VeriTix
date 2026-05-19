@@ -118,6 +118,22 @@ onMounted(() => {
             </div>
           </template>
 
+          <template #summary>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge
+                v-for="item in toolbarChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
+              </BaseBadge>
+            </div>
+          </template>
+
           <div class="space-y-6">
             <PagesBackofficeFiltersBar
               v-model:search="filters.search"
@@ -133,20 +149,6 @@ onMounted(() => {
               :loading="pending"
               class="w-full"
             />
-
-            <div class="flex flex-wrap gap-2.5">
-              <BaseBadge
-                v-for="item in toolbarChips"
-                :key="item.label"
-                kind="tag"
-                color="primary"
-                size="sm"
-                :icon="item.icon"
-                class="min-w-28 justify-center rounded-full"
-              >
-                {{ item.label }}: {{ item.value }}
-              </BaseBadge>
-            </div>
 
             <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
               <div class="flex w-full flex-wrap items-center justify-center">

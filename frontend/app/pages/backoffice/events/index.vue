@@ -280,6 +280,22 @@ onMounted(() => {
             </div>
           </template>
 
+          <template #summary>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge
+                v-for="item in toolbarChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
+              </BaseBadge>
+            </div>
+          </template>
+
           <div class="space-y-6">
             <PagesBackofficeFiltersBar
               v-model:search="filters.search"
@@ -301,20 +317,6 @@ onMounted(() => {
               search-placeholder="Nombre del evento"
               class="w-full"
             />
-
-            <div class="flex flex-wrap gap-2.5">
-              <BaseBadge
-                v-for="item in toolbarChips"
-                :key="item.label"
-                kind="tag"
-                color="primary"
-                size="sm"
-                :icon="item.icon"
-                class="min-w-28 justify-center rounded-full"
-              >
-                {{ item.label }}: {{ item.value }}
-              </BaseBadge>
-            </div>
 
             <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 text-sm text-toned sm:p-4">
               <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
