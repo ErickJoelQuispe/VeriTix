@@ -233,7 +233,7 @@ watch(() => [
 
     <div class="grid gap-5 lg:grid-cols-2">
       <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required />
-      <FormField v-model="state.imageUrl" name="imageUrl" label="Imagen" type="url" placeholder="https://..." />
+      <FormImageUpload v-model="state.imageUrl" name="imageUrl" label="Imagen" />
     </div>
 
     <div class="grid gap-5 lg:grid-cols-3">
