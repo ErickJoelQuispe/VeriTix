@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BackofficeEventDetail, BackofficeEventPayload, BackofficeOption, CurrencyCode, EventArtistEntry, GenreOption, VenueOption } from '~~/shared/types'
+import type { TicketType } from '~~/shared/types/domain'
 import { z } from 'zod'
 import { normalizeEventPayload } from '@/utils/backoffice/formSafeRails'
 
@@ -21,13 +22,16 @@ const emit = defineEmits<{
 }>()
 
 const pendingArtists = ref<EventArtistEntry[]>([])
+const ticketTypesRef = ref<{ pendingTicketTypes: TicketType[] } | null>(null)
 const eventId = computed(() => props.initialValue?.id)
 
 function onLineupChange(artists: EventArtistEntry[]) {
   pendingArtists.value = artists
 }
 
-defineExpose({ pendingArtists })
+const pendingTicketTypes = computed(() => ticketTypesRef.value?.pendingTicketTypes ?? [])
+
+defineExpose({ pendingArtists, pendingTicketTypes })
 
 const dirty = defineModel<boolean>('dirty', { default: false })
 
@@ -266,6 +270,12 @@ watch(() => [
       :event-id="eventId ?? undefined"
       :disabled="submitting"
       @change="onLineupChange"
+    />
+
+    <PagesBackofficeEventTicketTypes
+      ref="ticketTypesRef"
+      :event-id="eventId ?? undefined"
+      :disabled="submitting"
     />
 
     <div class="flex justify-end border-t border-default/55 pt-6">

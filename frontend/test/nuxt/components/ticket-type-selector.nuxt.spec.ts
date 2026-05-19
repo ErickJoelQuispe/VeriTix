@@ -10,6 +10,7 @@ function makeTicketType(overrides: Partial<{
   id: string
   name: string
   price: number
+  totalQuantity: number
   availableQuantity: number
   maxPerUser: number
   isActive: boolean
@@ -19,6 +20,7 @@ function makeTicketType(overrides: Partial<{
     name: 'Pista General',
     description: null,
     price: 75,
+    totalQuantity: 10,
     availableQuantity: 10,
     maxPerUser: 3,
     isActive: true,
