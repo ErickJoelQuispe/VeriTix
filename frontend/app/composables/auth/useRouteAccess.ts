@@ -30,6 +30,17 @@ export function useRouteAccess() {
     }
   }
 
+  function requireSalesReportAccess(): string | undefined {
+    if (!isAuthenticated.value) {
+      return '/login'
+    }
+
+    const role = user.value?.role
+    if (role !== 'ADMIN' && role !== 'CREATOR') {
+      return '/'
+    }
+  }
+
   function redirectIfAuthenticated(redirectTo = '/users/me'): string | undefined {
     if (isAuthenticated.value) {
       return redirectTo
@@ -40,6 +51,7 @@ export function useRouteAccess() {
     requireAuthenticated,
     requireBackofficeAccess,
     requireValidatorAccess,
+    requireSalesReportAccess,
     redirectIfAuthenticated,
   }
 }

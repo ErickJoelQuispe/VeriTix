@@ -1,6 +1,20 @@
 export type OrderStatusApi = 'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED'
 export type PaymentStatusApi = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED'
 
+export type EventOrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED'
+
+export interface EventOrderListApiItem {
+  id: string
+  totalAmount: number
+  status: EventOrderStatus
+  createdAt: string
+  event: {
+    id: string
+    name: string
+    eventDate: string
+  }
+}
+
 export interface OrderItemApiItem {
   id: string
   quantity: number

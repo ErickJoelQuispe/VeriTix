@@ -5,7 +5,7 @@ import { formatEventDate } from '@/utils/date-formatters'
 
 const route = useRoute()
 const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, user } = useAuth()
 const { add: addToast } = useToastQueue()
 
 const roleLabels: Record<string, string> = {
@@ -279,6 +279,27 @@ function formatPerformanceTime(value: string | Date | null): string {
               <p v-else class="text-sm leading-relaxed text-toned">
                 No hay descripción pública para este evento todavía.
               </p>
+            </div>
+
+            <!-- Sales Report CTA (ADMIN / CREATOR only) -->
+            <div
+              v-if="user?.role === 'ADMIN' || user?.role === 'CREATOR'"
+              class="flex items-center justify-between border-t border-default/55 pt-7"
+            >
+              <div class="space-y-1">
+                <UiMetaLabel>Backoffice</UiMetaLabel>
+                <p class="text-sm text-toned">
+                  Accedé al reporte completo de ventas de este evento.
+                </p>
+              </div>
+              <BaseButton
+                variant="secondary"
+                size="lg"
+                :to="`/backoffice/events/${eventId}/sales`"
+                leading-icon="i-lucide-bar-chart-2"
+              >
+                Ver reporte de ventas
+              </BaseButton>
             </div>
 
             <!-- Ticket Types & Purchase -->
