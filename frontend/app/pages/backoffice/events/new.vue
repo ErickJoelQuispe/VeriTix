@@ -2,17 +2,21 @@
 import type {
   BackofficeEventPayload,
   BackofficeOption,
+  EventArtistEntry,
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
+import { useEventArtistsRepository } from '@/repositories/eventArtistsRepository'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo evento | Backoffice VeriTix' })
 
 const { createEvent: createBackofficeEvent, getFormOptions } = useBackofficeEventsRepository()
+const { addToEvent } = useEventArtistsRepository()
 const { notifyApiError, notifySuccess } = useAppNotifications()
 
+const formRef = ref<{ pendingArtists: EventArtistEntry[] } | null>(null)
 const venues = ref<VenueOption[]>([])
 const genres = ref<GenreOption[]>([])
 const formats = ref<BackofficeOption[]>([])
@@ -51,7 +55,21 @@ async function createEvent(payload: BackofficeEventPayload) {
   submitting.value = true
 
   try {
-    await createBackofficeEvent(payload)
+    const created = await createBackofficeEvent(payload)
+
+    const pendingArtists = formRef.value?.pendingArtists ?? []
+
+    if (pendingArtists.length > 0 && created.id) {
+      await Promise.all(
+        pendingArtists.map((entry, index) =>
+          addToEvent(created.id, {
+            artistId: entry.artist.id,
+            role: entry.role,
+            performanceOrder: index + 1,
+          }),
+        ),
+      )
+    }
 
     notifySuccess('Evento creado correctamente.', { id: 'admin-events-create-success' })
     await navigateTo('/backoffice/events')
@@ -110,6 +128,7 @@ onMounted(() => {
 
           <PagesBackofficeEventForm
             v-else
+            ref="formRef"
             v-model:dirty="isFormDirty"
             :venues="venues"
             :genres="genres"

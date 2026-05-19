@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BackofficeEventDetail, BackofficeEventPayload, BackofficeOption, CurrencyCode, GenreOption, VenueOption } from '~~/shared/types'
+import type { BackofficeEventDetail, BackofficeEventPayload, BackofficeOption, CurrencyCode, EventArtistEntry, GenreOption, VenueOption } from '~~/shared/types'
 import { z } from 'zod'
 import { normalizeEventPayload } from '@/utils/backoffice/formSafeRails'
 
@@ -19,6 +19,15 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   submit: [payload: BackofficeEventPayload]
 }>()
+
+const pendingArtists = ref<EventArtistEntry[]>([])
+const eventId = computed(() => props.initialValue?.id)
+
+function onLineupChange(artists: EventArtistEntry[]) {
+  pendingArtists.value = artists
+}
+
+defineExpose({ pendingArtists })
 
 const dirty = defineModel<boolean>('dirty', { default: false })
 
@@ -251,6 +260,12 @@ watch(() => [
       label="Generos"
       :items="genreOptions"
       placeholder="Seleccioná generos"
+    />
+
+    <PagesBackofficeEventLineup
+      :event-id="eventId ?? undefined"
+      :disabled="submitting"
+      @change="onLineupChange"
     />
 
     <div class="flex justify-end border-t border-default/55 pt-6">

@@ -79,6 +79,25 @@ export interface BackofficeEventDetail {
   genres: EventGenreSummary[]
 }
 
+export type ArtistRole = 'HEADLINER' | 'SPECIAL_GUEST' | 'OPENER'
+
+export interface EventArtistSummary {
+  id: string
+  name: string
+  slug: string
+  imageUrl: string | null
+  country: string | null
+}
+
+export interface EventArtistEntry {
+  id: string
+  role: ArtistRole
+  performanceOrder: number
+  performanceTime: string | Date | null
+  eventId: string
+  artist: EventArtistSummary
+}
+
 export interface BackofficeEventPayload {
   name: string
   description?: string
