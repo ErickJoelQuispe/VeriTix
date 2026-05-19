@@ -215,7 +215,7 @@ watch(() => [
   <FormRoot :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
     <div class="grid gap-5 lg:grid-cols-2">
       <FormField v-model="state.name" name="name" label="Nombre" placeholder="VeriTix Sunset Series" required />
-      <FormField v-model="state.eventDate" name="eventDate" label="Fecha del evento" type="datetime-local" required />
+      <FormDateTimePicker v-model="state.eventDate" name="eventDate" label="Fecha del evento" required />
     </div>
 
     <FormTextarea
@@ -226,9 +226,9 @@ watch(() => [
     />
 
     <div class="grid gap-5 lg:grid-cols-3">
-      <FormField v-model="state.doorsOpenTime" name="doorsOpenTime" label="Apertura de puertas" type="datetime-local" />
-      <FormField v-model="state.startSale" name="startSale" label="Inicio de venta" type="datetime-local" />
-      <FormField v-model="state.endSale" name="endSale" label="Fin de venta" type="datetime-local" />
+      <FormDateTimePicker v-model="state.doorsOpenTime" name="doorsOpenTime" label="Apertura de puertas" />
+      <FormDateTimePicker v-model="state.startSale" name="startSale" label="Inicio de venta" />
+      <FormDateTimePicker v-model="state.endSale" name="endSale" label="Fin de venta" />
     </div>
 
     <div class="grid gap-5 lg:grid-cols-2">
