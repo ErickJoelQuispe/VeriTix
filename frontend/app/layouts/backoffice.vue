@@ -7,5 +7,7 @@
       <LayoutBackofficeHeader />
       <slot />
     </div>
+
+    <UiConfirmDialog />
   </div>
 </template>

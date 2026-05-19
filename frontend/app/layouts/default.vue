@@ -8,5 +8,7 @@
       <slot />
       <LayoutFooter />
     </div>
+
+    <UiConfirmDialog />
   </div>
 </template>

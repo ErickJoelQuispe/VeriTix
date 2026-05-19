@@ -109,12 +109,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
-          <BaseButton to="/backoffice/events" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
-            Volver a eventos
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Editar evento"
+          description="Actualiza la ficha del evento y su configuración operativa."
+          action-label="Volver"
+          action-to="/backoffice/events"
+        />
         <PagesBackofficeOverviewPanel
           title="Datos del evento"
           description="Edita los campos principales del evento seleccionado."

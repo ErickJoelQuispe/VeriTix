@@ -231,8 +231,9 @@ watch(() => [
       <FormDateTimePicker v-model="state.endSale" name="endSale" label="Fin de venta" />
     </div>
 
-    <div class="grid gap-5 lg:grid-cols-2">
-      <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required />
+    <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required class="max-w-64" />
+
+    <div class="border-t border-default/55 pt-6">
       <FormImageUpload v-model="state.imageUrl" name="imageUrl" label="Imagen" />
     </div>
 
