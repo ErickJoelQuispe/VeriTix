@@ -232,9 +232,11 @@ onMounted(() => {
               role-label="Rol"
               role-all-label="Todos los roles"
               role-name="role"
+              role-icon="i-lucide-shield-check"
               status-label="Estado"
               status-all-label="Todos los estados"
               status-name="status"
+              status-icon="i-lucide-badge-check"
               :loading="pending"
               class="w-full"
             />

@@ -118,20 +118,20 @@ const hasTrailing = computed(() => Boolean(slots.trailing))
 
 const leadingClass = computed(() => {
   return props.variant === 'hero'
-    ? 'pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-white/90 transition-colors duration-300'
-    : 'pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/90'
+    ? 'pointer-events-none absolute left-3.5 top-1/2 size-5 -translate-y-1/2 text-white/60 transition-colors duration-300'
+    : 'pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/60'
 })
 
 const leadingSlotClass = computed(() => {
   return props.variant === 'hero'
-    ? 'pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-white/90'
-    : 'pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/90'
+    ? 'pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-white/60'
+    : 'pointer-events-none absolute inset-y-0 left-4 flex items-center text-white/60'
 })
 
 const trailingClass = computed(() => {
   return props.variant === 'hero'
     ? 'absolute inset-y-0 right-2 flex items-center'
-    : 'absolute inset-y-0 right-4 flex items-center text-white/80'
+    : 'absolute inset-y-0 right-4 flex items-center text-white/60'
 })
 
 watch(modelValue, () => {

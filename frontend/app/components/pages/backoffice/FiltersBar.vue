@@ -26,6 +26,7 @@ interface Props {
   roleLabel?: string
   roleAllLabel?: string
   roleName?: string
+  roleIcon?: string
   pageSize?: number
   pageSizeOptions?: Array<{ label: string, value: string | number }>
   pageSizeLabel?: string
@@ -35,6 +36,7 @@ interface Props {
   genreAllLabel?: string
   genreName?: string
   status?: string
+  statusIcon?: string
   formatId?: string
   formatLabel?: string
   formatAllLabel?: string
@@ -74,6 +76,7 @@ const props = withDefaults(defineProps<Props>(), {
   roleLabel: 'Rol',
   roleAllLabel: 'Todos los roles',
   roleName: 'role',
+  roleIcon: 'i-lucide-shield-check',
   pageSize: 12,
   pageSizeOptions: () => [],
   pageSizeLabel: 'Por página',
@@ -83,6 +86,7 @@ const props = withDefaults(defineProps<Props>(), {
   genreAllLabel: 'Todos los géneros',
   genreName: 'genreId',
   status: '',
+  statusIcon: 'i-lucide-badge-check',
   formatId: '',
   formatLabel: 'Formato',
   formatAllLabel: 'Todos los formatos',
@@ -224,6 +228,7 @@ const primaryControls = computed<BackofficeFilterControl[]>(() => {
       label: props.roleLabel,
       modelValue: props.role || ALL_OPTION_VALUE,
       items: roleOptions.value,
+      icon: props.roleIcon,
       placeholderValue: ALL_OPTION_VALUE,
       disabled: props.loading,
       onUpdate: value => emit('update:role', value === ALL_OPTION_VALUE ? '' : String(value)),
@@ -308,6 +313,7 @@ const secondaryControls = computed<BackofficeFilterControl[]>(() => {
       label: props.statusLabel,
       modelValue: props.status || ALL_OPTION_VALUE,
       items: statusOptions.value,
+      icon: props.statusIcon,
       placeholderValue: ALL_OPTION_VALUE,
       disabled: props.loading,
       onUpdate: value => emit('update:status', value === ALL_OPTION_VALUE ? '' : String(value)),

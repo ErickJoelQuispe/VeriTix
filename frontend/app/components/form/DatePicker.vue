@@ -414,7 +414,7 @@ function formatSelected(date: Date) {
         <BaseIcon
           v-if="props.icon"
           :name="props.icon"
-          class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/80"
+          class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/60"
           aria-hidden="true"
         />
 
