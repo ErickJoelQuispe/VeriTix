@@ -300,7 +300,7 @@ onMounted(() => {
               <div
                 v-for="artist in artists"
                 :key="artist.id"
-                class="group relative block"
+                class="group relative flex flex-col"
               >
                 <NuxtLink
                   :to="`/backoffice/artists/${artist.id}/edit`"
@@ -331,6 +331,17 @@ onMounted(() => {
                     >
                       {{ artist.isActive ? 'Activo' : 'Inactivo' }}
                     </div>
+
+                    <!-- Desktop delete — hover only -->
+                    <button
+                      type="button"
+                      class="absolute right-1.5 top-1.5 flex size-7 items-center justify-center opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white rounded-md transition-opacity disabled:opacity-40 disabled:cursor-not-allowed max-lg:hidden"
+                      :disabled="deletingId === artist.id"
+                      :aria-label="`Eliminar ${artist.name}`"
+                      @click.prevent="confirmDelete(artist.id)"
+                    >
+                      <BaseIcon name="i-lucide-trash-2" class="size-3.5" />
+                    </button>
                   </div>
 
                   <div class="mt-2">
@@ -343,16 +354,26 @@ onMounted(() => {
                   </div>
                 </NuxtLink>
 
-                <!-- Delete action -->
-                <button
-                  type="button"
-                  class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                  :disabled="deletingId === artist.id"
-                  :aria-label="`Eliminar ${artist.name}`"
-                  @click="confirmDelete(artist.id)"
-                >
-                  <BaseIcon name="i-lucide-trash-2" class="size-3.5" />
-                </button>
+                <!-- Mobile buttons — always visible -->
+                <div class="mt-auto grid grid-cols-2 gap-1.5 pt-2 lg:hidden">
+                  <BaseButton
+                    variant="primary"
+                    size="xs"
+                    class="w-full justify-center"
+                    :to="`/backoffice/artists/${artist.id}/edit`"
+                  >
+                    <BaseIcon name="i-lucide-pencil" class="size-3" />
+                  </BaseButton>
+                  <BaseButton
+                    variant="danger"
+                    size="xs"
+                    class="w-full justify-center"
+                    :disabled="deletingId === artist.id"
+                    @click="confirmDelete(artist.id)"
+                  >
+                    <BaseIcon name="i-lucide-trash-2" class="size-3" />
+                  </BaseButton>
+                </div>
               </div>
             </div>
 
