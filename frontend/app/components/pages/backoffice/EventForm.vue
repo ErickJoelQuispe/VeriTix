@@ -239,7 +239,7 @@ watch(() => [
     <div class="grid gap-5 lg:grid-cols-3">
       <FormSelect v-model="state.currency" name="currency" label="Moneda" :items="currencyOptions.map(value => ({ label: value, value }))" required />
 
-      <FormSelect v-model="state.venueId" name="venueId" label="Venue" :items="venueOptions" placeholder="Selecciona un venue" required />
+      <FormAutocomplete v-model="state.venueId" name="venueId" label="Venue" :items="venueOptions" placeholder="Buscá un venue" required icon="i-lucide-map-pin" />
 
       <FormSelect v-model="selectedFormatId" name="formatId" label="Formato" :items="formatOptions" />
     </div>
