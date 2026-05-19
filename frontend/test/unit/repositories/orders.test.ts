@@ -5,24 +5,26 @@ import { describe, expect, it } from 'vitest'
 const appDir = join(process.cwd(), 'app')
 
 describe('ordersRepository', () => {
-  it('exports useOrdersRepository', async () => {
+  it('uses the my-orders, order-detail, cancel and create endpoints', async () => {
     const content = await readFile(join(appDir, 'repositories/ordersRepository.ts'), 'utf-8')
-    expect(content).toContain('export function useOrdersRepository()')
-  })
 
-  it('exposes createOrder function', async () => {
-    const content = await readFile(join(appDir, 'repositories/ordersRepository.ts'), 'utf-8')
-    expect(content).toContain('createOrder')
-  })
-
-  it('createOrder posts to /api/orders', async () => {
-    const content = await readFile(join(appDir, 'repositories/ordersRepository.ts'), 'utf-8')
+    expect(content).toContain("'/orders/my'")
+    expect(content).toContain('`/orders/${id}`')
+    expect(content).toContain('`/orders/${id}/cancel`')
     expect(content).toContain("'/orders'")
-    expect(content).toContain("'POST'")
   })
 
-  it('createOrder returns checkoutUrl in response', async () => {
+  it('maps paginated list items and preserves meta', async () => {
     const content = await readFile(join(appDir, 'repositories/ordersRepository.ts'), 'utf-8')
-    expect(content).toContain('checkoutUrl')
+
+    expect(content).toContain('data: response.data.map(mapOrderListItem)')
+    expect(content).toContain('meta: response.meta')
+  })
+
+  it('preserves checkoutUrl on createOrder responses', async () => {
+    const content = await readFile(join(appDir, 'repositories/ordersRepository.ts'), 'utf-8')
+
+    expect(content).toContain('...mapOrderDetail(response)')
+    expect(content).toContain('checkoutUrl: response.checkoutUrl')
   })
 })
