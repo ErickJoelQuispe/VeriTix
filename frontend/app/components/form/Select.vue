@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
       <BaseIcon
         v-if="props.icon"
         :name="props.icon"
-        class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/45 opacity-75"
+        class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/80 opacity-90"
         aria-hidden="true"
       />
 
@@ -241,7 +241,7 @@ onBeforeUnmount(() => {
           <BaseIcon
             v-if="props.icon"
             :name="props.icon"
-            class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/45 opacity-75"
+            class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/80 opacity-90"
             aria-hidden="true"
           />
 

@@ -12,6 +12,7 @@ import type {
   QuickWindow,
 } from '@/utils/backoffice/eventsCatalog'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
+import { PAGE_SIZE_OPTIONS } from '@/utils/backoffice/pagination'
 import {
   buildCatalogSummary,
   CATALOG_MODE_ITEMS,
@@ -41,6 +42,7 @@ const catalogMode = ref<CatalogMode>('published')
 
 const page = ref(1)
 const pageSize = ref(12)
+const pageSizeOptions = PAGE_SIZE_OPTIONS
 const quickWindow = ref<QuickWindow>('all')
 
 const meta = ref<PaginationMeta>({
@@ -201,6 +203,7 @@ function resetCatalogFilters() {
   filters.dateFrom = ''
   filters.dateTo = ''
   filters.artistName = ''
+  pageSize.value = 12
   quickWindow.value = 'all'
   page.value = 1
 
@@ -286,10 +289,14 @@ onMounted(() => {
               v-model:date-from="filters.dateFrom"
               v-model:date-to="filters.dateTo"
               v-model:artist-name="filters.artistName"
+              v-model:page-size="pageSize"
               :genres="genres"
               :formats="formats"
+              :page-size-options="pageSizeOptions"
+              city-placeholder="Escribí una ciudad"
+              artist-placeholder="Nombre del artista"
               :loading="catalogPending || filtersPending"
-              :visible-filters="catalogMode === 'published' ? ['city', 'artistName', 'genre', 'format', 'dateRange'] : ['city']"
+              :visible-filters="catalogMode === 'published' ? ['city', 'artistName', 'pageSize', 'genre', 'format', 'dateRange'] : ['city']"
               search-label="Buscar evento"
               search-placeholder="Nombre del evento"
               class="w-full"

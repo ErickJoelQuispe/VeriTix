@@ -414,7 +414,7 @@ function formatSelected(date: Date) {
         <BaseIcon
           v-if="props.icon"
           :name="props.icon"
-          class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-lavender/80"
+          class="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-white/80"
           aria-hidden="true"
         />
 
@@ -424,7 +424,7 @@ function formatSelected(date: Date) {
 
         <BaseIcon
           name="i-lucide-chevron-down"
-          class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-lavender/70 transition-transform"
+          class="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-white/45 transition-transform"
           :class="isOpen ? 'rotate-180' : ''"
           aria-hidden="true"
         />
@@ -433,7 +433,7 @@ function formatSelected(date: Date) {
       <button
         v-if="canClear"
         type="button"
-        class="absolute right-10 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-lavender/70 transition-colors hover:bg-lavender/12 hover:text-lavender"
+        class="absolute right-10 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-white/45 transition-colors hover:bg-white/10 hover:text-white/80"
         @click.stop="clearSelection"
       >
         <BaseIcon name="i-lucide-x" class="size-3.5" aria-hidden="true" />

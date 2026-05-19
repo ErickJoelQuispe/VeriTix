@@ -205,29 +205,16 @@ const primaryControls = computed<BackofficeFilterControl[]>(() => {
   }
 
   if (props.visibleFilters.includes('artistName')) {
-    controls.push(createFieldControl({
-      key: 'artistName',
-      name: props.artistFieldName,
-      label: props.artistLabel,
-      modelValue: props.artistName,
-      placeholder: props.artistPlaceholder,
-      icon: 'i-lucide-mic-2',
-      disabled: props.loading,
-      onUpdate: value => emit('update:artistName', value),
-    }))
-  }
-
-  if (props.visibleFilters.includes('pageSize')) {
-    controls.push(createSelectControl({
-      key: 'pageSize',
-      name: props.pageSizeName,
-      label: props.pageSizeLabel,
-      modelValue: props.pageSize,
-      items: props.pageSizeOptions,
-      size: 'md',
-      disabled: props.loading,
-      onUpdate: value => emit('update:pageSize', Number(value ?? 12)),
-    }))
+      controls.push(createFieldControl({
+        key: 'artistName',
+        name: props.artistFieldName,
+        label: props.artistLabel,
+        modelValue: props.artistName,
+        placeholder: props.artistPlaceholder,
+        icon: 'i-lucide-user-round-search',
+        disabled: props.loading,
+        onUpdate: value => emit('update:artistName', value),
+      }))
   }
 
   if (props.visibleFilters.includes('role')) {
@@ -272,6 +259,20 @@ const secondaryControls = computed<BackofficeFilterControl[]>(() => {
     )
   }
 
+  if (props.visibleFilters.includes('pageSize')) {
+    controls.push(createSelectControl({
+      key: 'pageSize',
+      name: props.pageSizeName,
+      label: props.pageSizeLabel,
+      modelValue: props.pageSize,
+      items: props.pageSizeOptions,
+      icon: 'i-lucide-list-filter',
+      size: 'md',
+      disabled: props.loading,
+      onUpdate: value => emit('update:pageSize', Number(value ?? 12)),
+    }))
+  }
+
   if (props.visibleFilters.includes('genre')) {
     controls.push(createSelectControl({
       key: 'genreId',
@@ -279,6 +280,7 @@ const secondaryControls = computed<BackofficeFilterControl[]>(() => {
       label: props.genreLabel,
       modelValue: props.genreId || ALL_OPTION_VALUE,
       items: genreOptions.value,
+      icon: 'i-lucide-music-2',
       placeholderValue: ALL_OPTION_VALUE,
       disabled: props.loading,
       onUpdate: value => emit('update:genreId', value === ALL_OPTION_VALUE ? '' : String(value)),
@@ -292,6 +294,7 @@ const secondaryControls = computed<BackofficeFilterControl[]>(() => {
       label: props.formatLabel,
       modelValue: props.formatId || ALL_OPTION_VALUE,
       items: formatOptions.value,
+      icon: 'i-lucide-ticket',
       placeholderValue: ALL_OPTION_VALUE,
       disabled: props.loading,
       onUpdate: value => emit('update:formatId', value === ALL_OPTION_VALUE ? '' : String(value)),
@@ -351,6 +354,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :items="item.items"
           :model-value="String(item.modelValue ?? '')"
+          :icon="item.icon"
           :placeholder-value="item.placeholderValue"
           size="md"
           :disabled="item.disabled"
@@ -390,6 +394,7 @@ const secondaryGridClass = computed(() => buildGridClass(secondaryControls.value
           :label="item.label"
           :items="item.items"
           :model-value="String(item.modelValue ?? '')"
+          :icon="item.icon"
           :placeholder-value="item.placeholderValue"
           size="md"
           :disabled="item.disabled"

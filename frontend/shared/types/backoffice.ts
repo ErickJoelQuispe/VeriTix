@@ -41,6 +41,7 @@ export interface BackofficeFilterSelectControl {
   items: BackofficeFilterOption[]
   size?: 'sm' | 'md' | 'lg'
   placeholderValue?: string | number
+  icon?: string
   disabled?: boolean
   onUpdate: (value: string | number) => void
 }
