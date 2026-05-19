@@ -552,6 +552,14 @@ onMounted(() => {
                       >
                         Editar
                       </BaseButton>
+                      <BaseButton
+                        variant="outlined"
+                        size="sm"
+                        class="sm:w-28"
+                        :to="`/backoffice/events/${event.id}/sales`"
+                      >
+                        Ventas
+                      </BaseButton>
                       <PagesBackofficeDeleteAction
                         v-if="!event.isReview"
                         item-label="el evento"
