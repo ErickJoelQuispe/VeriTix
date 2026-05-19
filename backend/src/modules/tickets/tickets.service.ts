@@ -135,6 +135,7 @@ export class TicketsService {
 
     if (
       user.role !== Role.ADMIN &&
+      user.role !== Role.VALIDATOR &&
       event.creatorId !== user.sub
     ) {
       throw new ForbiddenException(

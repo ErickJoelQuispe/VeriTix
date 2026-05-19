@@ -11,6 +11,7 @@ export interface AccountMenuItem {
 export function useAccountMenuItems(
   isBackofficeUser: MaybeRefOrGetter<boolean>,
   backofficeDescription = 'Eventos, usuarios y artistas',
+  isValidatorUser: MaybeRefOrGetter<boolean> = false,
 ) {
   return computed<AccountMenuItem[]>(() => {
     const items: AccountMenuItem[] = []
@@ -21,6 +22,15 @@ export function useAccountMenuItems(
         description: backofficeDescription,
         to: '/backoffice',
         icon: 'i-lucide-shield-check',
+      })
+    }
+
+    if (toValue(isValidatorUser)) {
+      items.push({
+        label: 'Panel Validador',
+        description: 'Escanear y validar tickets en puerta',
+        to: '/validator',
+        icon: 'i-lucide-scan-qr-code',
       })
     }
 

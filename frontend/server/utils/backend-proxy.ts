@@ -96,7 +96,7 @@ function forwardSetCookieHeaders(event: H3Event, responseHeaders: Headers): void
   }
 }
 
-const AUTH_COOKIE_PATH_REGEX = /([;\s]path=)\/auth(?=;|$)/i
+const AUTH_COOKIE_PATH_REGEX = /(;\s*path=)\/auth(?:\/[^;]*)?(?=;|$)/i
 
 function normalizeCookiePathForFrontend(cookieHeaderValue: string): string {
   return cookieHeaderValue.replace(AUTH_COOKIE_PATH_REGEX, '$1/')
