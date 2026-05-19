@@ -318,58 +318,67 @@ onMounted(() => {
               class="w-full"
             />
 
-            <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 text-sm text-toned sm:p-4">
-              <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div class="flex flex-wrap items-center gap-1.5 rounded-2xl border border-default/70 bg-elevated/80 p-1">
-                  <BaseButton
-                    v-for="item in CATALOG_MODE_ITEMS"
-                    :key="item.value"
-                    variant="outlined"
-                    size="md"
-                    :leading-icon="item.icon"
-                    class="min-w-0 border-transparent shadow-none transition-all duration-200"
-                    :class="catalogMode === item.value
-                      ? 'border-primary/45! bg-primary/20 text-highlighted shadow-sm ring-1 ring-primary/30 hover:bg-primary/24 hover:ring-primary/40'
-                      : 'text-toned hover:-translate-y-px hover:border-default/55 hover:bg-default/70 hover:text-highlighted hover:shadow-sm'"
-                    :aria-current="catalogMode === item.value ? 'page' : undefined"
-                    @click="setCatalogMode(item.value)"
-                  >
-                    <span class="inline-flex items-center gap-2">
-                      <span>{{ item.label }}</span>
-                      <span
-                        v-if="catalogMode === item.value"
-                        aria-hidden="true"
-                        class="h-1.5 w-3 rounded-full bg-primary/90"
-                      />
-                    </span>
-                  </BaseButton>
+            <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 sm:p-4">
+              <div class="flex flex-col gap-3.5 lg:flex-row lg:items-start lg:justify-between">
+                <div class="space-y-1.5 lg:min-w-0 lg:flex-1">
+                  <UiMetaLabel tone="accent">
+                    Catálogo
+                  </UiMetaLabel>
+
+                  <div class="flex flex-wrap gap-2.5">
+                    <BaseButton
+                      v-for="item in CATALOG_MODE_ITEMS"
+                      :key="item.value"
+                      variant="outlined"
+                      size="sm"
+                      :leading-icon="item.icon"
+                      class="min-w-0 rounded-full! border-default/55 bg-elevated/55 px-3.5 py-2 text-xs normal-case tracking-normal shadow-none transition-all duration-200"
+                      :class="catalogMode === item.value
+                        ? 'border-lavender/45! bg-lavender/14 text-highlighted ring-1 ring-lavender/25 shadow-[inset_0_0_0_1px_rgba(156,125,255,0.16)] hover:bg-lavender/18 hover:ring-lavender/35'
+                        : 'text-toned hover:-translate-y-px hover:border-lavender/28 hover:bg-lavender/8 hover:text-highlighted'"
+                      :aria-current="catalogMode === item.value ? 'page' : undefined"
+                      @click="setCatalogMode(item.value)"
+                    >
+                      <span class="inline-flex items-center gap-2">
+                        <span>{{ item.label }}</span>
+                        <span
+                          v-if="catalogMode === item.value"
+                          aria-hidden="true"
+                          class="size-1.5 rounded-full bg-lavender"
+                        />
+                      </span>
+                    </BaseButton>
+                  </div>
                 </div>
 
-                <div
-                  v-if="catalogMode === 'published'"
-                  class="flex flex-wrap items-center gap-1.5 rounded-2xl border border-default/70 bg-elevated/80 p-1"
-                >
-                  <BaseButton
-                    v-for="item in quickWindowItems"
-                    :key="item.value"
-                    variant="outlined"
-                    size="md"
-                    class="min-w-0 border-transparent shadow-none transition-all duration-200"
-                    :class="quickWindow === item.value
-                      ? 'border-primary/45! bg-primary/20 text-highlighted shadow-sm ring-1 ring-primary/30 hover:bg-primary/24 hover:ring-primary/40'
-                      : 'text-toned hover:-translate-y-px hover:border-default/55 hover:bg-default/70 hover:text-highlighted hover:shadow-sm'"
-                    :aria-current="quickWindow === item.value ? 'page' : undefined"
-                    @click="setQuickWindow(item.value)"
-                  >
-                    <span class="inline-flex items-center gap-2">
-                      <span>{{ item.label }}</span>
-                      <span
-                        v-if="quickWindow === item.value"
-                        aria-hidden="true"
-                        class="h-1.5 w-3 rounded-full bg-primary/90"
-                      />
-                    </span>
-                  </BaseButton>
+                <div v-if="catalogMode === 'published'" class="space-y-1.5 lg:min-w-0 lg:flex-1 lg:text-right">
+                  <p class="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-toned/60">
+                    Ventana
+                  </p>
+
+                  <div class="flex flex-wrap gap-2.5 lg:justify-end">
+                    <BaseButton
+                      v-for="item in quickWindowItems"
+                      :key="item.value"
+                      variant="outlined"
+                      size="sm"
+                      class="min-w-0 rounded-full! border-default/55 bg-elevated/55 px-3.5 py-2 text-xs normal-case tracking-normal shadow-none transition-all duration-200"
+                      :class="quickWindow === item.value
+                        ? 'border-lavender/45! bg-lavender/14 text-highlighted ring-1 ring-lavender/25 shadow-[inset_0_0_0_1px_rgba(156,125,255,0.16)] hover:bg-lavender/18 hover:ring-lavender/35'
+                        : 'text-toned hover:-translate-y-px hover:border-lavender/28 hover:bg-lavender/8 hover:text-highlighted'"
+                      :aria-current="quickWindow === item.value ? 'page' : undefined"
+                      @click="setQuickWindow(item.value)"
+                    >
+                      <span class="inline-flex items-center gap-2">
+                        <span>{{ item.label }}</span>
+                        <span
+                          v-if="quickWindow === item.value"
+                          aria-hidden="true"
+                          class="size-1.5 rounded-full bg-lavender"
+                        />
+                      </span>
+                    </BaseButton>
+                  </div>
                 </div>
               </div>
             </div>
