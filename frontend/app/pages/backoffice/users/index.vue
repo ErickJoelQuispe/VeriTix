@@ -262,54 +262,56 @@ onMounted(() => {
             </div>
           </template>
 
-          <div class="space-y-6 lg:block" :class="[filtersOpen ? 'block' : 'hidden']">
-            <PagesBackofficeFiltersBar
-              v-model:search="filters.search"
-              v-model:page-size="pageSize"
-              v-model:role="filters.role"
-              v-model:status="filters.status"
-              :page-size-options="pageSizeOptions"
-              :roles="roleFilterOptions"
-              :statuses="statusOptions"
-              :visible-filters="['pageSize', 'role', 'status']"
-              search-label="Buscar usuario"
-              search-placeholder="Nombre o correo"
-              role-label="Rol"
-              role-all-label="Todos los roles"
-              role-name="role"
-              role-icon="i-lucide-shield-check"
-              status-label="Estado"
-              status-all-label="Todos los estados"
-              status-name="status"
-              status-icon="i-lucide-badge-check"
-              :loading="pending"
-              class="w-full"
-            />
-
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
-              <BaseButton
-                variant="primary"
-                type="button"
-                size="sm"
-                class="w-full sm:w-auto order-first"
+          <div class="space-y-6">
+            <div class="space-y-6 lg:block" :class="[filtersOpen ? 'block' : 'hidden']">
+              <PagesBackofficeFiltersBar
+                v-model:search="filters.search"
+                v-model:page-size="pageSize"
+                v-model:role="filters.role"
+                v-model:status="filters.status"
+                :page-size-options="pageSizeOptions"
+                :roles="roleFilterOptions"
+                :statuses="statusOptions"
+                :visible-filters="['pageSize', 'role', 'status']"
+                search-label="Buscar usuario"
+                search-placeholder="Nombre o correo"
+                role-label="Rol"
+                role-all-label="Todos los roles"
+                role-name="role"
+                role-icon="i-lucide-shield-check"
+                status-label="Estado"
+                status-all-label="Todos los estados"
+                status-name="status"
+                status-icon="i-lucide-badge-check"
                 :loading="pending"
-                :leading-icon="pending ? undefined : 'i-lucide-search'"
-                @click="applyFilters"
-              >
-                Buscar
-              </BaseButton>
+                class="w-full"
+              />
 
-              <BaseButton
-                variant="reversed"
-                type="button"
-                size="sm"
-                class="w-full sm:w-auto"
-                :disabled="pending"
-                leading-icon="i-lucide-rotate-ccw"
-                @click="resetFilters"
-              >
-                Limpiar filtros
-              </BaseButton>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
+                <BaseButton
+                  variant="primary"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="pending"
+                  :leading-icon="pending ? undefined : 'i-lucide-search'"
+                  @click="applyFilters"
+                >
+                  Buscar
+                </BaseButton>
+
+                <BaseButton
+                  variant="reversed"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  :disabled="pending"
+                  leading-icon="i-lucide-rotate-ccw"
+                  @click="resetFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
+              </div>
             </div>
 
             <div class="flex justify-center pt-1 pb-1">

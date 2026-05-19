@@ -217,51 +217,53 @@ onMounted(() => {
             </div>
           </template>
 
-          <div class="space-y-6 lg:block" :class="[filtersOpen ? 'block' : 'hidden']">
-            <PagesBackofficeFiltersBar
-              v-model:search="filters.search"
-              v-model:page-size="pageSize"
-              v-model:genre-id="filters.genreId"
-              v-model:status="filters.status"
-              :page-size-options="pageSizeOptions"
-              :genres="genreFilterOptions"
-              :statuses="statusOptions"
-              :visible-filters="['pageSize', 'genre', 'status']"
-              search-label="Buscar artista"
-              search-placeholder="Nombre del artista"
-              genre-label="Género"
-              genre-name="genreId"
-              status-label="Estado"
-              status-all-label="Todos los estados"
-              status-name="status"
-              :loading="pending"
-              class="w-full"
-            />
-
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
-              <BaseButton
-                variant="primary"
-                type="button"
-                size="sm"
-                class="w-full sm:w-auto order-first"
+          <div class="space-y-6">
+            <div class="space-y-6 lg:block" :class="[filtersOpen ? 'block' : 'hidden']">
+              <PagesBackofficeFiltersBar
+                v-model:search="filters.search"
+                v-model:page-size="pageSize"
+                v-model:genre-id="filters.genreId"
+                v-model:status="filters.status"
+                :page-size-options="pageSizeOptions"
+                :genres="genreFilterOptions"
+                :statuses="statusOptions"
+                :visible-filters="['pageSize', 'genre', 'status']"
+                search-label="Buscar artista"
+                search-placeholder="Nombre del artista"
+                genre-label="Género"
+                genre-name="genreId"
+                status-label="Estado"
+                status-all-label="Todos los estados"
+                status-name="status"
                 :loading="pending"
-                :leading-icon="pending ? undefined : 'i-lucide-search'"
-                @click="applyFilters"
-              >
-                Buscar
-              </BaseButton>
+                class="w-full"
+              />
 
-              <BaseButton
-                variant="reversed"
-                type="button"
-                size="sm"
-                class="w-full sm:w-auto"
-                :disabled="pending"
-                leading-icon="i-lucide-rotate-ccw"
-                @click="resetFilters"
-              >
-                Limpiar filtros
-              </BaseButton>
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
+                <BaseButton
+                  variant="primary"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="pending"
+                  :leading-icon="pending ? undefined : 'i-lucide-search'"
+                  @click="applyFilters"
+                >
+                  Buscar
+                </BaseButton>
+
+                <BaseButton
+                  variant="reversed"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  :disabled="pending"
+                  leading-icon="i-lucide-rotate-ccw"
+                  @click="resetFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
+              </div>
             </div>
 
             <div class="flex justify-center pt-1 pb-1">
