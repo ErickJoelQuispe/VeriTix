@@ -61,7 +61,7 @@ const hasAction = computed(() => Boolean(props.actionLabel && props.actionTo))
         v-if="hasAction"
         :to="actionTo"
         variant="secondary"
-        size="sm"
+        size="md"
         trailing-icon="i-lucide-arrow-right"
         class="shrink-0"
         :class="center ? 'mx-auto' : 'lg:ml-auto'"
