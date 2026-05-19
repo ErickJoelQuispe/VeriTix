@@ -29,6 +29,8 @@ const filters = reactive({
   status: '',
 })
 
+const filtersOpen = ref(false)
+
 const toolbarChips = computed(() => {
   const activeCount = venues.value.filter(venue => venue.isActive).length
   return [
@@ -108,13 +110,25 @@ onMounted(() => {
           variant="glass"
         >
           <template #actions>
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:self-center">
-              <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
-                Buscar
+            <div class="flex items-center gap-3 sm:self-center">
+              <BaseButton
+                variant="outlined"
+                size="sm"
+                class="lg:hidden"
+                leading-icon="i-lucide-sliders-horizontal"
+                @click="filtersOpen = !filtersOpen"
+              >
+                {{ filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros' }}
               </BaseButton>
-              <BaseButton variant="reversed" size="md" :disabled="pending" @click="resetFilters">
-                Limpiar filtros
-              </BaseButton>
+
+              <div class="hidden gap-3 lg:flex">
+                <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
+                  Buscar
+                </BaseButton>
+                <BaseButton variant="reversed" size="md" :disabled="pending" @click="resetFilters">
+                  Limpiar filtros
+                </BaseButton>
+              </div>
             </div>
           </template>
 
@@ -134,7 +148,7 @@ onMounted(() => {
             </div>
           </template>
 
-          <div class="space-y-6">
+          <div :class="[filtersOpen ? 'block' : 'hidden', 'space-y-6', 'lg:block']">
             <PagesBackofficeFiltersBar
               v-model:search="filters.search"
               v-model:city="filters.city"
@@ -149,6 +163,32 @@ onMounted(() => {
               :loading="pending"
               class="w-full"
             />
+
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
+              <BaseButton
+                variant="primary"
+                type="button"
+                size="sm"
+                class="w-full sm:w-auto order-first"
+                :loading="pending"
+                :leading-icon="pending ? undefined : 'i-lucide-search'"
+                @click="applyFilters"
+              >
+                Buscar
+              </BaseButton>
+
+              <BaseButton
+                variant="reversed"
+                type="button"
+                size="sm"
+                class="w-full sm:w-auto"
+                :disabled="pending"
+                leading-icon="i-lucide-rotate-ccw"
+                @click="resetFilters"
+              >
+                Limpiar filtros
+              </BaseButton>
+            </div>
 
             <div class="flex justify-center pt-1 pb-1">
               <BasePagination

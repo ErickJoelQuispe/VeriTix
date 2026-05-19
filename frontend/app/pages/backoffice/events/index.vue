@@ -64,6 +64,8 @@ const filters = reactive({
   artistName: '',
 })
 
+const filtersOpen = ref(false)
+
 const quickWindowItems = computed(() => {
   return QUICK_WINDOW_OPTIONS.map(option => ({
     value: option.value,
@@ -260,23 +262,35 @@ onMounted(() => {
           variant="glass"
         >
           <template #actions>
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:self-center">
+            <div class="flex items-center gap-3 sm:self-center">
               <BaseButton
-                variant="primary"
-                size="md"
-                :loading="catalogPending || filtersPending"
-                @click="applyCatalogFilters"
+                variant="outlined"
+                size="sm"
+                class="lg:hidden"
+                leading-icon="i-lucide-sliders-horizontal"
+                @click="filtersOpen = !filtersOpen"
               >
-                Buscar
+                {{ filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros' }}
               </BaseButton>
-              <BaseButton
-                variant="reversed"
-                size="md"
-                :disabled="catalogPending || filtersPending"
-                @click="resetCatalogFilters"
-              >
-                Limpiar filtros
-              </BaseButton>
+
+              <div class="hidden gap-3 lg:flex">
+                <BaseButton
+                  variant="primary"
+                  size="md"
+                  :loading="catalogPending || filtersPending"
+                  @click="applyCatalogFilters"
+                >
+                  Buscar
+                </BaseButton>
+                <BaseButton
+                  variant="reversed"
+                  size="md"
+                  :disabled="catalogPending || filtersPending"
+                  @click="resetCatalogFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
+              </div>
             </div>
           </template>
 
@@ -297,26 +311,54 @@ onMounted(() => {
           </template>
 
           <div class="space-y-6">
-            <PagesBackofficeFiltersBar
-              v-model:search="filters.search"
-              v-model:city="filters.city"
-              v-model:genre-id="filters.genreId"
-              v-model:format-id="filters.formatId"
-              v-model:date-from="filters.dateFrom"
-              v-model:date-to="filters.dateTo"
-              v-model:artist-name="filters.artistName"
-              v-model:page-size="pageSize"
-              :genres="genres"
-              :formats="formats"
-              :page-size-options="pageSizeOptions"
-              city-placeholder="Escribí una ciudad"
-              artist-placeholder="Nombre del artista"
-              :loading="catalogPending || filtersPending"
-              :visible-filters="catalogMode === 'published' ? ['city', 'artistName', 'pageSize', 'genre', 'format', 'dateRange'] : ['city']"
-              search-label="Buscar evento"
-              search-placeholder="Nombre del evento"
-              class="w-full"
-            />
+            <div :class="[filtersOpen ? 'block' : 'hidden', 'space-y-6', 'lg:block']">
+              <PagesBackofficeFiltersBar
+                v-model:search="filters.search"
+                v-model:city="filters.city"
+                v-model:genre-id="filters.genreId"
+                v-model:format-id="filters.formatId"
+                v-model:date-from="filters.dateFrom"
+                v-model:date-to="filters.dateTo"
+                v-model:artist-name="filters.artistName"
+                v-model:page-size="pageSize"
+                :genres="genres"
+                :formats="formats"
+                :page-size-options="pageSizeOptions"
+                city-placeholder="Escribí una ciudad"
+                artist-placeholder="Nombre del artista"
+                :loading="catalogPending || filtersPending"
+                :visible-filters="catalogMode === 'published' ? ['city', 'artistName', 'pageSize', 'genre', 'format', 'dateRange'] : ['city']"
+                search-label="Buscar evento"
+                search-placeholder="Nombre del evento"
+                class="w-full"
+              />
+
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
+                <BaseButton
+                  variant="primary"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="catalogPending || filtersPending"
+                  :leading-icon="catalogPending || filtersPending ? undefined : 'i-lucide-search'"
+                  @click="applyCatalogFilters"
+                >
+                  Buscar
+                </BaseButton>
+
+                <BaseButton
+                  variant="reversed"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  :disabled="catalogPending || filtersPending"
+                  leading-icon="i-lucide-rotate-ccw"
+                  @click="resetCatalogFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
+              </div>
+            </div>
 
             <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 sm:p-4">
               <div class="flex flex-col gap-3.5 lg:flex-row lg:items-start lg:justify-between">
