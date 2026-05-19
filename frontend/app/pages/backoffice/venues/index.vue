@@ -32,9 +32,9 @@ const filters = reactive({
 const toolbarChips = computed(() => {
   const activeCount = venues.value.filter(venue => venue.isActive).length
   return [
-    { label: 'visibles', value: meta.value.total },
-    { label: 'activos', value: activeCount },
-    { label: 'integración', value: integrationStatus.value === 'connected' ? 'lista' : 'pendiente' },
+    { label: 'visibles', value: meta.value.total, icon: 'i-lucide-chart-column' },
+    { label: 'activos', value: activeCount, icon: 'i-lucide-badge-check' },
+    { label: 'integración', value: integrationStatus.value === 'connected' ? 'lista' : 'pendiente', icon: integrationStatus.value === 'connected' ? 'i-lucide-plug-zap' : 'i-lucide-circle-alert' },
   ]
 })
 
@@ -134,7 +134,19 @@ onMounted(() => {
               class="w-full"
             />
 
-            <PagesBackofficeToolbarChips :items="toolbarChips" />
+            <div class="flex flex-wrap gap-2.5">
+              <BaseBadge
+                v-for="item in toolbarChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
+              </BaseBadge>
+            </div>
 
             <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
               <div class="flex w-full flex-wrap items-center justify-center">

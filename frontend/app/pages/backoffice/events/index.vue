@@ -94,10 +94,10 @@ const toolbarChips = computed(() => {
   const draftCount = catalogEvents.value.filter(event => event.status === 'DRAFT').length
 
   return [
-    { label: 'visibles', value: meta.value.total },
-    { label: 'publicados', value: publishedCount },
-    { label: 'borradores', value: draftCount },
-    { label: 'alertas', value: priorityIssueCount.value },
+    { label: 'visibles', value: meta.value.total, icon: 'i-lucide-chart-column' },
+    { label: 'publicados', value: publishedCount, icon: 'i-lucide-badge-check' },
+    { label: 'borradores', value: draftCount, icon: 'i-lucide-file-pen-line' },
+    { label: 'alertas', value: priorityIssueCount.value, icon: 'i-lucide-triangle-alert' },
   ]
 })
 
@@ -302,7 +302,19 @@ onMounted(() => {
               class="w-full"
             />
 
-            <PagesBackofficeToolbarChips :items="toolbarChips" />
+            <div class="flex flex-wrap gap-2.5">
+              <BaseBadge
+                v-for="item in toolbarChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
+              </BaseBadge>
+            </div>
 
             <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 text-sm text-toned sm:p-4">
               <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

@@ -55,9 +55,9 @@ const toolbarChips = computed(() => {
   const activeUsers = users.value.filter(user => user.isActive).length
 
   return [
-    { label: 'visibles', value: meta.value.total },
-    { label: 'verificados', value: verifiedUsers },
-    { label: 'activos', value: activeUsers },
+    { label: 'visibles', value: meta.value.total, icon: 'i-lucide-chart-column' },
+    { label: 'verificados', value: verifiedUsers, icon: 'i-lucide-badge-check' },
+    { label: 'activos', value: activeUsers, icon: 'i-lucide-user-check' },
   ]
 })
 
@@ -241,7 +241,19 @@ onMounted(() => {
               class="w-full"
             />
 
-            <PagesBackofficeToolbarChips :items="toolbarChips" />
+            <div class="flex flex-wrap gap-2.5">
+              <BaseBadge
+                v-for="item in toolbarChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
+              </BaseBadge>
+            </div>
 
             <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
               <div class="flex w-full flex-wrap items-center justify-center">

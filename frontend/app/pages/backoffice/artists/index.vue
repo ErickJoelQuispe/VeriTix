@@ -55,9 +55,9 @@ const toolbarChips = computed(() => {
   const reviewArtists = Math.max(artists.value.length - activeArtists, 0)
 
   return [
-    { label: 'visibles', value: meta.value.total },
-    { label: 'activos', value: activeArtists },
-    { label: 'revisión', value: reviewArtists },
+    { label: 'visibles', value: meta.value.total, icon: 'i-lucide-chart-column' },
+    { label: 'activos', value: activeArtists, icon: 'i-lucide-badge-check' },
+    { label: 'revisión', value: reviewArtists, icon: 'i-lucide-circle-alert' },
   ]
 })
 
@@ -193,7 +193,19 @@ onMounted(() => {
               class="w-full"
             />
 
-            <PagesBackofficeToolbarChips :items="toolbarChips" />
+            <div class="flex flex-wrap gap-2.5">
+              <BaseBadge
+                v-for="item in toolbarChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
+              </BaseBadge>
+            </div>
 
             <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
               <div class="flex w-full flex-wrap items-center justify-center">
