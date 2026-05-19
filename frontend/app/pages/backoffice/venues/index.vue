@@ -148,7 +148,7 @@ onMounted(() => {
             </div>
           </template>
 
-          <div :class="[filtersOpen ? 'block' : 'hidden', 'space-y-6', 'lg:block']">
+          <div class="space-y-6 lg:block" :class="[filtersOpen ? 'block' : 'hidden']">
             <PagesBackofficeFiltersBar
               v-model:search="filters.search"
               v-model:city="filters.city"

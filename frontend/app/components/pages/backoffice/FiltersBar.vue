@@ -209,16 +209,16 @@ const primaryControls = computed<BackofficeFilterControl[]>(() => {
   }
 
   if (props.visibleFilters.includes('artistName')) {
-      controls.push(createFieldControl({
-        key: 'artistName',
-        name: props.artistFieldName,
-        label: props.artistLabel,
-        modelValue: props.artistName,
-        placeholder: props.artistPlaceholder,
-        icon: 'i-lucide-user-round-search',
-        disabled: props.loading,
-        onUpdate: value => emit('update:artistName', value),
-      }))
+    controls.push(createFieldControl({
+      key: 'artistName',
+      name: props.artistFieldName,
+      label: props.artistLabel,
+      modelValue: props.artistName,
+      placeholder: props.artistPlaceholder,
+      icon: 'i-lucide-user-round-search',
+      disabled: props.loading,
+      onUpdate: value => emit('update:artistName', value),
+    }))
   }
 
   if (props.visibleFilters.includes('role')) {

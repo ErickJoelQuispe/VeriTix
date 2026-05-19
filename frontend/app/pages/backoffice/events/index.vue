@@ -12,7 +12,6 @@ import type {
   QuickWindow,
 } from '@/utils/backoffice/eventsCatalog'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
-import { PAGE_SIZE_OPTIONS } from '@/utils/backoffice/pagination'
 import {
   buildCatalogSummary,
   CATALOG_MODE_ITEMS,
@@ -22,6 +21,7 @@ import {
   isQuickWindow,
   QUICK_WINDOW_OPTIONS,
 } from '@/utils/backoffice/eventsCatalog'
+import { PAGE_SIZE_OPTIONS } from '@/utils/backoffice/pagination'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Operaciones de eventos | VeriTix' })
@@ -311,7 +311,7 @@ onMounted(() => {
           </template>
 
           <div class="space-y-6">
-            <div :class="[filtersOpen ? 'block' : 'hidden', 'space-y-6', 'lg:block']">
+            <div class="space-y-6 lg:block" :class="[filtersOpen ? 'block' : 'hidden']">
               <PagesBackofficeFiltersBar
                 v-model:search="filters.search"
                 v-model:city="filters.city"
@@ -374,7 +374,7 @@ onMounted(() => {
                       variant="outlined"
                       size="sm"
                       :leading-icon="item.icon"
-                      class="min-w-0 rounded-full! border-default/45 bg-transparent px-4 py-[0.625rem] text-sm normal-case tracking-normal shadow-none transition-all duration-200"
+                      class="min-w-0 rounded-full! border-default/45 bg-transparent px-4 py-2.5 text-sm normal-case tracking-normal shadow-none transition-all duration-200"
                       :class="catalogMode === item.value
                         ? 'border-lavender/45! bg-lavender/14 text-highlighted ring-1 ring-lavender/25 shadow-[inset_0_0_0_1px_rgba(156,125,255,0.16)] hover:bg-lavender/18 hover:ring-lavender/35'
                         : 'text-toned/75 hover:-translate-y-px hover:border-lavender/25 hover:bg-lavender/6 hover:text-highlighted'"
@@ -404,7 +404,7 @@ onMounted(() => {
                       :key="item.value"
                       variant="outlined"
                       size="sm"
-                      class="min-w-0 rounded-full! border-default/45 bg-transparent px-4 py-[0.625rem] text-sm normal-case tracking-normal shadow-none transition-all duration-200"
+                      class="min-w-0 rounded-full! border-default/45 bg-transparent px-4 py-2.5 text-sm normal-case tracking-normal shadow-none transition-all duration-200"
                       :class="quickWindow === item.value
                         ? 'border-lavender/45! bg-lavender/14 text-highlighted ring-1 ring-lavender/25 shadow-[inset_0_0_0_1px_rgba(156,125,255,0.16)] hover:bg-lavender/18 hover:ring-lavender/35'
                         : 'text-toned/75 hover:-translate-y-px hover:border-lavender/25 hover:bg-lavender/6 hover:text-highlighted'"
@@ -478,30 +478,37 @@ onMounted(() => {
                 interactive
                 padding="md"
                 radius="lg"
-                class="group flex flex-col gap-4 border-default/65! bg-elevated/25! sm:flex-row sm:items-center sm:justify-between"
+                class="group relative flex flex-row items-center gap-2.5 overflow-hidden border-default/65! bg-elevated/25! sm:gap-3"
               >
-                <div class="flex min-w-0 items-center gap-4 sm:gap-5">
-                  <div class="flex size-16 shrink-0 self-center items-center justify-center overflow-hidden rounded-xl border border-default/60 bg-default/50">
-                    <img v-if="event.imageUrl" :src="event.imageUrl" :alt="event.title" class="size-full object-cover">
-                    <BaseIcon v-else name="i-lucide-calendar-range" class="size-5 text-muted" />
+                <div class="relative size-20 shrink-0 self-center overflow-hidden rounded-xl border border-default/60 bg-default/50 sm:size-20 md:size-24">
+                  <img v-if="event.imageUrl" :src="event.imageUrl" :alt="event.title" class="size-full object-cover">
+                  <div v-else class="flex size-full items-center justify-center">
+                    <BaseIcon name="i-lucide-calendar-range" class="size-5 text-muted sm:size-6" />
                   </div>
+                </div>
 
-                  <div class="min-w-0 space-y-2.5">
-                    <div class="flex flex-wrap items-center gap-2.5">
-                      <p class="truncate text-base font-semibold text-highlighted">
+                <div class="absolute right-3 top-3 z-10">
+                  <BaseBadge kind="status" :color="getEventStatusColor(event.status)" size="sm">
+                    {{ event.status }}
+                  </BaseBadge>
+                </div>
+
+                <div class="grid min-w-0 flex-1 gap-2 py-0.5 pr-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-3 sm:pr-2">
+                  <div class="min-w-0 space-y-1.5">
+                    <div class="flex min-w-0 items-start gap-2 sm:pr-0.5">
+                      <p class="min-w-0 flex-1 truncate text-base font-semibold leading-tight text-highlighted sm:text-lg">
                         <NuxtLink
                           v-if="event.to"
                           :to="event.to"
-                          class="rounded-sm transition-colors duration-150 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/35"
+                          class="block truncate rounded-sm transition-colors duration-150 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/35"
                         >
                           {{ event.title }}
                         </NuxtLink>
-                        <span v-else>{{ event.title }}</span>
+                        <span v-else class="block truncate">{{ event.title }}</span>
                       </p>
+                    </div>
 
-                      <BaseBadge kind="status" :color="getEventStatusColor(event.status)" size="sm">
-                        {{ event.status }}
-                      </BaseBadge>
+                    <div class="flex flex-wrap items-center gap-2">
                       <BaseBadge v-if="event.formatName" kind="tag" size="sm">
                         {{ event.formatName }}
                       </BaseBadge>
@@ -513,13 +520,13 @@ onMounted(() => {
                       </BaseBadge>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-toned">
-                      <div class="flex items-center gap-2.5">
+                    <div class="flex flex-col gap-1.5 text-sm text-toned sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3.5 sm:gap-y-1">
+                      <div class="flex items-center gap-2">
                         <BaseIcon name="i-lucide-clock-3" class="size-4 shrink-0 text-muted" />
                         <span>{{ formatEventDate(event.eventDate) }}</span>
                       </div>
 
-                      <div v-if="event.venueName || event.venueCity" class="flex min-w-0 items-center gap-2.5">
+                      <div v-if="event.venueName || event.venueCity" class="flex min-w-0 items-center gap-2">
                         <BaseIcon name="i-lucide-map-pin" class="size-4 shrink-0 text-muted" />
                         <span class="truncate">{{ event.venueName }}<template v-if="event.venueName && event.venueCity"> · </template>{{ event.venueCity }}</span>
                       </div>
@@ -534,20 +541,27 @@ onMounted(() => {
                       </p>
                     </div>
                   </div>
-                </div>
 
-                <div class="flex shrink-0 flex-wrap items-center justify-start gap-2.5 pt-1 sm:justify-end sm:pt-0">
-                  <BaseButton variant="secondary" size="sm" class="rounded-md! border-default/55 bg-default/55 hover:bg-default/70" :to="event.to">
-                    Editar
-                  </BaseButton>
-                  <PagesBackofficeDeleteAction
-                    v-if="!event.isReview"
-                    item-label="el evento"
-                    trigger-variant="secondary"
-                    trigger-class="!rounded-md border-error/35 text-error hover:border-error/50 hover:bg-error/12 hover:text-error"
-                    :pending="deletingEventId === event.id"
-                    @confirm="removeEvent(event.id)"
-                  />
+                  <div class="pt-0.5 sm:flex sm:self-stretch sm:flex-col sm:items-end sm:justify-end sm:pl-2 sm:pt-0">
+                    <div class="flex flex-wrap gap-1.5 sm:items-center sm:justify-end sm:gap-2">
+                      <BaseButton
+                        variant="outlined"
+                        size="sm"
+                        class="sm:w-28"
+                        :to="event.to"
+                      >
+                        Editar
+                      </BaseButton>
+                      <PagesBackofficeDeleteAction
+                        v-if="!event.isReview"
+                        item-label="el evento"
+                        trigger-variant="danger"
+                        trigger-class="sm:!w-28"
+                        :pending="deletingEventId === event.id"
+                        @confirm="removeEvent(event.id)"
+                      />
+                    </div>
+                  </div>
                 </div>
               </UiPanel>
             </div>

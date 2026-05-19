@@ -7,7 +7,7 @@ withDefaults(defineProps<{
   cancelLabel?: string
   pending?: boolean
   testId?: string
-  triggerVariant?: 'primary' | 'secondary' | 'outlined' | 'reversed'
+  triggerVariant?: 'primary' | 'secondary' | 'outlined' | 'reversed' | 'warning' | 'danger'
   triggerClass?: string
 }>(), {
   title: 'Confirmar eliminación',

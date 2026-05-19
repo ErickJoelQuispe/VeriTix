@@ -29,17 +29,17 @@ withDefaults(defineProps<{
         </div>
       </div>
 
-    <div v-if="$slots.actions" class="shrink-0 sm:self-center">
-      <slot name="actions" />
+      <div v-if="$slots.actions" class="shrink-0 sm:self-center">
+        <slot name="actions" />
+      </div>
     </div>
-  </div>
 
-  <div v-if="$slots.summary" class="pt-5">
-    <slot name="summary" />
-  </div>
+    <div v-if="$slots.summary" class="pt-5">
+      <slot name="summary" />
+    </div>
 
-  <div class="pt-5">
-    <slot />
-  </div>
-</UiPanel>
+    <div class="pt-5">
+      <slot />
+    </div>
+  </UiPanel>
 </template>
