@@ -156,7 +156,7 @@ watch(() => props.eventId, (id) => {
       Tipos de boleto
     </UiMetaLabel>
 
-    <div v-if="loading" class="mt-4 flex items-center gap-3 py-6">
+    <div v-if="loading" class="mt-4 flex items-center gap-3 rounded-xl border border-default/40 bg-default/10 px-5 py-6">
       <BaseIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-lavender" />
       <span class="text-sm text-toned">Cargando tipos de boleto...</span>
     </div>
@@ -166,65 +166,84 @@ watch(() => props.eventId, (id) => {
         <div
           v-for="tt in ticketTypes"
           :key="tt.id"
-          class="rounded-xl border border-default/50 bg-default/12 p-4"
+          class="group rounded-xl border border-default/50 bg-gradient-to-b from-default/12 to-default/6 p-5 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
         >
-          <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start justify-between gap-4">
             <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <p class="truncate text-sm font-semibold text-highlighted">
-                  {{ tt.name }}
+              <div class="flex items-center gap-2.5">
+                <div class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-lavender/15 to-accent/10">
+                  <BaseIcon name="i-lucide-ticket" class="size-4 text-lavender" />
+                </div>
+                <div>
+                  <p class="truncate text-sm font-semibold text-highlighted">
+                    {{ tt.name }}
+                  </p>
+                  <p v-if="tt.description" class="mt-0.5 text-xs text-toned/60">
+                    {{ tt.description }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-2">
+              <div class="text-right">
+                <p class="text-lg font-bold tracking-tight text-highlighted">
+                  {{ formatPrice(tt.price) }}
                 </p>
                 <span
-                  class="shrink-0 rounded-md px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider"
-                  :class="tt.isActive ? 'bg-success/15 text-success' : 'bg-toned/10 text-toned/60'"
+                  class="inline-block rounded-md px-1.5 py-0.5 text-[0.55rem] font-semibold uppercase tracking-widest"
+                  :class="tt.isActive ? 'bg-success/12 text-success' : 'bg-toned/8 text-toned/60'"
                 >
                   {{ tt.isActive ? 'Activo' : 'Inactivo' }}
                 </span>
               </div>
-              <p v-if="tt.description" class="mt-0.5 text-xs text-toned/60">
-                {{ tt.description }}
-              </p>
-            </div>
 
-            <div class="flex items-center gap-1.5 shrink-0">
-              <BaseButton variant="outlined" size="xs" @click="openEdit(tt)">
-                <BaseIcon name="i-lucide-pencil" class="size-3.5" />
-              </BaseButton>
-              <button
-                type="button"
-                class="flex size-7 items-center justify-center rounded-lg text-toned/40 transition-colors hover:bg-error/15 hover:text-error"
-                :disabled="disabled"
-                :aria-label="`Eliminar ${tt.name}`"
-                @click="removeTicketType(tt.id)"
-              >
-                <BaseIcon name="i-lucide-trash-2" class="size-3.5" />
-              </button>
+              <div class="flex flex-col gap-1 pl-2 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  type="button"
+                  class="flex size-7 items-center justify-center rounded-lg border border-default/40 bg-default/15 text-toned/50 transition-colors hover:border-lavender/30 hover:bg-lavender/10 hover:text-lavender"
+                  :disabled="disabled"
+                  :aria-label="`Editar ${tt.name}`"
+                  @click="openEdit(tt)"
+                >
+                  <BaseIcon name="i-lucide-pencil" class="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  class="flex size-7 items-center justify-center rounded-lg border border-default/40 bg-default/15 text-toned/40 transition-colors hover:border-error/30 hover:bg-error/12 hover:text-error"
+                  :disabled="disabled"
+                  :aria-label="`Eliminar ${tt.name}`"
+                  @click="removeTicketType(tt.id)"
+                >
+                  <BaseIcon name="i-lucide-trash-2" class="size-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-4">
-            <div>
-              <span class="text-toned/50">Precio</span>
-              <p class="font-semibold text-highlighted">
-                {{ formatPrice(tt.price) }}
+          <div class="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-default/40 bg-default/20 sm:grid-cols-4">
+            <div class="bg-default/10 px-3.5 py-2.5">
+              <p class="text-[0.6rem] font-semibold uppercase tracking-widest text-toned/50">
+                Disponibles
+              </p>
+              <p class="mt-0.5 text-sm font-semibold text-highlighted">
+                {{ tt.availableQuantity }} <span class="text-xs font-normal text-toned/50">/ {{ tt.totalQuantity }}</span>
               </p>
             </div>
-            <div>
-              <span class="text-toned/50">Disponibles</span>
-              <p class="font-semibold text-highlighted">
-                {{ tt.availableQuantity }} / {{ tt.totalQuantity }}
+            <div class="bg-default/10 px-3.5 py-2.5">
+              <p class="text-[0.6rem] font-semibold uppercase tracking-widest text-toned/50">
+                Por usuario
               </p>
-            </div>
-            <div>
-              <span class="text-toned/50">Máx. por usuario</span>
-              <p class="font-semibold text-highlighted">
+              <p class="mt-0.5 text-sm font-semibold text-highlighted">
                 {{ tt.maxPerUser }}
               </p>
             </div>
-            <div>
-              <span class="text-toned/50">Venta</span>
-              <p class="font-semibold text-highlighted">
-                {{ formatDate(tt.saleStartDate) }} – {{ formatDate(tt.saleEndDate) }}
+            <div class="bg-default/10 px-3.5 py-2.5 sm:col-span-2">
+              <p class="text-[0.6rem] font-semibold uppercase tracking-widest text-toned/50">
+                Venta
+              </p>
+              <p class="mt-0.5 text-sm font-semibold text-highlighted">
+                {{ formatDate(tt.saleStartDate) }} <span class="text-xs font-normal text-toned/50">→</span> {{ formatDate(tt.saleEndDate) }}
               </p>
             </div>
           </div>
@@ -233,14 +252,23 @@ watch(() => props.eventId, (id) => {
 
       <div
         v-else
-        class="mt-4 rounded-xl border border-dashed border-default/40 bg-default/10 px-4 py-8 text-center text-sm text-toned/60"
+        class="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-default/30 bg-default/8 px-4 py-10 text-center"
       >
-        <BaseIcon name="i-lucide-ticket" class="mx-auto mb-2 size-8 text-toned/30" />
-        <p>No hay tipos de boleto creados.</p>
+        <div class="flex size-12 items-center justify-center rounded-full bg-lavender/10">
+          <BaseIcon name="i-lucide-ticket" class="size-6 text-lavender/60" />
+        </div>
+        <div>
+          <p class="text-sm font-medium text-highlighted">
+            Sin tipos de boleto
+          </p>
+          <p class="mt-0.5 text-xs text-toned/60">
+            Agregá el primer tipo de boleto para este evento.
+          </p>
+        </div>
       </div>
     </template>
 
-    <div class="mt-4">
+    <div class="mt-5">
       <BaseButton
         variant="outlined"
         size="sm"
