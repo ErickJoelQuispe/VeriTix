@@ -272,27 +272,38 @@ onMounted(() => {
               action-to="/backoffice/venues/new"
             />
 
-            <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div v-else class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
               <UiPanel
                 v-for="venue in venues"
                 :key="venue.id"
                 variant="glass"
                 radius="lg"
                 padding="md"
-                class="group relative h-full border-default/65 bg-elevated/20"
+                class="group h-full border-default/50 bg-gradient-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
               >
-                <div class="flex h-full flex-col gap-4">
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="space-y-1">
-                      <p class="text-base font-semibold text-highlighted">
-                        {{ venue.name }}
-                      </p>
-                      <p class="text-sm text-toned">
-                        {{ venue.address }}
-                      </p>
-                      <p class="text-sm text-toned/70">
-                        {{ venue.city }}{{ venue.state ? `, ${venue.state}` : '' }}, {{ venue.country }}
-                      </p>
+                <div class="flex h-full flex-col">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex min-w-0 items-center gap-3.5">
+                      <div class="shrink-0">
+                        <div class="flex size-12 items-center justify-center rounded-xl bg-lavender/12 ring-2 ring-default/50">
+                          <BaseIcon name="i-lucide-building-2" class="size-6 text-lavender" />
+                        </div>
+                      </div>
+
+                      <div class="min-w-0 space-y-0.5">
+                        <p class="truncate text-base font-semibold text-highlighted">
+                          {{ venue.name }}
+                        </p>
+                        <p class="truncate text-sm text-toned/70">
+                          {{ venue.address }}
+                        </p>
+                        <div class="mt-1.5 flex items-center gap-1.5">
+                          <BaseIcon name="i-lucide-tag" class="size-3.5 text-accent" />
+                          <span class="text-xs font-medium text-accent">
+                            {{ venueTypeLabel(venue.type) }}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <BaseBadge kind="status" size="sm" :color="venue.isActive ? 'success' : 'neutral'">
@@ -300,22 +311,65 @@ onMounted(() => {
                     </BaseBadge>
                   </div>
 
-                  <div class="space-y-2 text-sm">
-                    <div class="flex items-center justify-between border-b border-default/60 pb-2">
-                      <span class="text-muted">Tipo</span>
-                      <span class="text-toned">{{ venueTypeLabel(venue.type) }}</span>
+                  <div class="mt-5 space-y-3">
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-9 items-center justify-center rounded-lg bg-lavender/10">
+                        <BaseIcon name="i-lucide-map-pin" class="size-4 text-lavender" />
+                      </div>
+                      <div>
+                        <p class="text-xs text-toned/50">
+                          Ubicación
+                        </p>
+                        <p class="text-sm text-highlighted">
+                          {{ venue.city }}{{ venue.state ? `, ${venue.state}` : '' }}, {{ venue.country }}
+                        </p>
+                      </div>
                     </div>
-                    <div class="flex items-center justify-between border-b border-default/60 pb-2">
-                      <span class="text-muted">Capacidad</span>
-                      <span class="text-toned">{{ venue.capacity ?? 'N/D' }}</span>
+                    <div class="border-t border-default/30" />
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-9 items-center justify-center rounded-lg bg-info/12">
+                        <BaseIcon name="i-lucide-users" class="size-4 text-info" />
+                      </div>
+                      <div>
+                        <p class="text-xs text-toned/50">
+                          Capacidad
+                        </p>
+                        <p class="text-sm font-medium text-highlighted">
+                          {{ venue.capacity ? venue.capacity.toLocaleString('es-ES') : 'Sin especificar' }}
+                        </p>
+                      </div>
                     </div>
-                    <div class="flex items-center justify-between">
-                      <span class="text-muted">Actualizado</span>
-                      <span class="text-toned">{{ new Date(venue.updatedAt).toLocaleDateString('es-ES') }}</span>
+                    <div class="border-t border-default/30" />
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-9 items-center justify-center rounded-lg" :class="venue.website ? 'bg-success/12' : 'bg-toned/8'">
+                        <BaseIcon name="i-lucide-globe" class="size-4" :class="venue.website ? 'text-success' : 'text-toned/50'" />
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-xs text-toned/50">
+                          Sitio web
+                        </p>
+                        <p class="truncate text-sm text-highlighted">
+                          {{ venue.website || 'No informado' }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="border-t border-default/30" />
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-9 items-center justify-center rounded-lg bg-toned/8">
+                        <BaseIcon name="i-lucide-clock-3" class="size-4 text-toned/50" />
+                      </div>
+                      <div>
+                        <p class="text-xs text-toned/50">
+                          Última actualización
+                        </p>
+                        <p class="text-sm text-highlighted">
+                          {{ new Date(venue.updatedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) }}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div class="mt-auto grid grid-cols-2 gap-2 pt-2">
+                  <div class="mt-auto grid grid-cols-2 gap-2 pt-5">
                     <BaseButton
                       variant="primary"
                       size="sm"
