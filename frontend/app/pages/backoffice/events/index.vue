@@ -260,22 +260,22 @@ onMounted(() => {
           variant="glass"
         >
           <template #actions>
-            <div class="flex items-center gap-3 sm:self-center">
-              <BaseButton
-                variant="outlined"
-                size="md"
-                :disabled="catalogPending || filtersPending"
-                @click="resetCatalogFilters"
-              >
-                Resetear
-              </BaseButton>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:self-center">
               <BaseButton
                 variant="primary"
                 size="md"
                 :loading="catalogPending || filtersPending"
                 @click="applyCatalogFilters"
               >
-                Aplicar
+                Buscar
+              </BaseButton>
+              <BaseButton
+                variant="reversed"
+                size="md"
+                :disabled="catalogPending || filtersPending"
+                @click="resetCatalogFilters"
+              >
+                Limpiar filtros
               </BaseButton>
             </div>
           </template>
@@ -320,22 +320,22 @@ onMounted(() => {
 
             <div class="rounded-2xl border border-default/70 bg-elevated/35 p-3 sm:p-4">
               <div class="flex flex-col gap-3.5 lg:flex-row lg:items-start lg:justify-between">
-                <div class="space-y-1.5 lg:min-w-0 lg:flex-1">
+                <div class="space-y-1 lg:min-w-0 lg:flex-1">
                   <UiMetaLabel tone="accent">
                     Catálogo
                   </UiMetaLabel>
 
-                  <div class="flex flex-wrap gap-2.5">
+                  <div class="mt-4 flex flex-wrap gap-2.5">
                     <BaseButton
                       v-for="item in CATALOG_MODE_ITEMS"
                       :key="item.value"
                       variant="outlined"
                       size="sm"
                       :leading-icon="item.icon"
-                      class="min-w-0 rounded-full! border-default/55 bg-elevated/55 px-3.5 py-2 text-xs normal-case tracking-normal shadow-none transition-all duration-200"
+                      class="min-w-0 rounded-full! border-default/45 bg-transparent px-4 py-[0.625rem] text-sm normal-case tracking-normal shadow-none transition-all duration-200"
                       :class="catalogMode === item.value
                         ? 'border-lavender/45! bg-lavender/14 text-highlighted ring-1 ring-lavender/25 shadow-[inset_0_0_0_1px_rgba(156,125,255,0.16)] hover:bg-lavender/18 hover:ring-lavender/35'
-                        : 'text-toned hover:-translate-y-px hover:border-lavender/28 hover:bg-lavender/8 hover:text-highlighted'"
+                        : 'text-toned/75 hover:-translate-y-px hover:border-lavender/25 hover:bg-lavender/6 hover:text-highlighted'"
                       :aria-current="catalogMode === item.value ? 'page' : undefined"
                       @click="setCatalogMode(item.value)"
                     >
@@ -351,21 +351,21 @@ onMounted(() => {
                   </div>
                 </div>
 
-                <div v-if="catalogMode === 'published'" class="space-y-1.5 lg:min-w-0 lg:flex-1 lg:text-right">
+                <div v-if="catalogMode === 'published'" class="space-y-1 lg:min-w-0 lg:flex-1 lg:text-right">
                   <p class="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-toned/60">
                     Ventana
                   </p>
 
-                  <div class="flex flex-wrap gap-2.5 lg:justify-end">
+                  <div class="mt-4 flex flex-wrap gap-2.5 lg:justify-end">
                     <BaseButton
                       v-for="item in quickWindowItems"
                       :key="item.value"
                       variant="outlined"
                       size="sm"
-                      class="min-w-0 rounded-full! border-default/55 bg-elevated/55 px-3.5 py-2 text-xs normal-case tracking-normal shadow-none transition-all duration-200"
+                      class="min-w-0 rounded-full! border-default/45 bg-transparent px-4 py-[0.625rem] text-sm normal-case tracking-normal shadow-none transition-all duration-200"
                       :class="quickWindow === item.value
                         ? 'border-lavender/45! bg-lavender/14 text-highlighted ring-1 ring-lavender/25 shadow-[inset_0_0_0_1px_rgba(156,125,255,0.16)] hover:bg-lavender/18 hover:ring-lavender/35'
-                        : 'text-toned hover:-translate-y-px hover:border-lavender/28 hover:bg-lavender/8 hover:text-highlighted'"
+                        : 'text-toned/75 hover:-translate-y-px hover:border-lavender/25 hover:bg-lavender/6 hover:text-highlighted'"
                       :aria-current="quickWindow === item.value ? 'page' : undefined"
                       @click="setQuickWindow(item.value)"
                     >

@@ -207,12 +207,12 @@ onMounted(() => {
           variant="glass"
         >
           <template #actions>
-            <div class="flex items-center gap-3 sm:self-center">
-              <BaseButton variant="outlined" size="md" :disabled="pending" @click="resetFilters">
-                Resetear
-              </BaseButton>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:self-center">
               <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
-                Aplicar
+                Buscar
+              </BaseButton>
+              <BaseButton variant="reversed" size="md" :disabled="pending" @click="resetFilters">
+                Limpiar filtros
               </BaseButton>
             </div>
           </template>
