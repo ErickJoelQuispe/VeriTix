@@ -18,6 +18,8 @@ const { notifyApiError, notifySuccess } = useAppNotifications()
 const users = ref<BackofficeUserRecord[]>([])
 const pending = ref(true)
 const deletingId = ref('')
+const deletingTarget = ref('')
+const deleteModalOpen = ref(false)
 
 const page = ref(1)
 const pageSize = ref(12)
@@ -161,6 +163,19 @@ function resetFilters() {
 
 function goToPage(nextPage: number) {
   void loadUsers(nextPage)
+}
+
+function confirmDelete(userId: string) {
+  deletingTarget.value = userId
+  deleteModalOpen.value = true
+}
+
+function handleDeleteConfirm() {
+  if (deletingTarget.value) {
+    removeUser(deletingTarget.value)
+  }
+
+  deleteModalOpen.value = false
 }
 
 async function removeUser(userId: string) {
@@ -327,79 +342,111 @@ onMounted(() => {
               action-to="/backoffice/users/new"
             />
 
-            <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div v-else class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
               <UiPanel
                 v-for="user in users"
                 :key="user.id"
                 variant="glass"
                 radius="lg"
                 padding="md"
-                class="h-full border-default/65 bg-elevated/20"
+                class="group h-full border-default/50 bg-gradient-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
               >
-                <div class="flex h-full flex-col gap-4">
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="flex min-w-0 items-center gap-3">
-                      <BaseAvatar
-                        :src="user.avatarUrl || undefined"
-                        :alt="`${user.name} ${user.lastName}`.trim() || user.email"
-                        :text="userInitials(user)"
-                        size="xl"
-                        class="ring-1 ring-default/60"
-                      />
+                <div class="flex h-full flex-col">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex min-w-0 items-center gap-3.5">
+                      <div class="shrink-0">
+                        <BaseAvatar
+                          :src="user.avatarUrl || undefined"
+                          :alt="`${user.name} ${user.lastName}`.trim() || user.email"
+                          :text="userInitials(user)"
+                          size="xl"
+                          class="ring-2 ring-default/50"
+                        />
+                      </div>
 
-                      <div class="min-w-0 space-y-1">
+                      <div class="min-w-0 space-y-0.5">
                         <p class="truncate text-base font-semibold text-highlighted">
                           {{ user.name }} {{ user.lastName }}
                         </p>
-                        <p class="truncate text-sm text-toned">
+                        <p class="truncate text-sm text-toned/70">
                           {{ user.email }}
+                        </p>
+                        <div class="mt-1.5 flex items-center gap-1.5">
+                          <BaseIcon :name="roleBadgeIcon(user.role)" class="size-3.5" :class="roleBadgeColor(user.role) === 'primary' ? 'text-primary' : roleBadgeColor(user.role) === 'secondary' ? 'text-accent' : roleBadgeColor(user.role) === 'info' ? 'text-info' : 'text-muted'" />
+                          <span class="text-xs font-medium" :class="roleBadgeColor(user.role) === 'primary' ? 'text-primary' : roleBadgeColor(user.role) === 'secondary' ? 'text-accent' : roleBadgeColor(user.role) === 'info' ? 'text-info' : 'text-muted'">
+                            {{ roleLabel(user.role) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 space-y-3">
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-9 items-center justify-center rounded-lg bg-lavender/10">
+                        <BaseIcon name="i-lucide-phone" class="size-4 text-lavender" />
+                      </div>
+                      <div>
+                        <p class="text-xs text-toned/50">
+                          Teléfono
+                        </p>
+                        <p class="text-sm text-highlighted">
+                          {{ user.phone }}
                         </p>
                       </div>
                     </div>
+                    <div class="border-t border-default/30" />
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-9 items-center justify-center rounded-lg" :class="user.isActive ? 'bg-success/12' : 'bg-toned/8'">
+                        <BaseIcon :name="user.isActive ? 'i-lucide-user-check' : 'i-lucide-user-x'" class="size-4" :class="user.isActive ? 'text-success' : 'text-toned/50'" />
+                      </div>
+                      <div>
+                        <p class="text-xs text-toned/50">
+                          Estado
+                        </p>
+                        <p class="text-sm font-medium text-highlighted">
+                          {{ user.isActive ? 'Activo' : 'Inactivo' }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="border-t border-default/30" />
+                    <div class="flex items-center gap-3">
+                      <div class="flex size-9 items-center justify-center rounded-lg" :class="user.emailVerified ? 'bg-info/12' : 'bg-warning/12'">
+                        <BaseIcon name="i-lucide-mail" class="size-4" :class="user.emailVerified ? 'text-info' : 'text-warning'" />
+                      </div>
+                      <div>
+                        <p class="text-xs text-toned/50">
+                          Email
+                        </p>
+                        <span
+                          class="inline-block rounded-md px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-widest"
+                          :class="user.emailVerified ? 'bg-success/12 text-success' : 'bg-warning/12 text-warning'"
+                        >
+                          {{ user.emailVerified ? 'Verificado' : 'Pendiente' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
-                    <BaseBadge
-                      kind="role"
+                  <div class="mt-auto grid grid-cols-2 gap-2 pt-5">
+                    <BaseButton
+                      variant="primary"
                       size="sm"
-                      :color="roleBadgeColor(user.role)"
-                      :icon="roleBadgeIcon(user.role)"
-                      leading
+                      leading-icon="i-lucide-pencil"
+                      class="w-full justify-center"
+                      :to="`/backoffice/users/${user.id}/edit`"
                     >
-                      {{ roleLabel(user.role) }}
-                    </BaseBadge>
-                  </div>
-
-                  <div class="space-y-2 text-sm">
-                    <div class="flex items-center justify-between border-b border-default/60 pb-2">
-                      <span class="text-muted">Teléfono</span>
-                      <span class="truncate text-toned">{{ user.phone }}</span>
-                    </div>
-
-                    <div class="flex items-center justify-between border-b border-default/60 pb-2">
-                      <span class="text-muted">Estado</span>
-                      <span :class="user.isActive ? 'text-success' : 'text-muted'" class="font-medium">
-                        {{ user.isActive ? 'Activo' : 'Inactivo' }}
-                      </span>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                      <span class="text-muted">Email</span>
-                      <span :class="user.emailVerified ? 'text-success' : 'text-warning'" class="font-medium">
-                        {{ user.emailVerified ? 'Verificado' : 'Pendiente' }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="mt-auto grid grid-cols-2 gap-2 border-t border-default/60 pt-3">
-                    <BaseButton variant="secondary" size="sm" block :to="`/backoffice/users/${user.id}/edit`">
                       Editar
                     </BaseButton>
-                    <PagesBackofficeDeleteAction
-                      item-label="el usuario"
-                      trigger-variant="outlined"
-                      trigger-class="w-full justify-center text-error hover:bg-error/10"
-                      :pending="deletingId === user.id"
-                      @confirm="removeUser(user.id)"
-                    />
+                    <BaseButton
+                      variant="danger"
+                      size="sm"
+                      class="w-full justify-center"
+                      :disabled="deletingId === user.id"
+                      @click="confirmDelete(user.id)"
+                    >
+                      Eliminar
+                    </BaseButton>
                   </div>
                 </div>
               </UiPanel>
@@ -423,5 +470,16 @@ onMounted(() => {
         </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
+
+    <UiConfirmModal
+      :open="deleteModalOpen"
+      title="Eliminar usuario"
+      description="¿Estás seguro de que querés eliminar este usuario? Esta acción no se puede deshacer."
+      confirm-label="Eliminar"
+      cancel-label="Cancelar"
+      :pending="deletingId === deletingTarget"
+      @confirm="handleDeleteConfirm"
+      @cancel="deleteModalOpen = false; deletingTarget = ''"
+    />
   </section>
 </template>

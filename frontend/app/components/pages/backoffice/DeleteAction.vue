@@ -33,7 +33,7 @@ function handleConfirm() {
 </script>
 
 <template>
-  <BasePopover v-model:open="open" :content="{ align: 'end', side: 'top', sideOffset: 10 }">
+  <BasePopover v-model:open="open" :content="{ align: 'end', side: 'top', sideOffset: 10 }" class="w-full">
     <BaseButton
       :variant="triggerVariant"
       size="sm"

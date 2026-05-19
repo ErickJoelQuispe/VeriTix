@@ -38,6 +38,8 @@ const dashboardPending = ref(true)
 const catalogPending = ref(true)
 const filtersPending = ref(true)
 const deletingEventId = ref('')
+const deletingTarget = ref('')
+const deleteModalOpen = ref(false)
 const catalogMode = ref<CatalogMode>('published')
 
 const page = ref(1)
@@ -167,6 +169,19 @@ async function loadDashboard() {
 
 async function refreshDashboard() {
   await Promise.all([loadDashboard(), loadCatalog(page.value)])
+}
+
+function confirmDelete(eventId: string) {
+  deletingTarget.value = eventId
+  deleteModalOpen.value = true
+}
+
+function handleDeleteConfirm() {
+  if (deletingTarget.value) {
+    removeEvent(deletingTarget.value)
+  }
+
+  deleteModalOpen.value = false
 }
 
 async function removeEvent(eventId: string) {
@@ -552,14 +567,16 @@ onMounted(() => {
                       >
                         Editar
                       </BaseButton>
-                      <PagesBackofficeDeleteAction
+                      <BaseButton
                         v-if="!event.isReview"
-                        item-label="el evento"
-                        trigger-variant="danger"
-                        trigger-class="sm:!w-28"
-                        :pending="deletingEventId === event.id"
-                        @confirm="removeEvent(event.id)"
-                      />
+                        variant="danger"
+                        size="sm"
+                        class="w-full sm:w-28 justify-center"
+                        :disabled="deletingEventId === event.id"
+                        @click="confirmDelete(event.id)"
+                      >
+                        Cancelar
+                      </BaseButton>
                     </div>
                   </div>
                 </div>
@@ -586,5 +603,16 @@ onMounted(() => {
         </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
+
+    <UiConfirmModal
+      :open="deleteModalOpen"
+      title="Cancelar evento"
+      description="¿Estás seguro de que querés cancelar este evento? Esta acción no se puede deshacer."
+      confirm-label="Cancelar evento"
+      cancel-label="Volver"
+      :pending="deletingEventId === deletingTarget"
+      @confirm="handleDeleteConfirm"
+      @cancel="deleteModalOpen = false; deletingTarget = ''"
+    />
   </section>
 </template>

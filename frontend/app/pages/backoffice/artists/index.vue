@@ -18,6 +18,8 @@ const artists = ref<BackofficeArtistRecord[]>([])
 const genres = ref<GenreOption[]>([])
 const pending = ref(true)
 const deletingId = ref('')
+const deletingTarget = ref('')
+const deleteModalOpen = ref(false)
 
 const page = ref(1)
 const pageSize = ref(12)
@@ -122,6 +124,19 @@ function resetFilters() {
 
 function goToPage(nextPage: number) {
   void loadArtists(nextPage)
+}
+
+function confirmDelete(artistId: string) {
+  deletingTarget.value = artistId
+  deleteModalOpen.value = true
+}
+
+function handleDeleteConfirm() {
+  if (deletingTarget.value) {
+    removeArtist(deletingTarget.value)
+  }
+
+  deleteModalOpen.value = false
 }
 
 async function removeArtist(artistId: string) {
@@ -327,13 +342,15 @@ onMounted(() => {
                 </NuxtLink>
 
                 <!-- Delete action -->
-                <PagesBackofficeDeleteAction
-                  item-label="el artista"
-                  trigger-variant="outlined"
-                  trigger-class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity"
-                  :pending="deletingId === artist.id"
-                  @confirm="removeArtist(artist.id)"
-                />
+                <button
+                  type="button"
+                  class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                  :disabled="deletingId === artist.id"
+                  :aria-label="`Eliminar ${artist.name}`"
+                  @click="confirmDelete(artist.id)"
+                >
+                  <BaseIcon name="i-lucide-trash-2" class="size-3.5" />
+                </button>
               </div>
             </div>
 
@@ -355,5 +372,16 @@ onMounted(() => {
         </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
+
+    <UiConfirmModal
+      :open="deleteModalOpen"
+      title="Eliminar artista"
+      description="¿Estás seguro de que querés eliminar este artista? Esta acción no se puede deshacer."
+      confirm-label="Eliminar"
+      cancel-label="Cancelar"
+      :pending="deletingId === deletingTarget"
+      @confirm="handleDeleteConfirm"
+      @cancel="deleteModalOpen = false; deletingTarget = ''"
+    />
   </section>
 </template>
