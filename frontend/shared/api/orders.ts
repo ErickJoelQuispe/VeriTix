@@ -49,3 +49,12 @@ export interface OrderDetailApiItem extends OrderListApiItem {
   items: OrderItemApiItem[]
   payments: PaymentApiItem[]
 }
+
+export interface CreateOrderRequest {
+  eventId: string
+  items: Array<{ ticketTypeId: string; quantity: number }>
+}
+
+export interface CreateOrderResponse extends OrderDetailApiItem {
+  checkoutUrl: string
+}

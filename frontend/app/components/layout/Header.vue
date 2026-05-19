@@ -3,7 +3,17 @@ import { MAIN_NAV_ITEMS, MY_EVENTS_NAV_ITEM } from '~/utils/navigation/ia'
 
 const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
-const accountMenuItems = useAccountMenuItems(() => user.value?.role === 'ADMIN')
+const accountMenuItems = useAccountMenuItems(
+  () => user.value?.role === 'ADMIN',
+  'Eventos, usuarios y artistas',
+  () => user.value?.role === 'VALIDATOR' || user.value?.role === 'ADMIN',
+)
+
+const showValidatorLink = computed(() => {
+  return sessionStatus.value !== 'unknown'
+    && isAuthenticated.value
+    && (user.value?.role === 'VALIDATOR' || user.value?.role === 'ADMIN')
+})
 const mobileMenuOpen = ref(false)
 
 const showGuestActions = computed(() => {
@@ -238,6 +248,17 @@ watch(
             </template>
 
             <template v-else-if="showAccountMenu">
+              <BaseButton
+                v-if="showValidatorLink"
+                to="/validator"
+                variant="outlined"
+                size="sm"
+                leading-icon="i-lucide-scan-qr-code"
+                class="hidden sm:inline-flex"
+              >
+                Panel Validador
+              </BaseButton>
+
               <UiAccountMenu
                 :title="accountDisplayName"
                 :subtitle="accountSubtitle"

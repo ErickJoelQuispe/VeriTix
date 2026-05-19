@@ -14,9 +14,11 @@ import { ConfigService } from '@nestjs/config';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Request } from 'express';
 import type { Stripe } from 'stripe';
+import { Public } from '@common/decorators';
 import { STRIPE_CLIENT } from '../stripe/stripe.module';
 import { StripeWebhookService } from './stripe-webhook.service';
 
+@Public()
 @ApiExcludeController()
 @Controller('webhooks')
 export class WebhooksController {
@@ -49,7 +51,7 @@ export class WebhooksController {
     // Verificar firma — lanza Error si la firma es inválida
     let event: { type: string; data: { object: any } };
     try {
-      event = this.stripe.webhooks.constructEvent(
+      event = await this.stripe.webhooks.constructEventAsync(
         rawBody,
         signature,
         webhookSecret,

@@ -19,6 +19,17 @@ export function useRouteAccess() {
     }
   }
 
+  function requireValidatorAccess(): string | undefined {
+    if (!isAuthenticated.value) {
+      return '/login'
+    }
+
+    const role = user.value?.role
+    if (role !== 'VALIDATOR' && role !== 'ADMIN') {
+      return '/'
+    }
+  }
+
   function redirectIfAuthenticated(redirectTo = '/users/me'): string | undefined {
     if (isAuthenticated.value) {
       return redirectTo
@@ -28,6 +39,7 @@ export function useRouteAccess() {
   return {
     requireAuthenticated,
     requireBackofficeAccess,
+    requireValidatorAccess,
     redirectIfAuthenticated,
   }
 }

@@ -52,7 +52,7 @@ export class TicketsController {
   }
 
   @Get('event/:eventId')
-  @Roles(Role.ADMIN, Role.CREATOR)
+  @Roles(Role.ADMIN, Role.CREATOR, Role.VALIDATOR)
   @ApiOperation({
     summary:
       'Tickets de un evento (admin: cualquiera, creator: el suyo). Sin QR payload.',

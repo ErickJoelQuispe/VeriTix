@@ -58,13 +58,9 @@ export class TicketPdfService {
    * Decrypts qrPayload → renders QR code as image → builds PDF with event details.
    */
   async generatePdf(ticket: TicketPdfData): Promise<Buffer> {
-    const secret = this.config.getOrThrow<string>('AES_SECRET_KEY');
-
-    // Decrypt the QR payload to get the raw hash for QR encoding
-    const qrContent = decryptPayload(ticket.qrPayload, secret);
-
-    // Generate QR code as a PNG Buffer
-    const qrImageBuffer = await QRCode.toBuffer(qrContent, {
+    // Generate QR code as a PNG Buffer using the encrypted payload directly
+    // The validator endpoint expects the AES-256-GCM payload (iv:authTag:ciphertext)
+    const qrImageBuffer = await QRCode.toBuffer(ticket.qrPayload, {
       type: 'png',
       width: 200,
       margin: 2,

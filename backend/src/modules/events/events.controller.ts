@@ -148,7 +148,7 @@ export class EventsController {
 
   @Get(':id/access-stats/stream')
   @Sse()
-  @Roles(Role.ADMIN, Role.CREATOR)
+  @Roles(Role.ADMIN, Role.CREATOR, Role.VALIDATOR)
   @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: 'Stream SSE de estadísticas de acceso en tiempo real (admin o creator)',
@@ -162,9 +162,9 @@ export class EventsController {
     @Param('id') id: string,
     @CurrentUser() user: JwtPayload,
   ): Observable<MessageEvent> {
-    if (user.role !== Role.ADMIN && user.role !== Role.CREATOR) {
+    if (user.role !== Role.ADMIN && user.role !== Role.CREATOR && user.role !== Role.VALIDATOR) {
       throw new ForbiddenException(
-        'Solo administradores y creadores pueden ver las estadísticas de acceso',
+        'Solo administradores, creadores y validadores pueden ver las estadísticas de acceso',
       );
     }
 

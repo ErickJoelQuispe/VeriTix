@@ -249,6 +249,18 @@ describe('Tickets (e2e)', () => {
         .expect(403);
     });
 
+    it('4b. 200 — validator can see event tickets', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/api/v1/tickets/event/${eventId}`)
+        .set('Authorization', `Bearer ${validatorToken}`)
+        .expect(200);
+
+      expect(res.body.meta.total).toBeGreaterThanOrEqual(2);
+      const t = res.body.data[0];
+      expect(t).toHaveProperty('hash');
+      expect(t).toHaveProperty('status');
+    });
+
     it('5. 404 — non-existent event', async () => {
       await request(app.getHttpServer())
         .get('/api/v1/tickets/event/00000000-0000-0000-0000-000000000000')
