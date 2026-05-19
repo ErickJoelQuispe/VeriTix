@@ -239,7 +239,6 @@ async function handlePageChange(page: number) {
                   Limpiar filtros
                 </BaseButton>
               </div>
-
             </div>
 
             <div class="space-y-6 lg:block" :class="filtersOpen ? 'block' : 'hidden'">

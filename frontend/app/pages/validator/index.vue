@@ -37,7 +37,7 @@ function isValidPayload(text: string): boolean {
 }
 
 async function startCamera() {
-  if (!videoRef.value) return
+  if (!videoRef.value) { return }
 
   cameraError.value = null
   scanError.value = null
@@ -62,7 +62,7 @@ async function startCamera() {
 
           if (text !== lastScannedText) {
             lastScannedText = text
-            if (scanDebounceTimer) clearTimeout(scanDebounceTimer)
+            if (scanDebounceTimer) { clearTimeout(scanDebounceTimer) }
 
             scanDebounceTimer = setTimeout(async () => {
               if (!isValidPayload(text)) {
@@ -130,7 +130,7 @@ function stopCamera() {
 
 async function handleManualSubmit() {
   const payload = manualPayload.value.trim()
-  if (!payload) return
+  if (!payload) { return }
 
   await submitPayload(payload)
 }

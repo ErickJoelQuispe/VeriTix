@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TicketType } from '~~/shared/types/domain'
-import { formatEventDate } from '@/utils/date-formatters'
 import { useTicketTypesRepository } from '@/repositories/ticketTypesRepository'
+import { formatEventDate } from '@/utils/date-formatters'
 
 const route = useRoute()
 const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
@@ -24,7 +24,7 @@ const ticketTypes = ref<TicketType[]>([])
 const loadingTicketTypes = ref(false)
 
 onMounted(async () => {
-  if (!eventId.value) return
+  if (!eventId.value) { return }
   loadingTicketTypes.value = true
   try {
     ticketTypes.value = await useTicketTypesRepository().getByEvent(eventId.value)
@@ -38,17 +38,17 @@ onMounted(async () => {
 })
 
 // ── Selection & Purchase ──────────────────────────────────────────────────────
-const selection = ref<Array<{ ticketTypeId: string; quantity: number; unitPrice: number }>>([])
+const selection = ref<Array<{ ticketTypeId: string, quantity: number, unitPrice: number }>>([])
 const buyLoading = ref(false)
 
 const canBuy = computed(() => selection.value.some(item => item.quantity > 0))
 
-function handleSelectionUpdate(items: Array<{ ticketTypeId: string; quantity: number; unitPrice: number }>) {
+function handleSelectionUpdate(items: Array<{ ticketTypeId: string, quantity: number, unitPrice: number }>) {
   selection.value = items
 }
 
 async function handleBuy() {
-  if (!canBuy.value || buyLoading.value) return
+  if (!canBuy.value || buyLoading.value) { return }
 
   if (!isAuthenticated.value) {
     await navigateTo(`/login?redirect=/events/${eventId.value}`)

@@ -8,7 +8,7 @@ describe('publicArtistsRepository', () => {
   it('lists artists from the public artists endpoint with normalized filters', async () => {
     const content = await readFile(join(appDir, 'repositories/publicArtistsRepository.ts'), 'utf-8')
 
-    expect(content).toContain("'/artists'")
+    expect(content).toContain('\'/artists\'')
     expect(content).toContain('limit: 24')
     expect(content).toContain('search: filters.search')
     expect(content).toContain('genreId: filters.genreId')
@@ -19,7 +19,7 @@ describe('publicArtistsRepository', () => {
   it('fetches artist details by id', async () => {
     const content = await readFile(join(appDir, 'repositories/publicArtistsRepository.ts'), 'utf-8')
 
-    expect(content).toContain('`/artists/${id}`')
-    expect(content).toContain("method: 'GET'")
+    expect(content).toMatch(/`\/artists\/\$\{id\}`/)
+    expect(content).toContain('method: \'GET\'')
   })
 })

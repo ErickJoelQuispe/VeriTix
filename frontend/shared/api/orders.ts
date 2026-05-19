@@ -52,7 +52,7 @@ export interface OrderDetailApiItem extends OrderListApiItem {
 
 export interface CreateOrderRequest {
   eventId: string
-  items: Array<{ ticketTypeId: string; quantity: number }>
+  items: Array<{ ticketTypeId: string, quantity: number }>
 }
 
 export interface CreateOrderResponse extends OrderDetailApiItem {

@@ -1,7 +1,15 @@
 export default defineNuxtRouteMiddleware(async () => {
-  const { ensureSession, refreshSession, refreshStatus, sessionStatus } = useAuth()
+  const auth = useAuth?.()
 
-  if (sessionStatus.value !== 'unknown' || refreshStatus.value === 'refreshing') {
+  if (!auth) {
+    return
+  }
+
+  const { ensureSession, refreshSession, refreshStatus, sessionStatus } = auth
+  const initialStatus = sessionStatus.value
+  const shouldRefresh = initialStatus === 'unknown' && refreshStatus.value !== 'refreshing'
+
+  if (!shouldRefresh) {
     return
   }
 
@@ -10,7 +18,7 @@ export default defineNuxtRouteMiddleware(async () => {
   // ensureSession only uses the access token (in-memory).
   // After a full-page navigation (e.g. Stripe redirect) the access token is
   // gone — fall back to refresh so the httpOnly cookie restores the session.
-  if (!ok && sessionStatus.value !== 'guest') {
+  if (!ok && initialStatus === 'unknown') {
     await refreshSession()
   }
 })

@@ -56,7 +56,7 @@ export function useOrdersRepository() {
   ): Promise<UserOrderDetail & { checkoutUrl: string }> {
     const response = await apiRequest<CreateOrderResponse>('/orders', {
       method: 'POST',
-      body: payload,
+      body: payload as unknown as Record<string, unknown>,
     })
 
     return {

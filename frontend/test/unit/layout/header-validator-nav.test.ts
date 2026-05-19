@@ -17,7 +17,7 @@ describe('navigation: VALIDATOR role support', () => {
     expect(content).toContain('/validator')
   })
 
-  it('Header.vue does not render a separate validator nav button', async () => {
+  it('header.vue does not render a separate validator nav button', async () => {
     const content = await readFile(join(appDir, 'components/layout/Header.vue'), 'utf-8')
     expect(content).not.toContain('Panel Validador')
   })

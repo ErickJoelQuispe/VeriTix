@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 const appDir = join(process.cwd(), 'app')
 
-describe('BackofficeHeader account menu', () => {
+describe('backofficeHeader account menu', () => {
   it('includes Mis eventos and Panel Validador links', async () => {
     const content = await readFile(join(appDir, 'components/layout/BackofficeHeader.vue'), 'utf-8')
     expect(content).toContain('Mis eventos')

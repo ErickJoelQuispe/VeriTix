@@ -527,5 +527,4 @@ onMounted(() => {
 .vtx-settings-heading-divider {
   border-bottom-color: color-mix(in srgb, var(--color-toned) 22%, transparent);
 }
-
 </style>

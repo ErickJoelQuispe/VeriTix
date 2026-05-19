@@ -8,9 +8,9 @@ describe('validatorRepository', () => {
   it('posts ticket payloads to the validate endpoint', async () => {
     const content = await readFile(join(appDir, 'repositories/validatorRepository.ts'), 'utf-8')
 
-    expect(content).toContain("'/tickets/validate'")
-    expect(content).toContain("method: 'POST'")
-    expect(content).toContain('body: { payload }')
+    expect(content).toContain('\'/tickets/validate\'')
+    expect(content).toContain('method: \'POST\'')
+    expect(content).toMatch(/body:\s*\{\s*payload\s*\}/)
   })
 
   it('keeps the response contract fields intact', async () => {

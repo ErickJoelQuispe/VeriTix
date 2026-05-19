@@ -8,7 +8,7 @@ describe('publicVenuesRepository', () => {
   it('lists venues with the public venues filters and fixed limit', async () => {
     const content = await readFile(join(appDir, 'repositories/publicVenuesRepository.ts'), 'utf-8')
 
-    expect(content).toContain("'/venues'")
+    expect(content).toContain('\'/venues\'')
     expect(content).toContain('limit: 24')
     expect(content).toContain('search: filters.search')
     expect(content).toContain('city: filters.city')
@@ -19,7 +19,7 @@ describe('publicVenuesRepository', () => {
   it('fetches venue details by id', async () => {
     const content = await readFile(join(appDir, 'repositories/publicVenuesRepository.ts'), 'utf-8')
 
-    expect(content).toContain('`/venues/${id}`')
-    expect(content).toContain("method: 'GET'")
+    expect(content).toMatch(/`\/venues\/\$\{id\}`/)
+    expect(content).toContain('method: \'GET\'')
   })
 })

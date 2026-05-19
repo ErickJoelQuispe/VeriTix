@@ -15,16 +15,16 @@ describe('publicEventsRepository', () => {
     expect(content).toContain('export function mapEventDetail(')
     expect(content).toContain('new Date().toISOString()')
     expect(content).toContain('buildEventFallbackImage(item.id)')
-    expect(content).toContain("return 'EUR'")
+    expect(content).toContain('return \'EUR\'')
   })
 
   it('uses the public events, genres, venues and artists endpoints', async () => {
     const content = await readFile(join(appDir, 'repositories/publicEventsRepository.ts'), 'utf-8')
 
-    expect(content).toContain("'/events'")
-    expect(content).toContain("'/genres'")
-    expect(content).toContain("'/venues'")
-    expect(content).toContain('`/events/${eventId}/artists`')
+    expect(content).toContain('\'/events\'')
+    expect(content).toContain('\'/genres\'')
+    expect(content).toContain('\'/venues\'')
+    expect(content).toMatch(/`\/events\/\$\{eventId\}\/artists`/)
     expect(content).toContain('limit: 24')
     expect(content).toContain('artistName: filters.artistName')
     expect(content).toContain('venueName: filters.venueName')

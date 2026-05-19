@@ -8,10 +8,10 @@ describe('ordersRepository', () => {
   it('uses the my-orders, order-detail, cancel and create endpoints', async () => {
     const content = await readFile(join(appDir, 'repositories/ordersRepository.ts'), 'utf-8')
 
-    expect(content).toContain("'/orders/my'")
-    expect(content).toContain('`/orders/${id}`')
-    expect(content).toContain('`/orders/${id}/cancel`')
-    expect(content).toContain("'/orders'")
+    expect(content).toContain('\'/orders/my\'')
+    expect(content).toMatch(/`\/orders\/\$\{id\}`/)
+    expect(content).toMatch(/`\/orders\/\$\{id\}\/cancel`/)
+    expect(content).toContain('\'/orders\'')
   })
 
   it('maps paginated list items and preserves meta', async () => {
