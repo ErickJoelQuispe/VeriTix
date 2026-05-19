@@ -49,6 +49,51 @@ function statusLabel(status: EventOrderStatus): string {
 onMounted(() => {
   void fetch()
 })
+
+// Métricas derivadas de las órdenes de la página actual + meta total
+const totalOrders = computed(() => meta.value?.total ?? 0)
+
+const completedRevenue = computed(() =>
+  orders.value
+    .filter(o => o.status === 'COMPLETED')
+    .reduce((sum, o) => sum + o.totalAmount, 0),
+)
+
+const pendingCount = computed(() =>
+  orders.value.filter(o => o.status === 'PENDING').length,
+)
+
+const cancelledCount = computed(() =>
+  orders.value.filter(o => o.status === 'CANCELLED').length,
+)
+
+// Conteos para labels de filtro
+const statusCounts = computed(() => ({
+  PENDING: orders.value.filter(o => o.status === 'PENDING').length,
+  COMPLETED: orders.value.filter(o => o.status === 'COMPLETED').length,
+  CANCELLED: orders.value.filter(o => o.status === 'CANCELLED').length,
+}))
+
+function statCardIconBoxClass(tone: string) {
+  const base = 'flex size-10 items-center justify-center rounded-lg border'
+  if (tone === 'warning') {
+    return `${base} border-warning/20 bg-warning/10 text-warning`
+  }
+  if (tone === 'success') {
+    return `${base} border-success/20 bg-success/10 text-success`
+  }
+  if (tone === 'primary') {
+    return `${base} border-primary/20 bg-primary/10 text-primary`
+  }
+  if (tone === 'error') {
+    return `${base} border-error/20 bg-error/10 text-error`
+  }
+  return `${base} border-default bg-default/60 text-muted`
+}
+
+function truncateId(id: string): string {
+  return `#${id.slice(0, 8).toUpperCase()}`
+}
 </script>
 
 <template>
@@ -58,15 +103,116 @@ onMounted(() => {
         <UiPageHeading
           eyebrow="Backoffice"
           title="Reporte de ventas"
-          description="Listado paginado y filtrable de órdenes para este evento."
+          description="Seguí el estado de las órdenes de tu evento en tiempo real."
           action-label="Volver"
           action-to="/backoffice/events"
         />
 
         <PagesBackofficeOverviewPanel
-          eyebrow="Filtros"
-          title="Órdenes del evento"
-          description="Filtrá por estado y paginá los resultados."
+          eyebrow="Resumen"
+          title="Métricas del evento"
+          description="Calculadas sobre las órdenes disponibles."
+          variant="glass"
+        >
+          <template #summary>
+            <!-- Stat cards — PATRÓN EXACTO de backoffice/index.vue -->
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <!-- Loading skeletons -->
+              <template v-if="isLoading">
+                <UiPanel v-for="i in 4" :key="i" variant="glass" radius="md" padding="md">
+                  <BaseSkeleton class="mb-4 size-10 rounded-lg" />
+                  <BaseSkeleton class="mb-2 h-8 w-16" />
+                  <BaseSkeleton class="h-4 w-24" />
+                </UiPanel>
+              </template>
+
+              <!-- Loaded stats -->
+              <template v-else>
+                <UiPanel variant="glass" radius="md" padding="md">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="space-y-3">
+                      <UiMetaLabel>Total órdenes</UiMetaLabel>
+                      <div class="space-y-1">
+                        <p class="text-3xl font-semibold tracking-tight text-highlighted">
+                          {{ totalOrders }}
+                        </p>
+                        <p class="text-sm text-toned">
+                          en este evento
+                        </p>
+                      </div>
+                    </div>
+                    <div :class="statCardIconBoxClass('primary')">
+                      <BaseIcon name="i-lucide-receipt" class="size-5" />
+                    </div>
+                  </div>
+                </UiPanel>
+
+                <UiPanel variant="glass" radius="md" padding="md">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="space-y-3">
+                      <UiMetaLabel>Ingresos confirmados</UiMetaLabel>
+                      <div class="space-y-1">
+                        <p class="text-3xl font-semibold tracking-tight text-highlighted">
+                          {{ formatAmount(completedRevenue) }}
+                        </p>
+                        <p class="text-sm text-toned">
+                          órdenes completadas
+                        </p>
+                      </div>
+                    </div>
+                    <div :class="statCardIconBoxClass('success')">
+                      <BaseIcon name="i-lucide-banknote" class="size-5" />
+                    </div>
+                  </div>
+                </UiPanel>
+
+                <UiPanel variant="glass" radius="md" padding="md">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="space-y-3">
+                      <UiMetaLabel>Pendientes de pago</UiMetaLabel>
+                      <div class="space-y-1">
+                        <p class="text-3xl font-semibold tracking-tight text-highlighted">
+                          {{ pendingCount }}
+                        </p>
+                        <p class="text-sm text-toned">
+                          sin confirmar
+                        </p>
+                      </div>
+                    </div>
+                    <div :class="statCardIconBoxClass('warning')">
+                      <BaseIcon name="i-lucide-clock" class="size-5" />
+                    </div>
+                  </div>
+                </UiPanel>
+
+                <UiPanel variant="glass" radius="md" padding="md">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="space-y-3">
+                      <UiMetaLabel>Canceladas</UiMetaLabel>
+                      <div class="space-y-1">
+                        <p class="text-3xl font-semibold tracking-tight text-highlighted">
+                          {{ cancelledCount }}
+                        </p>
+                        <p class="text-sm text-toned">
+                          no procesadas
+                        </p>
+                      </div>
+                    </div>
+                    <div :class="statCardIconBoxClass('error')">
+                      <BaseIcon name="i-lucide-ban" class="size-5" />
+                    </div>
+                  </div>
+                </UiPanel>
+              </template>
+            </div>
+          </template>
+        </PagesBackofficeOverviewPanel>
+
+        <!-- Orders list panel separado -->
+        <PagesBackofficeOverviewPanel
+          eyebrow="Órdenes"
+          title="Listado de órdenes"
+          description="Filtrá por estado y navegá entre páginas."
           variant="glass"
         >
           <template #actions>
@@ -84,15 +230,21 @@ onMounted(() => {
                   @click="setStatusFilter(opt.value)"
                 >
                   {{ opt.label }}
+                  <span
+                    v-if="opt.value !== undefined && !isLoading"
+                    class="ml-1 tabular-nums"
+                  >
+                    ({{ statusCounts[opt.value] }})
+                  </span>
                 </BaseButton>
               </div>
             </div>
           </template>
 
-          <div class="space-y-4">
+          <div class="space-y-3">
             <!-- Loading -->
             <template v-if="isLoading">
-              <BaseSkeleton v-for="i in 5" :key="i" class="h-14 rounded-xl" />
+              <BaseSkeleton v-for="i in 5" :key="i" class="h-20 rounded-xl" />
             </template>
 
             <!-- Error -->
@@ -111,7 +263,7 @@ onMounted(() => {
               description="No hay órdenes que coincidan con los filtros seleccionados."
             />
 
-            <!-- Orders list -->
+            <!-- Orders -->
             <template v-else>
               <UiPanel
                 v-for="order in orders"
@@ -119,19 +271,32 @@ onMounted(() => {
                 variant="glass"
                 padding="md"
                 radius="lg"
-                class="flex flex-row items-center gap-3 border-default/65! bg-elevated/25!"
+                class="border-default/65!"
               >
-                <div class="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3">
-                  <div class="min-w-0 space-y-1">
-                    <p class="font-mono text-sm text-toned">
-                      #{{ order.id.slice(0, 8) }}
+                <div class="flex items-center gap-4">
+                  <!-- Status icon box -->
+                  <div
+                    :class="statCardIconBoxClass(order.status === 'COMPLETED' ? 'success' : order.status === 'PENDING' ? 'warning' : 'error')"
+                    class="shrink-0"
+                  >
+                    <BaseIcon
+                      :name="order.status === 'COMPLETED' ? 'i-lucide-check' : order.status === 'PENDING' ? 'i-lucide-clock' : 'i-lucide-x'"
+                      class="size-5"
+                    />
+                  </div>
+
+                  <!-- Main info -->
+                  <div class="min-w-0 flex-1 space-y-0.5">
+                    <p class="truncate text-sm font-medium text-highlighted">
+                      {{ order.event.name }}
                     </p>
-                    <p class="text-xs text-muted">
-                      {{ formatDate(order.createdAt) }}
+                    <p class="font-mono text-xs text-muted">
+                      {{ truncateId(order.id) }} · {{ formatDate(order.createdAt) }}
                     </p>
                   </div>
 
-                  <div class="flex items-center gap-3">
+                  <!-- Right: amount + badge -->
+                  <div class="flex shrink-0 flex-col items-end gap-1.5">
                     <p class="text-sm font-semibold text-highlighted">
                       {{ formatAmount(order.totalAmount) }}
                     </p>
@@ -144,7 +309,7 @@ onMounted(() => {
             </template>
 
             <!-- Pagination -->
-            <div v-if="meta && meta.totalPages > 1" class="flex justify-center pt-1 pb-1">
+            <div v-if="meta && meta.totalPages > 1" class="flex justify-center pt-2">
               <BasePagination
                 :page="page"
                 :total="meta.total"
