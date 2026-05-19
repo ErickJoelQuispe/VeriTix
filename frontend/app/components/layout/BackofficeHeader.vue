@@ -15,6 +15,18 @@ const backofficeMenuItems = computed<AccountMenuItem[]>(() => {
       to: '/',
       icon: 'i-lucide-arrow-left-from-line',
     },
+    {
+      label: 'Mis eventos',
+      description: 'Consultá tus reservas y tickets',
+      to: '/users/me/events',
+      icon: 'i-lucide-calendar-range',
+    },
+    {
+      label: 'Panel Validador',
+      description: 'Escanear y validar tickets en puerta',
+      to: '/validator',
+      icon: 'i-lucide-scan-qr-code',
+    },
     // En el backoffice el acceso directo a "Backoffice" es redundante
     ...accountMenuItems.value.filter(item => item.label !== 'Backoffice'),
   ]
@@ -70,6 +82,18 @@ const mobileAccountLinks = computed(() => {
       description: 'Ir a la página principal de VeriTix',
       to: '/',
       icon: 'i-lucide-arrow-left-from-line',
+    },
+    {
+      label: 'Mis eventos',
+      description: 'Consultá tus reservas y tickets',
+      to: '/users/me/events',
+      icon: 'i-lucide-calendar-range',
+    },
+    {
+      label: 'Panel Validador',
+      description: 'Escanear y validar tickets en puerta',
+      to: '/validator',
+      icon: 'i-lucide-scan-qr-code',
     },
     ...accountMenuItems.value.filter(item => item.label !== 'Backoffice'),
   ]
