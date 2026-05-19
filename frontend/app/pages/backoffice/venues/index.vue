@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import type { PaginationMeta } from '~~/shared/api/types'
 import type { BackofficeOption, BackofficeVenueRecord } from '~~/shared/types'
+import { VENUE_TYPE_LABELS } from '~~/shared/types'
 import { useBackofficeVenuesRepository } from '@/repositories/backofficeVenuesRepository'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Venues | Backoffice VeriTix' })
 
-const { listVenues } = useBackofficeVenuesRepository()
-const { notifyApiError } = useAppNotifications()
+const { deleteVenue, listVenues } = useBackofficeVenuesRepository()
+const { notifyApiError, notifySuccess } = useAppNotifications()
 
 const venues = ref<BackofficeVenueRecord[]>([])
 const pending = ref(true)
+const deletingId = ref('')
+const deletingTarget = ref('')
+const deleteModalOpen = ref(false)
 const integrationStatus = ref<'connected' | 'pending'>('connected')
 
 const page = ref(1)
@@ -33,12 +37,17 @@ const filtersOpen = ref(false)
 
 const toolbarChips = computed(() => {
   const activeCount = venues.value.filter(venue => venue.isActive).length
+
   return [
     { label: 'visibles', value: meta.value.total, icon: 'i-lucide-chart-column' },
     { label: 'activos', value: activeCount, icon: 'i-lucide-badge-check' },
     { label: 'integración', value: integrationStatus.value === 'connected' ? 'lista' : 'pendiente', icon: integrationStatus.value === 'connected' ? 'i-lucide-plug-zap' : 'i-lucide-circle-alert' },
   ]
 })
+
+function venueTypeLabel(type: string): string {
+  return VENUE_TYPE_LABELS[type as keyof typeof VENUE_TYPE_LABELS] || type
+}
 
 async function loadVenues(targetPage = page.value) {
   pending.value = true
@@ -92,6 +101,36 @@ function goToPage(nextPage: number) {
   void loadVenues(nextPage)
 }
 
+function confirmDelete(venueId: string) {
+  deletingTarget.value = venueId
+  deleteModalOpen.value = true
+}
+
+function handleDeleteConfirm() {
+  if (deletingTarget.value) {
+    removeVenue(deletingTarget.value)
+  }
+
+  deleteModalOpen.value = false
+}
+
+async function removeVenue(venueId: string) {
+  deletingId.value = venueId
+
+  try {
+    await deleteVenue(venueId)
+
+    notifySuccess('Recinto eliminado correctamente.', { id: `admin-venues-delete-${venueId}` })
+    await loadVenues(page.value)
+  }
+  catch (error) {
+    notifyApiError(error, 'No pudimos eliminar el recinto.', { id: `admin-venues-delete-error-${venueId}` })
+  }
+  finally {
+    deletingId.value = ''
+  }
+}
+
 onMounted(() => {
   void loadVenues()
 })
@@ -101,7 +140,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-venues-page">
-        <UiPageHeading eyebrow="Backoffice" title="Venues" description="Buscá recintos por nombre, ciudad y estado operativo." />
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Venues"
+          description="Buscá recintos por nombre, ciudad y estado operativo."
+          action-label="Nuevo recinto"
+          action-to="/backoffice/venues/new"
+        />
 
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
@@ -223,6 +268,8 @@ onMounted(() => {
               icon="i-lucide-building-2"
               title="Sin venues para estos filtros"
               description="No encontramos recintos con los criterios actuales."
+              action-label="Crear recinto"
+              action-to="/backoffice/venues/new"
             />
 
             <div v-else class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -232,7 +279,7 @@ onMounted(() => {
                 variant="glass"
                 radius="lg"
                 padding="md"
-                class="h-full border-default/65 bg-elevated/20"
+                class="group relative h-full border-default/65 bg-elevated/20"
               >
                 <div class="flex h-full flex-col gap-4">
                   <div class="flex items-start justify-between gap-3">
@@ -241,7 +288,10 @@ onMounted(() => {
                         {{ venue.name }}
                       </p>
                       <p class="text-sm text-toned">
-                        {{ venue.city }}, {{ venue.country }}
+                        {{ venue.address }}
+                      </p>
+                      <p class="text-sm text-toned/70">
+                        {{ venue.city }}{{ venue.state ? `, ${venue.state}` : '' }}, {{ venue.country }}
                       </p>
                     </div>
 
@@ -252,6 +302,10 @@ onMounted(() => {
 
                   <div class="space-y-2 text-sm">
                     <div class="flex items-center justify-between border-b border-default/60 pb-2">
+                      <span class="text-muted">Tipo</span>
+                      <span class="text-toned">{{ venueTypeLabel(venue.type) }}</span>
+                    </div>
+                    <div class="flex items-center justify-between border-b border-default/60 pb-2">
                       <span class="text-muted">Capacidad</span>
                       <span class="text-toned">{{ venue.capacity ?? 'N/D' }}</span>
                     </div>
@@ -259,6 +313,27 @@ onMounted(() => {
                       <span class="text-muted">Actualizado</span>
                       <span class="text-toned">{{ new Date(venue.updatedAt).toLocaleDateString('es-ES') }}</span>
                     </div>
+                  </div>
+
+                  <div class="mt-auto grid grid-cols-2 gap-2 pt-2">
+                    <BaseButton
+                      variant="primary"
+                      size="sm"
+                      leading-icon="i-lucide-pencil"
+                      class="w-full justify-center"
+                      :to="`/backoffice/venues/${venue.id}/edit`"
+                    >
+                      Editar
+                    </BaseButton>
+                    <BaseButton
+                      variant="danger"
+                      size="sm"
+                      class="w-full justify-center"
+                      :disabled="deletingId === venue.id"
+                      @click="confirmDelete(venue.id)"
+                    >
+                      Eliminar
+                    </BaseButton>
                   </div>
                 </div>
               </UiPanel>
@@ -282,5 +357,16 @@ onMounted(() => {
         </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
+
+    <UiConfirmModal
+      :open="deleteModalOpen"
+      title="Eliminar recinto"
+      description="¿Estás seguro de que querés eliminar este recinto? Esta acción no se puede deshacer."
+      confirm-label="Eliminar"
+      cancel-label="Cancelar"
+      :pending="deletingId === deletingTarget"
+      @confirm="handleDeleteConfirm"
+      @cancel="deleteModalOpen = false; deletingTarget = ''"
+    />
   </section>
 </template>
