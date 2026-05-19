@@ -197,6 +197,11 @@ async function submitPassword() {
   }
 }
 
+useUnsavedChangesGuard({
+  isDirty: hasProfileChanges,
+  isSubmitting: profileSubmitting,
+})
+
 onMounted(() => {
   void loadProfile()
 })

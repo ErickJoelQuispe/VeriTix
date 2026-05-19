@@ -73,12 +73,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Nuevo evento" description="Crea un evento y dejalo listo para publicar." />
-          <BaseButton to="/backoffice/events" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
-            Volver a eventos
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Nuevo evento"
+          description="Crea un evento y dejalo listo para publicar."
+          action-label="Volver"
+          action-to="/backoffice/events"
+        />
         <PagesBackofficeOverviewPanel
           title="Datos del evento"
           description="Completa los campos principales para crear la ficha."

@@ -6,30 +6,26 @@ interface UnsavedChangesGuardOptions {
   message?: string
 }
 
-const DEFAULT_UNSAVED_CHANGES_MESSAGE = 'Tenés cambios sin guardar. ¿Querés salir igual?'
+const DEFAULT_UNSAVED_CHANGES_MESSAGE = 'Tenés cambios sin guardar. Si salís ahora, se perderán.'
 
 export function useUnsavedChangesGuard(options: UnsavedChangesGuardOptions) {
+  const { confirm } = useConfirmDialog()
   const confirmationMessage = options.message ?? DEFAULT_UNSAVED_CHANGES_MESSAGE
 
   function shouldBlockNavigation() {
     return options.isDirty.value && !options.isSubmitting?.value
   }
 
-  function confirmLeave() {
-    if (!shouldBlockNavigation()) {
-      return true
-    }
-
-    // eslint-disable-next-line no-alert
-    return window.confirm(confirmationMessage)
-  }
-
-  onBeforeRouteLeave(() => {
+  onBeforeRouteLeave(async () => {
     if (!import.meta.client) {
       return true
     }
 
-    return confirmLeave()
+    if (!shouldBlockNavigation()) {
+      return true
+    }
+
+    return confirm({ message: confirmationMessage })
   })
 
   if (import.meta.client) {

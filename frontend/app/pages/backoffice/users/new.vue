@@ -114,12 +114,13 @@ async function createUser(payload: BackofficeCreateUserPayload | BackofficeUpdat
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Nuevo usuario" description="Crea una cuenta y asigna su rol operativo." />
-          <BaseButton to="/backoffice/users" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
-            Volver a usuarios
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Nuevo usuario"
+          description="Crea una cuenta y asigna su rol operativo."
+          action-label="Volver"
+          action-to="/backoffice/users"
+        />
         <PagesBackofficeOverviewPanel
           title="Datos del usuario"
           description="Completa identidad, contacto, rol y contraseña inicial."

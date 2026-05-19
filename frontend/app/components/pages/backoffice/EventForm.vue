@@ -231,26 +231,26 @@ watch(() => [
       <FormDateTimePicker v-model="state.endSale" name="endSale" label="Fin de venta" />
     </div>
 
-    <div class="grid gap-5 lg:grid-cols-2">
-      <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required />
-      <FormField v-model="state.imageUrl" name="imageUrl" label="Imagen" type="url" placeholder="https://..." />
+    <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required class="max-w-64" />
+
+    <div class="border-t border-default/55 pt-6">
+      <FormImageUpload v-model="state.imageUrl" name="imageUrl" label="Imagen" />
     </div>
 
     <div class="grid gap-5 lg:grid-cols-3">
       <FormSelect v-model="state.currency" name="currency" label="Moneda" :items="currencyOptions.map(value => ({ label: value, value }))" required />
 
-      <FormSelect v-model="state.venueId" name="venueId" label="Venue" :items="venueOptions" placeholder="Selecciona un venue" required />
+      <FormAutocomplete v-model="state.venueId" name="venueId" label="Venue" :items="venueOptions" placeholder="Buscá un venue" required icon="i-lucide-map-pin" />
 
       <FormSelect v-model="selectedFormatId" name="formatId" label="Formato" :items="formatOptions" />
     </div>
 
-    <FormSelect
+    <FormTagSelect
       v-model="state.genreIds"
       name="genreIds"
       label="Generos"
       :items="genreOptions"
-      multiple
-      placeholder="Selecciona generos"
+      placeholder="Seleccioná generos"
     />
 
     <div class="flex justify-end border-t border-default/55 pt-6">

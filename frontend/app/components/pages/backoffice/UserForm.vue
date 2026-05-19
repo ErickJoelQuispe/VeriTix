@@ -243,22 +243,17 @@ watch(() => [
       />
 
       <FormField
-        v-if="!includePassword"
-        v-model="state.avatarUrl"
-        name="avatarUrl"
-        label="Avatar"
-        type="url"
-        placeholder="https://..."
-      />
-
-      <FormField
-        v-else
+        v-if="includePassword"
         v-model="state.password"
         name="password"
         label="Contraseña"
         type="password"
         required
       />
+    </div>
+
+    <div v-if="!includePassword" class="border-t border-default/55 pt-6">
+      <FormImageUpload v-model="state.avatarUrl" name="avatarUrl" label="Avatar" folder="artists" />
     </div>
 
     <div v-if="!includePassword" class="grid gap-5 lg:grid-cols-2">
