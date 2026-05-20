@@ -105,6 +105,18 @@ export class EventsService {
     // No invalidamos listas por prefijo: usamos TTL corto para evitar complejidad.
   }
 
+  private async getCachedEventDetailOrThrow(id: string): Promise<EventDetail> {
+    const event = await this.cache.getOrSet(
+      CACHE_KEYS.EVENTS_DETAIL_STATIC(id),
+      () => this.eventsRepository.findById(id),
+      CACHE_TTL_MEDIUM,
+    );
+
+    if (!event) throw new NotFoundException('Evento no encontrado');
+
+    return event;
+  }
+
   async create(
     creatorId: string,
     dto: CreateEventDto,
@@ -211,13 +223,7 @@ export class EventsService {
     id: string,
     requestingUser?: JwtPayload,
   ): Promise<EventDetailResponseDto> {
-    const event = await this.cache.getOrSet(
-      CACHE_KEYS.EVENTS_DETAIL_STATIC(id),
-      () => this.eventsRepository.findById(id),
-      CACHE_TTL_MEDIUM,
-    );
-
-    if (!event) throw new NotFoundException('Evento no encontrado');
+    const event = await this.getCachedEventDetailOrThrow(id);
 
     if (event.status === EventStatus.DRAFT) {
       const isCreator = requestingUser?.sub === event.creatorId;
@@ -226,6 +232,17 @@ export class EventsService {
         throw new NotFoundException('Evento no encontrado');
       }
     }
+
+    return event as unknown as EventDetailResponseDto;
+  }
+
+  async findOneAdminDetail(
+    id: string,
+    requestingUser: JwtPayload,
+  ): Promise<EventDetailResponseDto> {
+    const event = await this.getCachedEventDetailOrThrow(id);
+
+    this.assertOwnerOrAdmin(event, requestingUser.sub, requestingUser.role);
 
     return event as unknown as EventDetailResponseDto;
   }

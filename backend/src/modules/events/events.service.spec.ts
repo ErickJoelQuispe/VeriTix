@@ -188,7 +188,6 @@ describe('EventsService', () => {
         dateTo: undefined,
         search: undefined,
         artistName: undefined,
-        venueName: undefined,
       });
       expect(cache.getOrSet).toHaveBeenCalled();
     });
@@ -216,7 +215,6 @@ describe('EventsService', () => {
         dateTo: undefined,
         search: 'Rock',
         artistName: 'The Killers',
-        venueName: 'Arena',
       });
     });
   });
@@ -302,6 +300,58 @@ describe('EventsService', () => {
       await expect(service.findOne('uuid-event-1', undefined)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('findOneAdminDetail()', () => {
+    it('should allow creator to load their own DRAFT event', async () => {
+      repo.findById.mockResolvedValue(mockEventDetail);
+      const creatorUser: JwtPayload = {
+        sub: 'uuid-creator-1',
+        email: 'creator@test.com',
+        role: Role.CREATOR,
+      };
+
+      const result = await service.findOneAdminDetail('uuid-event-1', creatorUser);
+
+      expect(result).toEqual(mockEventDetail);
+      expect(repo.findById).toHaveBeenCalledWith('uuid-event-1');
+    });
+
+    it('should allow ADMIN to load any event', async () => {
+      repo.findById.mockResolvedValue(mockEventDetail);
+      const result = await service.findOneAdminDetail('uuid-event-1', {
+        sub: 'uuid-admin',
+        email: 'admin@test.com',
+        role: Role.ADMIN,
+      });
+
+      expect(result).toEqual(mockEventDetail);
+    });
+
+    it('should throw ForbiddenException for non-owner creator', async () => {
+      repo.findById.mockResolvedValue(mockEventDetail);
+      const otherCreator: JwtPayload = {
+        sub: 'uuid-creator-2',
+        email: 'creator2@test.com',
+        role: Role.CREATOR,
+      };
+
+      await expect(service.findOneAdminDetail('uuid-event-1', otherCreator)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('should throw NotFoundException when event does not exist', async () => {
+      repo.findById.mockResolvedValue(null);
+
+      await expect(
+        service.findOneAdminDetail('uuid-not-found', {
+          sub: 'uuid-admin',
+          email: 'admin@test.com',
+          role: Role.ADMIN,
+        }),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

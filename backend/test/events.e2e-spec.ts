@@ -48,6 +48,7 @@ describe('Events (e2e)', () => {
   let adminToken: string;
   let creatorToken: string;
   let creatorId: string;
+  let otherCreatorToken: string;
   let buyerToken: string;
   let validatorToken: string;
   let venueId: string;
@@ -96,6 +97,25 @@ describe('Events (e2e)', () => {
       .send({ email: creatorEmail, password: 'Creator1234!' })
       .expect(200);
     creatorToken = creatorLogin.body.accessToken as string;
+
+    // Register + verify + login as a second creator
+    const otherCreatorResult = await registerVerifyLogin(app, prisma, {
+      email: `e2e-events-creator-2-${suffix}@test.com`,
+      password: 'Creator1234!',
+      name: 'Creator2',
+      lastName: 'E2E',
+      phone: `+5252${suffix.toString().slice(-8)}`,
+    });
+    await request(app.getHttpServer())
+      .patch(`/api/v1/users/${otherCreatorResult.userId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ role: 'CREATOR' })
+      .expect(200);
+    const otherCreatorLogin = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email: `e2e-events-creator-2-${suffix}@test.com`, password: 'Creator1234!' })
+      .expect(200);
+    otherCreatorToken = otherCreatorLogin.body.accessToken as string;
 
     // Register + verify + login as buyer
     const buyerResult = await registerVerifyLogin(app, prisma, {
@@ -343,6 +363,76 @@ describe('Events (e2e)', () => {
       await request(app.getHttpServer())
         .get('/api/v1/events/not-a-uuid')
         .expect(400);
+    });
+
+    it('19.1 404 — public cannot get DRAFT event by id', async () => {
+      const draftRes = await request(app.getHttpServer())
+        .post('/api/v1/events')
+        .set('Authorization', `Bearer ${creatorToken}`)
+        .send({
+          name: `Draft only ${uid()}`,
+          eventDate: '2099-12-15T20:00:00Z',
+          maxCapacity: 120,
+          venueId,
+        })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .get(`/api/v1/events/${draftRes.body.id as string}`)
+        .expect(404);
+    });
+  });
+
+  describe('GET /api/v1/events/:id/admin-detail', () => {
+    let draftEventId: string;
+
+    beforeAll(async () => {
+      const draftRes = await request(app.getHttpServer())
+        .post('/api/v1/events')
+        .set('Authorization', `Bearer ${creatorToken}`)
+        .send({
+          name: `Backoffice Draft ${uid()}`,
+          eventDate: '2099-12-20T20:00:00Z',
+          maxCapacity: 150,
+          venueId,
+        })
+        .expect(201);
+
+      draftEventId = draftRes.body.id as string;
+    });
+
+    it('19.2 200 — owner creator can get DRAFT admin detail', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/api/v1/events/${draftEventId}/admin-detail`)
+        .set('Authorization', `Bearer ${creatorToken}`)
+        .expect(200);
+
+      expect(res.body.id).toBe(draftEventId);
+      expect(res.body.status).toBe('DRAFT');
+    });
+
+    it('19.3 200 — admin can get DRAFT admin detail', async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/api/v1/events/${draftEventId}/admin-detail`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(res.body.id).toBe(draftEventId);
+      expect(res.body.status).toBe('DRAFT');
+    });
+
+    it('19.4 403 — non-owner creator cannot get DRAFT admin detail', async () => {
+      await request(app.getHttpServer())
+        .get(`/api/v1/events/${draftEventId}/admin-detail`)
+        .set('Authorization', `Bearer ${otherCreatorToken}`)
+        .expect(403);
+    });
+
+    it('19.5 403 — buyer cannot get admin detail', async () => {
+      await request(app.getHttpServer())
+        .get(`/api/v1/events/${draftEventId}/admin-detail`)
+        .set('Authorization', `Bearer ${buyerToken}`)
+        .expect(403);
     });
   });
 

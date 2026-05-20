@@ -1,10 +1,12 @@
 import { ForbiddenException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
 import { JwtPayload } from '@common/interfaces';
 import { PaginationQueryDto } from '@common/dto';
 import { EventStatus, Role } from '../../generated/prisma/enums';
 import { AccessStatsService } from '../tickets/access-stats.service';
+import { ReviewsService } from '../reviews/reviews.service';
 import {
   CreateEventDto,
   EventQueryDto,
@@ -79,6 +81,7 @@ const mockEventsService = {
   findAll: jest.fn(),
   findMyEvents: jest.fn(),
   findOne: jest.fn(),
+  findOneAdminDetail: jest.fn(),
   update: jest.fn(),
   cancel: jest.fn(),
   publish: jest.fn(),
@@ -86,6 +89,15 @@ const mockEventsService = {
 
 const mockAccessStatsService = {
   getStream: jest.fn(),
+};
+
+const mockReviewsService = {
+  findByEvent: jest.fn(),
+};
+
+const mockConfigService = {
+  getOrThrow: jest.fn().mockReturnValue('test-secret'),
+  get: jest.fn().mockReturnValue('veritix-api'),
 };
 
 const mockSnapshot = {
@@ -120,6 +132,14 @@ describe('EventsController', () => {
         {
           provide: AccessStatsService,
           useValue: mockAccessStatsService,
+        },
+        {
+          provide: ReviewsService,
+          useValue: mockReviewsService,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
@@ -190,6 +210,17 @@ describe('EventsController', () => {
 
       expect(service.findOne).toHaveBeenCalledTimes(1);
       expect(service.findOne).toHaveBeenCalledWith('uuid-event-1', mockCreatorUser);
+      expect(result).toEqual(mockEventDetail);
+    });
+  });
+
+  describe('findOneAdminDetail', () => {
+    it('should call service.findOneAdminDetail with id and user', async () => {
+      service.findOneAdminDetail.mockResolvedValue(mockEventDetail);
+
+      const result = await controller.findOneAdminDetail('uuid-event-1', mockCreatorUser);
+
+      expect(service.findOneAdminDetail).toHaveBeenCalledWith('uuid-event-1', mockCreatorUser);
       expect(result).toEqual(mockEventDetail);
     });
   });
