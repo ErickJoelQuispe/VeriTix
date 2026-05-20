@@ -4,8 +4,8 @@ import type {
   BackofficeVenueRecord,
   VenueType,
 } from '~~/shared/types'
-import { VENUE_TYPE_LABELS } from '~~/shared/types'
 import { z } from 'zod'
+import { VENUE_TYPE_LABELS } from '~~/shared/types'
 import { normalizeVenuePayload } from '@/utils/backoffice/formSafeRails'
 
 const props = withDefaults(defineProps<{

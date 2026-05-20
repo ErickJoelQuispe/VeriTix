@@ -481,7 +481,6 @@ onMounted(() => {
                       </div>
                     </div>
                   </div>
-
                 </div>
               </UiPanel>
             </div>
