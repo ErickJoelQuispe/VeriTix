@@ -280,7 +280,7 @@ onMounted(() => {
                 variant="glass"
                 radius="lg"
                 padding="md"
-                class="group h-full border-default/50 bg-gradient-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
+                class="group h-full border-default/50 bg-linear-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
               >
                 <div class="flex h-full flex-col">
                   <div class="flex items-start justify-between gap-4">
