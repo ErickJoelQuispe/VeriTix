@@ -125,9 +125,14 @@ watch(
           to="/backoffice"
           class="flex min-w-0 cursor-pointer items-center gap-2 rounded-2xl px-2 py-1.5 outline-none transition-transform duration-200 hover:-translate-y-px focus-visible:ring-2 focus-visible:ring-primary/35"
         >
-          <p class="truncate font-display text-3xl leading-none tracking-wide text-highlighted sm:text-4xl">
-            VeriTix
-          </p>
+          <div class="flex items-center gap-3">
+            <p class="truncate font-display text-3xl leading-none tracking-wide text-highlighted sm:text-4xl">
+              VeriTix
+            </p>
+            <span class="hidden rounded-md bg-lavender/12 px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-lavender sm:inline-block">
+              Backoffice
+            </span>
+          </div>
         </NuxtLink>
 
         <div class="flex items-center lg:hidden">

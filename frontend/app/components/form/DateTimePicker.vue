@@ -142,7 +142,7 @@ const controlClass = computed(() => {
 })
 
 const panelClass = computed(() => {
-  return 'z-[9999] w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-lavender/45 bg-elevated p-3 shadow-[0_16px_32px_-24px_rgba(86,29,164,0.28)] ring-1 ring-lavender/15'
+  return 'z-[10050] w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-lavender/45 bg-elevated p-3 shadow-[0_16px_32px_-24px_rgba(86,29,164,0.28)] ring-1 ring-lavender/15'
 })
 
 const calendarDays = computed(() => buildCalendarDays(viewMonth.value))

@@ -6,6 +6,8 @@ import type {
   BackofficeEventPayload,
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
+  BackofficeVenuePayload,
+  BackofficeVenueRecord,
 } from '~~/shared/types'
 import {
   areStringArraysEqual,
@@ -159,5 +161,55 @@ export function hasUserSemanticChanges(user: BackofficeUserRecord, payload: Back
     || payload.role !== comparableUser.role
     || payload.isActive !== comparableUser.isActive
     || payload.emailVerified !== comparableUser.emailVerified
+  )
+}
+
+export function normalizeVenuePayload(payload: BackofficeVenuePayload): BackofficeVenuePayload {
+  return {
+    name: normalizeRequiredString(payload.name),
+    slug: normalizeRequiredString(payload.slug),
+    address: normalizeRequiredString(payload.address),
+    city: normalizeRequiredString(payload.city),
+    state: payload.state === '' ? null : (payload.state ?? undefined),
+    country: normalizeOptionalString(payload.country) || 'ES',
+    capacity: payload.capacity != null ? Number(payload.capacity) : null,
+    type: payload.type,
+    isActive: payload.isActive,
+    imageUrl: payload.imageUrl === '' ? null : (payload.imageUrl ?? undefined),
+    website: payload.website === '' ? null : (payload.website ?? undefined),
+  }
+}
+
+function toVenueComparablePayload(venue: BackofficeVenueRecord): BackofficeVenuePayload {
+  return normalizeVenuePayload({
+    name: venue.name,
+    slug: venue.slug,
+    address: venue.address,
+    city: venue.city,
+    state: venue.state,
+    country: venue.country,
+    capacity: venue.capacity,
+    type: venue.type,
+    isActive: venue.isActive,
+    imageUrl: venue.imageUrl,
+    website: venue.website,
+  })
+}
+
+export function hasVenueSemanticChanges(venue: BackofficeVenueRecord, payload: BackofficeVenuePayload): boolean {
+  const comparableVenue = toVenueComparablePayload(venue)
+
+  return (
+    payload.name !== comparableVenue.name
+    || payload.slug !== comparableVenue.slug
+    || payload.address !== comparableVenue.address
+    || payload.city !== comparableVenue.city
+    || payload.state !== comparableVenue.state
+    || payload.country !== comparableVenue.country
+    || payload.capacity !== comparableVenue.capacity
+    || payload.type !== comparableVenue.type
+    || payload.isActive !== comparableVenue.isActive
+    || payload.imageUrl !== comparableVenue.imageUrl
+    || payload.website !== comparableVenue.website
   )
 }

@@ -27,7 +27,7 @@ onMounted(async () => {
   if (!eventId.value) { return }
   loadingTicketTypes.value = true
   try {
-    ticketTypes.value = await useTicketTypesRepository().getByEvent(eventId.value)
+    ticketTypes.value = await useTicketTypesRepository().listByEvent(eventId.value)
   }
   catch {
     // Silent — no ticket types available

@@ -6,17 +6,20 @@ import type {
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
+import type { TicketType } from '~~/shared/types/domain'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
 import { useEventArtistsRepository } from '@/repositories/eventArtistsRepository'
+import { useTicketTypesRepository } from '@/repositories/ticketTypesRepository'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo evento | Backoffice VeriTix' })
 
 const { createEvent: createBackofficeEvent, getFormOptions } = useBackofficeEventsRepository()
 const { addToEvent } = useEventArtistsRepository()
+const { create: createTicketType } = useTicketTypesRepository()
 const { notifyApiError, notifySuccess } = useAppNotifications()
 
-const formRef = ref<{ pendingArtists: EventArtistEntry[] } | null>(null)
+const formRef = ref<{ pendingArtists: EventArtistEntry[], pendingTicketTypes: TicketType[] } | null>(null)
 const venues = ref<VenueOption[]>([])
 const genres = ref<GenreOption[]>([])
 const formats = ref<BackofficeOption[]>([])
@@ -58,6 +61,7 @@ async function createEvent(payload: BackofficeEventPayload) {
     const created = await createBackofficeEvent(payload)
 
     const pendingArtists = formRef.value?.pendingArtists ?? []
+    const pendingTicketTypes = formRef.value?.pendingTicketTypes ?? []
 
     if (pendingArtists.length > 0 && created.id) {
       await Promise.all(
@@ -66,6 +70,23 @@ async function createEvent(payload: BackofficeEventPayload) {
             artistId: entry.artist.id,
             role: entry.role,
             performanceOrder: index + 1,
+          }),
+        ),
+      )
+    }
+
+    if (pendingTicketTypes.length > 0 && created.id) {
+      await Promise.all(
+        pendingTicketTypes.map(tt =>
+          createTicketType(created.id, {
+            name: tt.name,
+            description: tt.description ?? undefined,
+            price: tt.price,
+            totalQuantity: tt.totalQuantity,
+            maxPerUser: tt.maxPerUser,
+            isActive: tt.isActive,
+            saleStartDate: tt.saleStartDate ?? undefined,
+            saleEndDate: tt.saleEndDate ?? undefined,
           }),
         ),
       )

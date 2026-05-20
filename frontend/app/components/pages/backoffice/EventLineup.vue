@@ -141,10 +141,10 @@ watch(() => props.eventId, (id) => {
 </script>
 
 <template>
-  <div class="border-t border-default/55 pt-6">
-    <UiMetaLabel as="span">
+  <div class="border-t border-muted/15 pt-6">
+    <h3 class="text-base font-semibold text-highlighted sm:text-lg">
       Lineup de artistas
-    </UiMetaLabel>
+    </h3>
     <div v-if="loadingLineup" class="mt-4 flex items-center gap-3 py-6">
       <BaseIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-lavender" />
       <span class="text-sm text-toned">Cargando lineup...</span>

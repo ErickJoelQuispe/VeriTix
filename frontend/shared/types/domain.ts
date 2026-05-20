@@ -105,6 +105,7 @@ export interface TicketType {
   name: string
   description: string | null
   price: number
+  totalQuantity: number
   availableQuantity: number
   maxPerUser: number
   isActive: boolean

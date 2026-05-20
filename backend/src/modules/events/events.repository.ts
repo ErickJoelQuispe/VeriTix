@@ -423,8 +423,10 @@ export class EventsRepository {
   async findTopEvents(limit: number): Promise<TopEventRow[]> {
     // Prisma no soporta ORDER BY sobre un campo agregado de relación,
     // así que traemos los datos y ordenamos en memoria.
-    // El take(limit * 4) garantiza margen para eventos sin ventas.
+    // Sin orderBy ni take reducido: rankeamos entre TODOS los publicados,
+    // no solo los más recientes.
     const events = await this.prisma.event.findMany({
+      where: { status: EventStatus.PUBLISHED },
       select: {
         id: true,
         name: true,
@@ -440,8 +442,7 @@ export class EventsRepository {
           },
         },
       },
-      orderBy: { eventDate: 'desc' },
-      take: limit * 4,
+      take: 200,
     });
 
     const mapped = events.map((e) => {

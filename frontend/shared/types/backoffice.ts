@@ -127,6 +127,7 @@ export interface BackofficeRequiresAttentionRecord {
   name: string
   status: string
   eventDate: string | null
+  imageUrl: string | null
   issues: string[]
 }
 
@@ -234,6 +235,19 @@ export interface BackofficeArtistPayload {
   genreIds?: string[]
 }
 
+export type VenueType = 'ESTADIO' | 'ARENA' | 'FORO' | 'AUDITORIO' | 'CLUB' | 'TEATRO' | 'AL_AIRE_LIBRE' | 'OTRO'
+
+export const VENUE_TYPE_LABELS: Record<VenueType, string> = {
+  ESTADIO: 'Estadio',
+  ARENA: 'Arena',
+  FORO: 'Foro',
+  AUDITORIO: 'Auditorio',
+  CLUB: 'Club',
+  TEATRO: 'Teatro',
+  AL_AIRE_LIBRE: 'Al aire libre',
+  OTRO: 'Otro',
+}
+
 export interface BackofficeVenueRecord {
   id: string
   name: string
@@ -243,12 +257,26 @@ export interface BackofficeVenueRecord {
   state: string | null
   country: string
   capacity: number | null
-  type: string
+  type: VenueType
   isActive: boolean
   imageUrl: string | null
   website: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface BackofficeVenuePayload {
+  name: string
+  slug: string
+  address: string
+  city: string
+  state?: string | null
+  country?: string
+  capacity?: number | null
+  type?: VenueType
+  isActive?: boolean
+  imageUrl?: string | null
+  website?: string | null
 }
 
 export interface BackofficeVenueListQuery {

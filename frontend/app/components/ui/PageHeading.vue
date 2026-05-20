@@ -19,7 +19,9 @@ const props = withDefaults(
   },
 )
 
+const slots = useSlots()
 const hasAction = computed(() => Boolean(props.actionLabel && props.actionTo))
+const hasActionsSlot = computed(() => Boolean(slots.actions))
 </script>
 
 <template>
@@ -57,17 +59,22 @@ const hasAction = computed(() => Boolean(props.actionLabel && props.actionTo))
         </p>
       </div>
 
-      <BaseButton
-        v-if="hasAction"
-        :to="actionTo"
-        variant="secondary"
-        size="sm"
-        trailing-icon="i-lucide-arrow-right"
+      <div
+        v-if="hasActionsSlot || hasAction"
         class="shrink-0"
         :class="center ? 'mx-auto' : 'lg:ml-auto'"
       >
-        {{ actionLabel }}
-      </BaseButton>
+        <slot name="actions">
+          <BaseButton
+            :to="actionTo"
+            variant="secondary"
+            size="md"
+            trailing-icon="i-lucide-arrow-right"
+          >
+            {{ actionLabel }}
+          </BaseButton>
+        </slot>
+      </div>
     </div>
   </header>
 </template>
