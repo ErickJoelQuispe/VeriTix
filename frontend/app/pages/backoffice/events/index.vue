@@ -456,11 +456,11 @@ onMounted(() => {
               />
             </div>
 
-            <div v-if="catalogMode === 'review'" class="flex flex-col gap-3 border-y border-default/70 py-3 text-sm text-toned sm:flex-row sm:items-center sm:justify-between">
+            <div v-if="catalogMode === 'review'" class="flex flex-col gap-3 border-y border-warning/20 py-3 text-sm text-toned sm:flex-row sm:items-center sm:justify-between">
               <p class="font-medium text-highlighted">
                 {{ catalogSummary }}
               </p>
-              <BaseBadge kind="info" size="sm">
+              <BaseBadge kind="status" color="warning" size="sm">
                 {{ priorityIssueCount }} alertas
               </BaseBadge>
             </div>
@@ -502,7 +502,7 @@ onMounted(() => {
                 </div>
 
                 <div class="absolute right-3 top-3 z-10">
-                  <BaseBadge kind="status" :color="getEventStatusColor(event.status)" size="sm">
+                  <BaseBadge kind="status" :color="catalogMode === 'review' ? 'warning' : getEventStatusColor(event.status)" size="sm">
                     {{ event.status }}
                   </BaseBadge>
                 </div>

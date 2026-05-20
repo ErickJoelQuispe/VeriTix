@@ -179,7 +179,7 @@ export function createCatalogListItems({
         to: `/backoffice/events/${event.id}/edit`,
         eventDate: event.eventDate,
         status: event.status,
-        imageUrl: publishedMatch?.imageUrl ?? null,
+        imageUrl: event.imageUrl,
         venueName: publishedMatch?.venue.name ?? '',
         venueCity: publishedMatch?.venue.city ?? '',
         formatName: publishedMatch?.format?.name ?? '',

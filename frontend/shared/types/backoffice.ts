@@ -127,6 +127,7 @@ export interface BackofficeRequiresAttentionRecord {
   name: string
   status: string
   eventDate: string | null
+  imageUrl: string | null
   issues: string[]
 }
 

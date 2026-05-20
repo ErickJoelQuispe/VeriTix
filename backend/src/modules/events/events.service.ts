@@ -357,6 +357,7 @@ export class EventsService {
           name: row.name,
           status: row.status,
           eventDate: row.eventDate,
+          imageUrl: row.imageUrl,
           issues,
         });
       }

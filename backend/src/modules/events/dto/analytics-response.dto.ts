@@ -38,6 +38,9 @@ export class RequiresAttentionResponseDto {
   @ApiPropertyOptional({ example: '2026-12-20T21:00:00.000Z', nullable: true })
   eventDate: Date;
 
+  @ApiPropertyOptional({ example: 'https://cdn.example.com/event.jpg', nullable: true })
+  imageUrl: string | null;
+
   @ApiProperty({
     type: [String],
     example: ['Sin imagen', 'Sin artistas'],
