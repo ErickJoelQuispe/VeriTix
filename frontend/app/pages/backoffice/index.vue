@@ -102,7 +102,7 @@ const metrics = computed(() => {
       label: 'Requieren atención',
       value: attentionCount,
       hint: attentionCount > 0 ? 'pendientes de revisión' : 'todo en orden',
-      icon: 'i-lucide-alert-triangle',
+      icon: 'i-lucide-triangle-alert',
       variant: attentionCount > 0 ? 'error' as const : 'success' as const,
     },
   ]
@@ -122,7 +122,7 @@ function occupancyColor(rate: number): string {
 
 // --- Revenue bar ---
 const maxRevenue = computed(() => {
-  if (publishedTopEvents.value.length === 0) return 1
+  if (publishedTopEvents.value.length === 0) { return 1 }
   return Math.max(...publishedTopEvents.value.map(e => e.revenue), 1)
 })
 
@@ -163,13 +163,6 @@ function statCardIconBoxClass(variant: string): string {
   if (variant === 'error') { return `${base} border-error/20 bg-error/10 text-error` }
 
   return `${base} border-default bg-default/60 text-muted`
-}
-
-function attentionToneClass(tone: 'warning' | 'success' | 'error' | 'default'): string {
-  if (tone === 'warning') { return 'border-warning/20 bg-warning/10 text-warning' }
-  if (tone === 'success') { return 'border-success/20 bg-success/10 text-success' }
-  if (tone === 'error') { return 'border-error/20 bg-error/10 text-error' }
-  return 'border-default bg-elevated text-muted'
 }
 
 function attentionItemTone(status: string): 'warning' | 'success' | 'error' | 'default' {
@@ -307,7 +300,7 @@ onMounted(() => {
                 </UiMetaLabel>
 
                 <div class="space-y-1">
-                  <p class="text-3xl font-semibold tracking-tight text-highlighted">
+                  <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
                     {{ metric.value }}
                   </p>
                   <p v-if="metric.hint" class="text-sm text-toned">
@@ -324,7 +317,7 @@ onMounted(() => {
         </div>
 
         <!-- Two-column: Top Events + Attention -->
-        <div class="grid gap-6 xl:grid-cols-2">
+        <div class="grid gap-6 lg:grid-cols-2">
           <!-- Top Events -->
           <PagesBackofficeOverviewPanel title="Top eventos" description="Mayor revenue estimado." variant="glass">
             <div v-if="pendingTop" class="space-y-3">
@@ -342,9 +335,9 @@ onMounted(() => {
               <div
                 v-for="event in publishedTopEvents"
                 :key="event.id"
-                class="flex items-start gap-3 rounded-xl border border-default/60 bg-default/25 px-4 py-3"
+                class="flex items-start gap-3 rounded-xl border border-default/60 bg-default/25 p-3 sm:px-4 sm:py-3"
               >
-                <div class="size-12 shrink-0 overflow-hidden rounded-lg border border-default/40 bg-default/50">
+                <div class="size-10 shrink-0 overflow-hidden rounded-lg border border-default/40 bg-default/50 sm:size-12">
                   <img
                     v-if="topEventImage(event.id)"
                     :src="topEventImage(event.id)!"
@@ -352,11 +345,11 @@ onMounted(() => {
                     class="size-full object-cover"
                   >
                   <div v-else class="flex size-full items-center justify-center text-muted">
-                    <BaseIcon name="i-lucide-image" class="size-5" />
+                    <BaseIcon name="i-lucide-image" class="size-4 sm:size-5" />
                   </div>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="flex items-center justify-between gap-3 mb-1">
+                  <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 mb-1">
                     <NuxtLink
                       :to="`/backoffice/events/${event.id}/edit`"
                       class="text-sm font-semibold text-highlighted transition-colors duration-150 hover:text-primary truncate"
@@ -368,14 +361,20 @@ onMounted(() => {
                     </span>
                   </div>
                   <div class="flex items-center gap-2 text-xs text-toned mb-2">
-                    <BaseIcon name="i-lucide-map-pin" class="size-3" />
-                    <span>{{ event.venue.name }}</span>
+                    <BaseIcon name="i-lucide-map-pin" class="size-3 shrink-0" />
+                    <span class="truncate">{{ event.venue.name }}</span>
                   </div>
-                  <div class="h-2 w-full rounded-full bg-default/30">
-                    <div
-                      class="h-full rounded-full bg-success transition-all duration-500"
-                      :style="{ width: `${revenueBarWidth(event.revenue)}%` }"
-                    />
+                  <div
+                    v-if="event.revenue > 0"
+                    class="flex items-center gap-2"
+                  >
+                    <div class="h-1.5 flex-1 rounded-full bg-default/15">
+                      <div
+                        class="h-full rounded-full bg-success transition-all duration-500"
+                        :style="{ width: `${revenueBarWidth(event.revenue)}%` }"
+                      />
+                    </div>
+                    <span class="shrink-0 text-xs tabular-nums text-toned">{{ revenueBarWidth(event.revenue) }}%</span>
                   </div>
                 </div>
               </div>
@@ -399,10 +398,10 @@ onMounted(() => {
               <div
                 v-for="item in attentionItems"
                 :key="item.id"
-                class="rounded-xl border border-default/60 bg-default/25 px-4 py-3"
+                class="rounded-xl border border-default/60 bg-default/25 p-3 sm:px-4 sm:py-3"
               >
                 <div class="flex items-start justify-between gap-2 mb-2">
-                  <div class="flex items-center gap-2 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2 min-w-0">
                     <NuxtLink
                       :to="`/backoffice/events/${item.id}/edit`"
                       class="text-sm font-semibold text-highlighted transition-colors duration-150 hover:text-primary truncate"
@@ -413,15 +412,6 @@ onMounted(() => {
                       {{ getStatusLabel(item.status) }}
                     </BaseBadge>
                   </div>
-                  <BaseButton
-                    variant="outlined"
-                    size="xs"
-                    :to="`/backoffice/events/${item.id}/edit`"
-                    trailing-icon="i-lucide-arrow-right"
-                    class="shrink-0"
-                  >
-                    Editar
-                  </BaseButton>
                 </div>
                 <ul class="space-y-1">
                   <li
@@ -437,6 +427,16 @@ onMounted(() => {
                     <span>{{ issue }}</span>
                   </li>
                 </ul>
+                <div class="mt-3 flex justify-end">
+                  <BaseButton
+                    variant="outlined"
+                    size="xs"
+                    :to="`/backoffice/events/${item.id}/edit`"
+                    trailing-icon="i-lucide-arrow-right"
+                  >
+                    Editar
+                  </BaseButton>
+                </div>
               </div>
             </div>
           </PagesBackofficeOverviewPanel>
@@ -457,7 +457,7 @@ onMounted(() => {
             action-to="/backoffice/events/new"
           />
 
-          <div v-else class="overflow-hidden rounded-xl border border-default/65">
+          <div v-else class="overflow-x-auto rounded-xl border border-default/65">
             <table class="w-full border-collapse text-sm">
               <thead>
                 <tr class="border-b border-default/60 text-left text-xs tracking-wide text-muted uppercase">
