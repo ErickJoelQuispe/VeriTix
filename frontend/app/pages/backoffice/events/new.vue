@@ -2,17 +2,24 @@
 import type {
   BackofficeEventPayload,
   BackofficeOption,
+  EventArtistEntry,
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
+import type { TicketType } from '~~/shared/types/domain'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
+import { useEventArtistsRepository } from '@/repositories/eventArtistsRepository'
+import { useTicketTypesRepository } from '@/repositories/ticketTypesRepository'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
 useSeoMeta({ title: 'Nuevo evento | Backoffice VeriTix' })
 
 const { createEvent: createBackofficeEvent, getFormOptions } = useBackofficeEventsRepository()
+const { addToEvent } = useEventArtistsRepository()
+const { create: createTicketType } = useTicketTypesRepository()
 const { notifyApiError, notifySuccess } = useAppNotifications()
 
+const formRef = ref<{ pendingArtists: EventArtistEntry[], pendingTicketTypes: TicketType[] } | null>(null)
 const venues = ref<VenueOption[]>([])
 const genres = ref<GenreOption[]>([])
 const formats = ref<BackofficeOption[]>([])
@@ -51,7 +58,39 @@ async function createEvent(payload: BackofficeEventPayload) {
   submitting.value = true
 
   try {
-    await createBackofficeEvent(payload)
+    const created = await createBackofficeEvent(payload)
+
+    const pendingArtists = formRef.value?.pendingArtists ?? []
+    const pendingTicketTypes = formRef.value?.pendingTicketTypes ?? []
+
+    if (pendingArtists.length > 0 && created.id) {
+      await Promise.all(
+        pendingArtists.map((entry, index) =>
+          addToEvent(created.id, {
+            artistId: entry.artist.id,
+            role: entry.role,
+            performanceOrder: index + 1,
+          }),
+        ),
+      )
+    }
+
+    if (pendingTicketTypes.length > 0 && created.id) {
+      await Promise.all(
+        pendingTicketTypes.map(tt =>
+          createTicketType(created.id, {
+            name: tt.name,
+            description: tt.description ?? undefined,
+            price: tt.price,
+            totalQuantity: tt.totalQuantity,
+            maxPerUser: tt.maxPerUser,
+            isActive: tt.isActive,
+            saleStartDate: tt.saleStartDate ?? undefined,
+            saleEndDate: tt.saleEndDate ?? undefined,
+          }),
+        ),
+      )
+    }
 
     notifySuccess('Evento creado correctamente.', { id: 'admin-events-create-success' })
     await navigateTo('/backoffice/events')
@@ -73,12 +112,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Nuevo evento" description="Crea un evento y dejalo listo para publicar." />
-          <BaseButton to="/backoffice/events" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
-            Volver a eventos
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Nuevo evento"
+          description="Crea un evento y dejalo listo para publicar."
+          action-label="Volver"
+          action-to="/backoffice/events"
+        />
         <PagesBackofficeOverviewPanel
           title="Datos del evento"
           description="Completa los campos principales para crear la ficha."
@@ -109,6 +149,7 @@ onMounted(() => {
 
           <PagesBackofficeEventForm
             v-else
+            ref="formRef"
             v-model:dirty="isFormDirty"
             :venues="venues"
             :genres="genres"

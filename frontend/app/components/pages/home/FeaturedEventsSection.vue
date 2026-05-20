@@ -21,10 +21,10 @@ const featuredEvents = computed(() => {
 
       <div
         v-if="pending"
-        class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+        class="mt-8 grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3"
       >
         <div v-for="i in 3" :key="`skeleton-${i}`" class="space-y-4">
-          <BaseSkeleton class="h-96 rounded-sm" />
+          <BaseSkeleton class="aspect-[4/5] rounded-sm sm:aspect-[4/4.2]" />
           <BaseSkeleton class="h-4 w-28" />
           <BaseSkeleton class="h-8 w-4/5" />
           <BaseSkeleton class="h-4 w-3/5" />
@@ -32,7 +32,7 @@ const featuredEvents = computed(() => {
       </div>
 
       <template v-else>
-        <div v-if="featuredEvents.length" class="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div v-if="featuredEvents.length" class="mt-8 grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
           <PagesHomeTransmissionCard
             v-for="(event, index) in featuredEvents"
             :key="event.id"

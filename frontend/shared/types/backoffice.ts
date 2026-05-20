@@ -12,7 +12,7 @@ export interface BackofficeOption {
   name: string
 }
 
-export type BackofficeFilterVisibility = 'city' | 'artistName' | 'pageSize' | 'genre' | 'format' | 'dateRange'
+export type BackofficeFilterVisibility = 'city' | 'artistName' | 'pageSize' | 'genre' | 'format' | 'role' | 'status' | 'dateRange'
 
 export interface BackofficeFilterOption {
   label: string
@@ -40,6 +40,8 @@ export interface BackofficeFilterSelectControl {
   modelValue: string | number
   items: BackofficeFilterOption[]
   size?: 'sm' | 'md' | 'lg'
+  placeholderValue?: string | number
+  icon?: string
   disabled?: boolean
   onUpdate: (value: string | number) => void
 }
@@ -77,6 +79,25 @@ export interface BackofficeEventDetail {
   genres: EventGenreSummary[]
 }
 
+export type ArtistRole = 'HEADLINER' | 'SPECIAL_GUEST' | 'OPENER'
+
+export interface EventArtistSummary {
+  id: string
+  name: string
+  slug: string
+  imageUrl: string | null
+  country: string | null
+}
+
+export interface EventArtistEntry {
+  id: string
+  role: ArtistRole
+  performanceOrder: number
+  performanceTime: string | Date | null
+  eventId: string
+  artist: EventArtistSummary
+}
+
 export interface BackofficeEventPayload {
   name: string
   description?: string
@@ -106,6 +127,7 @@ export interface BackofficeRequiresAttentionRecord {
   name: string
   status: string
   eventDate: string | null
+  imageUrl: string | null
   issues: string[]
 }
 
@@ -213,6 +235,19 @@ export interface BackofficeArtistPayload {
   genreIds?: string[]
 }
 
+export type VenueType = 'ESTADIO' | 'ARENA' | 'FORO' | 'AUDITORIO' | 'CLUB' | 'TEATRO' | 'AL_AIRE_LIBRE' | 'OTRO'
+
+export const VENUE_TYPE_LABELS: Record<VenueType, string> = {
+  ESTADIO: 'Estadio',
+  ARENA: 'Arena',
+  FORO: 'Foro',
+  AUDITORIO: 'Auditorio',
+  CLUB: 'Club',
+  TEATRO: 'Teatro',
+  AL_AIRE_LIBRE: 'Al aire libre',
+  OTRO: 'Otro',
+}
+
 export interface BackofficeVenueRecord {
   id: string
   name: string
@@ -222,12 +257,26 @@ export interface BackofficeVenueRecord {
   state: string | null
   country: string
   capacity: number | null
-  type: string
+  type: VenueType
   isActive: boolean
   imageUrl: string | null
   website: string | null
   createdAt: string
   updatedAt: string
+}
+
+export interface BackofficeVenuePayload {
+  name: string
+  slug: string
+  address: string
+  city: string
+  state?: string | null
+  country?: string
+  capacity?: number | null
+  type?: VenueType
+  isActive?: boolean
+  imageUrl?: string | null
+  website?: string | null
 }
 
 export interface BackofficeVenueListQuery {

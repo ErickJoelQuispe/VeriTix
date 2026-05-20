@@ -48,7 +48,7 @@ function closeOpen() {
   open.value = false
 }
 
-function onDocumentPointerDown(event: MouseEvent) {
+function onDocumentPointerDown(event: PointerEvent) {
   if (!open.value || !root.value) {
     return
   }
@@ -63,11 +63,11 @@ function onDocumentPointerDown(event: MouseEvent) {
 }
 
 onMounted(() => {
-  document.addEventListener('mousedown', onDocumentPointerDown)
+  document.addEventListener('pointerdown', onDocumentPointerDown)
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('mousedown', onDocumentPointerDown)
+  document.removeEventListener('pointerdown', onDocumentPointerDown)
 })
 </script>
 

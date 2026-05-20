@@ -13,6 +13,7 @@ import {
   Post,
   Query,
   Sse,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -27,6 +28,7 @@ import {
 } from '@nestjs/swagger';
 import { Observable, map } from 'rxjs';
 import { CurrentUser, Public, Roles } from '@common/decorators';
+import { OptionalJwtAuthGuard } from '@common/guards';
 import { PaginatedResponse, PaginationQueryDto } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import { Role } from '../../generated/prisma/enums';
@@ -173,7 +175,7 @@ export class EventsController {
     );
   }
 
-  // NOTE: GET /events/:id/reviews MUST be before GET /events/:id
+  // NOTE: GET /events/:id/reviews and GET /events/:id/admin-detail MUST be before GET /events/:id
   @Get(':id/reviews')
   @Public()
   @ApiOperation({ summary: 'List public reviews for an event (no auth required)' })
@@ -185,8 +187,26 @@ export class EventsController {
     return this.reviewsService.findByEvent(eventId, { page: query.page, limit: query.limit });
   }
 
+  @Get(':id/admin-detail')
+  @Roles(Role.ADMIN, Role.CREATOR)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Obtener evento por ID para backoffice (admin o creator propietario)' })
+  @ApiOkResponse({
+    description: 'Evento encontrado para administración.',
+    type: EventDetailResponseDto,
+  })
+  @ApiNotFoundResponse({ description: 'Evento no encontrado.' })
+  @ApiForbiddenResponse({ description: 'No tenés permiso para ver este evento.' })
+  findOneAdminDetail(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<EventDetailResponseDto> {
+    return this.eventsService.findOneAdminDetail(id, user);
+  }
+
   @Get(':id')
   @Public()
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Obtener evento por ID (público)' })
   @ApiOkResponse({
     description: 'Evento encontrado.',

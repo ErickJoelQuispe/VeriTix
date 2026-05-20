@@ -142,14 +142,7 @@ watch(() => [
 
     <FormTextarea v-model="state.bio" name="bio" label="Biografía" placeholder="Describí al artista" />
 
-    <div class="grid gap-5 lg:grid-cols-3">
-      <FormField
-        v-model="state.imageUrl"
-        name="imageUrl"
-        label="Imagen"
-        type="url"
-        placeholder="https://..."
-      />
+    <div class="grid gap-5 lg:grid-cols-2">
       <FormField
         v-model="state.country"
         name="country"
@@ -165,12 +158,15 @@ watch(() => [
       />
     </div>
 
-    <FormSelect
+    <div class="border-t border-default/55 pt-6">
+      <FormImageUpload v-model="state.imageUrl" name="imageUrl" label="Imagen" folder="artists" />
+    </div>
+
+    <FormTagSelect
       v-model="state.genreIds"
       name="genreIds"
       label="Géneros"
       :items="genreOptions"
-      multiple
       placeholder="Seleccioná géneros"
     />
 

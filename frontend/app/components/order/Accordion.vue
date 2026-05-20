@@ -255,7 +255,7 @@ onMounted(() => {
           {{ formattedDate }}
         </span>
 
-        <BaseIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted transition-transform duration-200 [[open]_&]:rotate-180" />
+        <BaseIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted transition-transform duration-200 in-[[open]]:rotate-180" />
       </summary>
 
       <div class="border-t border-default/65 px-4 py-4 sm:px-5">

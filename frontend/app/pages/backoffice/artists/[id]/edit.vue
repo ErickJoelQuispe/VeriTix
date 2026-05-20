@@ -97,12 +97,13 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Editar artista" description="Actualiza la ficha del artista y su información pública." />
-          <BaseButton to="/backoffice/artists" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
-            Volver a artistas
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Editar artista"
+          description="Actualiza la ficha del artista y su información pública."
+          action-label="Volver"
+          action-to="/backoffice/artists"
+        />
         <PagesBackofficeOverviewPanel
           title="Datos del artista"
           description="Edita identidad, metadata y clasificación por género."

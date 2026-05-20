@@ -18,6 +18,9 @@ const artists = ref<BackofficeArtistRecord[]>([])
 const genres = ref<GenreOption[]>([])
 const pending = ref(true)
 const deletingId = ref('')
+const deletingTarget = ref('')
+const deleteModalOpen = ref(false)
+const actionMenuOpen = reactive<Record<string, boolean>>({})
 
 const page = ref(1)
 const pageSize = ref(12)
@@ -40,8 +43,10 @@ const statusOptions: BackofficeOption[] = [
 const filters = reactive({
   search: '',
   genreId: '',
-  isActive: '',
+  status: '',
 })
+
+const filtersOpen = ref(false)
 
 const genreFilterOptions = computed<BackofficeOption[]>(() => {
   return genres.value.map(genre => ({
@@ -55,9 +60,9 @@ const toolbarChips = computed(() => {
   const reviewArtists = Math.max(artists.value.length - activeArtists, 0)
 
   return [
-    { label: 'visibles', value: meta.value.total },
-    { label: 'activos', value: activeArtists },
-    { label: 'revisión', value: reviewArtists },
+    { label: 'visibles', value: meta.value.total, icon: 'i-lucide-chart-column' },
+    { label: 'activos', value: activeArtists, icon: 'i-lucide-badge-check' },
+    { label: 'revisión', value: reviewArtists, icon: 'i-lucide-circle-alert' },
   ]
 })
 
@@ -90,7 +95,7 @@ async function loadArtists(targetPage = page.value) {
       pageSize: pageSize.value,
       search: filters.search,
       genreId: filters.genreId,
-      isActive: filters.isActive,
+      isActive: filters.status,
     })
 
     artists.value = response.data
@@ -113,13 +118,26 @@ function applyFilters() {
 function resetFilters() {
   filters.search = ''
   filters.genreId = ''
-  filters.isActive = ''
+  filters.status = ''
   page.value = 1
   void loadArtists(1)
 }
 
 function goToPage(nextPage: number) {
   void loadArtists(nextPage)
+}
+
+function confirmDelete(artistId: string) {
+  deletingTarget.value = artistId
+  deleteModalOpen.value = true
+}
+
+function handleDeleteConfirm() {
+  if (deletingTarget.value) {
+    removeArtist(deletingTarget.value)
+  }
+
+  deleteModalOpen.value = false
 }
 
 async function removeArtist(artistId: string) {
@@ -148,69 +166,121 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-artists-page">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Artistas" description="Buscá artistas por nombre, género, estado y actividad." />
-          <BaseButton
-            to="/backoffice/artists/new"
-            variant="primary"
-            size="sm"
-            leading-icon="i-lucide-plus"
-          >
-            Nuevo artista
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Artistas"
+          description="Buscá artistas por nombre, género, estado y actividad."
+          action-label="Nuevo artista"
+          action-to="/backoffice/artists/new"
+        />
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
           title="Lista de artistas"
-          description="Filtrá por nombre, género, estado y cantidad por página sin duplicar controles."
           variant="glass"
         >
           <template #actions>
             <div class="flex items-center gap-3 sm:self-center">
-              <BaseButton variant="outlined" size="md" :disabled="pending" @click="resetFilters">
-                Resetear
+              <BaseButton
+                variant="outlined"
+                size="sm"
+                class="lg:hidden"
+                leading-icon="i-lucide-sliders-horizontal"
+                @click="filtersOpen = !filtersOpen"
+              >
+                {{ filtersOpen ? 'Ocultar filtros' : 'Mostrar filtros' }}
               </BaseButton>
-              <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
-                Aplicar
-              </BaseButton>
+
+              <div class="hidden gap-3 lg:flex">
+                <BaseButton variant="primary" size="md" :loading="pending" @click="applyFilters">
+                  Buscar
+                </BaseButton>
+                <BaseButton variant="reversed" size="md" :disabled="pending" @click="resetFilters">
+                  Limpiar filtros
+                </BaseButton>
+              </div>
+            </div>
+          </template>
+
+          <template #summary>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <BaseBadge
+                v-for="item in toolbarChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
+              </BaseBadge>
             </div>
           </template>
 
           <div class="space-y-6">
-            <PagesBackofficeFiltersBar
-              v-model:search="filters.search"
-              v-model:page-size="pageSize"
-              v-model:genre-id="filters.genreId"
-              v-model:format-id="filters.isActive"
-              :page-size-options="pageSizeOptions"
-              :genres="genreFilterOptions"
-              :formats="statusOptions"
-              :visible-filters="['pageSize', 'genre', 'format']"
-              search-label="Buscar artista"
-              search-placeholder="Nombre del artista"
-              genre-label="Género"
-              genre-name="genreId"
-              format-label="Estado"
-              format-name="isActive"
-              :loading="pending"
-              class="w-full"
-            />
+            <div class="space-y-6 lg:block" :class="[filtersOpen ? 'block' : 'hidden']">
+              <PagesBackofficeFiltersBar
+                v-model:search="filters.search"
+                v-model:page-size="pageSize"
+                v-model:genre-id="filters.genreId"
+                v-model:status="filters.status"
+                :page-size-options="pageSizeOptions"
+                :genres="genreFilterOptions"
+                :statuses="statusOptions"
+                :visible-filters="['pageSize', 'genre', 'status']"
+                search-label="Buscar artista"
+                search-placeholder="Nombre del artista"
+                genre-label="Género"
+                genre-name="genreId"
+                status-label="Estado"
+                status-all-label="Todos los estados"
+                status-name="status"
+                :loading="pending"
+                class="w-full"
+              />
 
-            <PagesBackofficeToolbarChips :items="toolbarChips" />
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center lg:hidden">
+                <BaseButton
+                  variant="primary"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="pending"
+                  :leading-icon="pending ? undefined : 'i-lucide-search'"
+                  @click="applyFilters"
+                >
+                  Buscar
+                </BaseButton>
 
-            <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
-              <div class="flex w-full flex-wrap items-center justify-center">
-                <BasePagination
-                  :page="meta.page"
-                  :total="meta.total"
-                  :items-per-page="meta.limit"
+                <BaseButton
+                  variant="reversed"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto"
                   :disabled="pending"
-                  :sibling-count="1"
-                  :show-edges="meta.totalPages > 5"
-                  size="lg"
-                  @update:page="goToPage"
-                />
+                  leading-icon="i-lucide-rotate-ccw"
+                  @click="resetFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
               </div>
+            </div>
+
+            <div class="flex justify-center pt-1 pb-1">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                active-color="primary"
+                active-variant="soft"
+                show-edges
+                @update:page="goToPage"
+              />
             </div>
 
             <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -230,8 +300,60 @@ onMounted(() => {
               <div
                 v-for="artist in artists"
                 :key="artist.id"
-                class="group relative block"
+                class="group relative flex flex-col"
               >
+                <div class="absolute right-2 top-2 z-10">
+                  <BasePopover
+                    v-model:open="actionMenuOpen[artist.id]"
+                    :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
+                    class="shrink-0"
+                  >
+                    <BaseButton
+                      variant="secondary"
+                      size="sm"
+                      class="px-3"
+                      :disabled="pending || deletingId === artist.id"
+                      aria-label="Abrir acciones"
+                    >
+                      <BaseIcon name="i-lucide-ellipsis-vertical" class="size-4" aria-hidden="true" />
+                    </BaseButton>
+
+                    <template #content>
+                      <div class="w-56 rounded-3xl border border-white/10 bg-linear-to-b from-elevated/98 to-elevated/88 p-3 shadow-[0_28px_70px_-34px_rgb(0_0_0_/_0.82)] ring-1 ring-black/10 backdrop-blur-2xl">
+                        <div class="space-y-3">
+                          <p class="px-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-toned/55">
+                            Acciones
+                          </p>
+
+                          <BaseButton
+                            variant="primary"
+                            size="md"
+                            block
+                            class="justify-start"
+                            :to="`/backoffice/artists/${artist.id}/edit`"
+                            @click="actionMenuOpen[artist.id] = false"
+                          >
+                            <BaseIcon name="i-lucide-pencil" class="size-4" aria-hidden="true" />
+                            Editar artista
+                          </BaseButton>
+
+                          <BaseButton
+                            variant="danger"
+                            size="md"
+                            block
+                            class="justify-start"
+                            :disabled="deletingId === artist.id"
+                            @click="actionMenuOpen[artist.id] = false; confirmDelete(artist.id)"
+                          >
+                            <BaseIcon name="i-lucide-trash-2" class="size-4" aria-hidden="true" />
+                            Eliminar artista
+                          </BaseButton>
+                        </div>
+                      </div>
+                    </template>
+                  </BasePopover>
+                </div>
+
                 <NuxtLink
                   :to="`/backoffice/artists/${artist.id}/edit`"
                   class="block"
@@ -272,35 +394,39 @@ onMounted(() => {
                     </p>
                   </div>
                 </NuxtLink>
-
-                <!-- Delete action -->
-                <PagesBackofficeDeleteAction
-                  item-label="el artista"
-                  trigger-variant="outlined"
-                  trigger-class="absolute right-1 top-1 opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white p-1.5 rounded transition-opacity"
-                  :pending="deletingId === artist.id"
-                  @confirm="removeArtist(artist.id)"
-                />
               </div>
             </div>
 
-            <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
-              <div class="flex w-full flex-wrap items-center justify-center">
-                <BasePagination
-                  :page="meta.page"
-                  :total="meta.total"
-                  :items-per-page="meta.limit"
-                  :disabled="pending"
-                  :sibling-count="1"
-                  :show-edges="meta.totalPages > 5"
-                  size="lg"
-                  @update:page="goToPage"
-                />
-              </div>
+            <div class="flex justify-center pt-1 pb-1">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                active-color="primary"
+                active-variant="soft"
+                show-edges
+                @update:page="goToPage"
+              />
             </div>
           </div>
         </PagesBackofficeOverviewPanel>
       </div>
     </BaseContainer>
+
+    <UiConfirmModal
+      :open="deleteModalOpen"
+      title="Eliminar artista"
+      description="¿Estás seguro de que querés eliminar este artista? Esta acción no se puede deshacer."
+      confirm-label="Eliminar"
+      cancel-label="Cancelar"
+      :pending="deletingId === deletingTarget"
+      @confirm="handleDeleteConfirm"
+      @cancel="deleteModalOpen = false; deletingTarget = ''"
+    />
   </section>
 </template>

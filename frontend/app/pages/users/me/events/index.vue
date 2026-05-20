@@ -68,21 +68,9 @@ async function handlePageChange(next: number) {
           eyebrow="Mi cuenta"
           title="Mis eventos"
           description="Todos los eventos a los que fuiste o vas a ir."
-        />
-
-        <!-- Filter tabs: Próximos / Pasados -->
-        <UiPanel variant="glass" radius="xl" padding="lg">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="space-y-1">
-              <UiMetaLabel tone="accent">
-                Filtrar por
-              </UiMetaLabel>
-              <p class="text-sm leading-relaxed text-toned">
-                Navegá entre tus próximos eventos o revisá los que ya pasaron.
-              </p>
-            </div>
-
-            <div class="flex gap-2">
+        >
+          <template #actions>
+            <div class="flex flex-wrap items-center gap-2">
               <BaseButton
                 :variant="upcoming ? 'primary' : 'outlined'"
                 size="sm"
@@ -101,8 +89,8 @@ async function handlePageChange(next: number) {
                 Pasados
               </BaseButton>
             </div>
-          </div>
-        </UiPanel>
+          </template>
+        </UiPageHeading>
 
         <!-- Loading skeleton -->
         <div v-if="isLoading" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">

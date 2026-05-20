@@ -14,7 +14,7 @@ watch(() => props.orders, (val) => {
 
 function handleCancelled(orderId: string) {
   const order = localOrders.value.find(o => o.id === orderId)
-  if (order) order.status = 'CANCELLED'
+  if (order) { order.status = 'CANCELLED' }
 }
 </script>
 

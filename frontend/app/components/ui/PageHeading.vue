@@ -19,20 +19,22 @@ const props = withDefaults(
   },
 )
 
+const slots = useSlots()
 const hasAction = computed(() => Boolean(props.actionLabel && props.actionTo))
+const hasActionsSlot = computed(() => Boolean(slots.actions))
 </script>
 
 <template>
   <header class="border-b border-white/16 pb-8 pt-3 sm:pt-4">
     <div
       data-test="page-heading-content"
-      class="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
+      class="relative flex min-w-0 flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
       :class="center ? 'items-center text-center lg:flex-col' : ''"
     >
       <div
         data-test="page-heading-title-group"
-        class="space-y-4"
-        :class="center ? 'mx-auto max-w-4xl' : 'max-w-4xl'"
+        class="min-w-0 space-y-4"
+        :class="center ? 'mx-auto max-w-4xl' : 'max-w-4xl lg:flex-1'"
       >
         <UiMetaLabel
           v-if="eyebrow"
@@ -57,17 +59,22 @@ const hasAction = computed(() => Boolean(props.actionLabel && props.actionTo))
         </p>
       </div>
 
-      <BaseButton
-        v-if="hasAction"
-        :to="actionTo"
-        variant="secondary"
-        size="sm"
-        trailing-icon="i-lucide-arrow-right"
+      <div
+        v-if="hasActionsSlot || hasAction"
         class="shrink-0"
         :class="center ? 'mx-auto' : 'lg:ml-auto'"
       >
-        {{ actionLabel }}
-      </BaseButton>
+        <slot name="actions">
+          <BaseButton
+            :to="actionTo"
+            variant="secondary"
+            size="md"
+            trailing-icon="i-lucide-arrow-right"
+          >
+            {{ actionLabel }}
+          </BaseButton>
+        </slot>
+      </div>
     </div>
   </header>
 </template>

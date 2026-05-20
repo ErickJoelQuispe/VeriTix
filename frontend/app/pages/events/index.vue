@@ -26,6 +26,7 @@ useSeoMeta({
 const searchDraft = ref(readQueryValue(route.query.search))
 const artistDraft = ref(readQueryValue(route.query.artistName))
 const venueDraft = ref(readQueryValue(route.query.venueName))
+const filtersOpen = ref(false)
 
 const filters = computed(() => ({
   search: readQueryValue(route.query.search),
@@ -86,25 +87,6 @@ const meta = computed(
       totalPages: 0,
     },
 )
-
-const selectedGenreLabel = computed(
-  () => genreOptions.value.find(genre => genre.id === filters.value.genreId)?.name ?? '',
-)
-const resultsContext = computed(() => {
-  const segments = [
-    filters.value.search ? `evento: “${filters.value.search}”` : '',
-    filters.value.artistName ? `artista: “${filters.value.artistName}”` : '',
-    filters.value.venueName ? `recinto: “${filters.value.venueName}”` : '',
-    selectedGenreLabel.value ? `género: ${selectedGenreLabel.value}` : '',
-    filters.value.city ? `ciudad: ${filters.value.city}` : '',
-  ].filter(Boolean)
-
-  if (segments.length === 0) {
-    return 'Explorá la cartelera disponible y encontrá el plan adecuado.'
-  }
-
-  return segments.join(' · ')
-})
 
 const activeFilterCount = computed(
   () =>
@@ -213,7 +195,7 @@ async function handlePageChange(page: number) {
             class="relative z-10 space-y-6"
             @submit.prevent="submitSearch"
           >
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div class="space-y-1">
                 <UiMetaLabel as="h2" tone="accent">
                   Filtros
@@ -223,9 +205,34 @@ async function handlePageChange(page: number) {
                 </p>
               </div>
 
-              <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div class="flex flex-col gap-2 lg:hidden">
                 <BaseButton
                   variant="outlined"
+                  type="button"
+                  size="sm"
+                  class="w-full"
+                  :disabled="isPending"
+                  leading-icon="i-lucide-sliders-horizontal"
+                  @click="filtersOpen = !filtersOpen"
+                >
+                  Filtros ({{ activeFilterCount }})
+                </BaseButton>
+              </div>
+
+              <div class="hidden gap-2 lg:flex">
+                <BaseButton
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="isPending"
+                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
+                >
+                  Buscar
+                </BaseButton>
+
+                <BaseButton
+                  variant="reversed"
                   type="button"
                   size="sm"
                   class="w-full sm:w-auto"
@@ -235,21 +242,10 @@ async function handlePageChange(page: number) {
                 >
                   Limpiar filtros
                 </BaseButton>
-
-                <BaseButton
-                  variant="primary"
-                  type="submit"
-                  size="sm"
-                  class="w-full sm:w-auto"
-                  :loading="isPending"
-                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
-                >
-                  Buscar
-                </BaseButton>
               </div>
             </div>
 
-            <div class="space-y-6">
+            <div v-show="filtersOpen" class="space-y-6 lg:hidden">
               <div class="grid gap-4 lg:grid-cols-3">
                 <FormInput
                   v-model="searchDraft"
@@ -266,7 +262,100 @@ async function handlePageChange(page: number) {
                   label="Nombre del artista"
                   name="artistName"
                   placeholder="Buscá por artista"
-                  icon="i-lucide-mic-2"
+                  icon="i-lucide-user-round-search"
+                  size="md"
+                  :disabled="isPending"
+                />
+
+                <FormInput
+                  v-model="venueDraft"
+                  label="Nombre del recinto"
+                  name="venueName"
+                  placeholder="Buscá por recinto"
+                  icon="i-lucide-map-pin"
+                  size="md"
+                  :disabled="isPending"
+                />
+              </div>
+
+              <div class="grid gap-4 lg:grid-cols-2">
+                <FormSelect
+                  label="Género"
+                  name="genreId"
+                  :model-value="filters.genreId || ALL_OPTION_VALUE"
+                  :items="genreItems"
+                  :placeholder-value="ALL_OPTION_VALUE"
+                  icon="i-lucide-music-2"
+                  size="md"
+                  :disabled="isPending"
+                  @update:model-value="
+                    updateFilters({
+                      genreId: $event === ALL_OPTION_VALUE ? '' : String($event),
+                    })
+                  "
+                />
+
+                <FormSelect
+                  label="Ciudad"
+                  name="city"
+                  :model-value="filters.city || ALL_OPTION_VALUE"
+                  :items="cityItems"
+                  :placeholder-value="ALL_OPTION_VALUE"
+                  icon="i-lucide-map-pin"
+                  size="md"
+                  :disabled="isPending"
+                  @update:model-value="
+                    updateFilters({
+                      city: $event === ALL_OPTION_VALUE ? '' : String($event),
+                    })
+                  "
+                />
+              </div>
+
+              <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <BaseButton
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  class="w-full sm:w-auto order-first"
+                  :loading="isPending"
+                  :leading-icon="isPending ? undefined : 'i-lucide-search'"
+                >
+                  Buscar
+                </BaseButton>
+
+                <BaseButton
+                  variant="reversed"
+                  type="button"
+                  size="sm"
+                  class="w-full sm:w-auto"
+                  :disabled="isPending"
+                  leading-icon="i-lucide-rotate-ccw"
+                  @click="clearFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
+              </div>
+            </div>
+
+            <div class="hidden space-y-6 lg:block">
+              <div class="grid gap-4 lg:grid-cols-3">
+                <FormInput
+                  v-model="searchDraft"
+                  label="Nombre del evento"
+                  name="search"
+                  placeholder="Buscá por evento"
+                  icon="i-lucide-search"
+                  size="md"
+                  :disabled="isPending"
+                />
+
+                <FormInput
+                  v-model="artistDraft"
+                  label="Nombre del artista"
+                  name="artistName"
+                  placeholder="Buscá por artista"
+                  icon="i-lucide-user-round-search"
                   size="md"
                   :disabled="isPending"
                 />
@@ -320,17 +409,14 @@ async function handlePageChange(page: number) {
         </div>
 
         <section class="space-y-6">
-          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div class="space-y-1">
+          <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
+            <div class="space-y-1 sm:text-left">
               <UiMetaLabel tone="accent">
                 Resultados
               </UiMetaLabel>
-              <p class="text-sm leading-relaxed text-toned">
-                {{ resultsContext }}
-              </p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
               <BaseBadge
                 v-for="stat in resultsChips"
                 :key="stat.label"

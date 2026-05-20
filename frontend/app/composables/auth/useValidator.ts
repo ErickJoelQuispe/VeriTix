@@ -1,5 +1,5 @@
-import { useValidatorRepository } from '@/repositories/validatorRepository'
 import type { ValidateTicketResponse } from '@/repositories/validatorRepository'
+import { useValidatorRepository } from '@/repositories/validatorRepository'
 
 export type ValidatorState = 'idle' | 'scanning' | 'success' | 'already_used' | 'invalid' | 'not_found'
 
@@ -52,12 +52,12 @@ export function useValidator() {
 function extractStatusCode(error: unknown): number | null {
   if (error && typeof error === 'object') {
     const err = error as Record<string, unknown>
-    if (typeof err.statusCode === 'number') return err.statusCode
-    if (typeof err.status === 'number') return err.status
+    if (typeof err.statusCode === 'number') { return err.statusCode }
+    if (typeof err.status === 'number') { return err.status }
     if (err.response && typeof err.response === 'object') {
       const res = err.response as Record<string, unknown>
-      if (typeof res.status === 'number') return res.status
-      if (typeof res.statusCode === 'number') return res.statusCode
+      if (typeof res.status === 'number') { return res.status }
+      if (typeof res.statusCode === 'number') { return res.statusCode }
     }
   }
   return null

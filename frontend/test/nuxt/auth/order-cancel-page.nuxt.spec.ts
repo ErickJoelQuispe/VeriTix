@@ -10,22 +10,24 @@ import OrderCancelPage from '@/pages/orders/[id]/cancel.vue'
 const ORDER_ID = 'order-xyz'
 const EVENT_ID = 'event-abc'
 
-const makeOrderDetail = () => ({
-  id: ORDER_ID,
-  totalAmount: 75,
-  status: 'CANCELLED' as const,
-  createdAt: '2026-05-01T10:00:00Z',
-  updatedAt: '2026-05-01T10:01:00Z',
-  checkoutUrl: null,
-  event: {
-    id: EVENT_ID,
-    name: 'Rock Fest',
-    eventDate: '2026-08-15T20:00:00Z',
-    currency: 'USD',
-  },
-  items: [],
-  payments: [],
-})
+function makeOrderDetail() {
+  return {
+    id: ORDER_ID,
+    totalAmount: 75,
+    status: 'CANCELLED' as const,
+    createdAt: '2026-05-01T10:00:00Z',
+    updatedAt: '2026-05-01T10:01:00Z',
+    checkoutUrl: null,
+    event: {
+      id: EVENT_ID,
+      name: 'Rock Fest',
+      eventDate: '2026-08-15T20:00:00Z',
+      currency: 'USD',
+    },
+    items: [],
+    payments: [],
+  }
+}
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -70,7 +72,7 @@ beforeEach(() => {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('OrderCancelPage — /orders/:id/cancel', () => {
+describe('orderCancelPage — /orders/:id/cancel', () => {
   it('navigates to /events/:eventId when order is found', async () => {
     fetchOrderDetailMock.mockResolvedValueOnce(makeOrderDetail())
 

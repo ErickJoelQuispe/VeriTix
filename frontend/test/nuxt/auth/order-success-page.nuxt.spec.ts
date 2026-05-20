@@ -9,30 +9,32 @@ import OrderSuccessPage from '@/pages/orders/[id]/success.vue'
 
 const ORDER_ID = 'order-abc'
 
-const makeOrderDetail = () => ({
-  id: ORDER_ID,
-  totalAmount: 150,
-  status: 'PENDING' as const,
-  createdAt: '2026-05-01T10:00:00Z',
-  updatedAt: '2026-05-01T10:00:00Z',
-  checkoutUrl: null,
-  event: {
-    id: 'event-1',
-    name: 'Rock Fest',
-    eventDate: '2026-08-15T20:00:00Z',
-    currency: 'USD',
-  },
-  items: [
-    {
-      id: 'item-1',
-      quantity: 2,
-      unitPrice: 75,
-      subtotal: 150,
-      ticketType: { id: 'tt-1', name: 'Pista General', price: 75 },
+function makeOrderDetail() {
+  return {
+    id: ORDER_ID,
+    totalAmount: 150,
+    status: 'PENDING' as const,
+    createdAt: '2026-05-01T10:00:00Z',
+    updatedAt: '2026-05-01T10:00:00Z',
+    checkoutUrl: null,
+    event: {
+      id: 'event-1',
+      name: 'Rock Fest',
+      eventDate: '2026-08-15T20:00:00Z',
+      currency: 'USD',
     },
-  ],
-  payments: [],
-})
+    items: [
+      {
+        id: 'item-1',
+        quantity: 2,
+        unitPrice: 75,
+        subtotal: 150,
+        ticketType: { id: 'tt-1', name: 'Pista General', price: 75 },
+      },
+    ],
+    payments: [],
+  }
+}
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -77,7 +79,7 @@ beforeEach(() => {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('OrderSuccessPage — /orders/:id/success', () => {
+describe('orderSuccessPage — /orders/:id/success', () => {
   it('renders event name, total ticket count, and total amount when order fetch succeeds', async () => {
     fetchOrderDetailMock.mockResolvedValueOnce(makeOrderDetail())
 
@@ -95,7 +97,7 @@ describe('OrderSuccessPage — /orders/:id/success', () => {
     const wrapper = await mountSuspended(OrderSuccessPage)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Ver mis entradas')
+    expect(wrapper.text()).toContain('Ver mis eventos')
   })
 
   it('redirects to / when order fetch fails', async () => {

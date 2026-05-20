@@ -75,17 +75,17 @@ const fallbackTone = computed(() => {
       </div>
 
       <div class="vtx-transmission-details">
-        <h3 class="line-clamp-2 font-display text-2xl leading-none text-highlighted transition-colors duration-300 group-hover:text-primary">
+        <h3 class="line-clamp-2 font-display text-xl leading-none text-highlighted transition-colors duration-300 group-hover:text-primary sm:text-2xl">
           {{ props.event.name }}
         </h3>
 
-        <p class="mt-2 line-clamp-1 text-sm leading-relaxed text-toned">
+        <p class="mt-2 line-clamp-1 text-xs leading-relaxed text-toned sm:text-sm">
           {{ props.event.venue.city }}
           <span v-if="props.event.format">· {{ props.event.format.name }}</span>
         </p>
 
-        <div class="mt-auto flex items-end justify-between pt-4">
-          <div class="text-xs tracking-wide text-muted uppercase">
+        <div class="mt-auto flex items-center justify-between gap-3 pt-3 sm:pt-4">
+          <div class="text-[0.65rem] tracking-wide text-muted uppercase sm:text-xs">
             <span>{{ eventDate }}</span>
             <span class="mx-1.5">·</span>
             <span>{{ eventTime }}</span>
@@ -93,8 +93,8 @@ const fallbackTone = computed(() => {
 
           <BaseButton
             variant="primary"
-            size="sm"
-            class="px-3.5"
+            size="xs"
+            class="px-3"
             @click.stop="navigateTo(eventLink)"
           >
             Ver
@@ -109,12 +109,12 @@ const fallbackTone = computed(() => {
 @reference "@/assets/css/main.css";
 
 .vtx-transmission-media {
-  aspect-ratio: 4 / 3.5;
+  aspect-ratio: 4 / 3.15;
   @apply relative overflow-hidden rounded-t-sm;
 }
 
 .vtx-transmission-details {
-  @apply flex flex-col p-5;
+  @apply flex flex-col p-4 sm:p-5;
   background: oklch(0.16 0.015 270 / 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

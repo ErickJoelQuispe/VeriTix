@@ -1,5 +1,14 @@
+<script setup lang="ts">
+withDefaults(defineProps<{ compact?: boolean }>(), {
+  compact: false,
+})
+</script>
+
 <template>
-  <div class="orb-wrapper relative mx-auto aspect-square w-full max-w-md">
+  <div
+    class="orb-wrapper relative mx-auto aspect-square w-full max-w-md"
+    :class="compact && 'orb-wrapper--compact'"
+  >
     <div class="orb-ambient orb-ambient--top" />
     <div class="orb-ambient orb-ambient--bottom" />
     <div class="orb-backglow" />
@@ -30,6 +39,17 @@
 <style scoped>
 .orb-wrapper {
   transform: rotate(195deg);
+}
+
+.orb-wrapper--compact {
+  transform: rotate(195deg);
+}
+
+@media (max-width: 639px) {
+  .orb-wrapper--compact {
+    max-width: 13rem;
+    transform: rotate(195deg) scale(0.92);
+  }
 }
 
 .orb-ambient,
@@ -225,6 +245,36 @@
   right: 12%;
   bottom: 16%;
   animation-delay: 900ms;
+}
+
+.orb-wrapper--compact .orb-ambient {
+  filter: blur(14px);
+  opacity: 0.58;
+}
+
+.orb-wrapper--compact .orb-backglow {
+  filter: blur(24px);
+  opacity: 0.42;
+}
+
+.orb-wrapper--compact .orb-field {
+  opacity: 0.62;
+}
+
+.orb-wrapper--compact .orb-prism {
+  box-shadow:
+    0 0 24px rgb(166 102 255 / 0.18),
+    inset 0 0 24px rgb(255 255 255 / 0.08);
+}
+
+.orb-wrapper--compact .orb-rim {
+  opacity: 0.38;
+}
+
+.orb-wrapper--compact .orb-spark {
+  height: 0.6rem;
+  width: 0.6rem;
+  box-shadow: 0 0 16px rgb(171 110 255 / 0.42);
 }
 
 @keyframes orb-spin {

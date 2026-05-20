@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { BackofficeEventDetail, BackofficeEventPayload, BackofficeOption, CurrencyCode, GenreOption, VenueOption } from '~~/shared/types'
+import type { BackofficeEventDetail, BackofficeEventPayload, BackofficeOption, CurrencyCode, EventArtistEntry, GenreOption, VenueOption } from '~~/shared/types'
+import type { TicketType } from '~~/shared/types/domain'
 import { z } from 'zod'
 import { normalizeEventPayload } from '@/utils/backoffice/formSafeRails'
 
@@ -19,6 +20,18 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   submit: [payload: BackofficeEventPayload]
 }>()
+
+const pendingArtists = ref<EventArtistEntry[]>([])
+const ticketTypesRef = ref<{ pendingTicketTypes: TicketType[] } | null>(null)
+const eventId = computed(() => props.initialValue?.id)
+
+function onLineupChange(artists: EventArtistEntry[]) {
+  pendingArtists.value = artists
+}
+
+const pendingTicketTypes = computed(() => ticketTypesRef.value?.pendingTicketTypes ?? [])
+
+defineExpose({ pendingArtists, pendingTicketTypes })
 
 const dirty = defineModel<boolean>('dirty', { default: false })
 
@@ -215,7 +228,7 @@ watch(() => [
   <FormRoot :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
     <div class="grid gap-5 lg:grid-cols-2">
       <FormField v-model="state.name" name="name" label="Nombre" placeholder="VeriTix Sunset Series" required />
-      <FormField v-model="state.eventDate" name="eventDate" label="Fecha del evento" type="datetime-local" required />
+      <FormDateTimePicker v-model="state.eventDate" name="eventDate" label="Fecha del evento" required />
     </div>
 
     <FormTextarea
@@ -226,34 +239,48 @@ watch(() => [
     />
 
     <div class="grid gap-5 lg:grid-cols-3">
-      <FormField v-model="state.doorsOpenTime" name="doorsOpenTime" label="Apertura de puertas" type="datetime-local" />
-      <FormField v-model="state.startSale" name="startSale" label="Inicio de venta" type="datetime-local" />
-      <FormField v-model="state.endSale" name="endSale" label="Fin de venta" type="datetime-local" />
+      <FormDateTimePicker v-model="state.doorsOpenTime" name="doorsOpenTime" label="Apertura de puertas" />
+      <FormDateTimePicker v-model="state.startSale" name="startSale" label="Inicio de venta" />
+      <FormDateTimePicker v-model="state.endSale" name="endSale" label="Fin de venta" />
     </div>
 
-    <div class="grid gap-5 lg:grid-cols-2">
-      <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required />
-      <FormField v-model="state.imageUrl" name="imageUrl" label="Imagen" type="url" placeholder="https://..." />
+    <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required class="max-w-64" />
+
+    <div class="border-t border-muted/15 pt-6">
+      <FormImageUpload v-model="state.imageUrl" name="imageUrl" label="Imagen" />
     </div>
 
     <div class="grid gap-5 lg:grid-cols-3">
       <FormSelect v-model="state.currency" name="currency" label="Moneda" :items="currencyOptions.map(value => ({ label: value, value }))" required />
 
-      <FormSelect v-model="state.venueId" name="venueId" label="Venue" :items="venueOptions" placeholder="Selecciona un venue" required />
+      <FormAutocomplete v-model="state.venueId" name="venueId" label="Venue" :items="venueOptions" placeholder="Buscá un venue" required icon="i-lucide-map-pin" />
 
       <FormSelect v-model="selectedFormatId" name="formatId" label="Formato" :items="formatOptions" />
     </div>
 
-    <FormSelect
+    <FormTagSelect
       v-model="state.genreIds"
       name="genreIds"
       label="Generos"
       :items="genreOptions"
-      multiple
-      placeholder="Selecciona generos"
+      placeholder="Seleccioná generos"
     />
 
-    <div class="flex justify-end border-t border-default/55 pt-6">
+    <div class="mt-4">
+      <PagesBackofficeEventLineup
+        :event-id="eventId ?? undefined"
+        :disabled="submitting"
+        @change="onLineupChange"
+      />
+    </div>
+
+    <PagesBackofficeEventTicketTypes
+      ref="ticketTypesRef"
+      :event-id="eventId ?? undefined"
+      :disabled="submitting"
+    />
+
+    <div class="flex justify-end border-t border-muted/15 pt-6">
       <BaseButton variant="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting" data-testid="event-form-submit">
         {{ submitLabel }}
       </BaseButton>

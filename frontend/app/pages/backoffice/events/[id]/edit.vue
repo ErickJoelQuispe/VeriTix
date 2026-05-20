@@ -7,6 +7,8 @@ import type {
   VenueOption,
 } from '~~/shared/types'
 import { useBackofficeEventsRepository } from '@/repositories/backofficeEventsRepository'
+import { useEventArtistsRepository } from '@/repositories/eventArtistsRepository'
+import { useTicketTypesRepository } from '@/repositories/ticketTypesRepository'
 import { hasEventSemanticChanges } from '@/utils/backoffice/formSafeRails'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
@@ -16,6 +18,8 @@ const route = useRoute()
 const eventId = computed(() => String(route.params.id || ''))
 
 const { getFormOptions, getEvent: getBackofficeEvent, updateEvent: updateBackofficeEvent } = useBackofficeEventsRepository()
+const { listByEvent: listEventArtists } = useEventArtistsRepository()
+const { listByEvent: listEventTicketTypes } = useTicketTypesRepository()
 const { getApiErrorStatus } = useApiErrorMessage()
 const { notifyApiError, notifyInfo, notifySuccess } = useAppNotifications()
 
@@ -26,6 +30,32 @@ const formats = ref<BackofficeOption[]>([])
 const loading = ref(true)
 const submitting = ref(false)
 const isFormDirty = ref(false)
+const artistCount = ref(0)
+const totalTicketQuantity = ref(0)
+
+const eventSummaryChips = computed(() => {
+  if (!event.value) {
+    return []
+  }
+
+  return [
+    { label: 'fecha', value: formatEventBadgeDate(event.value.eventDate), icon: 'i-lucide-calendar-days' },
+    { label: 'artistas', value: artistCount.value, icon: 'i-lucide-users' },
+    { label: 'tickets', value: totalTicketQuantity.value, icon: 'i-lucide-ticket' },
+  ]
+})
+
+function formatEventBadgeDate(value?: string | null): string {
+  if (!value) {
+    return 'Sin fecha'
+  }
+
+  return new Date(value).toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
 
 useUnsavedChangesGuard({
   isDirty: isFormDirty,
@@ -58,7 +88,15 @@ async function loadEvent() {
   loading.value = true
 
   try {
-    event.value = await getBackofficeEvent(eventId.value)
+    const [eventDetail, artists, ticketTypes] = await Promise.all([
+      getBackofficeEvent(eventId.value),
+      listEventArtists(eventId.value),
+      listEventTicketTypes(eventId.value),
+    ])
+
+    event.value = eventDetail
+    artistCount.value = artists.length
+    totalTicketQuantity.value = ticketTypes.reduce((sum, ticketType) => sum + ticketType.totalQuantity, 0)
   }
   catch (error) {
     if (getApiErrorStatus(error) === 404) {
@@ -109,25 +147,31 @@ onMounted(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <UiPageHeading eyebrow="Backoffice" title="Editar evento" description="Actualiza la ficha del evento y su configuración operativa." />
-          <BaseButton to="/backoffice/events" variant="outlined" size="sm" leading-icon="i-lucide-arrow-left">
-            Volver a eventos
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Backoffice"
+          title="Editar evento"
+          description="Actualiza la ficha del evento y su configuración operativa."
+          action-label="Volver"
+          action-to="/backoffice/events"
+        />
         <PagesBackofficeOverviewPanel
           title="Datos del evento"
-          description="Edita los campos principales del evento seleccionado."
           variant="glass"
         >
           <template #actions>
             <div v-if="event" class="flex flex-wrap items-center gap-2.5">
-              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-                {{ venues?.length || 0 }} venues
+              <BaseBadge
+                v-for="item in eventSummaryChips"
+                :key="item.label"
+                kind="tag"
+                color="primary"
+                size="sm"
+                :icon="item.icon"
+                class="min-w-28 justify-center rounded-full"
+              >
+                {{ item.label }}: {{ item.value }}
               </BaseBadge>
-              <BaseBadge kind="info" size="sm" class="min-w-24 justify-center">
-                {{ formats?.length || 0 }} formatos
-              </BaseBadge>
+
               <BaseBadge kind="status" :color="getStatusTone(event.status)" size="sm" class="min-w-24 justify-center">
                 {{ event.status }}
               </BaseBadge>

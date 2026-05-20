@@ -5,6 +5,7 @@ import authBootstrapMiddleware from '@/middleware/auth-bootstrap.global'
 
 let authMock: {
   ensureSession: ReturnType<typeof vi.fn>
+  refreshSession: ReturnType<typeof vi.fn>
   refreshStatus: ReturnType<typeof ref<'idle' | 'refreshing'>>
   sessionStatus: ReturnType<typeof ref<'unknown' | 'authenticated' | 'guest'>>
 }
@@ -21,6 +22,7 @@ function createAuthMock(
 ) {
   authMock = {
     ensureSession: vi.fn().mockResolvedValue(false),
+    refreshSession: vi.fn().mockResolvedValue(null),
     refreshStatus: ref(refreshStatus),
     sessionStatus: ref(sessionStatus),
   }

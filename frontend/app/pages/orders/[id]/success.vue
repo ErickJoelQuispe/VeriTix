@@ -21,12 +21,12 @@ onMounted(async () => {
 })
 
 const totalTickets = computed(() => {
-  if (!order.value) return 0
+  if (!order.value) { return 0 }
   return order.value.items.reduce((sum, item) => sum + item.quantity, 0)
 })
 
 const formattedTotal = computed(() => {
-  if (!order.value) return '0.00'
+  if (!order.value) { return '0.00' }
   return new Intl.NumberFormat('es-ES', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

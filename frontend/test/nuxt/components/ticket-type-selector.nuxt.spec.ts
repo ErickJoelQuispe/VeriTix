@@ -10,6 +10,7 @@ function makeTicketType(overrides: Partial<{
   id: string
   name: string
   price: number
+  totalQuantity: number
   availableQuantity: number
   maxPerUser: number
   isActive: boolean
@@ -19,6 +20,7 @@ function makeTicketType(overrides: Partial<{
     name: 'Pista General',
     description: null,
     price: 75,
+    totalQuantity: 10,
     availableQuantity: 10,
     maxPerUser: 3,
     isActive: true,
@@ -36,7 +38,7 @@ beforeEach(() => {
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('TicketTypeSelector', () => {
+describe('ticketTypeSelector', () => {
   it('renders ticket type name and price', async () => {
     const wrapper = await mountSuspended(TicketTypeSelector, {
       props: {
@@ -96,7 +98,7 @@ describe('TicketTypeSelector', () => {
     expect(emissions).toBeDefined()
     expect(emissions!.length).toBeGreaterThan(0)
 
-    const lastEmit = emissions![emissions!.length - 1] as [Array<{ ticketTypeId: string; quantity: number; unitPrice: number }>]
+    const lastEmit = emissions!.at(-1) as [Array<{ ticketTypeId: string, quantity: number, unitPrice: number }>]
     expect(lastEmit[0]).toHaveLength(1)
     expect(lastEmit[0][0]).toMatchObject({ ticketTypeId: 'tt-1', quantity: 1 })
   })
@@ -118,9 +120,8 @@ describe('TicketTypeSelector', () => {
     await incrementBtn.trigger('click')
     await flushPromises()
 
-    const emissions = wrapper.emitted('update:selection') as Array<[Array<{ ticketTypeId: string; quantity: number }>]>
-    const lastEmit = emissions[emissions.length - 1][0]
-    expect(lastEmit[0].quantity).toBe(2)
+    const emissions = wrapper.emitted('update:selection') as Array<[Array<{ ticketTypeId: string, quantity: number }>]>
+    expect(emissions.at(-1)?.[0]?.[0]?.quantity).toBe(2)
   })
 
   it('does not exceed availableQuantity when incrementing (clamps to min of maxPerUser/availableQuantity)', async () => {
@@ -137,9 +138,8 @@ describe('TicketTypeSelector', () => {
     await incrementBtn.trigger('click')
     await flushPromises()
 
-    const emissions = wrapper.emitted('update:selection') as Array<[Array<{ ticketTypeId: string; quantity: number }>]>
-    const lastEmit = emissions[emissions.length - 1][0]
-    expect(lastEmit[0].quantity).toBe(1)
+    const emissions = wrapper.emitted('update:selection') as Array<[Array<{ ticketTypeId: string, quantity: number }>]>
+    expect(emissions.at(-1)?.[0]?.[0]?.quantity).toBe(1)
   })
 
   it('emits only non-zero items in update:selection', async () => {
@@ -158,12 +158,12 @@ describe('TicketTypeSelector', () => {
     await wrapper.find('[data-testid="increment-tt-1"]').trigger('click')
     await flushPromises()
 
-    const emissions = wrapper.emitted('update:selection') as Array<[Array<{ ticketTypeId: string; quantity: number }>]>
-    const lastEmit = emissions[emissions.length - 1][0]
+    const emissions = wrapper.emitted('update:selection') as Array<[Array<{ ticketTypeId: string, quantity: number }>]>
+    const lastEmit = emissions.at(-1)?.[0] ?? []
 
     // Only tt-1 should be in the array (tt-2 has quantity 0)
     expect(lastEmit).toHaveLength(1)
-    expect(lastEmit[0].ticketTypeId).toBe('tt-1')
+    expect(lastEmit[0]?.ticketTypeId).toBe('tt-1')
   })
 
   it('shows total computed correctly', async () => {

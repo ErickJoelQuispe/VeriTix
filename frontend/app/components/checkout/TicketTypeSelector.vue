@@ -7,7 +7,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:selection': [items: Array<{ ticketTypeId: string; quantity: number; unitPrice: number }>]
+  'update:selection': [items: Array<{ ticketTypeId: string, quantity: number, unitPrice: number }>]
 }>()
 
 const quantities = reactive<Map<string, number>>(new Map())
@@ -25,7 +25,7 @@ function getQuantity(id: string): number {
 }
 
 function emitSelection(): void {
-  const selection: Array<{ ticketTypeId: string; quantity: number; unitPrice: number }> = []
+  const selection: Array<{ ticketTypeId: string, quantity: number, unitPrice: number }> = []
   for (const tt of props.ticketTypes) {
     const qty = getQuantity(tt.id)
     if (qty > 0) {
