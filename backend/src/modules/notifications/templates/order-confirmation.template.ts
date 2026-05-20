@@ -5,7 +5,7 @@ export function generateOrderConfirmationEmail(
   totalAmount: number,
   ticketCount: number,
 ): string {
-  const formattedAmount = (totalAmount / 100).toFixed(2);
+  const formattedAmount = totalAmount.toFixed(2);
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Order Confirmation</title></head>
