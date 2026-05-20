@@ -20,6 +20,7 @@ const pending = ref(true)
 const deletingId = ref('')
 const deletingTarget = ref('')
 const deleteModalOpen = ref(false)
+const actionMenuOpen = reactive<Record<string, boolean>>({})
 
 const page = ref(1)
 const pageSize = ref(12)
@@ -301,6 +302,58 @@ onMounted(() => {
                 :key="artist.id"
                 class="group relative flex flex-col"
               >
+                <div class="absolute right-2 top-2 z-10">
+                  <BasePopover
+                    v-model:open="actionMenuOpen[artist.id]"
+                    :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
+                    class="shrink-0"
+                  >
+                    <BaseButton
+                      variant="secondary"
+                      size="sm"
+                      class="px-3"
+                      :disabled="pending || deletingId === artist.id"
+                      aria-label="Abrir acciones"
+                    >
+                      <BaseIcon name="i-lucide-ellipsis-vertical" class="size-4" aria-hidden="true" />
+                    </BaseButton>
+
+                    <template #content>
+                      <div class="w-56 rounded-3xl border border-default/70 bg-elevated/95 p-3 shadow-[0_24px_60px_-36px_rgb(0_0_0_/_0.65)] backdrop-blur-xl">
+                        <div class="space-y-3">
+                          <p class="px-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-toned/55">
+                            Acciones
+                          </p>
+
+                          <BaseButton
+                            variant="primary"
+                            size="md"
+                            block
+                            class="justify-start"
+                            :to="`/backoffice/artists/${artist.id}/edit`"
+                            @click="actionMenuOpen[artist.id] = false"
+                          >
+                            <BaseIcon name="i-lucide-pencil" class="size-4" aria-hidden="true" />
+                            Editar artista
+                          </BaseButton>
+
+                          <BaseButton
+                            variant="danger"
+                            size="md"
+                            block
+                            class="justify-start"
+                            :disabled="deletingId === artist.id"
+                            @click="actionMenuOpen[artist.id] = false; confirmDelete(artist.id)"
+                          >
+                            <BaseIcon name="i-lucide-trash-2" class="size-4" aria-hidden="true" />
+                            Eliminar artista
+                          </BaseButton>
+                        </div>
+                      </div>
+                    </template>
+                  </BasePopover>
+                </div>
+
                 <NuxtLink
                   :to="`/backoffice/artists/${artist.id}/edit`"
                   class="block"
@@ -330,17 +383,6 @@ onMounted(() => {
                     >
                       {{ artist.isActive ? 'Activo' : 'Inactivo' }}
                     </div>
-
-                    <!-- Desktop delete — hover only -->
-                    <button
-                      type="button"
-                      class="absolute right-1.5 top-1.5 flex size-7 items-center justify-center opacity-0 group-hover:opacity-100 bg-black/60 hover:bg-error/80 text-white rounded-md transition-opacity disabled:opacity-40 disabled:cursor-not-allowed max-lg:hidden"
-                      :disabled="deletingId === artist.id"
-                      :aria-label="`Eliminar ${artist.name}`"
-                      @click.prevent="confirmDelete(artist.id)"
-                    >
-                      <BaseIcon name="i-lucide-trash-2" class="size-3.5" />
-                    </button>
                   </div>
 
                   <div class="mt-2">
@@ -352,43 +394,24 @@ onMounted(() => {
                     </p>
                   </div>
                 </NuxtLink>
-
-                <!-- Mobile buttons — always visible -->
-                <div class="mt-auto grid grid-cols-2 gap-1.5 pt-2 lg:hidden">
-                  <BaseButton
-                    variant="primary"
-                    size="xs"
-                    class="w-full justify-center"
-                    :to="`/backoffice/artists/${artist.id}/edit`"
-                  >
-                    <BaseIcon name="i-lucide-pencil" class="size-3" />
-                  </BaseButton>
-                  <BaseButton
-                    variant="danger"
-                    size="xs"
-                    class="w-full justify-center"
-                    :disabled="deletingId === artist.id"
-                    @click="confirmDelete(artist.id)"
-                  >
-                    <BaseIcon name="i-lucide-trash-2" class="size-3" />
-                  </BaseButton>
-                </div>
               </div>
             </div>
 
-            <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
-              <div class="flex w-full flex-wrap items-center justify-center">
-                <BasePagination
-                  :page="meta.page"
-                  :total="meta.total"
-                  :items-per-page="meta.limit"
-                  :disabled="pending"
-                  :sibling-count="1"
-                  :show-edges="meta.totalPages > 5"
-                  size="lg"
-                  @update:page="goToPage"
-                />
-              </div>
+            <div class="flex justify-center pt-1 pb-1">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                active-color="primary"
+                active-variant="soft"
+                show-edges
+                @update:page="goToPage"
+              />
             </div>
           </div>
         </PagesBackofficeOverviewPanel>

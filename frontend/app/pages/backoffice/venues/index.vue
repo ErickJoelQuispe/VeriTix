@@ -15,6 +15,7 @@ const pending = ref(true)
 const deletingId = ref('')
 const deletingTarget = ref('')
 const deleteModalOpen = ref(false)
+const actionMenuOpen = reactive<Record<string, boolean>>({})
 const integrationStatus = ref<'connected' | 'pending'>('connected')
 
 const page = ref(1)
@@ -280,10 +281,62 @@ onMounted(() => {
                 variant="glass"
                 radius="lg"
                 padding="md"
-                class="group h-full border-default/50 bg-linear-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
+                class="group relative h-full border-default/50 bg-linear-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
               >
                 <div class="flex h-full flex-col">
-                  <div class="flex items-start justify-between gap-4">
+                  <div class="absolute right-3 top-3 z-10">
+                    <BasePopover
+                      v-model:open="actionMenuOpen[venue.id]"
+                      :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
+                      class="shrink-0"
+                    >
+                      <BaseButton
+                        variant="secondary"
+                        size="sm"
+                        class="px-3"
+                        :disabled="pending || deletingId === venue.id"
+                        aria-label="Abrir acciones"
+                      >
+                        <BaseIcon name="i-lucide-ellipsis-vertical" class="size-4" aria-hidden="true" />
+                      </BaseButton>
+
+                      <template #content>
+                        <div class="w-56 rounded-3xl border border-default/70 bg-elevated/95 p-3 shadow-[0_24px_60px_-36px_rgb(0_0_0_/_0.65)] backdrop-blur-xl">
+                          <div class="space-y-3">
+                            <p class="px-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-toned/55">
+                              Acciones
+                            </p>
+
+                            <BaseButton
+                              variant="primary"
+                              size="md"
+                              block
+                              class="justify-start"
+                              :to="`/backoffice/venues/${venue.id}/edit`"
+                              @click="actionMenuOpen[venue.id] = false"
+                            >
+                              <BaseIcon name="i-lucide-pencil" class="size-4" aria-hidden="true" />
+                              Editar recinto
+                            </BaseButton>
+
+                            <BaseButton
+                              variant="danger"
+                              size="md"
+                              block
+                              class="justify-start"
+                              :disabled="deletingId === venue.id"
+                              @click="actionMenuOpen[venue.id] = false; confirmDelete(venue.id)"
+                            >
+                              <BaseIcon name="i-lucide-trash-2" class="size-4" aria-hidden="true" />
+                              Eliminar recinto
+                            </BaseButton>
+                          </div>
+                        </div>
+                      </template>
+                    </BasePopover>
+                  </div>
+
+                  <div class="flex items-start gap-4 pr-12">
                     <div class="flex min-w-0 items-center gap-3.5">
                       <div class="shrink-0">
                         <div class="flex size-12 items-center justify-center rounded-xl bg-lavender/12 ring-2 ring-default/50">
@@ -370,43 +423,25 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <div class="mt-auto grid grid-cols-2 gap-2 pt-5">
-                    <BaseButton
-                      variant="primary"
-                      size="sm"
-                      leading-icon="i-lucide-pencil"
-                      class="w-full justify-center"
-                      :to="`/backoffice/venues/${venue.id}/edit`"
-                    >
-                      Editar
-                    </BaseButton>
-                    <BaseButton
-                      variant="danger"
-                      size="sm"
-                      class="w-full justify-center"
-                      :disabled="deletingId === venue.id"
-                      @click="confirmDelete(venue.id)"
-                    >
-                      Eliminar
-                    </BaseButton>
-                  </div>
                 </div>
               </UiPanel>
             </div>
 
-            <div class="rounded-xl bg-elevated/20 px-3 py-2.5 sm:px-4 sm:py-3">
-              <div class="flex w-full flex-wrap items-center justify-center">
-                <BasePagination
-                  :page="meta.page"
-                  :total="meta.total"
-                  :items-per-page="meta.limit"
-                  :disabled="pending"
-                  :sibling-count="1"
-                  :show-edges="meta.totalPages > 5"
-                  size="lg"
-                  @update:page="goToPage"
-                />
-              </div>
+            <div class="flex justify-center pt-1 pb-1">
+              <BasePagination
+                :page="meta.page"
+                :total="meta.total"
+                :items-per-page="meta.limit"
+                :disabled="pending"
+                :sibling-count="1"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                active-color="primary"
+                active-variant="soft"
+                show-edges
+                @update:page="goToPage"
+              />
             </div>
           </div>
         </PagesBackofficeOverviewPanel>
