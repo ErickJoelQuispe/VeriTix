@@ -175,7 +175,6 @@ onMounted(() => {
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
           title="Lista de artistas"
-          description="Filtrá por nombre, género, estado y cantidad por página sin duplicar controles."
           variant="glass"
         >
           <template #actions>

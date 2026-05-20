@@ -88,25 +88,6 @@ const meta = computed(
     },
 )
 
-const selectedGenreLabel = computed(
-  () => genreOptions.value.find(genre => genre.id === filters.value.genreId)?.name ?? '',
-)
-const resultsContext = computed(() => {
-  const segments = [
-    filters.value.search ? `evento: “${filters.value.search}”` : '',
-    filters.value.artistName ? `artista: “${filters.value.artistName}”` : '',
-    filters.value.venueName ? `recinto: “${filters.value.venueName}”` : '',
-    selectedGenreLabel.value ? `género: ${selectedGenreLabel.value}` : '',
-    filters.value.city ? `ciudad: ${filters.value.city}` : '',
-  ].filter(Boolean)
-
-  if (segments.length === 0) {
-    return 'Explorá la cartelera disponible y encontrá el plan adecuado.'
-  }
-
-  return segments.join(' · ')
-})
-
 const activeFilterCount = computed(
   () =>
     [
@@ -433,9 +414,6 @@ async function handlePageChange(page: number) {
               <UiMetaLabel tone="accent">
                 Resultados
               </UiMetaLabel>
-              <p class="text-sm leading-relaxed text-toned">
-                {{ resultsContext }}
-              </p>
             </div>
 
             <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">

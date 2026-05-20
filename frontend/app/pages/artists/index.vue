@@ -72,24 +72,6 @@ const meta = computed(
   },
 )
 
-const selectedGenreLabel = computed(
-  () => genreOptions.value.find(genre => genre.id === filters.value.genreId)?.name ?? '',
-)
-
-const resultsContext = computed(() => {
-  const segments = [
-    filters.value.search ? `artista: “${filters.value.search}”` : '',
-    selectedGenreLabel.value ? `género: ${selectedGenreLabel.value}` : '',
-    filters.value.country ? `país: ${filters.value.country}` : '',
-  ].filter(Boolean)
-
-  if (segments.length === 0) {
-    return 'Explorá perfiles activos, emergentes y clásicos de la cartelera.'
-  }
-
-  return segments.join(' · ')
-})
-
 const activeFilterCount = computed(
   () => [
     filters.value.search,
@@ -318,9 +300,6 @@ async function handlePageChange(page: number) {
               <UiMetaLabel tone="accent">
                 Resultados
               </UiMetaLabel>
-              <p class="text-sm leading-relaxed text-toned">
-                {{ resultsContext }}
-              </p>
             </div>
 
             <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">

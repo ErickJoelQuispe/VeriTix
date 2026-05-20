@@ -73,24 +73,6 @@ const venueTypeItems = [
   { label: 'Otro', value: 'OTRO' },
 ]
 
-const selectedVenueTypeLabel = computed(
-  () => venueTypeItems.find(item => item.value === filters.value.type)?.label ?? '',
-)
-
-const resultsContext = computed(() => {
-  const segments = [
-    filters.value.search ? `venue: “${filters.value.search}”` : '',
-    filters.value.city ? `ciudad: ${filters.value.city}` : '',
-    selectedVenueTypeLabel.value ? `tipo: ${selectedVenueTypeLabel.value}` : '',
-  ].filter(Boolean)
-
-  if (segments.length === 0) {
-    return 'Explorá recintos activos y listos para próximas fechas.'
-  }
-
-  return segments.join(' · ')
-})
-
 const activeFilterCount = computed(
   () => [filters.value.search, filters.value.city, filters.value.type].filter(Boolean).length,
 )
@@ -315,9 +297,6 @@ async function handlePageChange(page: number) {
               <UiMetaLabel tone="accent">
                 Resultados
               </UiMetaLabel>
-              <p class="text-sm leading-relaxed text-toned">
-                {{ resultsContext }}
-              </p>
             </div>
 
             <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-end">

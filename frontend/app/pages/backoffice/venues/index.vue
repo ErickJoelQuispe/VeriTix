@@ -151,7 +151,6 @@ onMounted(() => {
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
           title="Lista de venues"
-          description="Filtrá por nombre, ciudad, estado y paginación desde un mismo bloque."
           variant="glass"
         >
           <template #actions>

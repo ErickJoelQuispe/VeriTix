@@ -220,7 +220,6 @@ onMounted(() => {
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
           title="Lista de usuarios"
-          description="Filtrá por rol, estado, actividad y cantidad por página sin duplicar controles."
           variant="glass"
         >
           <template #actions>

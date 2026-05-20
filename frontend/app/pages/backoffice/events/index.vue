@@ -273,7 +273,6 @@ onMounted(() => {
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
           title="Vista operativa de eventos"
-          description="Filtrá el catálogo, alterná la vista y seguí las alertas desde un solo panel."
           variant="glass"
         >
           <template #actions>
