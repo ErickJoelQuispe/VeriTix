@@ -151,10 +151,22 @@ watch(() => props.eventId, (id) => {
 </script>
 
 <template>
-  <div class="border-t border-default/55 pt-6">
-    <UiMetaLabel as="span">
-      Tipos de boleto
-    </UiMetaLabel>
+  <div class="border-t border-muted/15 pt-6">
+    <div class="flex items-center justify-between gap-3">
+      <h3 class="text-base font-semibold text-highlighted sm:text-lg">
+        Tipos de boleto
+      </h3>
+
+      <BaseButton
+        variant="outlined"
+        size="sm"
+        leading-icon="i-lucide-plus"
+        :disabled="disabled"
+        @click="openCreate"
+      >
+        Agregar tipo de boleto
+      </BaseButton>
+    </div>
 
     <div v-if="loading" class="mt-4 flex items-center gap-3 rounded-xl border border-default/40 bg-default/10 px-5 py-6">
       <BaseIcon name="i-lucide-loader-circle" class="size-5 animate-spin text-lavender" />
@@ -267,18 +279,6 @@ watch(() => props.eventId, (id) => {
         </div>
       </div>
     </template>
-
-    <div class="mt-5">
-      <BaseButton
-        variant="outlined"
-        size="sm"
-        leading-icon="i-lucide-plus"
-        :disabled="disabled"
-        @click="openCreate"
-      >
-        Agregar tipo de boleto
-      </BaseButton>
-    </div>
 
     <PagesBackofficeTicketTypeModal
       :open="modalOpen"

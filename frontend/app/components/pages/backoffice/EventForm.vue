@@ -246,7 +246,7 @@ watch(() => [
 
     <FormField v-model="state.maxCapacity" name="maxCapacity" label="Capacidad maxima" type="number" required class="max-w-64" />
 
-    <div class="border-t border-default/55 pt-6">
+    <div class="border-t border-muted/15 pt-6">
       <FormImageUpload v-model="state.imageUrl" name="imageUrl" label="Imagen" />
     </div>
 
@@ -266,11 +266,13 @@ watch(() => [
       placeholder="Seleccioná generos"
     />
 
-    <PagesBackofficeEventLineup
-      :event-id="eventId ?? undefined"
-      :disabled="submitting"
-      @change="onLineupChange"
-    />
+    <div class="mt-4">
+      <PagesBackofficeEventLineup
+        :event-id="eventId ?? undefined"
+        :disabled="submitting"
+        @change="onLineupChange"
+      />
+    </div>
 
     <PagesBackofficeEventTicketTypes
       ref="ticketTypesRef"
@@ -278,7 +280,7 @@ watch(() => [
       :disabled="submitting"
     />
 
-    <div class="flex justify-end border-t border-default/55 pt-6">
+    <div class="flex justify-end border-t border-muted/15 pt-6">
       <BaseButton variant="primary" type="submit" size="lg" :loading="submitting" :disabled="submitting" data-testid="event-form-submit">
         {{ submitLabel }}
       </BaseButton>

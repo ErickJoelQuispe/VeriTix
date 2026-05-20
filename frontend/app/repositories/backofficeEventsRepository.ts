@@ -6,6 +6,8 @@ import type {
   BackofficeFormatRecord,
   BackofficeOption,
   BackofficeRequiresAttentionRecord,
+  BackofficeTopEventRecord,
+  BackofficeUpcomingEventRecord,
   GenreOption,
   VenueOption,
 } from '~~/shared/types'
@@ -81,6 +83,20 @@ export function useBackofficeEventsRepository() {
     })
   }
 
+  async function listUpcoming({ limit = 8 }: { limit?: number } = {}): Promise<BackofficeUpcomingEventRecord[]> {
+    return apiRequest<BackofficeUpcomingEventRecord[]>('/admin/events/upcoming', {
+      method: 'GET',
+      query: { limit },
+    })
+  }
+
+  async function listTopEvents({ limit = 5 }: { limit?: number } = {}): Promise<BackofficeTopEventRecord[]> {
+    return apiRequest<BackofficeTopEventRecord[]>('/admin/events/top-events', {
+      method: 'GET',
+      query: { limit },
+    })
+  }
+
   async function deleteEvent(eventId: string): Promise<void> {
     await apiRequest(`/admin/events/${eventId}`, {
       method: 'DELETE',
@@ -91,6 +107,8 @@ export function useBackofficeEventsRepository() {
     getFormOptions,
     listCatalog,
     listRequiresAttention,
+    listUpcoming,
+    listTopEvents,
     getEvent,
     createEvent,
     updateEvent,

@@ -179,22 +179,19 @@ function handleConfirm() {
                   Fechas de venta (opcional)
                 </p>
                 <div class="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label class="mb-1.5 block text-xs font-medium text-toned/70">Inicio de venta</label>
-                    <input
-                      v-model="saleStartDate"
-                      type="datetime-local"
-                      class="w-full rounded-xl border border-default/55 bg-default/30 px-4 py-2.5 text-sm text-highlighted shadow-sm transition focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/35 [color-scheme:dark]"
-                    >
-                  </div>
-                  <div>
-                    <label class="mb-1.5 block text-xs font-medium text-toned/70">Fin de venta</label>
-                    <input
-                      v-model="saleEndDate"
-                      type="datetime-local"
-                      class="w-full rounded-xl border border-default/55 bg-default/30 px-4 py-2.5 text-sm text-highlighted shadow-sm transition focus-visible:border-lavender/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/35 [color-scheme:dark]"
-                    >
-                  </div>
+                  <FormDateTimePicker
+                    v-model="saleStartDate"
+                    name="saleStartDate"
+                    label="Inicio de venta"
+                    size="md"
+                  />
+
+                  <FormDateTimePicker
+                    v-model="saleEndDate"
+                    name="saleEndDate"
+                    label="Fin de venta"
+                    size="md"
+                  />
                 </div>
               </div>
             </div>
