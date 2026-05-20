@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PaginatedResponse, createPaginatedResponse } from '@common/dto';
+import { Prisma } from '../../generated/prisma/client';
 import { EventStatus, OrderStatus } from '../../generated/prisma/enums';
 import type { EventWhereInput } from '../../generated/prisma/models';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -166,6 +167,11 @@ export type FindAllEventsParams = {
 };
 
 // ── Analytics types ───────────────────────────────────────────────────────────
+
+export type RevenueByDateRow = {
+  date: string;   // 'YYYY-MM-DD'
+  revenue: number;
+};
 
 export type UpcomingEventRow = {
   id: string;
@@ -495,5 +501,25 @@ export class EventsRepository {
         orders: { select: { status: true } },
       },
     }) as Promise<EventMetricsRaw | null>;
+  }
+
+  async findRevenueByDate(eventId: string): Promise<RevenueByDateRow[]> {
+    const rows = await this.prisma.$queryRaw<{ date: Date; revenue: bigint | number }[]>(
+      Prisma.sql`
+        SELECT
+          DATE_TRUNC('day', created_at) AS date,
+          SUM(total_amount)::float       AS revenue
+        FROM orders
+        WHERE event_id = ${eventId}
+          AND status = 'COMPLETED'
+        GROUP BY DATE_TRUNC('day', created_at)
+        ORDER BY date ASC
+      `,
+    );
+
+    return rows.map((r) => ({
+      date: new Date(r.date).toISOString().slice(0, 10),
+      revenue: Number(r.revenue),
+    }));
   }
 }
