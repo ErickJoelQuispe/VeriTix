@@ -301,7 +301,7 @@ onMounted(() => {
                       </BaseButton>
 
                       <template #content>
-                        <div class="w-56 rounded-3xl border border-default/70 bg-elevated/95 p-3 shadow-[0_24px_60px_-36px_rgb(0_0_0_/_0.65)] backdrop-blur-xl">
+                        <div class="w-56 rounded-3xl border border-white/10 bg-linear-to-b from-elevated/98 to-elevated/88 p-3 shadow-[0_28px_70px_-34px_rgb(0_0_0_/_0.82)] ring-1 ring-black/10 backdrop-blur-2xl">
                           <div class="space-y-3">
                             <p class="px-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-toned/55">
                               Acciones
