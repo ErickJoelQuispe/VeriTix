@@ -335,7 +335,7 @@ onMounted(() => {
               <div
                 v-for="event in publishedTopEvents"
                 :key="event.id"
-                class="flex items-start gap-3 rounded-xl border border-default/60 bg-default/25 p-3 sm:px-4 sm:py-3"
+                class="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 rounded-xl border border-default/60 bg-default/25 p-3 sm:px-4 sm:py-3"
               >
                 <div class="size-10 shrink-0 overflow-hidden rounded-lg border border-default/40 bg-default/50 sm:size-12">
                   <img
@@ -352,7 +352,7 @@ onMounted(() => {
                   <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3 mb-1">
                     <NuxtLink
                       :to="`/backoffice/events/${event.id}/edit`"
-                      class="text-sm font-semibold text-highlighted transition-colors duration-150 hover:text-primary truncate"
+                      class="block min-w-0 truncate text-sm font-semibold text-highlighted transition-colors duration-150 hover:text-primary"
                     >
                       {{ event.name }}
                     </NuxtLink>
@@ -362,7 +362,7 @@ onMounted(() => {
                   </div>
                   <div class="flex items-center gap-2 text-xs text-toned mb-2">
                     <BaseIcon name="i-lucide-map-pin" class="size-3 shrink-0" />
-                    <span class="truncate">{{ event.venue.name }}</span>
+                    <span class="min-w-0 truncate">{{ event.venue.name }}</span>
                   </div>
                   <div
                     v-if="event.revenue > 0"
@@ -404,7 +404,7 @@ onMounted(() => {
                   <div class="flex flex-wrap items-center gap-2 min-w-0">
                     <NuxtLink
                       :to="`/backoffice/events/${item.id}/edit`"
-                      class="text-sm font-semibold text-highlighted transition-colors duration-150 hover:text-primary truncate"
+                      class="block min-w-0 break-words text-sm font-semibold text-highlighted transition-colors duration-150 hover:text-primary"
                     >
                       {{ item.name }}
                     </NuxtLink>
@@ -424,7 +424,7 @@ onMounted(() => {
                       class="mt-0.5 size-3 shrink-0"
                       :class="attentionIconClass(attentionItemTone(item.status))"
                     />
-                    <span>{{ issue }}</span>
+                    <span class="min-w-0 break-words">{{ issue }}</span>
                   </li>
                 </ul>
                 <div class="mt-3 flex justify-end">
