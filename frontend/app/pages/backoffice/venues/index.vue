@@ -351,7 +351,12 @@ onMounted(() => {
                         <p class="truncate text-sm text-toned/70">
                           {{ venue.address }}
                         </p>
-                        <div class="mt-1.5 flex items-center gap-1.5">
+                        <div class="mt-1.5 flex flex-wrap items-center gap-2">
+                          <span class="inline-flex items-center gap-1.5 rounded-full border border-default/45 bg-default/15 px-2 py-0.5 text-[0.68rem] font-medium text-toned/80">
+                            <span class="size-1.5 rounded-full" :class="venue.isActive ? 'bg-success' : 'bg-toned/50'" />
+                            {{ venue.isActive ? 'Activo' : 'Inactivo' }}
+                          </span>
+
                           <BaseIcon name="i-lucide-tag" class="size-3.5 text-accent" />
                           <span class="text-xs font-medium text-accent">
                             {{ venueTypeLabel(venue.type) }}
@@ -359,10 +364,6 @@ onMounted(() => {
                         </div>
                       </div>
                     </div>
-
-                    <BaseBadge kind="status" size="sm" :color="venue.isActive ? 'success' : 'neutral'">
-                      {{ venue.isActive ? 'Activo' : 'Inactivo' }}
-                    </BaseBadge>
                   </div>
 
                   <div class="mt-5 space-y-3">

@@ -40,6 +40,7 @@ const filtersPending = ref(true)
 const deletingEventId = ref('')
 const deletingTarget = ref('')
 const deleteModalOpen = ref(false)
+const actionMenuOpen = reactive<Record<string, boolean>>({})
 const catalogMode = ref<CatalogMode>('published')
 
 const page = ref(1)
@@ -492,72 +493,127 @@ onMounted(() => {
                 interactive
                 padding="md"
                 radius="lg"
-                class="group relative flex flex-row items-center gap-2.5 overflow-hidden border-default/65! bg-elevated/25! sm:gap-3"
+                class="group relative overflow-visible border-default/65! bg-elevated/25!"
+                :class="actionMenuOpen[event.id] ? 'z-30' : 'z-0'"
               >
-                <div class="relative size-20 shrink-0 self-center overflow-hidden rounded-xl border border-default/60 bg-default/50 sm:size-20 md:size-24">
-                  <img v-if="event.imageUrl" :src="event.imageUrl" :alt="event.title" class="size-full object-cover">
-                  <div v-else class="flex size-full items-center justify-center">
-                    <BaseIcon name="i-lucide-calendar-range" class="size-5 text-muted sm:size-6" />
+                <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                  <div class="grid min-w-0 grid-cols-[5rem_minmax(0,1fr)] gap-x-3 gap-y-2 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:gap-x-4">
+                    <div class="relative size-20 shrink-0 self-start overflow-hidden rounded-xl border border-default/60 bg-default/50 sm:size-[5.5rem]">
+                      <img v-if="event.imageUrl" :src="event.imageUrl" :alt="event.title" class="size-full object-cover">
+                      <div v-else class="flex size-full items-center justify-center">
+                        <BaseIcon name="i-lucide-calendar-range" class="size-5 text-muted sm:size-6" />
+                      </div>
+                    </div>
+
+                    <div class="min-w-0 space-y-2">
+                      <div class="flex min-w-0 items-start gap-2">
+                        <p class="min-w-0 flex-1 text-base font-semibold leading-tight text-highlighted sm:text-lg">
+                          <NuxtLink
+                            v-if="event.to"
+                            :to="event.to"
+                            class="block truncate rounded-sm transition-colors duration-150 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/35"
+                          >
+                            {{ event.title }}
+                          </NuxtLink>
+                          <span v-else class="block truncate">{{ event.title }}</span>
+                        </p>
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-2">
+                        <BaseBadge kind="status" :color="catalogMode === 'review' ? 'warning' : getEventStatusColor(event.status)" size="sm">
+                          {{ event.status }}
+                        </BaseBadge>
+                        <BaseBadge v-if="event.formatName" kind="tag" size="sm">
+                          {{ event.formatName }}
+                        </BaseBadge>
+                        <BaseBadge v-if="event.isReview" kind="info" size="sm">
+                          Revisión
+                        </BaseBadge>
+                        <BaseBadge v-if="event.isReview" kind="status" color="warning" size="sm">
+                          {{ event.issues.length }} alertas
+                        </BaseBadge>
+                      </div>
+                    </div>
+
+                    <div class="col-span-2 space-y-2">
+                      <div class="flex flex-col gap-1.5 text-sm text-toned sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3.5 sm:gap-y-1">
+                        <div class="flex items-center gap-2">
+                          <BaseIcon name="i-lucide-clock-3" class="size-4 shrink-0 text-muted" />
+                          <span>{{ formatEventDate(event.eventDate) }}</span>
+                        </div>
+
+                        <div v-if="event.venueName || event.venueCity" class="flex min-w-0 items-center gap-2">
+                          <BaseIcon name="i-lucide-map-pin" class="size-4 shrink-0 text-muted" />
+                          <span class="truncate">{{ event.venueName }}<template v-if="event.venueName && event.venueCity"> · </template>{{ event.venueCity }}</span>
+                        </div>
+                      </div>
+
+                      <div v-if="event.isReview && event.issues.length > 0" class="pt-0.5">
+                        <p class="flex items-start gap-2 text-sm text-toned">
+                          <BaseIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-warning" />
+                          <span>
+                            {{ event.issues.join(' · ') }}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div class="absolute right-3 top-3 z-10">
-                  <BaseBadge kind="status" :color="catalogMode === 'review' ? 'warning' : getEventStatusColor(event.status)" size="sm">
-                    {{ event.status }}
-                  </BaseBadge>
-                </div>
-
-                <div class="grid min-w-0 flex-1 gap-2 py-0.5 pr-1 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-x-3 sm:pr-2">
-                  <div class="min-w-0 space-y-1.5">
-                    <div class="flex min-w-0 items-start gap-2 sm:pr-0.5">
-                      <p class="min-w-0 flex-1 truncate text-base font-semibold leading-tight text-highlighted sm:text-lg">
-                        <NuxtLink
-                          v-if="event.to"
-                          :to="event.to"
-                          class="block truncate rounded-sm transition-colors duration-150 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/35"
+                  <div class="pt-1 sm:flex sm:self-stretch sm:flex-col sm:items-end sm:justify-end sm:pl-2 sm:pt-0">
+                    <div class="flex justify-end sm:hidden">
+                      <BasePopover
+                        v-model:open="actionMenuOpen[event.id]"
+                        :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
+                        class="shrink-0"
+                      >
+                        <BaseButton
+                          variant="secondary"
+                          size="sm"
+                          class="px-3"
+                          :disabled="catalogPending || deletingEventId === event.id"
+                          aria-label="Abrir acciones"
                         >
-                          {{ event.title }}
-                        </NuxtLink>
-                        <span v-else class="block truncate">{{ event.title }}</span>
-                      </p>
+                          <BaseIcon name="i-lucide-ellipsis-vertical" class="size-4" aria-hidden="true" />
+                        </BaseButton>
+
+                        <template #content>
+                          <div class="w-56 rounded-3xl border border-white/10 bg-linear-to-b from-elevated/98 to-elevated/88 p-3 shadow-[0_28px_70px_-34px_rgb(0_0_0_/_0.82)] ring-1 ring-black/10 backdrop-blur-2xl">
+                            <div class="space-y-3">
+                              <p class="px-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-toned/55">
+                                Acciones
+                              </p>
+
+                              <BaseButton
+                                variant="primary"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :to="event.to"
+                                @click="actionMenuOpen[event.id] = false"
+                              >
+                                <BaseIcon name="i-lucide-pencil" class="size-4" aria-hidden="true" />
+                                Editar evento
+                              </BaseButton>
+
+                              <BaseButton
+                                v-if="!event.isReview"
+                                variant="danger"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :disabled="deletingEventId === event.id"
+                                @click="actionMenuOpen[event.id] = false; confirmDelete(event.id)"
+                              >
+                                <BaseIcon name="i-lucide-trash-2" class="size-4" aria-hidden="true" />
+                                Cancelar evento
+                              </BaseButton>
+                            </div>
+                          </div>
+                        </template>
+                      </BasePopover>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2">
-                      <BaseBadge v-if="event.formatName" kind="tag" size="sm">
-                        {{ event.formatName }}
-                      </BaseBadge>
-                      <BaseBadge v-if="event.isReview" kind="info" size="sm">
-                        Revisión
-                      </BaseBadge>
-                      <BaseBadge v-if="event.isReview" kind="status" color="warning" size="sm">
-                        {{ event.issues.length }} alertas
-                      </BaseBadge>
-                    </div>
-
-                    <div class="flex flex-col gap-1.5 text-sm text-toned sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-3.5 sm:gap-y-1">
-                      <div class="flex items-center gap-2">
-                        <BaseIcon name="i-lucide-clock-3" class="size-4 shrink-0 text-muted" />
-                        <span>{{ formatEventDate(event.eventDate) }}</span>
-                      </div>
-
-                      <div v-if="event.venueName || event.venueCity" class="flex min-w-0 items-center gap-2">
-                        <BaseIcon name="i-lucide-map-pin" class="size-4 shrink-0 text-muted" />
-                        <span class="truncate">{{ event.venueName }}<template v-if="event.venueName && event.venueCity"> · </template>{{ event.venueCity }}</span>
-                      </div>
-                    </div>
-
-                    <div v-if="event.isReview && event.issues.length > 0" class="pt-1">
-                      <p class="flex items-start gap-2 text-sm text-toned">
-                        <BaseIcon name="i-lucide-triangle-alert" class="mt-0.5 size-4 shrink-0 text-warning" />
-                        <span>
-                          {{ event.issues.join(' · ') }}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="pt-0.5 sm:flex sm:self-stretch sm:flex-col sm:items-end sm:justify-end sm:pl-2 sm:pt-0">
-                    <div class="flex flex-wrap gap-1.5 sm:items-center sm:justify-end sm:gap-2">
+                    <div class="hidden flex-wrap gap-1.5 sm:flex sm:items-center sm:justify-end sm:gap-2">
                       <BaseButton
                         variant="outlined"
                         size="sm"
