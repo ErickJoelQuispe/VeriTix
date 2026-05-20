@@ -141,6 +141,11 @@ export interface BackofficeEventMetricsTicketType {
   revenue: number
 }
 
+export interface BackofficeEventMetricsRevenueByDate {
+  date: string
+  revenue: number
+}
+
 export interface BackofficeEventMetrics {
   eventId: string
   eventName: string
@@ -166,6 +171,7 @@ export interface BackofficeEventMetrics {
     name: string
     sold: number
   } | null
+  revenueByDate: BackofficeEventMetricsRevenueByDate[]
 }
 
 export interface BackofficeUserRecord {

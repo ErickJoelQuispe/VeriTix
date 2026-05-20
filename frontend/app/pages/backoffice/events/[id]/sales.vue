@@ -7,6 +7,13 @@ useSeoMeta({ title: 'Reporte de ventas | Backoffice VeriTix' })
 const route = useRoute()
 const eventId = computed(() => String(route.params.id || ''))
 
+// Event detail (hero image + title)
+const { event } = useEventDetail(eventId)
+
+// Metrics composable
+const { metrics, isLoading: metricsLoading, avgTicketPrice } = useEventMetrics(eventId)
+
+// Orders (paginated table)
 const {
   orders,
   meta,
@@ -50,34 +57,48 @@ onMounted(() => {
   void fetch()
 })
 
-// Nombre del evento (disponible una vez que cargan las órdenes)
-const eventName = computed(() => orders.value[0]?.event.name ?? '')
+// Title from event detail
+const eventName = computed(() => event.value?.name ?? '')
 
-// Métricas derivadas de las órdenes de la página actual + meta total
-const totalOrders = computed(() => meta.value?.total ?? 0)
+// Order metrics from useEventMetrics (server-computed totals)
+const totalOrders = computed(() => metrics.value?.orders.total ?? 0)
+const completedRevenue = computed(() => metrics.value?.revenue.total ?? 0)
+const pendingCount = computed(() => metrics.value?.orders.pending ?? 0)
+const cancelledCount = computed(() => metrics.value?.orders.cancelled ?? 0)
 
-const completedRevenue = computed(() =>
-  orders.value
-    .filter(o => o.status === 'COMPLETED')
-    .reduce((sum, o) => sum + o.totalAmount, 0),
-)
+// Segmented bar percentages
+const ordersTotal = computed(() => metrics.value?.orders.total ?? 0)
+const completedPct = computed(() => ordersTotal.value > 0
+  ? (metrics.value!.orders.completed / ordersTotal.value) * 100
+  : 0)
+const pendingPct = computed(() => ordersTotal.value > 0
+  ? (metrics.value!.orders.pending / ordersTotal.value) * 100
+  : 0)
+const cancelledPct = computed(() => ordersTotal.value > 0
+  ? (metrics.value!.orders.cancelled / ordersTotal.value) * 100
+  : 0)
+const completedCount = computed(() => metrics.value?.orders.completed ?? 0)
 
-const pendingCount = computed(() =>
-  orders.value.filter(o => o.status === 'PENDING').length,
-)
-
-const cancelledCount = computed(() =>
-  orders.value.filter(o => o.status === 'CANCELLED').length,
-)
-
-// Tasa de conversión (COMPLETED / total de la página)
-const conversionRate = computed(() => {
-  if (orders.value.length === 0) { return 0 }
-  const completed = orders.value.filter(o => o.status === 'COMPLETED').length
-  return Math.round((completed / orders.value.length) * 100)
+// Ticket type breakdown
+const ticketTypeData = computed(() => metrics.value?.revenue.byTicketType ?? [])
+const maxTicketRevenue = computed(() => {
+  if (ticketTypeData.value.length === 0) { return 1 }
+  return Math.max(...ticketTypeData.value.map(tt => tt.revenue))
 })
 
-// Conteos para labels de filtro
+// Revenue chart bars (last 14 days via revenueByDate)
+const chartBars = computed(() => {
+  const data = metrics.value?.revenueByDate ?? []
+  if (data.length === 0) { return [] }
+  const maxRevenue = Math.max(...data.map(d => d.revenue))
+  return data.map(d => ({
+    date: d.date,
+    revenue: d.revenue,
+    heightPct: maxRevenue > 0 ? (d.revenue / maxRevenue) * 100 : 0,
+  }))
+})
+
+// Status counts for filter badges (from page-local orders)
 const statusCounts = computed(() => ({
   PENDING: orders.value.filter(o => o.status === 'PENDING').length,
   COMPLETED: orders.value.filter(o => o.status === 'COMPLETED').length,
@@ -110,18 +131,27 @@ function truncateId(id: string): string {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-sales-page">
-        <UiPageHeading
-          eyebrow="Backoffice"
-          :title="eventName ? `Ventas — ${eventName}` : 'Reporte de ventas'"
-          description="Seguí el estado de las órdenes de tu evento en tiempo real."
-          action-label="Volver"
-          action-to="/backoffice/events"
-        />
+        <!-- Hero header with optional background image -->
+        <div class="relative overflow-hidden rounded-2xl">
+          <div v-if="event?.imageUrl" class="absolute inset-0">
+            <img :src="event.imageUrl" class="size-full object-cover" alt="">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+          </div>
+          <div class="relative px-6 py-8 sm:px-8 sm:py-10">
+            <UiPageHeading
+              eyebrow="Backoffice"
+              :title="eventName ? `Ventas — ${eventName}` : 'Reporte de ventas'"
+              description="Seguí el estado de las órdenes de tu evento en tiempo real."
+              action-label="Volver"
+              action-to="/backoffice/events"
+            />
+          </div>
+        </div>
 
-        <!-- KPI Cards — igual que dashboard/index.vue, sueltos sin wrapper -->
-        <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <template v-if="isLoading">
-            <UiPanel v-for="i in 4" :key="i" variant="glass" radius="md" padding="md">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-5">
+          <template v-if="metricsLoading">
+            <UiPanel v-for="i in 5" :key="i" variant="glass" radius="md" padding="md">
               <BaseSkeleton class="mb-4 size-10 rounded-lg" />
               <BaseSkeleton class="mb-2 h-8 w-16" />
               <BaseSkeleton class="h-4 w-24" />
@@ -129,6 +159,7 @@ function truncateId(id: string): string {
           </template>
 
           <template v-else>
+            <!-- 1. Total orders -->
             <UiPanel variant="glass" radius="md" padding="md">
               <div class="flex items-start justify-between gap-3">
                 <div class="space-y-3">
@@ -148,6 +179,7 @@ function truncateId(id: string): string {
               </div>
             </UiPanel>
 
+            <!-- 2. Revenue confirmed -->
             <UiPanel variant="glass" radius="md" padding="md">
               <div class="flex items-start justify-between gap-3">
                 <div class="space-y-3">
@@ -167,6 +199,7 @@ function truncateId(id: string): string {
               </div>
             </UiPanel>
 
+            <!-- 3. Pending -->
             <UiPanel variant="glass" radius="md" padding="md">
               <div class="flex items-start justify-between gap-3">
                 <div class="space-y-3">
@@ -186,6 +219,7 @@ function truncateId(id: string): string {
               </div>
             </UiPanel>
 
+            <!-- 4. Cancelled -->
             <UiPanel variant="glass" radius="md" padding="md">
               <div class="flex items-start justify-between gap-3">
                 <div class="space-y-3">
@@ -204,35 +238,128 @@ function truncateId(id: string): string {
                 </div>
               </div>
             </UiPanel>
+
+            <!-- 5. Avg. Ticket (new) -->
+            <UiPanel variant="glass" radius="md" padding="md">
+              <div class="flex items-start justify-between gap-3">
+                <div class="space-y-3">
+                  <UiMetaLabel>Ticket Promedio</UiMetaLabel>
+                  <div class="space-y-1">
+                    <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
+                      {{ formatAmount(avgTicketPrice) }}
+                    </p>
+                    <p class="text-sm text-toned">
+                      por orden completada
+                    </p>
+                  </div>
+                </div>
+                <div :class="statCardIconBoxClass('primary')">
+                  <BaseIcon name="i-lucide-ticket" class="size-5" />
+                </div>
+              </div>
+            </UiPanel>
           </template>
         </div>
 
-        <!-- Barra de conversión -->
-        <div v-if="!isLoading && orders.length > 0" class="rounded-xl border border-default/60 bg-default/25 px-5 py-4">
-          <div class="mb-3 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2">
-              <BaseIcon name="i-lucide-trending-up" class="size-4 text-success" />
-              <p class="text-sm font-medium text-highlighted">
-                Tasa de conversión
-              </p>
-            </div>
-            <p class="text-sm font-semibold tabular-nums text-success">
-              {{ conversionRate }}%
+        <!-- Segmented Order Status Bar -->
+        <UiPanel v-if="!metricsLoading && metrics" variant="glass" radius="md" padding="md">
+          <div class="mb-3 flex items-center gap-2">
+            <BaseIcon name="i-lucide-pie-chart" class="size-4 text-toned" />
+            <p class="text-sm font-medium text-highlighted">
+              Estado de órdenes
             </p>
           </div>
-          <div class="h-2 w-full overflow-hidden rounded-full bg-default/30">
+          <div class="flex h-2 w-full overflow-hidden rounded-full bg-default/30">
             <div
-              class="h-full rounded-full bg-success transition-all duration-500"
-              :style="{ width: `${conversionRate}%` }"
+              data-testid="bar-segment-completed"
+              class="bg-success transition-all duration-500"
+              :style="{ width: `${completedPct}%` }"
+            />
+            <div
+              data-testid="bar-segment-pending"
+              class="bg-warning transition-all duration-500"
+              :style="{ width: `${pendingPct}%` }"
+            />
+            <div
+              data-testid="bar-segment-cancelled"
+              class="bg-error transition-all duration-500"
+              :style="{ width: `${cancelledPct}%` }"
             />
           </div>
-          <div class="mt-2 flex justify-between text-xs text-muted">
-            <span>{{ statusCounts.COMPLETED }} completadas</span>
-            <span>{{ orders.length }} en esta página</span>
+          <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block size-2 rounded-full bg-success" />
+              <span>Completadas: {{ completedCount }}</span>
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block size-2 rounded-full bg-warning" />
+              <span>Pendientes: {{ pendingCount }}</span>
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block size-2 rounded-full bg-error" />
+              <span>Canceladas: {{ cancelledCount }}</span>
+            </span>
           </div>
-        </div>
+        </UiPanel>
 
-        <!-- Orders list panel separado -->
+        <!-- Revenue by Ticket Type breakdown -->
+        <PagesBackofficeOverviewPanel
+          v-if="ticketTypeData.length > 0"
+          eyebrow="Ingresos"
+          title="Por tipo de entrada"
+          description="Comparativa de ingresos según categoría."
+          variant="glass"
+        >
+          <div class="space-y-3">
+            <div
+              v-for="tt in ticketTypeData"
+              :key="tt.name"
+              class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 rounded-xl border border-default/60 bg-default/25 px-4 py-3"
+            >
+              <div class="flex items-center justify-between gap-3">
+                <span class="truncate text-sm font-medium text-highlighted">{{ tt.name }}</span>
+                <span class="shrink-0 text-sm font-semibold text-success">{{ formatAmount(tt.revenue) }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs text-muted">
+                <BaseIcon name="i-lucide-ticket" class="size-3 shrink-0" />
+                <span>{{ tt.sold }} vendidos</span>
+              </div>
+              <div class="col-span-2 h-1.5 overflow-hidden rounded-full bg-default/30">
+                <div
+                  data-testid="ticket-type-bar"
+                  class="h-full rounded-full bg-success transition-all duration-500"
+                  :style="{ width: `${maxTicketRevenue > 0 ? (tt.revenue / maxTicketRevenue) * 100 : 0}%` }"
+                />
+              </div>
+            </div>
+          </div>
+        </PagesBackofficeOverviewPanel>
+
+        <!-- Revenue Over Time chart -->
+        <PagesBackofficeOverviewPanel
+          v-if="chartBars.length > 0"
+          eyebrow="Tendencia"
+          title="Ingresos por día"
+          description="Evolución de ingresos en los últimos días."
+          variant="glass"
+        >
+          <div class="flex items-end gap-1 h-28">
+            <div
+              v-for="bar in chartBars"
+              :key="bar.date"
+              data-testid="revenue-chart-bar"
+              class="flex-1 rounded-t bg-success/50 transition-all duration-500 hover:bg-success/70"
+              :style="{ height: `${bar.heightPct}%`, minHeight: '2px' }"
+              :title="`${bar.date}: ${formatAmount(bar.revenue)}`"
+            />
+          </div>
+          <div class="mt-2 flex justify-between text-[0.6rem] font-semibold uppercase tracking-widest text-toned/50">
+            <span>{{ chartBars.at(0)?.date }}</span>
+            <span>{{ chartBars.at(-1)?.date }}</span>
+          </div>
+        </PagesBackofficeOverviewPanel>
+
+        <!-- Orders list panel -->
         <PagesBackofficeOverviewPanel
           eyebrow="Órdenes"
           title="Listado de órdenes"
@@ -287,7 +414,7 @@ function truncateId(id: string): string {
               description="No hay órdenes que coincidan con los filtros seleccionados."
             />
 
-            <!-- Orders -->
+            <!-- Orders table -->
             <div v-else class="overflow-x-auto rounded-xl border border-default/65">
               <table class="w-full border-collapse text-sm">
                 <thead>
