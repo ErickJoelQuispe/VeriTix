@@ -42,6 +42,11 @@ export class JwtAuthGuard implements CanActivate {
 
   private extractBearerToken(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    if (type === 'Bearer' && token) return token;
+
+    // Fallback: accept ?token= query param for SSE endpoints where
+    // EventSource cannot set custom headers.
+    const queryToken = (request.query as Record<string, unknown>)['token'];
+    return typeof queryToken === 'string' && queryToken ? queryToken : undefined;
   }
 }
