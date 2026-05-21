@@ -634,6 +634,7 @@ async function main() {
 
   // ── Cleanup idempotente ───────────────────────────────────────────────────
   const publishedDemoEventNames = [
+    'Tech Live Demo Expo 2026',
     'Granada Indie Night 2026',
     'Granada Urban Sessions 2026',
     'Madrid Pop Arena 2026',
@@ -1092,6 +1093,28 @@ async function main() {
 
   const additionalPublishedEvents: PublishedEventSeed[] = [
     {
+      name: 'Tech Live Demo Expo 2026',
+      description: 'Evento especial para demostración en vivo de la plataforma VeriTix.',
+      eventDate: new Date('2026-05-25T18:00:00.000+02:00'),
+      doorsOpenTime: new Date('2026-05-25T16:00:00.000+02:00'),
+      startSale: new Date('2026-01-01T10:00:00.000+01:00'),
+      endSale: new Date('2026-05-25T17:00:00.000+02:00'),
+      maxCapacity: 2000,
+      imageSeed: 'tech-live-demo-expo-2026',
+      creatorId: adminUser.id,
+      venueId: palacioCongresos.id,
+      formatId: fmtConcierto.id,
+      genreIds: [gElectronica.id, gPop.id],
+      artists: [
+        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: rosalia.id },
+        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: cTangana.id },
+      ],
+      ticketTypes: [
+        { name: 'General', description: 'Entrada General', price: '50.00', totalQuantity: 1500, maxPerUser: 10 },
+        { name: 'VIP', description: 'Acceso VIP', price: '100.00', totalQuantity: 500, maxPerUser: 10 },
+      ],
+    },
+    {
       name: 'Granada Jazz Club 2027',
       description: 'Sesión íntima de jazz y soul con banda completa en Granada.',
       eventDate: new Date('2027-03-20T20:30:00.000+01:00'),
@@ -1380,9 +1403,62 @@ async function main() {
     },
   ];
 
+  
+  let liveDemoEventId = null;
   for (const eventSeed of additionalPublishedEvents) {
-    await createPublishedEvent(eventSeed);
+    const ev = await createPublishedEvent(eventSeed);
+    if (eventSeed.name === 'Tech Live Demo Expo 2026') {
+      liveDemoEventId = ev.id;
+    }
   }
+
+  // --- GENERATE 2000 TICKETS FOR LIVE DEMO EXPO ---
+  if (liveDemoEventId) {
+    console.log('Generando 2000 tickets para el evento Tech Live Demo Expo 2026...');
+    const demoEvent = await prisma.event.findUnique({ where: { id: liveDemoEventId }, include: { ticketTypes: true } });
+    const ttGeneral = demoEvent!.ticketTypes.find(t => t.name === 'General')!;
+    const ttVip = demoEvent!.ticketTypes.find(t => t.name === 'VIP')!;
+    
+    // Create 100 orders of 20 tickets each
+    for(let i=0; i<100; i++) {
+        const isVip = i < 25; 
+        const tt = isVip ? ttVip : ttGeneral;
+        
+        const order = await prisma.order.create({
+            data: {
+                totalAmount: String((parseFloat(tt.price.toString()) * 20).toFixed(2)),
+                status: OrderStatus.COMPLETED,
+                buyerId: buyerUser.id,
+                eventId: demoEvent!.id,
+                items: {
+                    create: [{
+                        ticketTypeId: tt.id,
+                        quantity: 20,
+                        unitPrice: String(tt.price),
+                        subtotal: String((parseFloat(tt.price.toString()) * 20).toFixed(2))
+                    }]
+                }
+            }
+        });
+        
+        await prisma.payment.create({
+            data: {
+                amount: order.totalAmount,
+                currency: 'EUR',
+                status: PaymentStatus.COMPLETED,
+                provider: 'stripe',
+                providerPaymentId: `pi_demo_${i}_${order.id.slice(0,8)}`,
+                providerSessionId: `sess_demo_${i}_${order.id.slice(0,8)}`,
+                paidAt: new Date(),
+                orderId: order.id
+            }
+        });
+        
+        await createTicketsForOrder(order.id, demoEvent!.id, buyerUser.id, undefined, TicketStatus.ACTIVE);
+    }
+    console.log('2000 tickets generados con éxito.');
+  }
+
 
   // ── EVENTOS DRAFT (4) — alimentan requires-attention ─────────────────────
 
