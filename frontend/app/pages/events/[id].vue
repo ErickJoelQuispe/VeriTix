@@ -344,7 +344,7 @@ function formatPerformanceTime(value: string | Date | null): string {
               </div>
 
               <UiEmptyState
-                v-else-if="!hasTicketTypes"
+                v-if="!hasTicketTypes"
                 icon="i-lucide-ticket-x"
                 title="Todavía no hay entradas públicas"
                 description="Volvé más cerca de la fecha de venta para elegir tus lugares."
