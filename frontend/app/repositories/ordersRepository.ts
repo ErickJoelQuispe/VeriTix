@@ -1,7 +1,13 @@
-import type { CreateOrderRequest, CreateOrderResponse, OrderDetailApiItem, OrderListApiItem } from '~~/shared/api/orders'
+import type { CreateOrderRequest, CreateOrderResponse, EventOrderListApiItem, EventOrderStatus, OrderDetailApiItem, OrderListApiItem } from '~~/shared/api/orders'
 import type { PaginatedResponse } from '~~/shared/api/types'
 import type { UserOrder, UserOrderDetail } from '~~/shared/types'
 import { compactQuery } from '~~/shared/query'
+
+interface ListEventOrdersParams {
+  status?: EventOrderStatus
+  page?: number
+  limit?: number
+}
 
 function mapOrderListItem(item: OrderListApiItem): UserOrder {
   return {
@@ -65,10 +71,24 @@ export function useOrdersRepository() {
     }
   }
 
+  async function listEventOrders(
+    eventId: string,
+    params: ListEventOrdersParams = {},
+  ): Promise<PaginatedResponse<EventOrderListApiItem>> {
+    return apiRequest<PaginatedResponse<EventOrderListApiItem>>(
+      `/orders/event/${eventId}`,
+      {
+        method: 'GET',
+        query: compactQuery({ status: params.status, page: params.page, limit: params.limit }),
+      },
+    )
+  }
+
   return {
     listMyOrders,
     getOrder,
     cancelOrder,
     createOrder,
+    listEventOrders,
   }
 }

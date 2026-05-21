@@ -410,6 +410,8 @@ export class EventsService {
 
     this.assertOwnerOrAdmin(raw, user.sub, user.role);
 
+    const revenueByDate = await this.eventsRepository.findRevenueByDate(id);
+
     // ── Capacidad ──────────────────────────────────────────────────────────
     let sold = 0;
     for (const tt of raw.ticketTypes) {
@@ -475,6 +477,7 @@ export class EventsService {
         topTicketType && topTicketType.sold > 0
           ? { name: topTicketType.name, sold: topTicketType.sold }
           : null,
+      revenueByDate,
     };
   }
 }

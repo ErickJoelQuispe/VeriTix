@@ -5,7 +5,7 @@ import { formatEventDate } from '@/utils/date-formatters'
 
 const route = useRoute()
 const { getApiErrorMessage, getApiErrorStatus } = useApiErrorMessage()
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, user } = useAuth()
 const { add: addToast } = useToastQueue()
 
 const roleLabels: Record<string, string> = {
@@ -303,36 +303,44 @@ function formatPerformanceTime(value: string | Date | null): string {
               </BaseButton>
             </div>
 
-            <div class="space-y-4 rounded-3xl border border-lavender/18 bg-lavender/8 p-5 shadow-sm lg:sticky lg:top-8">
-              <div class="flex items-start justify-between gap-4">
-                <div class="space-y-2">
-                  <UiMetaLabel>Entradas</UiMetaLabel>
-                  <p class="text-sm leading-relaxed text-toned">
-                    Elegí tus entradas y continuá al checkout.
-                  </p>
-                </div>
+            <div class="space-y-3">
+              <UiMetaLabel>Detalle</UiMetaLabel>
+              <p v-if="event.description" class="max-w-2xl text-sm leading-relaxed text-toned sm:text-base">
+                {{ event.description }}
+              </p>
+              <p v-else class="text-sm leading-relaxed text-toned">
+                No hay descripción pública para este evento todavía.
+              </p>
+            </div>
 
-                <BaseBadge kind="status" size="xs" :color="isPurchasable ? 'success' : 'neutral'">
-                  {{ isPurchasable ? 'Venta activa' : 'Venta cerrada' }}
-                </BaseBadge>
+            <!-- Sales Report CTA (ADMIN / CREATOR only) -->
+            <div
+              v-if="user?.role === 'ADMIN' || user?.role === 'CREATOR'"
+              class="flex items-center justify-between border-t border-default/55 pt-7"
+            >
+              <div class="space-y-1">
+                <UiMetaLabel>Backoffice</UiMetaLabel>
+                <p class="text-sm text-toned">
+                  Accedé al reporte completo de ventas de este evento.
+                </p>
               </div>
+              <BaseButton
+                variant="secondary"
+                size="lg"
+                :to="`/backoffice/events/${eventId}/sales`"
+                leading-icon="i-lucide-bar-chart-2"
+              >
+                Ver reporte de ventas
+              </BaseButton>
+            </div>
 
-              <div v-if="loadingTicketTypes" class="space-y-3">
-                <BaseSkeleton v-for="index in 2" :key="index" class="h-24 rounded-2xl" />
-              </div>
-
-              <UiEmptyState
-                v-else-if="!isPurchasable"
-                icon="i-lucide-lock"
-                title="Venta no disponible"
-                description="Este evento no está abierto para compra pública en este momento."
-              />
-
-              <div v-else-if="ticketTypesError" class="space-y-3 rounded-2xl border border-warning/30 bg-warning/8 px-4 py-4 text-sm leading-relaxed text-toned">
-                <p>{{ ticketTypesError }}</p>
-                <BaseButton variant="outlined" size="sm" leading-icon="i-lucide-rotate-ccw" @click="loadTicketTypes">
-                  Reintentar
-                </BaseButton>
+            <!-- Ticket Types & Purchase -->
+            <div class="space-y-4 border-t border-default/55 pt-7">
+              <div class="space-y-2">
+                <UiMetaLabel>Entradas</UiMetaLabel>
+                <p class="text-sm leading-relaxed text-toned">
+                  Seleccioná el tipo de entrada y la cantidad.
+                </p>
               </div>
 
               <UiEmptyState

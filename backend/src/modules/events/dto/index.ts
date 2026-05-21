@@ -12,6 +12,7 @@ export {
   UpcomingEventResponseDto,
   RequiresAttentionResponseDto,
   TopEventResponseDto,
+  RevenueByDateDto,
   EventMetricsResponseDto,
   UpcomingQueryDto,
   TopEventsQueryDto,
