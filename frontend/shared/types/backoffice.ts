@@ -4,6 +4,7 @@ import type {
   EventGenreSummary,
   EventVenueDetail,
   EventVenueSummary,
+  GenreOption,
 } from './domain'
 import type { UserRole } from './user'
 
@@ -222,6 +223,21 @@ export interface BackofficeFormatRecord {
   slug: string
   description: string | null
   icon: string | null
+}
+
+export type BackofficeGenreRecord = GenreOption
+
+export interface BackofficeGenrePayload {
+  name: string
+  slug: string
+  description?: string
+}
+
+export interface BackofficeConcertFormatPayload {
+  name: string
+  slug: string
+  description?: string
+  icon?: string
 }
 
 export interface BackofficeArtistPayload {
