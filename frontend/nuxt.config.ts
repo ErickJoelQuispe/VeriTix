@@ -20,6 +20,10 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/fonts', '@nuxt/test-utils/module'],
 
+  image: {
+    domains: ['images.unsplash.com', 'picsum.photos'],
+  },
+
   imports: {
     dirs: ['~/composables', '~/composables/**'],
   },
