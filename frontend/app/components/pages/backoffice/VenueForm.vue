@@ -26,9 +26,6 @@ const dirty = defineModel<boolean>('dirty', { default: false })
 
 const schema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
-  slug: z.string()
-    .min(1, 'El slug es obligatorio')
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Solo minúsculas, números y guiones'),
   address: z.string().min(1, 'La dirección es obligatoria'),
   city: z.string().min(1, 'La ciudad es obligatoria'),
   state: z.string().optional(),
@@ -41,7 +38,6 @@ const schema = z.object({
 
 const state = reactive({
   name: '',
-  slug: '',
   address: '',
   city: '',
   state: '',
@@ -74,7 +70,6 @@ function parseCapacity(): number | null | undefined {
 function buildCurrentPayload(): BackofficeVenuePayload {
   return normalizeVenuePayload({
     name: state.name,
-    slug: state.slug,
     address: state.address,
     city: state.city,
     state: state.state || undefined,
@@ -95,7 +90,6 @@ function hasDirtyChanges() {
   }
 
   return currentPayload.name !== initialSnapshot.value.name
-    || currentPayload.slug !== initialSnapshot.value.slug
     || currentPayload.address !== initialSnapshot.value.address
     || currentPayload.city !== initialSnapshot.value.city
     || currentPayload.state !== initialSnapshot.value.state
@@ -108,7 +102,6 @@ function hasDirtyChanges() {
 
 function applyInitialValue() {
   state.name = props.initialValue?.name ?? ''
-  state.slug = props.initialValue?.slug ?? ''
   state.address = props.initialValue?.address ?? ''
   state.city = props.initialValue?.city ?? ''
   state.state = props.initialValue?.state ?? ''
@@ -129,7 +122,6 @@ function handleSubmit() {
 
   emit('submit', normalizeVenuePayload({
     name: state.name.trim(),
-    slug: state.slug.trim(),
     address: state.address.trim(),
     city: state.city.trim(),
     state: state.state.trim() || undefined,
@@ -144,7 +136,6 @@ function handleSubmit() {
 watch(() => props.initialValue, applyInitialValue, { immediate: true })
 watch(() => [
   state.name,
-  state.slug,
   state.address,
   state.city,
   state.state,
@@ -160,16 +151,7 @@ watch(() => [
 
 <template>
   <FormRoot :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
-    <div class="grid gap-5 lg:grid-cols-2">
-      <FormField v-model="state.name" name="name" label="Nombre" required />
-      <FormField
-        v-model="state.slug"
-        name="slug"
-        label="Slug"
-        placeholder="palacio-congresos-granada"
-        required
-      />
-    </div>
+    <FormField v-model="state.name" name="name" label="Nombre" required />
 
     <FormField
       v-model="state.address"

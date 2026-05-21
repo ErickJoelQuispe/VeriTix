@@ -26,9 +26,6 @@ const dirty = defineModel<boolean>('dirty', { default: false })
 
 const schema = z.object({
   name: z.string().min(1, 'El nombre es obligatorio'),
-  slug: z.string()
-    .min(1, 'El slug es obligatorio')
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Solo minúsculas, números y guiones'),
   bio: z.string().optional(),
   imageUrl: z.string().optional(),
   country: z.string().optional(),
@@ -38,7 +35,6 @@ const schema = z.object({
 
 const state = reactive({
   name: '',
-  slug: '',
   bio: '',
   imageUrl: '',
   country: '',
@@ -58,7 +54,6 @@ const initialSnapshot = ref<BackofficeArtistPayload | null>(null)
 function buildCurrentPayload(): BackofficeArtistPayload {
   return normalizeArtistPayload({
     name: state.name,
-    slug: state.slug,
     bio: state.bio,
     imageUrl: state.imageUrl,
     country: state.country,
@@ -76,7 +71,6 @@ function hasDirtyChanges() {
   }
 
   return currentPayload.name !== initialSnapshot.value.name
-    || currentPayload.slug !== initialSnapshot.value.slug
     || currentPayload.bio !== initialSnapshot.value.bio
     || currentPayload.imageUrl !== initialSnapshot.value.imageUrl
     || currentPayload.country !== initialSnapshot.value.country
@@ -86,7 +80,6 @@ function hasDirtyChanges() {
 
 function applyInitialValue() {
   state.name = props.initialValue?.name ?? ''
-  state.slug = props.initialValue?.slug ?? ''
   state.bio = props.initialValue?.bio ?? ''
   state.imageUrl = props.initialValue?.imageUrl ?? ''
   state.country = props.initialValue?.country ?? ''
@@ -104,7 +97,6 @@ function handleSubmit() {
 
   emit('submit', normalizeArtistPayload({
     name: state.name.trim(),
-    slug: state.slug.trim(),
     bio: state.bio.trim() || undefined,
     imageUrl: state.imageUrl.trim() || undefined,
     country: state.country.trim() || undefined,
@@ -116,7 +108,6 @@ function handleSubmit() {
 watch(() => props.initialValue, applyInitialValue, { immediate: true })
 watch(() => [
   state.name,
-  state.slug,
   state.bio,
   state.imageUrl,
   state.country,
@@ -129,16 +120,7 @@ watch(() => [
 
 <template>
   <FormRoot :state="state" :schema="schema" :validate-on="[]" class="space-y-8" @submit="handleSubmit">
-    <div class="grid gap-5 lg:grid-cols-2">
-      <FormField v-model="state.name" name="name" label="Nombre" required />
-      <FormField
-        v-model="state.slug"
-        name="slug"
-        label="Slug"
-        placeholder="los-planetas"
-        required
-      />
-    </div>
+    <FormField v-model="state.name" name="name" label="Nombre" required />
 
     <FormTextarea v-model="state.bio" name="bio" label="Biografía" placeholder="Describí al artista" />
 
