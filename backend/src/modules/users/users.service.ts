@@ -77,6 +77,11 @@ export class UsersService {
     return user as UserResponseDto;
   }
 
+  async findByEmail(email: string): Promise<UserResponseDto | null> {
+    const user = await this.usersRepository.findByEmail(email);
+    return user as UserResponseDto | null;
+  }
+
   async create(dto: AdminCreateUserDto): Promise<UserResponseDto> {
     const existingEmail = await this.usersRepository.findByEmail(dto.email);
     if (existingEmail)

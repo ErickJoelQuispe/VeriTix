@@ -103,6 +103,18 @@ export class UsersController {
     return this.usersService.findAll(query);
   }
 
+  @Get('by-email')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Buscar usuario por email exacto (admin)' })
+  @ApiOkResponse({
+    description: 'Usuario encontrado o null.',
+    type: UserResponseDto,
+  })
+  @ApiForbiddenResponse({ description: 'Acceso restringido a administradores.' })
+  findByEmail(@Query('email') email: string): Promise<UserResponseDto | null> {
+    return this.usersService.findByEmail(email);
+  }
+
   @Get(':id')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Obtener usuario por ID (admin)' })
