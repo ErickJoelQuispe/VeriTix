@@ -8,7 +8,9 @@ import {
   CACHE_KEYS,
   CACHE_TTL_LONG,
   CacheService,
-} from '../../cache';
+  generateSlug,
+  uniqueSlug,
+} from '../../common';
 import {
   CreateVenueDto,
   UpdateVenueDto,
@@ -25,12 +27,13 @@ export class VenuesService {
   ) {}
 
   async create(dto: CreateVenueDto): Promise<VenueResponseDto> {
-    const existingSlug = await this.venuesRepository.findBySlug(dto.slug);
-    if (existingSlug) {
-      throw new ConflictException('El slug ya está en uso por otro recinto');
-    }
+    const baseSlug = dto.slug ?? generateSlug(dto.name);
+    const slug = await uniqueSlug(
+      baseSlug,
+      (s) => this.venuesRepository.findBySlug(s).then(Boolean),
+    );
 
-    const created = await this.venuesRepository.create(dto);
+    const created = await this.venuesRepository.create({ ...dto, slug });
     await this.cache.del(CACHE_KEYS.VENUES_LIST);
     return created as VenueResponseDto;
   }
