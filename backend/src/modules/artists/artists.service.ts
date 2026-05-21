@@ -4,13 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PaginatedResponse } from '@common/dto';
-import {
-  CACHE_KEYS,
-  CACHE_TTL_LONG,
-  CacheService,
-  generateSlug,
-  uniqueSlug,
-} from '../../common';
+import { CACHE_KEYS, CACHE_TTL_LONG, CacheService } from '../../cache';
+import { generateSlug, uniqueSlug } from '../../common';
 import {
   ArtistQueryDto,
   ArtistResponseDto,
@@ -30,7 +25,7 @@ export class ArtistsService {
     const baseSlug = dto.slug ?? generateSlug(dto.name);
     const slug = await uniqueSlug(
       baseSlug,
-      (s) => this.artistsRepository.findBySlug(s).then(Boolean),
+      (s: string) => this.artistsRepository.findBySlug(s).then(Boolean),
     );
 
     const created = await this.artistsRepository.create({ ...dto, slug });

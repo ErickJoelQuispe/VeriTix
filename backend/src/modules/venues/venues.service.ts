@@ -4,13 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PaginatedResponse } from '@common/dto';
-import {
-  CACHE_KEYS,
-  CACHE_TTL_LONG,
-  CacheService,
-  generateSlug,
-  uniqueSlug,
-} from '../../common';
+import { CACHE_KEYS, CACHE_TTL_LONG, CacheService } from '../../cache';
+import { generateSlug, uniqueSlug } from '../../common';
 import {
   CreateVenueDto,
   UpdateVenueDto,
@@ -30,7 +25,7 @@ export class VenuesService {
     const baseSlug = dto.slug ?? generateSlug(dto.name);
     const slug = await uniqueSlug(
       baseSlug,
-      (s) => this.venuesRepository.findBySlug(s).then(Boolean),
+      (s: string) => this.venuesRepository.findBySlug(s).then(Boolean),
     );
 
     const created = await this.venuesRepository.create({ ...dto, slug });

@@ -3,13 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CACHE_KEYS,
-  CACHE_TTL_LONG,
-  CacheService,
-  generateSlug,
-  uniqueSlug,
-} from '../../common';
+import { CACHE_KEYS, CACHE_TTL_LONG, CacheService } from '../../cache';
+import { generateSlug, uniqueSlug } from '../../common';
 import { CreateGenreDto, GenreResponseDto, UpdateGenreDto } from './dto';
 import { GenresRepository } from './genres.repository';
 
@@ -29,7 +24,7 @@ export class GenresService {
     const baseSlug = dto.slug ?? generateSlug(dto.name);
     const slug = await uniqueSlug(
       baseSlug,
-      (s) => this.genresRepository.findBySlug(s).then(Boolean),
+      (s: string) => this.genresRepository.findBySlug(s).then(Boolean),
     );
 
     const created = await this.genresRepository.create({ ...dto, slug });

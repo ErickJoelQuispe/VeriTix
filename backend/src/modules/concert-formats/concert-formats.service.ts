@@ -3,13 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CACHE_KEYS,
-  CACHE_TTL_LONG,
-  CacheService,
-  generateSlug,
-  uniqueSlug,
-} from '../../common';
+import { CACHE_KEYS, CACHE_TTL_LONG, CacheService } from '../../cache';
+import { generateSlug, uniqueSlug } from '../../common';
 import {
   ConcertFormatResponseDto,
   CreateConcertFormatDto,
@@ -33,7 +28,7 @@ export class ConcertFormatsService {
     const baseSlug = dto.slug ?? generateSlug(dto.name);
     const slug = await uniqueSlug(
       baseSlug,
-      (s) => this.concertFormatsRepository.findBySlug(s).then(Boolean),
+      (s: string) => this.concertFormatsRepository.findBySlug(s).then(Boolean),
     );
 
     const created = await this.concertFormatsRepository.create({ ...dto, slug });
