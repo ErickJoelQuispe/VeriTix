@@ -24,7 +24,6 @@ Cada archivo incluye:
 | `07-estado.md` | Estado del proyecto |
 | `08-despliegue.md` | Despliegue y contenerización |
 | `09-riesgos.md` | Gestión de riesgos |
-| `10-sostenibilidad.md` | Sostenibilidad |
 | `11-cierre.md` | Cierre |
 | `12-demo.md` | Demo en vivo — guion del presentador |
 

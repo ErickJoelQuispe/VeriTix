@@ -54,10 +54,6 @@ src: ./src/09-riesgos.md
 ---
 
 ---
-src: ./src/10-sostenibilidad.md
----
-
----
 src: ./src/12-demo.md
 ---
 
