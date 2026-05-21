@@ -9,6 +9,9 @@ withDefaults(defineProps<{
   actionLabel: '',
   actionTo: '',
 })
+
+const slots = useSlots()
+const hasActionsSlot = computed(() => Boolean(slots.actions))
 </script>
 
 <template>
@@ -26,8 +29,12 @@ withDefaults(defineProps<{
       </p>
     </div>
 
-    <BaseButton v-if="actionLabel && actionTo" variant="secondary" size="sm" :to="actionTo">
-      {{ actionLabel }}
-    </BaseButton>
+    <div v-if="hasActionsSlot || (actionLabel && actionTo)" class="flex flex-wrap items-center justify-center gap-2">
+      <slot name="actions">
+        <BaseButton v-if="actionLabel && actionTo" variant="secondary" size="sm" :to="actionTo">
+          {{ actionLabel }}
+        </BaseButton>
+      </slot>
+    </div>
   </div>
 </template>

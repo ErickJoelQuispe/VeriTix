@@ -37,7 +37,7 @@ const filters = computed(() => ({
   page: readQueryPage(route.query.page),
 }))
 
-const { data: eventsResponse, status, error } = await usePublicEvents(filters)
+const { data: eventsResponse, status, error, refresh } = await usePublicEvents(filters)
 const { genres, cities } = useEventCatalogFilters()
 
 const genreOptions = computed(() => genres.data.value ?? [])
@@ -122,6 +122,16 @@ const showPagination = computed(
   () => !eventsErrorMessage.value && events.value.length > 0 && meta.value.totalPages > 1,
 )
 
+const hasActiveFilters = computed(() => activeFilterCount.value > 0)
+
+const activeFilterSummaries = computed(() => [
+  filters.value.search ? { label: 'Evento', value: filters.value.search, icon: 'i-lucide-search' } : null,
+  filters.value.artistName ? { label: 'Artista', value: filters.value.artistName, icon: 'i-lucide-user-round-search' } : null,
+  filters.value.venueName ? { label: 'Recinto', value: filters.value.venueName, icon: 'i-lucide-map-pin' } : null,
+  filters.value.genreId ? { label: 'Género', value: genreOptions.value.find(genre => genre.id === filters.value.genreId)?.name ?? 'Filtrado', icon: 'i-lucide-music-2' } : null,
+  filters.value.city ? { label: 'Ciudad', value: filters.value.city, icon: 'i-lucide-map-pin' } : null,
+].filter(Boolean) as Array<{ label: string, value: string, icon: string }>)
+
 async function updateFilters(next: Partial<typeof filters.value>) {
   const shouldResetPage
     = next.search !== undefined
@@ -158,13 +168,20 @@ async function submitSearch() {
     artistName: artistDraft.value.trim(),
     venueName: venueDraft.value.trim(),
   })
+
+  filtersOpen.value = false
 }
 
 async function clearFilters() {
   searchDraft.value = ''
   artistDraft.value = ''
   venueDraft.value = ''
+  filtersOpen.value = false
   await navigateTo('/events')
+}
+
+async function retryFetch() {
+  await refresh()
 }
 
 async function handlePageChange(page: number) {
@@ -196,35 +213,35 @@ async function handlePageChange(page: number) {
             @submit.prevent="submitSearch"
           >
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div class="space-y-1">
+              <div class="space-y-2">
                 <UiMetaLabel as="h2" tone="accent">
                   Filtros
                 </UiMetaLabel>
                 <p class="text-sm leading-relaxed text-toned">
                   Buscá por evento, artista o recinto sin salir de la cartelera.
                 </p>
+                <p v-if="hasActiveFilters" class="text-xs text-muted">
+                  {{ activeFilterCount }} filtro{{ activeFilterCount === 1 ? '' : 's' }} activo{{ activeFilterCount === 1 ? '' : 's' }}.
+                </p>
               </div>
 
-              <div class="flex flex-col gap-2 lg:hidden">
+              <div class="flex flex-col gap-2 sm:flex-row">
                 <BaseButton
                   variant="outlined"
                   type="button"
                   size="sm"
-                  class="w-full"
+                  class="w-full sm:w-auto lg:hidden"
                   :disabled="isPending"
                   leading-icon="i-lucide-sliders-horizontal"
                   @click="filtersOpen = !filtersOpen"
                 >
-                  Filtros ({{ activeFilterCount }})
+                  {{ filtersOpen ? 'Ocultar filtros' : `Filtros${hasActiveFilters ? ` (${activeFilterCount})` : ''}` }}
                 </BaseButton>
-              </div>
-
-              <div class="hidden gap-2 lg:flex">
                 <BaseButton
                   variant="primary"
                   type="submit"
                   size="sm"
-                  class="w-full sm:w-auto order-first"
+                  class="w-full sm:w-auto"
                   :loading="isPending"
                   :leading-icon="isPending ? undefined : 'i-lucide-search'"
                 >
@@ -243,6 +260,19 @@ async function handlePageChange(page: number) {
                   Limpiar filtros
                 </BaseButton>
               </div>
+            </div>
+
+            <div v-if="hasActiveFilters" class="flex flex-wrap gap-2 rounded-2xl border border-default/55 bg-default/10 px-4 py-3">
+              <BaseBadge
+                v-for="filter in activeFilterSummaries"
+                :key="filter.label + filter.value"
+                kind="tag"
+                size="sm"
+                icon="i-lucide-filter"
+                class="rounded-full"
+              >
+                {{ filter.label }}: {{ filter.value }}
+              </BaseBadge>
             </div>
 
             <div v-show="filtersOpen" class="space-y-6 lg:hidden">
@@ -449,7 +479,28 @@ async function handlePageChange(page: number) {
           </div>
 
           <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <BaseSkeleton v-for="index in 6" :key="index" class="h-104 rounded-2xl" />
+            <UiPanel
+              v-for="index in 6"
+              :key="index"
+              variant="glass"
+              radius="xl"
+              padding="none"
+              class="overflow-hidden"
+            >
+              <BaseSkeleton class="h-52 rounded-none md:h-56" />
+              <div class="space-y-4 p-5">
+                <div class="flex flex-wrap gap-2">
+                  <BaseSkeleton class="h-6 w-20 rounded-full" />
+                  <BaseSkeleton class="h-6 w-16 rounded-full" />
+                </div>
+                <BaseSkeleton class="h-6 w-4/5 rounded-full" />
+                <BaseSkeleton class="h-4 w-3/4 rounded-full" />
+                <div class="flex items-center justify-between gap-3 border-t border-default/40 pt-4">
+                  <BaseSkeleton class="h-4 w-24 rounded-full" />
+                  <BaseSkeleton class="h-9 w-24 rounded-full" />
+                </div>
+              </div>
+            </UiPanel>
           </div>
 
           <div
@@ -466,6 +517,9 @@ async function handlePageChange(page: number) {
                   {{ eventsErrorMessage }}
                 </p>
               </div>
+              <BaseButton variant="outlined" size="sm" leading-icon="i-lucide-rotate-ccw" @click="retryFetch">
+                Reintentar
+              </BaseButton>
             </div>
           </div>
 
@@ -474,7 +528,19 @@ async function handlePageChange(page: number) {
               icon="i-lucide-calendar-x"
               title="No hay eventos para estos filtros."
               description="Probá limpiar filtros o ajustar la búsqueda para ver más resultados."
-            />
+            >
+              <template #actions>
+                <BaseButton
+                  v-if="hasActiveFilters"
+                  variant="secondary"
+                  size="sm"
+                  leading-icon="i-lucide-rotate-ccw"
+                  @click="clearFilters"
+                >
+                  Limpiar filtros
+                </BaseButton>
+              </template>
+            </UiEmptyState>
           </UiPanel>
 
           <div v-else class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">

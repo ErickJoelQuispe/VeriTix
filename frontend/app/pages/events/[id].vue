@@ -16,39 +16,63 @@ const roleLabels: Record<string, string> = {
 
 const eventId = computed(() => (typeof route.params.id === 'string' ? route.params.id : ''))
 
-const { data: event, status, error } = await usePublicEvent(eventId)
-const { data: lineup, status: lineupStatus, error: lineupError } = await usePublicEventArtists(eventId)
+const { data: event, status, error, refresh: refreshEvent } = await usePublicEvent(eventId)
+const { data: lineup, status: lineupStatus, error: lineupError, refresh: refreshLineup } = await usePublicEventArtists(eventId)
 
-// ── Ticket Types ──────────────────────────────────────────────────────────────
 const ticketTypes = ref<TicketType[]>([])
 const loadingTicketTypes = ref(false)
+const ticketTypesError = ref('')
 
-onMounted(async () => {
-  if (!eventId.value) { return }
+async function loadTicketTypes() {
+  if (!eventId.value) {
+    return
+  }
+
   loadingTicketTypes.value = true
+  ticketTypesError.value = ''
+
   try {
     ticketTypes.value = await useTicketTypesRepository().listByEvent(eventId.value)
   }
   catch {
-    // Silent — no ticket types available
+    ticketTypesError.value = 'No pudimos cargar los tipos de entrada en este momento.'
   }
   finally {
     loadingTicketTypes.value = false
   }
-})
+}
 
-// ── Selection & Purchase ──────────────────────────────────────────────────────
+onMounted(loadTicketTypes)
+
 const selection = ref<Array<{ ticketTypeId: string, quantity: number, unitPrice: number }>>([])
 const buyLoading = ref(false)
 
 const canBuy = computed(() => selection.value.some(item => item.quantity > 0))
+const hasTicketTypes = computed(() => ticketTypes.value.length > 0)
+const isPurchasable = computed(() => event.value?.status === 'PUBLISHED')
+
+const eventStatusLabels: Record<string, string> = {
+  PUBLISHED: 'Disponible',
+  FINISHED: 'Finalizado',
+  CANCELLED: 'Cancelado',
+  DRAFT: 'Borrador',
+}
+
+const eventStatusTone: Record<string, 'success' | 'neutral' | 'error' | 'warning'> = {
+  PUBLISHED: 'success',
+  FINISHED: 'neutral',
+  CANCELLED: 'error',
+  DRAFT: 'warning',
+}
 
 function handleSelectionUpdate(items: Array<{ ticketTypeId: string, quantity: number, unitPrice: number }>) {
   selection.value = items
 }
 
 async function handleBuy() {
-  if (!canBuy.value || buyLoading.value) { return }
+  if (!canBuy.value || buyLoading.value || !isPurchasable.value) {
+    return
+  }
 
   if (!isAuthenticated.value) {
     await navigateTo(`/login?redirect=/events/${eventId.value}`)
@@ -98,6 +122,8 @@ const doorsOpen = computed(() => (event.value?.doorsOpenISO ? formatEventDate(ev
 const startSale = computed(() => (event.value?.startSaleISO ? formatEventDate(event.value.startSaleISO) : 'Por confirmar'))
 const endSale = computed(() => (event.value?.endSaleISO ? formatEventDate(event.value.endSaleISO) : 'Por confirmar'))
 const genreLabels = computed(() => event.value?.genres.map(genre => genre.name).join(' · ') ?? '')
+const eventStatusLabel = computed(() => (event.value ? (eventStatusLabels[event.value.status] ?? event.value.status) : ''))
+const eventStatusColor = computed(() => (event.value ? (eventStatusTone[event.value.status] ?? 'neutral') : 'neutral'))
 
 const eventErrorStatus = computed(() => (error.value ? getApiErrorStatus(error.value) : undefined))
 
@@ -193,6 +219,12 @@ function formatPerformanceTime(value: string | Date | null): string {
                 <BaseBadge v-for="genre in event.genres" :key="genre.id" kind="tag" size="xs">
                   {{ genre.name }}
                 </BaseBadge>
+                <BaseBadge kind="status" size="xs" :color="eventStatusColor">
+                  {{ eventStatusLabel }}
+                </BaseBadge>
+                <BaseBadge kind="price" size="xs" color="primary">
+                  {{ event.currency }}
+                </BaseBadge>
               </div>
 
               <div class="space-y-3">
@@ -271,6 +303,70 @@ function formatPerformanceTime(value: string | Date | null): string {
               </BaseButton>
             </div>
 
+            <div class="space-y-4 rounded-3xl border border-lavender/18 bg-lavender/8 p-5 shadow-sm lg:sticky lg:top-8">
+              <div class="flex items-start justify-between gap-4">
+                <div class="space-y-2">
+                  <UiMetaLabel>Entradas</UiMetaLabel>
+                  <p class="text-sm leading-relaxed text-toned">
+                    Elegí tus entradas y continuá al checkout.
+                  </p>
+                </div>
+
+                <BaseBadge kind="status" size="xs" :color="isPurchasable ? 'success' : 'neutral'">
+                  {{ isPurchasable ? 'Venta activa' : 'Venta cerrada' }}
+                </BaseBadge>
+              </div>
+
+              <div v-if="loadingTicketTypes" class="space-y-3">
+                <BaseSkeleton v-for="index in 2" :key="index" class="h-24 rounded-2xl" />
+              </div>
+
+              <UiEmptyState
+                v-else-if="!isPurchasable"
+                icon="i-lucide-lock"
+                title="Venta no disponible"
+                description="Este evento no está abierto para compra pública en este momento."
+              />
+
+              <div v-else-if="ticketTypesError" class="space-y-3 rounded-2xl border border-warning/30 bg-warning/8 px-4 py-4 text-sm leading-relaxed text-toned">
+                <p>{{ ticketTypesError }}</p>
+                <BaseButton variant="outlined" size="sm" leading-icon="i-lucide-rotate-ccw" @click="loadTicketTypes">
+                  Reintentar
+                </BaseButton>
+              </div>
+
+              <UiEmptyState
+                v-else-if="!hasTicketTypes"
+                icon="i-lucide-ticket-x"
+                title="Todavía no hay entradas públicas"
+                description="Volvé más cerca de la fecha de venta para elegir tus lugares."
+              />
+
+              <template v-else>
+                <CheckoutTicketTypeSelector
+                  :ticket-types="ticketTypes"
+                  :loading="loadingTicketTypes"
+                  :currency="event.currency"
+                  @update:selection="handleSelectionUpdate"
+                />
+
+                <BaseButton
+                  variant="primary"
+                  size="lg"
+                  class="w-full"
+                  :disabled="!canBuy || loadingTicketTypes || buyLoading"
+                  :loading="buyLoading"
+                  @click="handleBuy"
+                >
+                  {{ canBuy ? 'Continuar al checkout' : 'Seleccioná tus entradas' }}
+                </BaseButton>
+
+                <p class="text-xs leading-relaxed text-toned">
+                  Vas a revisar el pedido antes de pagar.
+                </p>
+              </template>
+            </div>
+
             <div class="space-y-3">
               <UiMetaLabel>Detalle</UiMetaLabel>
               <p v-if="event.description" class="max-w-2xl text-sm leading-relaxed text-toned sm:text-base">
@@ -279,33 +375,6 @@ function formatPerformanceTime(value: string | Date | null): string {
               <p v-else class="text-sm leading-relaxed text-toned">
                 No hay descripción pública para este evento todavía.
               </p>
-            </div>
-
-            <!-- Ticket Types & Purchase -->
-            <div class="space-y-4 border-t border-default/55 pt-7">
-              <div class="space-y-2">
-                <UiMetaLabel>Entradas</UiMetaLabel>
-                <p class="text-sm leading-relaxed text-toned">
-                  Seleccioná el tipo de entrada y la cantidad.
-                </p>
-              </div>
-
-              <CheckoutTicketTypeSelector
-                :ticket-types="ticketTypes"
-                :loading="loadingTicketTypes"
-                @update:selection="handleSelectionUpdate"
-              />
-
-              <BaseButton
-                variant="primary"
-                size="lg"
-                class="w-full"
-                :disabled="!canBuy || loadingTicketTypes || buyLoading"
-                :loading="buyLoading"
-                @click="handleBuy"
-              >
-                Comprar
-              </BaseButton>
             </div>
 
             <div class="space-y-4 border-t border-default/55 pt-7">
@@ -321,7 +390,10 @@ function formatPerformanceTime(value: string | Date | null): string {
               </div>
 
               <div v-else-if="lineupErrorMessage" class="rounded-2xl border border-warning/30 bg-warning/8 px-4 py-4 text-sm leading-relaxed text-toned">
-                {{ lineupErrorMessage }}
+                <p>{{ lineupErrorMessage }}</p>
+                <BaseButton variant="outlined" size="sm" leading-icon="i-lucide-rotate-ccw" class="mt-3" @click="refreshLineup()">
+                  Reintentar
+                </BaseButton>
               </div>
 
               <div v-else-if="lineupItems.length === 0" class="rounded-2xl border border-default/55 bg-elevated/25 px-4 py-4 text-sm leading-relaxed text-toned">
@@ -387,6 +459,9 @@ function formatPerformanceTime(value: string | Date | null): string {
               {{ eventErrorMessage || 'Intentá recargar la página en unos segundos.' }}
             </p>
           </div>
+          <BaseButton variant="outlined" size="sm" leading-icon="i-lucide-rotate-ccw" @click="refreshEvent()">
+            Reintentar
+          </BaseButton>
         </div>
       </div>
     </BaseContainer>
