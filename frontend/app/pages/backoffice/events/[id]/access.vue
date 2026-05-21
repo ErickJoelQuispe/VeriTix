@@ -369,24 +369,27 @@ const connectionBadge = computed(() => {
           </div>
 
           <!-- Error state -->
-          <UiEmptyState
-            v-if="hasError"
-            icon="i-lucide-wifi-off"
-            title="Conexión interrumpida"
-            :description="error ?? 'No se pudo mantener la conexión con el servidor.'"
-            class="mt-4"
-          >
-            <template #action>
-              <BaseButton
-                variant="primary"
-                size="sm"
-                leading-icon="i-lucide-refresh-cw"
-                @click="connect()"
-              >
-                Reconectar
-              </BaseButton>
-            </template>
-          </UiEmptyState>
+          <div v-if="hasError" class="mt-4 flex flex-col items-center justify-center gap-4 py-8 text-center">
+            <div class="flex size-12 items-center justify-center rounded-full border border-default bg-default/60 text-muted">
+              <BaseIcon name="i-lucide-wifi-off" class="size-5" />
+            </div>
+            <div class="space-y-1.5">
+              <p class="text-base font-semibold text-highlighted">
+                Conexión interrumpida
+              </p>
+              <p class="max-w-sm text-sm leading-relaxed text-toned">
+                {{ error ?? 'No se pudo mantener la conexión con el servidor.' }}
+              </p>
+            </div>
+            <BaseButton
+              variant="primary"
+              size="sm"
+              leading-icon="i-lucide-refresh-cw"
+              @click="connect()"
+            >
+              Reconectar
+            </BaseButton>
+          </div>
         </PagesBackofficeOverviewPanel>
 
       </div>
