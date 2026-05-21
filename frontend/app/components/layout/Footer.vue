@@ -30,6 +30,16 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
                   Events
                 </NuxtLink>
               </li>
+              <li>
+                <NuxtLink to="/backoffice/genres">
+                  Géneros
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/backoffice/concert-formats">
+                  Formatos
+                </NuxtLink>
+              </li>
             </ul>
           </div>
           <div>
@@ -40,6 +50,16 @@ const isBackofficeRoute = computed(() => route.path.startsWith('/backoffice'))
               <li>
                 <NuxtLink to="/backoffice/artists">
                   Artists
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/backoffice/genres">
+                  Géneros
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/backoffice/concert-formats">
+                  Formatos
                 </NuxtLink>
               </li>
               <li>

@@ -30,6 +30,16 @@ function statusBadgeLabel(status: TicketStatus): string {
   return map[status]
 }
 
+function statusIcon(status: TicketStatus): string {
+  const map: Record<TicketStatus, string> = {
+    ACTIVE: 'i-lucide-circle-check',
+    USED: 'i-lucide-check-check',
+    CANCELLED: 'i-lucide-circle-x',
+    REFUNDED: 'i-lucide-circle-arrow-left',
+  }
+  return map[status]
+}
+
 const truncatedHash = (hash: string) => hash.slice(0, 8)
 
 function formattedPrice(price: number) {
@@ -41,7 +51,7 @@ function formattedPrice(price: number) {
   <div class="space-y-3">
     <!-- Loading skeletons -->
     <template v-if="isLoading">
-      <BaseSkeleton v-for="i in 3" :key="i" class="h-16 rounded-xl" />
+      <BaseSkeleton v-for="i in 3" :key="i" class="h-24 rounded-2xl" />
     </template>
 
     <!-- Empty state -->
@@ -59,36 +69,63 @@ function formattedPrice(price: number) {
         v-for="ticket in tickets"
         :key="ticket.id"
         variant="glass"
-        radius="xl"
-        padding="none"
-        class="flex items-center gap-4 px-4 py-3 sm:px-5"
+        radius="lg"
+        padding="md"
+        class="border-default/65 transition-all duration-200 hover:border-primary/35 hover:bg-elevated/35"
       >
-        <BaseBadge kind="status" size="sm" :color="statusBadgeColor(ticket.status)">
-          {{ statusBadgeLabel(ticket.status) }}
-        </BaseBadge>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0 flex items-start gap-4">
+            <div class="vtx-ticket-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
+              <BaseIcon name="i-lucide-ticket" class="size-5 text-primary" />
+            </div>
 
-        <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-medium text-highlighted">
-            {{ ticket.ticketType.name }}
-          </p>
-          <p class="font-mono text-xs text-muted">
-            #{{ truncatedHash(ticket.hash) }}
-          </p>
+            <div class="min-w-0 space-y-1">
+              <p class="truncate text-base font-semibold text-highlighted">
+                {{ ticket.ticketType.name }}
+              </p>
+              <p class="font-mono text-xs text-muted">
+                #{{ truncatedHash(ticket.hash).toUpperCase() }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap sm:justify-end">
+            <div class="flex items-center gap-2">
+              <BaseBadge
+                kind="status"
+                size="sm"
+                leading
+                :icon="statusIcon(ticket.status)"
+                :color="statusBadgeColor(ticket.status)"
+              >
+                {{ statusBadgeLabel(ticket.status) }}
+              </BaseBadge>
+
+              <BaseBadge kind="price" size="sm">
+                {{ formattedPrice(ticket.ticketType.price) }}
+              </BaseBadge>
+            </div>
+
+            <BaseButton
+              variant="outlined"
+              size="sm"
+              trailing-icon="i-lucide-arrow-right"
+              @click="emit('openTicket', ticket)"
+            >
+              Ver ticket
+            </BaseButton>
+          </div>
         </div>
-
-        <p class="shrink-0 text-sm font-semibold text-highlighted">
-          {{ formattedPrice(ticket.ticketType.price) }}
-        </p>
-
-        <BaseButton
-          variant="outlined"
-          size="xs"
-          trailing-icon="i-lucide-arrow-right"
-          @click="emit('openTicket', ticket)"
-        >
-          Ver QR
-        </BaseButton>
       </UiPanel>
     </template>
   </div>
 </template>
+
+<style scoped>
+@reference "@/assets/css/main.css";
+
+.vtx-ticket-icon {
+  border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+</style>

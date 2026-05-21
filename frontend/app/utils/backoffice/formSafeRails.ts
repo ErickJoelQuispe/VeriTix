@@ -1,9 +1,13 @@
 import type {
   BackofficeArtistPayload,
   BackofficeArtistRecord,
+  BackofficeConcertFormatPayload,
+  BackofficeFormatRecord,
   BackofficeCreateUserPayload,
   BackofficeEventDetail,
   BackofficeEventPayload,
+  BackofficeGenrePayload,
+  BackofficeGenreRecord,
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
   BackofficeVenuePayload,
@@ -110,6 +114,57 @@ export function hasArtistSemanticChanges(artist: BackofficeArtistRecord, payload
     || payload.isActive !== comparableArtist.isActive
     || !areStringArraysEqual(payload.genreIds, comparableArtist.genreIds)
   )
+}
+
+export function normalizeGenrePayload(payload: BackofficeGenrePayload): BackofficeGenrePayload {
+  return {
+    name: normalizeRequiredString(payload.name),
+    slug: normalizeRequiredString(payload.slug),
+    description: normalizeOptionalString(payload.description),
+  }
+}
+
+function toGenreComparablePayload(genre: BackofficeGenreRecord): BackofficeGenrePayload {
+  return normalizeGenrePayload({
+    name: genre.name,
+    slug: genre.slug,
+    description: genre.description ?? undefined,
+  })
+}
+
+export function hasGenreSemanticChanges(genre: BackofficeGenreRecord, payload: BackofficeGenrePayload): boolean {
+  const comparableGenre = toGenreComparablePayload(genre)
+
+  return payload.name !== comparableGenre.name
+    || payload.slug !== comparableGenre.slug
+    || payload.description !== comparableGenre.description
+}
+
+export function normalizeConcertFormatPayload(payload: BackofficeConcertFormatPayload): BackofficeConcertFormatPayload {
+  return {
+    name: normalizeRequiredString(payload.name),
+    slug: normalizeRequiredString(payload.slug),
+    description: normalizeOptionalString(payload.description),
+    icon: normalizeOptionalString(payload.icon),
+  }
+}
+
+function toConcertFormatComparablePayload(format: BackofficeFormatRecord): BackofficeConcertFormatPayload {
+  return normalizeConcertFormatPayload({
+    name: format.name,
+    slug: format.slug,
+    description: format.description ?? undefined,
+    icon: format.icon ?? undefined,
+  })
+}
+
+export function hasConcertFormatSemanticChanges(format: BackofficeFormatRecord, payload: BackofficeConcertFormatPayload): boolean {
+  const comparableFormat = toConcertFormatComparablePayload(format)
+
+  return payload.name !== comparableFormat.name
+    || payload.slug !== comparableFormat.slug
+    || payload.description !== comparableFormat.description
+    || payload.icon !== comparableFormat.icon
 }
 
 export function normalizeCreateUserPayload(payload: BackofficeCreateUserPayload): BackofficeCreateUserPayload {

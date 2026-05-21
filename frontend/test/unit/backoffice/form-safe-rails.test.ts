@@ -2,9 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import {
   hasArtistSemanticChanges,
+  hasConcertFormatSemanticChanges,
   hasEventSemanticChanges,
+  hasGenreSemanticChanges,
   hasUserSemanticChanges,
   normalizeArtistPayload,
+  normalizeConcertFormatPayload,
+  normalizeGenrePayload,
   normalizeCreateUserPayload,
   normalizeEventPayload,
   normalizeUpdateUserPayload,
@@ -128,6 +132,76 @@ describe('backoffice formSafeRails', () => {
         genres: [{ id: 'genre-1' }, { id: 'genre-2' }],
       } as any,
       { ...payload, country: 'AR' },
+    )).toBe(true)
+  })
+
+  it('normaliza y compara géneros y formatos semánticamente', () => {
+    const genrePayload = normalizeGenrePayload({
+      name: '  Rock  ',
+      slug: '  rock-alt  ',
+      description: '  Género con guitarras  ',
+    })
+
+    expect(genrePayload).toEqual({
+      name: 'Rock',
+      slug: 'rock-alt',
+      description: 'Género con guitarras',
+    })
+
+    expect(hasGenreSemanticChanges(
+      {
+        id: 'genre-1',
+        name: 'Rock',
+        slug: 'rock-alt',
+        description: 'Género con guitarras',
+      } as any,
+      genrePayload,
+    )).toBe(false)
+
+    expect(hasGenreSemanticChanges(
+      {
+        id: 'genre-1',
+        name: 'Rock',
+        slug: 'rock-alt',
+        description: 'Género con guitarras',
+      } as any,
+      { ...genrePayload, slug: 'rock' },
+    )).toBe(true)
+
+    const formatPayload = normalizeConcertFormatPayload({
+      name: '  Concierto  ',
+      slug: '  concierto-en-vivo  ',
+      description: '  Evento musical  ',
+      icon: '  i-lucide-ticket  ',
+    })
+
+    expect(formatPayload).toEqual({
+      name: 'Concierto',
+      slug: 'concierto-en-vivo',
+      description: 'Evento musical',
+      icon: 'i-lucide-ticket',
+    })
+
+    expect(hasConcertFormatSemanticChanges(
+      {
+        id: 'format-1',
+        name: 'Concierto',
+        slug: 'concierto-en-vivo',
+        description: 'Evento musical',
+        icon: 'i-lucide-ticket',
+      } as any,
+      formatPayload,
+    )).toBe(false)
+
+    expect(hasConcertFormatSemanticChanges(
+      {
+        id: 'format-1',
+        name: 'Concierto',
+        slug: 'concierto-en-vivo',
+        description: 'Evento musical',
+        icon: 'i-lucide-ticket',
+      } as any,
+      { ...formatPayload, icon: 'i-lucide-music-2' },
     )).toBe(true)
   })
 
