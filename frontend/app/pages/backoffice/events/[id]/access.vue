@@ -97,11 +97,19 @@ const connectionBadge = computed(() => {
               eyebrow="Backoffice"
               :title="eventName ? `Accesos — ${eventName}` : 'Control de accesos'"
               description="Monitoreo de validaciones en tiempo real."
-              action-label="Volver"
-              action-to="/backoffice/events"
             >
               <template #actions>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                  <!-- Volver -->
+                  <BaseButton
+                    variant="secondary"
+                    size="md"
+                    trailing-icon="i-lucide-arrow-right"
+                    to="/backoffice/events"
+                  >
+                    Volver
+                  </BaseButton>
+
                   <!-- Live status badge -->
                   <div class="flex items-center gap-2 rounded-full border border-default/50 bg-elevated/60 px-3 py-1.5 backdrop-blur-sm">
                     <span
@@ -180,7 +188,7 @@ const connectionBadge = computed(() => {
                   </div>
                 </div>
                 <div :class="iconBoxClass('success')">
-                  <BaseIcon name="i-lucide-check-circle-2" class="size-5" />
+                  <BaseIcon name="i-lucide-circle-check-big" class="size-5" />
                 </div>
               </div>
             </UiPanel>
@@ -333,7 +341,7 @@ const connectionBadge = computed(() => {
           description="Información técnica del canal SSE activo."
           variant="glass"
         >
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <div class="space-y-1">
               <p class="text-xs uppercase tracking-wide text-muted">
                 Estado
@@ -344,7 +352,7 @@ const connectionBadge = computed(() => {
             </div>
             <div class="space-y-1">
               <p class="text-xs uppercase tracking-wide text-muted">
-                Actualizaciones recibidas
+                Validaciones recibidas
               </p>
               <p class="text-sm font-semibold tabular-nums text-highlighted">
                 {{ updatesReceived }}
@@ -356,14 +364,6 @@ const connectionBadge = computed(() => {
               </p>
               <p class="text-sm text-toned">
                 {{ lastUpdatedLabel }}
-              </p>
-            </div>
-            <div class="space-y-1">
-              <p class="text-xs uppercase tracking-wide text-muted">
-                Evento ID
-              </p>
-              <p class="font-mono text-xs text-muted">
-                {{ eventId }}
               </p>
             </div>
           </div>
