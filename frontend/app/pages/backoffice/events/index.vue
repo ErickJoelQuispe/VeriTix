@@ -631,6 +631,14 @@ onMounted(() => {
                         Ventas
                       </BaseButton>
                       <BaseButton
+                        variant="outlined"
+                        size="sm"
+                        class="sm:w-28"
+                        :to="`/backoffice/events/${event.id}/access`"
+                      >
+                        Accesos
+                      </BaseButton>
+                      <BaseButton
                         v-if="!event.isReview"
                         variant="danger"
                         size="sm"
