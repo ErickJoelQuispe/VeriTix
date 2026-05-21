@@ -22,7 +22,7 @@ function handleCancelled(orderId: string) {
   <div class="space-y-3">
     <!-- Loading skeletons -->
     <template v-if="isLoading">
-      <BaseSkeleton v-for="i in 3" :key="i" class="h-16 rounded-xl" />
+      <BaseSkeleton v-for="i in 3" :key="i" class="h-24 rounded-2xl" />
     </template>
 
     <!-- Empty state -->

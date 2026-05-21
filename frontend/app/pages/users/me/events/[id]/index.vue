@@ -95,6 +95,11 @@ useSeoMeta({
 
         <!-- Event found -->
         <template v-else>
+          <NuxtLink to="/users/me/events" class="inline-flex items-center gap-2 text-sm text-toned transition-colors hover:text-highlighted">
+            <BaseIcon name="i-lucide-arrow-left" class="size-4" />
+            Volver a eventos
+          </NuxtLink>
+
           <!-- Header -->
           <UsersEventHeader :event="currentEventItem.event" />
 
