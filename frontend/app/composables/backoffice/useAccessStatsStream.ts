@@ -17,9 +17,12 @@ export function useAccessStatsStream(eventId: MaybeRefOrGetter<string>) {
   const accessToken = useState<string | null>('auth-access-token', () => null)
 
   const snapshot = ref<AccessStatsSnapshot | null>(null)
+  const history = ref<AccessStatsSnapshot[]>([])
   const status = ref<StreamStatus>('idle')
   const error = ref<string | null>(null)
   const updatesReceived = ref(0)
+
+  const MAX_HISTORY = 60
 
   let eventSource: EventSource | null = null
 
@@ -47,7 +50,9 @@ export function useAccessStatsStream(eventId: MaybeRefOrGetter<string>) {
 
     eventSource.onmessage = (event: MessageEvent<string>) => {
       try {
-        snapshot.value = JSON.parse(event.data) as AccessStatsSnapshot
+        const parsed = JSON.parse(event.data) as AccessStatsSnapshot
+        snapshot.value = parsed
+        history.value = [...history.value.slice(-(MAX_HISTORY - 1)), parsed]
         updatesReceived.value++
       }
       catch {
@@ -83,6 +88,7 @@ export function useAccessStatsStream(eventId: MaybeRefOrGetter<string>) {
 
   return {
     snapshot,
+    history,
     status,
     error,
     updatesReceived,
