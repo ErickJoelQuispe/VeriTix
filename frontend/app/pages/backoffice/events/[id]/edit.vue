@@ -175,6 +175,13 @@ onMounted(() => {
               <BaseBadge kind="status" :color="getStatusTone(event.status)" size="sm" class="min-w-24 justify-center">
                 {{ event.status }}
               </BaseBadge>
+              <BaseButton
+                variant="outlined"
+                size="sm"
+                :to="`/backoffice/events/${eventId}/sales`"
+              >
+                Ver ventas
+              </BaseButton>
             </div>
           </template>
 

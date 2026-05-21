@@ -76,6 +76,14 @@ export class TopEventResponseDto {
 
 // ── Event Metrics ─────────────────────────────────────────────────────────────
 
+export class RevenueByDateDto {
+  @ApiProperty({ example: '2026-05-01' })
+  date: string;
+
+  @ApiProperty({ example: 150.00 })
+  revenue: number;
+}
+
 export class TicketTypeRevenueDto {
   @ApiProperty({ example: 'General' })
   name: string;
@@ -155,6 +163,9 @@ export class EventMetricsResponseDto {
 
   @ApiPropertyOptional({ type: TopTicketTypeDto, nullable: true })
   topTicketType: TopTicketTypeDto | null;
+
+  @ApiProperty({ type: [RevenueByDateDto] })
+  revenueByDate: RevenueByDateDto[];
 }
 
 // ── Query DTOs ────────────────────────────────────────────────────────────────

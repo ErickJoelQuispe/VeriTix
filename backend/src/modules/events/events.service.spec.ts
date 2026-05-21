@@ -13,6 +13,7 @@ import { EventsRepository } from './events.repository';
 import { EventsService } from './events.service';
 import { TicketsRepository } from '../tickets/tickets.repository';
 import { BuyerEventsQueryDto } from './dto/buyer-events-query.dto';
+import { RevenueByDateRow } from './events.repository';
 
 // ── Mock data ────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ const mockEventsRepository = {
   findRequiresAttention: jest.fn(),
   findTopEvents: jest.fn(),
   findMetricsById: jest.fn(),
+  findRevenueByDate: jest.fn(),
 };
 
 const mockTicketsRepository = {
@@ -947,6 +949,29 @@ describe('EventsService', () => {
       const result = await service.getEventMetrics('uuid-event-1', adminUser);
 
       expect(result.topTicketType).toBeNull();
+    });
+
+    it('should include revenueByDate from findRevenueByDate in the response', async () => {
+      const revenueByDate: RevenueByDateRow[] = [
+        { date: '2026-05-01', revenue: 150 },
+        { date: '2026-05-02', revenue: 300 },
+      ];
+      repo.findMetricsById.mockResolvedValue(mockMetricsRaw as any);
+      repo.findRevenueByDate.mockResolvedValue(revenueByDate);
+
+      const result = await service.getEventMetrics('uuid-event-1', adminUser);
+
+      expect(result.revenueByDate).toEqual(revenueByDate);
+      expect(repo.findRevenueByDate).toHaveBeenCalledWith('uuid-event-1');
+    });
+
+    it('should include empty revenueByDate array when findRevenueByDate returns empty', async () => {
+      repo.findMetricsById.mockResolvedValue(mockMetricsRaw as any);
+      repo.findRevenueByDate.mockResolvedValue([]);
+
+      const result = await service.getEventMetrics('uuid-event-1', adminUser);
+
+      expect(result.revenueByDate).toEqual([]);
     });
   });
 
