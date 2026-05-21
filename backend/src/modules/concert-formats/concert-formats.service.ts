@@ -7,7 +7,9 @@ import {
   CACHE_KEYS,
   CACHE_TTL_LONG,
   CacheService,
-} from '../../cache';
+  generateSlug,
+  uniqueSlug,
+} from '../../common';
 import {
   ConcertFormatResponseDto,
   CreateConcertFormatDto,
@@ -23,25 +25,18 @@ export class ConcertFormatsService {
   ) {}
 
   async create(dto: CreateConcertFormatDto): Promise<ConcertFormatResponseDto> {
-    const existingSlug = await this.concertFormatsRepository.findBySlug(
-      dto.slug,
-    );
-    if (existingSlug) {
-      throw new ConflictException(
-        'El slug ya está en uso por otro formato de concierto',
-      );
-    }
-
-    const existingName = await this.concertFormatsRepository.findByName(
-      dto.name,
-    );
+    const existingName = await this.concertFormatsRepository.findByName(dto.name);
     if (existingName) {
-      throw new ConflictException(
-        'El nombre ya está en uso por otro formato de concierto',
-      );
+      throw new ConflictException('El nombre ya está en uso por otro formato de concierto');
     }
 
-    const created = await this.concertFormatsRepository.create(dto);
+    const baseSlug = dto.slug ?? generateSlug(dto.name);
+    const slug = await uniqueSlug(
+      baseSlug,
+      (s) => this.concertFormatsRepository.findBySlug(s).then(Boolean),
+    );
+
+    const created = await this.concertFormatsRepository.create({ ...dto, slug });
     await this.cache.del(CACHE_KEYS.FORMATS_LIST);
     return created as ConcertFormatResponseDto;
   }
@@ -72,24 +67,16 @@ export class ConcertFormatsService {
     }
 
     if (dto.slug && dto.slug !== current.slug) {
-      const existingSlug = await this.concertFormatsRepository.findBySlug(
-        dto.slug,
-      );
+      const existingSlug = await this.concertFormatsRepository.findBySlug(dto.slug);
       if (existingSlug && existingSlug.id !== id) {
-        throw new ConflictException(
-          'El slug ya está en uso por otro formato de concierto',
-        );
+        throw new ConflictException('El slug ya está en uso por otro formato de concierto');
       }
     }
 
     if (dto.name && dto.name !== current.name) {
-      const existingName = await this.concertFormatsRepository.findByName(
-        dto.name,
-      );
+      const existingName = await this.concertFormatsRepository.findByName(dto.name);
       if (existingName && existingName.id !== id) {
-        throw new ConflictException(
-          'El nombre ya está en uso por otro formato de concierto',
-        );
+        throw new ConflictException('El nombre ya está en uso por otro formato de concierto');
       }
     }
 
