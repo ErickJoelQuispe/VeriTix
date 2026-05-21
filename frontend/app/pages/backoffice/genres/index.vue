@@ -267,11 +267,15 @@ onMounted(() => {
                 class="group relative h-full border-default/50 bg-linear-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
               >
                 <div class="flex h-full flex-col gap-4">
-                  <div class="flex items-start gap-3">
-                    <div class="min-w-0 space-y-1">
+                  <div class="flex items-start gap-4">
+                    <div class="min-w-0 flex-1 space-y-2">
                       <h3 class="truncate text-lg font-semibold text-highlighted">
                         {{ genre.name }}
                       </h3>
+
+                      <p v-if="genre.description" class="line-clamp-2 text-sm leading-relaxed text-toned">
+                        {{ genre.description }}
+                      </p>
                     </div>
 
                     <div class="ml-auto flex shrink-0 items-center gap-2 rounded-full border border-default/40 bg-default/12 p-1 shadow-sm">
@@ -298,10 +302,6 @@ onMounted(() => {
                       </PagesBackofficeDeleteAction>
                     </div>
                   </div>
-
-                  <p v-if="genre.description" class="line-clamp-3 text-sm leading-relaxed text-toned">
-                    {{ genre.description }}
-                  </p>
 
                   <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
                     <BaseBadge kind="tag" color="primary" size="sm" class="rounded-full">

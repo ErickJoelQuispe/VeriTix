@@ -267,11 +267,19 @@ onMounted(() => {
                 class="group relative h-full border-default/50 bg-linear-to-b from-elevated/25 to-elevated/10 shadow-sm transition hover:border-lavender/20 hover:shadow-md"
               >
                 <div class="flex h-full flex-col gap-4">
-                  <div class="flex items-start gap-3">
-                    <div class="min-w-0 space-y-1">
+                  <div class="flex items-start gap-4">
+                    <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-default/60 bg-default/40 text-2xl leading-none text-lavender">
+                      <span aria-hidden="true">{{ format.icon || '🎫' }}</span>
+                    </div>
+
+                    <div class="min-w-0 flex-1 space-y-2">
                       <h3 class="truncate text-lg font-semibold text-highlighted">
                         {{ format.name }}
                       </h3>
+
+                      <p v-if="format.description" class="line-clamp-2 text-sm leading-relaxed text-toned">
+                        {{ format.description }}
+                      </p>
                     </div>
 
                     <div class="ml-auto flex shrink-0 items-center gap-2 rounded-full border border-default/40 bg-default/12 p-1 shadow-sm">
@@ -299,14 +307,10 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <p v-if="format.description" class="line-clamp-3 text-sm leading-relaxed text-toned">
-                    {{ format.description }}
-                  </p>
-
                   <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
-                    <BaseBadge kind="tag" color="primary" size="sm" class="rounded-full">
-                      {{ format.icon ? 'Con ícono' : 'Sin ícono' }}
-                    </BaseBadge>
+                    <span class="text-xs font-medium text-toned/70">
+                      {{ format.icon ? 'Ícono personalizado' : 'Ícono por defecto' }}
+                    </span>
                   </div>
                 </div>
               </UiPanel>
