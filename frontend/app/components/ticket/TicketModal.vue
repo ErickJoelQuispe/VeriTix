@@ -66,9 +66,11 @@ onMounted(async () => {
   }
 })
 
-const truncatedHash = computed(() =>
-  props.ticket ? `${props.ticket.hash.slice(0, 4)}-${props.ticket.hash.slice(4, 8)}` : '',
-)
+const truncatedHash = computed(() => {
+  if (!props.ticket) { return '' }
+  const clean = props.ticket.id.replace(/-/g, '')
+  return `${clean.slice(0, 4)}-${clean.slice(4, 8)}`.toUpperCase()
+})
 
 const statusBadgeColor = computed(() => {
   if (!props.ticket) { return 'neutral' as const }
@@ -175,9 +177,9 @@ function handleTransferSuccess() {
               </span>
             </div>
 
-            <!-- Hash -->
+            <!-- Ticket ref -->
             <p class="font-mono text-sm text-muted">
-              Hash: {{ truncatedHash }}
+              Ticket #{{ truncatedHash }}
             </p>
 
             <!-- Validated info (USED only) -->

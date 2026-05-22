@@ -8,7 +8,6 @@ const TRAILING_SLASH_RE = /\/$/
 function mapTicketListItem(item: TicketListApiItem): UserTicket {
   return {
     id: item.id,
-    hash: item.hash,
     status: item.status,
     purchaseDate: item.purchaseDate,
     ticketType: item.ticketType,

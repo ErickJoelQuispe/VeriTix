@@ -40,7 +40,7 @@ function statusIcon(status: TicketStatus): string {
   return map[status]
 }
 
-const truncatedHash = (hash: string) => hash.slice(0, 8)
+const truncatedId = (id: string) => id.replace(/-/g, '').slice(0, 8)
 
 function formattedPrice(price: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(price)
@@ -86,7 +86,7 @@ function formattedPrice(price: number) {
                 {{ ticket.ticketType.name }}
               </p>
               <p class="font-mono text-xs text-muted">
-                #{{ truncatedHash(ticket.hash).toUpperCase() }}
+                #{{ truncatedId(ticket.id).toUpperCase() }}
               </p>
             </div>
           </div>
