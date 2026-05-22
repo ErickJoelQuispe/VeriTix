@@ -683,7 +683,7 @@ async function main() {
     }
   }
 
-  // ── Helper Generar Tickets de Orden ──────────────────────────────────────
+  // ── Helper Generar Tickets de Orden (createMany batch) ───────────────────
   async function createTicketsForOrder(
     orderId: string,
     eventId: string,
@@ -692,73 +692,74 @@ async function main() {
     forceStatus?: TicketStatus,
   ) {
     const items = await prisma.orderItem.findMany({ where: { orderId } });
-    for (const item of items) {
-      for (let i = 0; i < item.quantity; i++) {
+    const isUsed = forceStatus === TicketStatus.USED;
+    const now = new Date();
+
+    const ticketData = items.flatMap(item =>
+      Array.from({ length: item.quantity }, () => {
         const ticketId = crypto.randomUUID();
-        const isUsed = forceStatus === TicketStatus.USED;
-        await prisma.ticket.create({
-          data: {
-            id: ticketId,
-            hash: makeHash(),
-            qrPayload: makeQrPayload(ticketId),
-            status: forceStatus ?? TicketStatus.ACTIVE,
-            purchaseDate: new Date(),
-            validatedAt: isUsed ? new Date() : undefined,
-            eventId,
-            buyerId,
-            ticketTypeId: item.ticketTypeId,
-            orderId,
-            orderItemId: item.id,
-            validatedById: isUsed ? validatedById : undefined,
-          },
-        });
-      }
-    }
+        return {
+          id: ticketId,
+          hash: makeHash(),
+          qrPayload: makeQrPayload(ticketId),
+          status: forceStatus ?? TicketStatus.ACTIVE,
+          purchaseDate: now,
+          validatedAt: isUsed ? now : null,
+          eventId,
+          buyerId,
+          ticketTypeId: item.ticketTypeId,
+          orderId,
+          orderItemId: item.id,
+          validatedById: isUsed ? (validatedById ?? null) : null,
+        };
+      })
+    );
+
+    await prisma.ticket.createMany({ data: ticketData });
   }
 
   // ── Órdenes de Demo Expo ─────────────────────────────────────────────────
-  // Target: 2000 tickets ACTIVE (500 General + 1500 VIP spread across 100 orders of 20 tickets each)
+  // 100 órdenes × 20 tickets = 2000 tickets ACTIVE
+  // Primeras 25 → VIP (500 tickets), últimas 75 → General (1500 tickets)
   const demoEvent = await prisma.event.findFirst({ where: { name: 'Tech Live Demo Expo 2026' }, include: { ticketTypes: true } });
   if (demoEvent) {
     console.log('Generando 2000 tickets para el evento Tech Live Demo Expo 2026...');
     const ttGeneral = demoEvent.ticketTypes.find(t => t.name === 'General')!;
-    const ttVip = demoEvent.ticketTypes.find(t => t.name === 'VIP')!;
+    const ttVip     = demoEvent.ticketTypes.find(t => t.name === 'VIP')!;
+    const now       = new Date();
 
-    // 100 orders × 20 tickets = 2000 tickets
-    // First 25 orders → VIP (25 × 20 = 500 VIP tickets)
-    // Last 75 orders → General (75 × 20 = 1500 General tickets)
-    for (let i = 0; i < 100; i++) {
-      const isVip = i < 25;
-      const tt = isVip ? ttVip : ttGeneral;
+    const demoOrders: { tt: typeof ttGeneral; i: number }[] = [
+      ...Array.from({ length: 25 }, (_, i) => ({ tt: ttVip,     i })),
+      ...Array.from({ length: 75 }, (_, i) => ({ tt: ttGeneral, i: i + 25 })),
+    ];
+
+    for (const { tt, i } of demoOrders) {
+      const unitPrice = parseFloat(tt.price.toString());
+      const subtotal  = (unitPrice * 20).toFixed(2);
 
       const order = await prisma.order.create({
         data: {
-          totalAmount: String((parseFloat(tt.price.toString()) * 20).toFixed(2)),
+          totalAmount: subtotal,
           status: OrderStatus.COMPLETED,
           buyerId: buyerUser.id,
           eventId: demoEvent.id,
           items: {
-            create: [{
-              ticketTypeId: tt.id,
-              quantity: 20,
-              unitPrice: String(tt.price),
-              subtotal: String((parseFloat(tt.price.toString()) * 20).toFixed(2))
-            }]
-          }
-        }
+            create: [{ ticketTypeId: tt.id, quantity: 20, unitPrice: String(tt.price), subtotal }],
+          },
+        },
       });
 
       await prisma.payment.create({
         data: {
-          amount: order.totalAmount,
+          amount: subtotal,
           currency: 'EUR',
           status: PaymentStatus.COMPLETED,
           provider: 'stripe',
           providerPaymentId: `pi_demo_${i}_${order.id.slice(0, 8)}`,
           providerSessionId: `sess_demo_${i}_${order.id.slice(0, 8)}`,
-          paidAt: new Date(),
-          orderId: order.id
-        }
+          paidAt: now,
+          orderId: order.id,
+        },
       });
 
       await createTicketsForOrder(order.id, demoEvent.id, buyerUser.id, undefined, TicketStatus.ACTIVE);
@@ -794,15 +795,22 @@ async function main() {
     console.log(`Generando ventas para: ${ev.name} (${Math.round(pct * 100)}% vendido)...`);
 
     for (const tt of ev.ticketTypes) {
-      const totalToSell = Math.floor(tt.totalQuantity * pct);
+      // Cap: máximo 150 órdenes por ticket type para no explotar en eventos masivos
+      // El % de popularidad igual se refleja en availableQuantity
+      const idealToSell = Math.floor(tt.totalQuantity * pct);
+      const MAX_ORDERS  = 150;
+      const qtyPerOrder = [1, 2, 2, 3, 4];
+      const avgQty      = qtyPerOrder.reduce((a, b) => a + b, 0) / qtyPerOrder.length;
+      const maxViaCap   = Math.floor(MAX_ORDERS * avgQty);
+      const totalToSell = Math.min(idealToSell, maxViaCap);
+
       let sold = 0;
       let orderIndex = 0;
 
       while (sold < totalToSell) {
         const buyer = allBuyers[orderIndex % allBuyers.length];
-        // Órdenes de 1 a 4 tickets, realistas
         const qty = Math.min(
-          [1, 2, 2, 3, 4][orderIndex % 5],
+          qtyPerOrder[orderIndex % qtyPerOrder.length],
           totalToSell - sold,
           tt.maxPerUser,
         );
