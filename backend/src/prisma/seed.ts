@@ -18,14 +18,15 @@ function makeHash(): string {
   return crypto.randomBytes(16).toString('hex');
 }
 
-function makeQrPayload(ticketId: string): string {
-  const key = crypto.randomBytes(32);
+function makeQrPayload(hash: string): string {
+  // Mismo formato que tickets.generator.ts: iv:authTag:ciphertext en hex
+  const secret = process.env.AES_SECRET_KEY!;
+  const key = Buffer.from(secret, 'utf8'); // 32 bytes = AES-256
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-  const payload = JSON.stringify({ ticketId, ts: Date.now() });
-  const encrypted = Buffer.concat([cipher.update(payload, 'utf8'), cipher.final()]);
+  const encrypted = Buffer.concat([cipher.update(hash, 'utf8'), cipher.final()]);
   const authTag = cipher.getAuthTag();
-  return [iv.toString('base64'), authTag.toString('base64'), encrypted.toString('base64')].join(':');
+  return [iv.toString('hex'), authTag.toString('hex'), encrypted.toString('hex')].join(':');
 }
 
 const prisma = new PrismaClient({
@@ -698,10 +699,11 @@ async function main() {
     const ticketData = items.flatMap(item =>
       Array.from({ length: item.quantity }, () => {
         const ticketId = crypto.randomUUID();
+        const hash = makeHash();
         return {
           id: ticketId,
-          hash: makeHash(),
-          qrPayload: makeQrPayload(ticketId),
+          hash,
+          qrPayload: makeQrPayload(hash),
           status: forceStatus ?? TicketStatus.ACTIVE,
           purchaseDate: now,
           validatedAt: isUsed ? now : null,

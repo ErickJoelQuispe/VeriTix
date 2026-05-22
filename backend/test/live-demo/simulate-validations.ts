@@ -10,7 +10,7 @@ const prisma = new PrismaClient({ adapter });
 async function simulate() {
   console.log('--- Iniciando Simulación de Validación en Vivo ---');
   console.log('Evento: Tech Live Demo Expo 2026 — 25 Jun 2026, 18:00 hs (AR)');
-  console.log('Target: 500 tickets en 10 minutos (~1 ticket cada 1.2 seg)\n');
+  console.log('Target: 1500 tickets en 5 minutos (3 validaciones simultáneas)\n');
 
   const event = await prisma.event.findFirst({
     where: { name: 'Tech Live Demo Expo 2026' }
@@ -21,13 +21,9 @@ async function simulate() {
     process.exit(1);
   }
 
-  // Toma exactamente 500 tickets ACTIVE — los que van a entrar en la demo
   const tickets = await prisma.ticket.findMany({
-    where: {
-      eventId: event.id,
-      status: 'ACTIVE'
-    },
-    take: 500
+    where: { eventId: event.id, status: 'ACTIVE' },
+    take: 1500
   });
 
   if (tickets.length === 0) {
@@ -63,29 +59,29 @@ async function simulate() {
     .setExpirationTime('2h')
     .sign(secretKey);
 
-  const API_URL = process.env.API_URL || 'http://localhost:3000/api/v1';
+  const API_URL = process.env.API_URL || 'http://localhost:3001/api/v1';
 
-  // 500 tickets en 600 segundos (10 minutos) = 1 ticket cada 1200ms
-  // Esto simula flujo normal de entrada real de personas al venue
-  const TOTAL_TICKETS = tickets.length;          // 500
-  const DURATION_MS   = 10 * 60 * 1000;         // 10 minutos en ms
-  const intervalMs    = Math.floor(DURATION_MS / TOTAL_TICKETS); // 1200ms
+  // 1500 tickets en 5 minutos con batches de 3 concurrentes
+  // 1500 / 3 = 500 batches en 300 seg → 1 batch cada 600ms
+  const TOTAL_TICKETS  = tickets.length;   // 1500
+  const CONCURRENCY    = 3;                // validaciones simultáneas
+  const DURATION_MS    = 5 * 60 * 1000;   // 5 minutos
+  const TOTAL_BATCHES  = Math.ceil(TOTAL_TICKETS / CONCURRENCY); // 500
+  const intervalMs     = Math.floor(DURATION_MS / TOTAL_BATCHES); // 600ms entre batches
 
-  const durationMin = Math.round(DURATION_MS / 60000);
   console.log(`Configuración de la simulación:`);
   console.log(`  Total tickets : ${TOTAL_TICKETS}`);
-  console.log(`  Duración      : ${durationMin} minutos`);
-  console.log(`  Intervalo     : ${intervalMs}ms entre validaciones`);
-  console.log(`  Throughput    : ${(1000 / intervalMs).toFixed(2)} tickets/seg`);
+  console.log(`  Duración      : 5 minutos`);
+  console.log(`  Concurrencia  : ${CONCURRENCY} simultáneas`);
+  console.log(`  Intervalo     : ${intervalMs}ms entre batches`);
+  console.log(`  Throughput    : ~${(CONCURRENCY * 1000 / intervalMs).toFixed(1)} tickets/seg`);
   console.log(`  API           : ${API_URL}\n`);
 
   let successCount = 0;
   let errorCount   = 0;
   const startTime  = Date.now();
 
-  for (let i = 0; i < tickets.length; i++) {
-    const ticket = tickets[i];
-
+  async function validateTicket(ticket: typeof tickets[0], index: number): Promise<void> {
     try {
       const response = await fetch(`${API_URL}/tickets/validate`, {
         method: 'POST',
@@ -99,11 +95,6 @@ async function simulate() {
       if (response.ok) {
         successCount++;
         process.stdout.write('✅ ');
-        // Muestra progreso cada 50 tickets
-        if ((i + 1) % 50 === 0) {
-          const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-          console.log(`\n  [${i + 1}/${TOTAL_TICKETS}] ${successCount} válidos — ${elapsed}s transcurridos`);
-        }
       } else {
         errorCount++;
         const errData = await response.json().catch(() => ({}));
@@ -111,16 +102,26 @@ async function simulate() {
       }
     } catch (error: any) {
       errorCount++;
-      console.error(`\n❌ Error de red (¿está corriendo el servidor en ${API_URL}?): `, error.message);
+      console.error(`\n❌ Error de red: `, error.message);
+    }
+  }
 
-      // Interrumpe si hay 3 errores de red consecutivos para no bloquear la demo
-      if (errorCount > 3) {
-        console.error('\nInterrumpiendo: demasiados errores de red. Verificá que el servidor esté levantado.');
-        break;
-      }
+  // Procesar en batches de CONCURRENCY tickets simultáneos
+  for (let i = 0; i < tickets.length; i += CONCURRENCY) {
+    const batch = tickets.slice(i, i + CONCURRENCY);
+
+    // Lanzar el batch en paralelo
+    await Promise.all(batch.map((ticket, j) => validateTicket(ticket, i + j)));
+
+    // Progreso cada 150 tickets (50 batches)
+    const processed = Math.min(i + CONCURRENCY, TOTAL_TICKETS);
+    if (processed % 150 === 0) {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+      console.log(`\n  [${processed}/${TOTAL_TICKETS}] ${successCount} válidos — ${elapsed}s transcurridos`);
     }
 
-    if (i < tickets.length - 1) {
+    // Esperar entre batches (excepto el último)
+    if (i + CONCURRENCY < tickets.length) {
       await new Promise(resolve => setTimeout(resolve, intervalMs));
     }
   }
