@@ -25,7 +25,6 @@ import { TicketDetail, TicketListItem, TicketsRepository } from './tickets.repos
 function toListResponse(ticket: TicketListItem): TicketListResponseDto {
   return {
     id: ticket.id,
-    hash: ticket.hash,
     status: ticket.status,
     purchaseDate: ticket.purchaseDate,
     ticketType: {
@@ -40,7 +39,6 @@ function toListResponse(ticket: TicketListItem): TicketListResponseDto {
 function toDetailResponse(ticket: TicketDetail): TicketDetailResponseDto {
   return {
     id: ticket.id,
-    hash: ticket.hash,
     qrPayload: ticket.qrPayload,
     status: ticket.status,
     purchaseDate: ticket.purchaseDate,

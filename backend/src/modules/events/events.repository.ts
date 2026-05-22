@@ -507,12 +507,15 @@ export class EventsRepository {
     const rows = await this.prisma.$queryRaw<{ date: Date; revenue: bigint | number }[]>(
       Prisma.sql`
         SELECT
-          DATE_TRUNC('day', created_at) AS date,
-          SUM(total_amount)::float       AS revenue
-        FROM orders
-        WHERE event_id = ${eventId}
-          AND status = 'COMPLETED'
-        GROUP BY DATE_TRUNC('day', created_at)
+          DATE_TRUNC('day', p.paid_at) AS date,
+          SUM(o.total_amount)::float    AS revenue
+        FROM orders o
+        JOIN payments p ON p.order_id = o.id
+        WHERE o.event_id = ${eventId}
+          AND o.status   = 'COMPLETED'
+          AND p.status   = 'COMPLETED'
+          AND p.paid_at IS NOT NULL
+        GROUP BY DATE_TRUNC('day', p.paid_at)
         ORDER BY date ASC
       `,
     );
