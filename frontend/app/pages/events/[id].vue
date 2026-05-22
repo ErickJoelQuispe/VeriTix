@@ -244,9 +244,9 @@ function formatPerformanceTime(value: string | Date | null): string {
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer>
       <div v-if="status === 'pending'" class="space-y-6">
-        <BaseSkeleton class="h-8 w-48 rounded-full" />
-        <BaseSkeleton class="h-96 rounded-3xl" />
-        <BaseSkeleton class="h-64 rounded-2xl" />
+        <BaseSpinner class="h-8 w-48 rounded-full" />
+        <BaseSpinner class="h-96 rounded-3xl" />
+        <BaseSpinner class="h-64 rounded-2xl" />
       </div>
 
       <div v-else-if="event" class="mx-auto w-full max-w-7xl space-y-10">
@@ -350,8 +350,8 @@ function formatPerformanceTime(value: string | Date | null): string {
             </div>
 
             <div v-if="loadingTicketTypes" class="space-y-3">
-              <BaseSkeleton class="h-28 rounded-2xl" />
-              <BaseSkeleton class="h-28 rounded-2xl" />
+              <BaseSpinner class="h-28 rounded-2xl" />
+              <BaseSpinner class="h-28 rounded-2xl" />
             </div>
 
             <div v-else-if="ticketTypesError" class="rounded-2xl border border-warning/30 bg-warning/8 px-4 py-4 text-sm leading-relaxed text-toned">
@@ -421,7 +421,7 @@ function formatPerformanceTime(value: string | Date | null): string {
           <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_23rem] lg:items-start">
             <div class="space-y-3">
               <div v-if="lineupStatus === 'pending'" class="space-y-3">
-                <BaseSkeleton v-for="index in 3" :key="index" class="h-20 rounded-2xl" />
+                <BaseSpinner v-for="index in 3" :key="index" class="h-20 rounded-2xl" />
               </div>
 
               <div v-else-if="lineupErrorMessage" class="rounded-2xl border border-warning/30 bg-warning/8 px-4 py-4 text-sm leading-relaxed text-toned">

@@ -85,8 +85,8 @@ const formattedTotal = computed(() => {
         </div>
 
         <div v-else class="space-y-3">
-          <BaseSkeleton class="h-6 rounded-xl" />
-          <BaseSkeleton class="h-24 rounded-2xl" />
+          <BaseSpinner class="h-6 rounded-xl" />
+          <BaseSpinner class="h-24 rounded-2xl" />
         </div>
 
         <BaseButton

@@ -184,8 +184,8 @@ onMounted(() => {
         </p>
 
         <template v-if="isLoadingDetail">
-          <BaseSkeleton class="mb-3 h-24 rounded-lg" />
-          <BaseSkeleton class="h-16 rounded-lg" />
+          <BaseSpinner class="mb-3 h-24 rounded-lg" />
+          <BaseSpinner class="h-16 rounded-lg" />
         </template>
 
         <template v-else-if="detail">
@@ -315,8 +315,8 @@ onMounted(() => {
         </p>
 
         <template v-if="isLoadingDetail">
-          <BaseSkeleton class="mb-3 h-24 rounded-lg" />
-          <BaseSkeleton class="h-16 rounded-lg" />
+          <BaseSpinner class="mb-3 h-24 rounded-lg" />
+          <BaseSpinner class="h-16 rounded-lg" />
         </template>
 
         <template v-else-if="detail">

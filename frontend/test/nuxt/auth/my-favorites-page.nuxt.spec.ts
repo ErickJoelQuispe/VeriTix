@@ -3,6 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+import BaseSpinner from '@/components/base/Spinner.vue'
 import MyFavoritesPage from '@/pages/users/me/favorites/index.vue'
 
 const favoriteItem = {
@@ -19,6 +20,15 @@ const favoriteItem = {
 }
 
 const fetchMyFavoritesMock = vi.fn().mockResolvedValue(undefined)
+
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((res) => {
+    resolve = res
+  })
+
+  return { promise, resolve }
+}
 
 const { useFavoriteMock } = vi.hoisted(() => {
   const useFavoriteMock = vi.fn((eventId: string, initialIsFavorited = false) => {
@@ -50,6 +60,18 @@ beforeEach(() => {
 })
 
 describe('myFavoritesPage — /users/me/favorites', () => {
+  it('shows a single loading spinner while the list loads', async () => {
+    const deferred = createDeferred<void>()
+    fetchMyFavoritesMock.mockReturnValueOnce(deferred.promise)
+
+    const wrapper = await mountSuspended(MyFavoritesPage)
+
+    expect(wrapper.findAllComponents(BaseSpinner)).toHaveLength(1)
+
+    deferred.resolve()
+    await flushPromises()
+  })
+
   it('renders the favorites page and removes a favorite when toggled', async () => {
     const wrapper = await mountSuspended(MyFavoritesPage)
     await flushPromises()

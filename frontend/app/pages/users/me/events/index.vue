@@ -112,9 +112,9 @@ async function handlePageChange(next: number) {
           </template>
         </UiPageHeading>
 
-        <!-- Loading skeleton -->
-        <div v-if="isLoading || !hasLoaded" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-          <BaseSkeleton v-for="i in 6" :key="i" class="h-104 rounded-2xl" />
+        <!-- Loading indicator -->
+        <div v-if="isLoading || !hasLoaded" class="flex min-h-80 items-center justify-center">
+          <BaseSpinner class="size-10" spinner-class="size-10" />
         </div>
 
         <!-- Error state -->

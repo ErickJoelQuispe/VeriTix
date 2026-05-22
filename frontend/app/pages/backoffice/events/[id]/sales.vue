@@ -152,9 +152,9 @@ function truncateId(id: string): string {
         <div class="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-5">
           <template v-if="metricsLoading">
             <UiPanel v-for="i in 5" :key="i" variant="glass" radius="md" padding="md">
-              <BaseSkeleton class="mb-4 size-10 rounded-lg" />
-              <BaseSkeleton class="mb-2 h-8 w-16" />
-              <BaseSkeleton class="h-4 w-24" />
+              <BaseSpinner class="mb-4 size-10 rounded-lg" />
+              <BaseSpinner class="mb-2 h-8 w-16" />
+              <BaseSpinner class="h-4 w-24" />
             </UiPanel>
           </template>
 
@@ -395,7 +395,7 @@ function truncateId(id: string): string {
           <div class="space-y-3">
             <!-- Loading -->
             <template v-if="isLoading">
-              <BaseSkeleton v-for="i in 5" :key="i" class="h-20 rounded-xl" />
+              <BaseSpinner v-for="i in 5" :key="i" class="h-20 rounded-xl" />
             </template>
 
             <!-- Error -->

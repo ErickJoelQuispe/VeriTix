@@ -32,7 +32,7 @@ function formatDate(dateStr: string): string {
   <div class="space-y-4">
     <UiMetaLabel>Reseñas del evento</UiMetaLabel>
 
-    <!-- Loading skeleton -->
+    <!-- Loading indicator -->
     <template v-if="isLoading">
       <div class="space-y-3">
         <UiPanel
@@ -43,11 +43,11 @@ function formatDate(dateStr: string): string {
           radius="xl"
         >
           <div class="flex items-start gap-3">
-            <BaseSkeleton class="size-10 rounded-full shrink-0" />
+            <BaseSpinner class="size-10 rounded-full shrink-0" />
             <div class="flex-1 space-y-2">
-              <BaseSkeleton class="h-4 w-32 rounded" />
-              <BaseSkeleton class="h-3 w-20 rounded" />
-              <BaseSkeleton class="h-10 w-full rounded" />
+              <BaseSpinner class="h-4 w-32 rounded" />
+              <BaseSpinner class="h-3 w-20 rounded" />
+              <BaseSpinner class="h-10 w-full rounded" />
             </div>
           </div>
         </UiPanel>

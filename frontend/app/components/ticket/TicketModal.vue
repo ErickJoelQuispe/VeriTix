@@ -158,10 +158,10 @@ function handleTransferSuccess() {
                   width="200"
                   height="200"
                 >
-                <BaseSkeleton v-else class="size-50 rounded-xl" />
+                <BaseSpinner v-else class="size-50 rounded-xl" />
               </div>
               <template #fallback>
-                <BaseSkeleton class="size-50 rounded-xl" />
+                <BaseSpinner class="size-50 rounded-xl" />
               </template>
             </ClientOnly>
 

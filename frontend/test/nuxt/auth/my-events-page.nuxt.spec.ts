@@ -3,6 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+import BaseSpinner from '@/components/base/Spinner.vue'
 import MyEventsPage from '@/pages/users/me/events/index.vue'
 
 const eventItem = {
@@ -20,6 +21,15 @@ const eventItem = {
 
 const fetchMyEventsMock = vi.fn().mockResolvedValue(undefined)
 const checkFavoriteMock = vi.fn().mockResolvedValue(undefined)
+
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((res) => {
+    resolve = res
+  })
+
+  return { promise, resolve }
+}
 
 mockNuxtImport('useFavorite', () => (eventId: string, initialIsFavorited = false) => ({
   isFavorited: ref(eventId === 'event-1' ? true : initialIsFavorited),
@@ -42,6 +52,18 @@ beforeEach(() => {
 })
 
 describe('myEventsPage — /users/me/events', () => {
+  it('shows a single loading spinner while the list loads', async () => {
+    const deferred = createDeferred<void>()
+    fetchMyEventsMock.mockReturnValueOnce(deferred.promise)
+
+    const wrapper = await mountSuspended(MyEventsPage)
+
+    expect(wrapper.findAllComponents(BaseSpinner)).toHaveLength(1)
+
+    deferred.resolve()
+    await flushPromises()
+  })
+
   it('renders the favorites navigation action', async () => {
     const wrapper = await mountSuspended(MyEventsPage)
     await flushPromises()

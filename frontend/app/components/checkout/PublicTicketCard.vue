@@ -67,26 +67,26 @@ const total = computed<number>(() => {
 
 <template>
   <div class="space-y-4">
-    <!-- Loading skeletons -->
+    <!-- Loading indicators -->
     <template v-if="loading">
       <div v-for="n in 3" :key="n" class="rounded-2xl border border-default/55 bg-elevated/20 p-5">
         <div class="flex items-start gap-6">
           <div class="flex-1 space-y-3">
-            <BaseSkeleton class="h-6 w-40 rounded-full" />
-            <BaseSkeleton class="h-4 w-64 rounded-full" />
-            <BaseSkeleton class="h-3 w-36 rounded-full" />
+            <BaseSpinner class="h-6 w-40 rounded-full" />
+            <BaseSpinner class="h-4 w-64 rounded-full" />
+            <BaseSpinner class="h-3 w-36 rounded-full" />
           </div>
           <div class="shrink-0 space-y-2 text-right">
-            <BaseSkeleton class="ml-auto h-7 w-24 rounded-full" />
-            <BaseSkeleton class="ml-auto h-3 w-20 rounded-full" />
+            <BaseSpinner class="ml-auto h-7 w-24 rounded-full" />
+            <BaseSpinner class="ml-auto h-3 w-20 rounded-full" />
           </div>
         </div>
         <div class="mt-4 flex items-center justify-between gap-4 rounded-xl bg-default/8 p-3">
-          <BaseSkeleton class="h-4 w-20 rounded-full" />
+          <BaseSpinner class="h-4 w-20 rounded-full" />
           <div class="flex items-center gap-3">
-            <BaseSkeleton class="size-8 rounded-lg" />
-            <BaseSkeleton class="h-5 w-6 rounded-full" />
-            <BaseSkeleton class="size-8 rounded-lg" />
+            <BaseSpinner class="size-8 rounded-lg" />
+            <BaseSpinner class="h-5 w-6 rounded-full" />
+            <BaseSpinner class="size-8 rounded-lg" />
           </div>
         </div>
       </div>
