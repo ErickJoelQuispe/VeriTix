@@ -1,10 +1,10 @@
 import { useFavoritesRepository } from '@/repositories/favoritesRepository'
 
-export function useFavorite(eventId: string) {
+export function useFavorite(eventId: string, initialIsFavorited = false) {
   const { toggleFavorite, getFavoriteStatus } = useFavoritesRepository()
   const { getApiErrorMessage } = useApiErrorMessage()
 
-  const isFavorited = ref(false)
+  const isFavorited = ref(initialIsFavorited)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 

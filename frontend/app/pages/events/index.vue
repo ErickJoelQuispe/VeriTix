@@ -478,29 +478,8 @@ async function handlePageChange(page: number) {
             />
           </div>
 
-          <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <UiPanel
-              v-for="index in 6"
-              :key="index"
-              variant="glass"
-              radius="xl"
-              padding="none"
-              class="overflow-hidden"
-            >
-              <BaseSkeleton class="h-52 rounded-none md:h-56" />
-              <div class="space-y-4 p-5">
-                <div class="flex flex-wrap gap-2">
-                  <BaseSkeleton class="h-6 w-20 rounded-full" />
-                  <BaseSkeleton class="h-6 w-16 rounded-full" />
-                </div>
-                <BaseSkeleton class="h-6 w-4/5 rounded-full" />
-                <BaseSkeleton class="h-4 w-3/4 rounded-full" />
-                <div class="flex items-center justify-between gap-3 border-t border-default/40 pt-4">
-                  <BaseSkeleton class="h-4 w-24 rounded-full" />
-                  <BaseSkeleton class="h-9 w-24 rounded-full" />
-                </div>
-              </div>
-            </UiPanel>
+          <div v-if="isPending" class="flex min-h-80 items-center justify-center rounded-2xl border border-default/50 bg-elevated/15">
+            <BaseSpinner class="size-10" spinner-class="size-10" />
           </div>
 
           <div

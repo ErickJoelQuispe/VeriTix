@@ -93,10 +93,10 @@ onMounted(() => {
 
           <template v-if="loading">
             <div class="space-y-4">
-              <BaseSkeleton class="h-12 w-full rounded-xl" />
-              <BaseSkeleton class="h-12 w-full rounded-xl" />
-              <BaseSkeleton class="h-24 w-full rounded-xl" />
-              <BaseSkeleton class="h-12 w-full rounded-xl" />
+              <BaseSpinner class="h-12 w-full rounded-xl" />
+              <BaseSpinner class="h-12 w-full rounded-xl" />
+              <BaseSpinner class="h-24 w-full rounded-xl" />
+              <BaseSpinner class="h-12 w-full rounded-xl" />
             </div>
           </template>
 

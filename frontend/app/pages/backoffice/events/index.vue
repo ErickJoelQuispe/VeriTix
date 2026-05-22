@@ -468,7 +468,9 @@ onMounted(() => {
 
             <div class="space-y-4">
               <template v-if="catalogMode === 'published' && catalogPending">
-                <BaseSkeleton v-for="i in 4" :key="`catalog-${i}`" class="h-32 rounded-2xl" />
+                <div class="flex min-h-80 items-center justify-center rounded-2xl border border-default/50 bg-elevated/15">
+                  <BaseSpinner class="size-10" spinner-class="size-10" />
+                </div>
               </template>
 
               <UiEmptyState

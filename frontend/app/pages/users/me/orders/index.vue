@@ -104,8 +104,8 @@ onMounted(() => {
 
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
           <section class="space-y-6">
-            <div v-if="!initialized" class="space-y-4">
-              <BaseSkeleton v-for="index in 4" :key="index" class="h-28 rounded-2xl" />
+            <div v-if="!initialized" class="flex min-h-72 items-center justify-center">
+              <BaseSpinner class="size-10" spinner-class="size-10" />
             </div>
 
             <template v-else>
@@ -269,9 +269,8 @@ onMounted(() => {
               </UiPanel>
 
               <template #fallback>
-                <div class="space-y-4" aria-hidden="true">
-                  <BaseSkeleton class="h-40 rounded-2xl" />
-                  <BaseSkeleton class="h-24 rounded-2xl" />
+                <div class="flex min-h-64 items-center justify-center" aria-hidden="true">
+                  <BaseSpinner class="size-10" spinner-class="size-10" />
                 </div>
               </template>
             </ClientOnly>

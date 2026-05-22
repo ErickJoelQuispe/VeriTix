@@ -255,7 +255,7 @@ onMounted(() => {
             </div>
 
             <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              <BaseSkeleton v-for="index in 6" :key="index" class="h-56 rounded-2xl" />
+              <BaseSpinner v-for="index in 6" :key="index" class="h-56 rounded-2xl" />
             </div>
 
             <UiEmptyState

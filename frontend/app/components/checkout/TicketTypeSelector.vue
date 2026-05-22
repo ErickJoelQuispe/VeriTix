@@ -70,11 +70,11 @@ const total = computed<number>(() => {
     <template v-if="loading">
       <div v-for="n in 3" :key="n" data-testid="ticket-type-skeleton" class="space-y-3 rounded-2xl border border-default/55 bg-elevated/20 p-4">
         <div class="flex items-start justify-between gap-4">
-          <BaseSkeleton class="h-5 w-32 rounded-full" />
-          <BaseSkeleton class="h-6 w-24 rounded-full" />
+          <BaseSpinner class="h-5 w-32 rounded-full" />
+          <BaseSpinner class="h-6 w-24 rounded-full" />
         </div>
-        <BaseSkeleton class="h-3 w-3/4 rounded-full" />
-        <BaseSkeleton class="h-3 w-24 rounded-full" />
+        <BaseSpinner class="h-3 w-3/4 rounded-full" />
+        <BaseSpinner class="h-3 w-24 rounded-full" />
       </div>
     </template>
 

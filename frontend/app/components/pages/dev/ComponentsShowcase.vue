@@ -246,7 +246,7 @@ function submitDemoForm() {
           <UiSectionHeading
             eyebrow="Base"
             title="Primitives base."
-            description="Buttons, badges, avatars, icons, skeletons, pagination, and popovers from the shared foundation layer."
+            description="Buttons, badges, avatars, icons, spinners, pagination, and popovers from the shared foundation layer."
           />
 
           <div class="grid gap-6 lg:grid-cols-2">
@@ -424,15 +424,15 @@ function submitDemoForm() {
             <UiPanel class="space-y-5 xl:col-span-2">
               <div class="space-y-2">
                 <p class="text-sm font-semibold text-highlighted">
-                  Skeletons and pagination
+                  Spinners and pagination
                 </p>
                 <p class="text-sm leading-relaxed text-toned">
-                  Loading placeholders and navigation controls for denser lists.
+                  Loading indicators and navigation controls for denser lists.
                 </p>
               </div>
 
               <div class="space-y-3">
-                <BaseSkeleton class="h-24 w-full" />
+                <BaseSpinner class="h-24 w-full" />
               </div>
 
               <div class="space-y-3 rounded-2xl border border-default/55 bg-default/20 p-4">

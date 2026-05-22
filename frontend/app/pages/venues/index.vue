@@ -332,7 +332,7 @@ async function handlePageChange(page: number) {
           </div>
 
           <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <BaseSkeleton v-for="index in 6" :key="index" class="h-96 rounded-2xl" />
+            <BaseSpinner v-for="index in 6" :key="index" class="h-96 rounded-2xl" />
           </div>
 
           <div

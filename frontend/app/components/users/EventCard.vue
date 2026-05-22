@@ -53,27 +53,27 @@ const ticketLabel = computed(() =>
     radius="xl"
     padding="none"
     :interactive="true"
-    class="group flex h-full flex-col overflow-hidden"
+    class="group flex h-full flex-row overflow-hidden"
   >
     <!-- Media -->
     <div
-      class="relative overflow-hidden border-b border-white/10 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35"
+      class="relative aspect-square w-32 shrink-0 overflow-hidden border-r border-white/10 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 sm:w-36 lg:w-40"
     >
       <NuxtImg
         v-if="item.event.imageUrl"
         :src="item.event.imageUrl"
         :alt="`Imagen de ${item.event.name}`"
-        class="h-52 w-full object-cover transition duration-500 group-hover:scale-105"
+        class="h-full w-full object-cover transition duration-300"
         loading="lazy"
         width="900"
         height="600"
-        sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
+        sizes="(max-width: 639px) 8rem, (max-width: 1023px) 9rem, 10rem"
         placeholder
       />
 
       <div
         v-else
-        class="flex h-52 items-center justify-center bg-linear-to-br from-elevated/40 via-elevated/25 to-elevated/40"
+        class="flex h-full items-center justify-center bg-linear-to-br from-elevated/40 via-elevated/25 to-elevated/40"
       >
         <BaseIcon name="i-lucide-image" class="size-12 text-muted/50" />
       </div>
@@ -98,7 +98,7 @@ const ticketLabel = computed(() =>
     </div>
 
     <!-- Content -->
-    <div class="flex flex-1 flex-col gap-4 p-5 sm:p-6">
+    <div class="flex min-w-0 flex-1 flex-col gap-4 p-5 sm:p-6">
       <div class="space-y-1.5">
         <h3 class="line-clamp-2 text-base font-semibold leading-tight text-highlighted sm:text-lg">
           {{ item.event.name }}
@@ -118,12 +118,12 @@ const ticketLabel = computed(() =>
         class="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35"
       >
         <BaseButton
-          variant="outlined"
+          :variant="isFavorited ? 'reversed' : 'outlined'"
           size="xs"
           :loading="favoriteLoading"
-          :leading-icon="isFavorited ? 'i-lucide-heart' : 'i-lucide-heart'"
-          :class="isFavorited ? 'text-error border-error/40' : ''"
-          aria-label="Alternar favorito"
+          leading-icon="i-lucide-heart"
+          :class="isFavorited ? 'shadow-[0_14px_28px_-22px_rgba(166,102,255,0.9)]' : 'text-toned'"
+          :aria-label="isFavorited ? 'Quitar de favoritos' : 'Guardar en favoritos'"
           @click.stop="emit('toggleFavorite')"
         >
           {{ isFavorited ? 'Guardado' : 'Guardar' }}

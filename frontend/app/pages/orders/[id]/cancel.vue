@@ -22,7 +22,7 @@ onMounted(async () => {
     <BaseContainer>
       <div class="flex items-center justify-center py-16">
         <div class="space-y-3 text-center">
-          <BaseSkeleton class="mx-auto h-8 w-48 rounded-xl" />
+          <BaseSpinner class="mx-auto h-8 w-48 rounded-xl" />
           <p class="text-sm text-toned">
             Redirigiendo...
           </p>

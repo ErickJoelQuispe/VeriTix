@@ -218,17 +218,15 @@ onMounted(() => {
           class="vtx-settings-heading-divider"
         />
 
-        <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
-          <div class="order-last min-w-0 space-y-6 xl:order-first">
-            <div v-if="!initialized" class="space-y-4">
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-            </div>
+        <template v-if="!initialized">
+          <div class="flex min-h-[45vh] items-center justify-center px-6 py-16">
+            <BaseSpinner class="size-10" spinner-class="size-10" />
+          </div>
+        </template>
 
-            <template v-else>
+        <template v-else>
+          <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
+            <div class="order-last min-w-0 space-y-6 xl:order-first">
               <UiPanel as="article" variant="glass" padding="xl" radius="xl" class="space-y-0">
                 <div class="space-y-2 vtx-settings-divider pb-5">
                   <UiMetaLabel>
@@ -416,10 +414,9 @@ onMounted(() => {
                   </div>
                 </FormRoot>
               </UiPanel>
-            </template>
-          </div>
+            </div>
 
-          <aside class="order-first space-y-8 xl:order-last">
+            <aside class="order-first space-y-8 xl:order-last">
             <ClientOnly>
               <div class="space-y-8">
                 <section class="space-y-5 pb-8">
@@ -507,16 +504,10 @@ onMounted(() => {
                 </section>
               </div>
 
-              <template #fallback>
-                <UiPanel variant="glass" padding="xl" radius="xl" class="space-y-0" aria-hidden="true">
-                  <BaseSkeleton class="h-16 w-16 rounded-2xl" />
-                  <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
-                  <BaseSkeleton class="mt-2 h-4 w-44 rounded" />
-                </UiPanel>
-              </template>
             </ClientOnly>
-          </aside>
-        </div>
+            </aside>
+          </div>
+        </template>
       </div>
     </BaseContainer>
   </section>
