@@ -35,7 +35,7 @@ const isFavorite = computed(() => props.isFavorited !== false)
         v-if="props.item.event.imageUrl"
         :src="props.item.event.imageUrl"
         :alt="`Imagen de ${props.item.event.name}`"
-        class="h-52 w-full object-cover transition duration-500 group-hover:scale-105"
+        class="h-52 w-full object-cover transition duration-300"
         loading="lazy"
         width="900"
         height="600"

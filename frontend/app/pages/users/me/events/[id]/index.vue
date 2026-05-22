@@ -14,15 +14,23 @@ const { events, fetchMyEvents } = useMyEvents()
 const { tickets, isLoading: isLoadingTickets, fetchMyTickets } = useMyTickets()
 const { orders, isLoading: isLoadingOrders, fetchMyOrders } = useMyOrders()
 const { myReview, fetchMyReview } = useReview(eventId)
+const hasLoaded = ref(false)
 
 // Fetch all data in parallel on mount
 onMounted(async () => {
-  await Promise.all([
-    fetchMyEvents({ page: 1, limit: 100 }),
-    fetchMyTickets(1, 100),
-    fetchMyOrders(1, 100),
-    fetchMyReview(),
-  ])
+  hasLoaded.value = false
+
+  try {
+    await Promise.all([
+      fetchMyEvents({ page: 1, limit: 100 }),
+      fetchMyTickets(1, 100),
+      fetchMyOrders(1, 100),
+      fetchMyReview(),
+    ])
+  }
+  finally {
+    hasLoaded.value = true
+  }
 })
 
 // ── Derived state ─────────────────────────────────────────────────────────────
@@ -81,9 +89,21 @@ useSeoMeta({
 <template>
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer>
-      <div class="mx-auto max-w-4xl space-y-6 sm:space-y-8">
+      <div class="mx-auto max-w-6xl space-y-8 sm:space-y-10">
+        <!-- Loading state -->
+        <template v-if="!hasLoaded">
+          <div class="flex min-h-[40vh] items-center justify-center py-20">
+            <div class="flex flex-col items-center gap-4 text-center">
+              <BaseIcon name="i-lucide-loader-2" class="size-8 animate-spin text-lavender" />
+              <p class="text-sm text-toned">
+                Cargando evento...
+              </p>
+            </div>
+          </div>
+        </template>
+
         <!-- Event not found -->
-        <template v-if="!currentEventItem">
+        <template v-else-if="!currentEventItem">
           <UiEmptyState
             icon="i-lucide-calendar-x"
             title="Evento no encontrado"
@@ -100,44 +120,45 @@ useSeoMeta({
             Volver a eventos
           </NuxtLink>
 
-          <!-- Header -->
-          <UsersEventHeader :event="currentEventItem.event" />
-
-          <!-- Tabs -->
-          <UsersEventTabs
-            v-model:active-tab="activeTab"
-          />
-
-          <!-- Tab content -->
-          <div class="min-h-[200px]">
-            <template v-if="activeTab === 'tickets'">
-              <TicketList
-                :tickets="eventTickets"
-                :is-loading="isLoadingTickets"
-                @open-ticket="openModal"
+          <UsersEventHeader :event="currentEventItem.event">
+            <div class="space-y-6">
+              <!-- Tabs -->
+              <UsersEventTabs
+                v-model:active-tab="activeTab"
               />
-            </template>
 
-            <template v-else-if="activeTab === 'orders'">
-              <OrderList
-                :orders="eventOrders"
-                :is-loading="isLoadingOrders"
-              />
-            </template>
+              <!-- Tab content -->
+              <div class="min-h-[200px]">
+                <template v-if="activeTab === 'tickets'">
+                  <TicketList
+                    :tickets="eventTickets"
+                    :is-loading="isLoadingTickets"
+                    @open-ticket="openModal"
+                  />
+                </template>
 
-            <template v-else-if="activeTab === 'review'">
-              <div class="space-y-8">
-                <ReviewForm
-                  :event-id="eventId"
-                  :existing-review="myReview"
-                  :has-used-ticket="hasUsedTicket"
-                  @submitted="onReviewSubmitted"
-                  @deleted="onReviewDeleted"
-                />
-                <ReviewList :event-id="eventId" />
+                <template v-else-if="activeTab === 'orders'">
+                  <OrderList
+                    :orders="eventOrders"
+                    :is-loading="isLoadingOrders"
+                  />
+                </template>
+
+                <template v-else-if="activeTab === 'review'">
+                  <div class="space-y-8">
+                    <ReviewForm
+                      :event-id="eventId"
+                      :existing-review="myReview"
+                      :has-used-ticket="hasUsedTicket"
+                      @submitted="onReviewSubmitted"
+                      @deleted="onReviewDeleted"
+                    />
+                    <ReviewList :event-id="eventId" />
+                  </div>
+                </template>
               </div>
-            </template>
-          </div>
+            </div>
+          </UsersEventHeader>
         </template>
 
         <!-- Ticket Modal -->

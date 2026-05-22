@@ -10,7 +10,7 @@ const eventItem = {
     id: 'event-1',
     name: 'Rock Fest',
     eventDate: '2026-08-15T20:00:00Z',
-    imageUrl: null,
+    imageUrl: '/images/rock-fest.jpg',
     venue: { id: 'venue-1', name: 'Movistar Arena', city: 'Buenos Aires' },
     format: { id: 'format-1', name: 'Concert' },
   },
@@ -46,11 +46,19 @@ describe('myEventsPage — /users/me/events', () => {
     const wrapper = await mountSuspended(MyEventsPage)
     await flushPromises()
 
+    const eventCard = wrapper.find('article')
+    const eventMedia = wrapper.find('.aspect-square')
     const favoritesLink = wrapper.findAll('a').find(link => link.text().includes('Mis favoritos'))
     const saveButton = wrapper.findAll('button').find(button => button.text().includes('Guardado'))
+    const detailsButton = wrapper.findAll('button').find(button => button.text().includes('Ver detalles'))
 
+    expect(eventCard.classes()).toContain('flex-row')
+    expect(eventMedia.exists()).toBe(true)
     expect(favoritesLink).toBeDefined()
     expect(favoritesLink?.attributes('href')).toBe('/users/me/favorites')
+    expect(wrapper.text()).toContain('Activo')
+    expect(wrapper.text()).toContain('2 entradas')
+    expect(detailsButton).toBeDefined()
     expect(checkFavoriteMock).toHaveBeenCalled()
     expect(saveButton).toBeDefined()
   })
