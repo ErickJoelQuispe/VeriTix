@@ -733,9 +733,16 @@ async function main() {
       ...Array.from({ length: 75 }, (_, i) => ({ tt: ttGeneral, i: i + 25 })),
     ];
 
+    // Distribuir paidAt en las últimas 8 semanas antes del evento
+    const demoEventDate = demoEvent.eventDate.getTime();
+    const demoSaleStart = demoEvent.startSale?.getTime() ?? (demoEventDate - 8 * 7 * 86400000);
+
     for (const { tt, i } of demoOrders) {
       const unitPrice = parseFloat(tt.price.toString());
       const subtotal  = (unitPrice * 20).toFixed(2);
+
+      // Distribuir uniformemente en el tiempo de venta
+      const paidAt = new Date(demoSaleStart + (i / demoOrders.length) * (demoEventDate - demoSaleStart));
 
       const order = await prisma.order.create({
         data: {
@@ -757,7 +764,7 @@ async function main() {
           provider: 'stripe',
           providerPaymentId: `pi_demo_${i}_${order.id.slice(0, 8)}`,
           providerSessionId: `sess_demo_${i}_${order.id.slice(0, 8)}`,
-          paidAt: now,
+          paidAt,
           orderId: order.id,
         },
       });
