@@ -44,6 +44,12 @@ const formattedDate = computed(() => {
 const ticketLabel = computed(() =>
   props.item.ticketCount === 1 ? '1 entrada' : `${props.item.ticketCount} entradas`,
 )
+
+const favoriteButtonClass = computed(() => {
+  return props.isFavorited
+    ? 'border-lavender/45 bg-lavender/12 text-lavender shadow-[0_14px_28px_-22px_rgba(166,102,255,0.9)] hover:border-lavender/65 hover:bg-lavender/18 hover:text-white'
+    : 'text-toned'
+})
 </script>
 
 <template>
@@ -118,12 +124,12 @@ const ticketLabel = computed(() =>
         class="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35"
       >
         <BaseButton
-          variant="outlined"
+          :variant="isFavorited ? 'secondary' : 'outlined'"
           size="xs"
           :loading="favoriteLoading"
-          :leading-icon="isFavorited ? 'i-lucide-heart' : 'i-lucide-heart'"
-          :class="isFavorited ? 'text-error border-error/40' : ''"
-          aria-label="Alternar favorito"
+          leading-icon="i-lucide-heart"
+          :class="favoriteButtonClass"
+          :aria-label="isFavorited ? 'Quitar de favoritos' : 'Guardar en favoritos'"
           @click.stop="emit('toggleFavorite')"
         >
           {{ isFavorited ? 'Guardado' : 'Guardar' }}

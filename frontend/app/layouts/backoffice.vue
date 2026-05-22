@@ -3,9 +3,11 @@
     <BackdropsPageBackdrop />
     <BackdropsPerspectiveGrid />
 
-    <div class="relative z-10 min-h-screen">
+    <div class="relative z-10 flex min-h-screen flex-col">
       <LayoutBackofficeHeader />
-      <slot />
+      <main class="flex-1">
+        <slot />
+      </main>
     </div>
 
     <UiConfirmDialog />

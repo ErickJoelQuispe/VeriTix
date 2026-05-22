@@ -11,18 +11,28 @@ useSeoMeta({
 const upcoming = ref(true)
 const page = ref(1)
 const LIMIT = 9
+const hasLoaded = ref(false)
 
 const { events, total, isLoading, error, fetchMyEvents } = useMyEvents()
 
 const favoritesMap = ref<Record<string, boolean>>({})
 
 async function loadEvents() {
-  await fetchMyEvents({ upcoming: upcoming.value, page: page.value, limit: LIMIT })
-  // Initialize favorites map for newly loaded events (default false — individual check on detail open)
-  for (const item of events.value) {
-    if (!(item.event.id in favoritesMap.value)) {
-      favoritesMap.value[item.event.id] = false
-    }
+  hasLoaded.value = false
+
+  try {
+    await fetchMyEvents({ upcoming: upcoming.value, page: page.value, limit: LIMIT })
+
+    await Promise.all(
+      events.value.map(async (item) => {
+        const favorite = useFavorite(item.event.id, favoritesMap.value[item.event.id] ?? false)
+        await favorite.checkFavorite()
+        favoritesMap.value[item.event.id] = favorite.isFavorited.value
+      }),
+    )
+  }
+  finally {
+    hasLoaded.value = true
   }
 }
 
@@ -38,7 +48,7 @@ async function setUpcoming(value: boolean) {
 }
 
 async function handleToggleFavorite(eventId: string) {
-  const { toggle } = useFavorite(eventId)
+  const { toggle } = useFavorite(eventId, favoritesMap.value[eventId] ?? false)
   favoritesMap.value[eventId] = !favoritesMap.value[eventId]
 
   try {
@@ -70,7 +80,17 @@ async function handlePageChange(next: number) {
           description="Todos los eventos a los que fuiste o vas a ir."
         >
           <template #actions>
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex w-full flex-wrap items-center gap-2">
+              <BaseButton
+                to="/users/me/favorites"
+                variant="reversed"
+                size="sm"
+                leading-icon="i-lucide-heart"
+                class="ml-auto"
+              >
+                Mis favoritos
+              </BaseButton>
+
               <BaseButton
                 :variant="upcoming ? 'primary' : 'outlined'"
                 size="sm"
@@ -93,7 +113,7 @@ async function handlePageChange(next: number) {
         </UiPageHeading>
 
         <!-- Loading skeleton -->
-        <div v-if="isLoading" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
+        <div v-if="isLoading || !hasLoaded" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
           <BaseSkeleton v-for="i in 6" :key="i" class="h-104 rounded-2xl" />
         </div>
 

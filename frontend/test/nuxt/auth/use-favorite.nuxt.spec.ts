@@ -27,6 +27,13 @@ const Harness = defineComponent({
   template: '<div />',
 })
 
+const FavoritedHarness = defineComponent({
+  setup() {
+    return useFavorite('event-1', true)
+  },
+  template: '<div />',
+})
+
 beforeEach(() => {
   vi.clearAllMocks()
   getFavoriteStatusMock.mockResolvedValue({ isFavorite: false })
@@ -34,6 +41,12 @@ beforeEach(() => {
 })
 
 describe('useFavorite', () => {
+  it('can start in the favorited state', async () => {
+    const wrapper = await mountSuspended(FavoritedHarness)
+
+    expect(wrapper.vm.isFavorited).toBe(true)
+  })
+
   it('checks the current favorite status', async () => {
     getFavoriteStatusMock.mockResolvedValueOnce({ isFavorite: true })
 
