@@ -22,6 +22,10 @@ export default defineNuxtConfig({
 
   image: {
     domains: ['images.unsplash.com', 'picsum.photos'],
+    provider: 'ipx',
+    ipx: {
+      allowExternalUrls: true,
+    },
   },
 
   imports: {
