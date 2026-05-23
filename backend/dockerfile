@@ -48,4 +48,4 @@ USER nestjs
 EXPOSE 3001
 
 # Corre migraciones pendientes y luego arranca en modo producción (sin watch)
-CMD ["sh", "-c", "bunx prisma migrate deploy && node -r tsconfig-paths/register dist/src/main.js"]
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun dist/src/main.js"]
