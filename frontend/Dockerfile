@@ -34,6 +34,9 @@ RUN addgroup --system --gid 1001 nuxt \
 # Solo copiamos el output compilado — el resto no existe en esta imagen
 COPY --from=builder --chown=nuxt:nuxt /app/.output ./.output
 
+# Instala deps del servidor de Nitro (ipx y otras tienen deps externas no bundleadas)
+RUN cd .output/server && bun install && chown -R nuxt:nuxt /app/.output/server/node_modules
+
 USER nuxt
 
 EXPOSE 3000
