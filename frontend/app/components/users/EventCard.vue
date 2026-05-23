@@ -115,7 +115,7 @@ const ticketLabel = computed(() =>
 
       <!-- Actions -->
       <div
-        class="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35"
+        class="mt-auto flex items-center gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35"
       >
         <BaseButton
           :variant="isFavorited ? 'reversed' : 'outlined'"
@@ -131,11 +131,12 @@ const ticketLabel = computed(() =>
 
         <BaseButton
           variant="secondary"
-          size="sm"
+          size="xs"
           trailing-icon="i-lucide-arrow-right"
+          class="ml-auto"
           @click.stop="emit('viewDetail')"
         >
-          Ver detalles
+          Ver
         </BaseButton>
       </div>
     </div>

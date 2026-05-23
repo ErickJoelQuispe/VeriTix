@@ -30,7 +30,7 @@ function handleCancelled(orderId: string) {
     <!-- Empty state -->
     <template v-else-if="localOrders.length === 0">
       <UiEmptyState
-        icon="i-lucide-receipt-x"
+        icon="i-lucide-receipt-text"
         title="Sin órdenes para este evento"
         description="No tenés órdenes registradas para este evento."
       />

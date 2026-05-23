@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Review, UserTicket } from '~~/shared/types'
+import { useTicketsRepository } from '@/repositories/ticketsRepository'
 
 definePageMeta({
   middleware: 'auth',
@@ -11,9 +12,10 @@ const eventId = route.params.id as string
 // ── Data fetching ─────────────────────────────────────────────────────────────
 
 const { events, fetchMyEvents } = useMyEvents()
-const { tickets, isLoading: isLoadingTickets, fetchMyTickets } = useMyTickets()
+const { tickets, isLoading: isLoadingTickets } = useMyTickets()
 const { orders, isLoading: isLoadingOrders, fetchMyOrders } = useMyOrders()
 const { myReview, fetchMyReview } = useReview(eventId)
+const { listMyTickets } = useTicketsRepository()
 const hasLoaded = ref(false)
 
 // Fetch all data in parallel on mount
@@ -21,9 +23,23 @@ onMounted(async () => {
   hasLoaded.value = false
 
   try {
+    // Fetch all ticket pages (the user has 1494+ tickets, need multiple pages)
+    const allTickets: UserTicket[] = []
+    let page = 1
+    let hasMore = true
+
+    while (hasMore) {
+      const response = await listMyTickets(page, 100)
+      allTickets.push(...response.data)
+      hasMore = response.meta.hasNext ?? false
+      page++
+    }
+
+    tickets.value = allTickets
+    isLoadingTickets.value = false
+
     await Promise.all([
       fetchMyEvents({ page: 1, limit: 100 }),
-      fetchMyTickets(1, 100),
       fetchMyOrders(1, 100),
       fetchMyReview(),
     ])
@@ -66,6 +82,24 @@ function onReviewDeleted() {
 }
 
 // ── Ticket modal ──────────────────────────────────────────────────────────────
+
+// ── Tickets pagination ─────────────────────────────────────────────────────────
+
+const TICKETS_PER_PAGE = 20
+const ticketPage = ref(1)
+const totalTicketPages = computed(() =>
+  Math.max(1, Math.ceil(eventTickets.value.length / TICKETS_PER_PAGE)),
+)
+const paginatedTickets = computed(() => {
+  const start = (ticketPage.value - 1) * TICKETS_PER_PAGE
+  return eventTickets.value.slice(start, start + TICKETS_PER_PAGE)
+})
+
+function onTicketPageChange(newPage: number) {
+  ticketPage.value = newPage
+}
+
+// ── Ticket modal ───────────────────────────────────────────────────────────────
 
 const selectedTicket = ref<UserTicket | null>(null)
 const isModalOpen = ref(false)
@@ -130,11 +164,29 @@ useSeoMeta({
               <!-- Tab content -->
               <div class="min-h-[200px]">
                 <template v-if="activeTab === 'tickets'">
-                  <TicketList
-                    :tickets="eventTickets"
-                    :is-loading="isLoadingTickets"
-                    @open-ticket="openModal"
-                  />
+                  <div class="space-y-6">
+                    <TicketList
+                      :tickets="paginatedTickets"
+                      :is-loading="isLoadingTickets"
+                      @open-ticket="openModal"
+                    />
+
+                    <div v-if="totalTicketPages > 1" class="flex justify-center">
+                      <BasePagination
+                        :page="ticketPage"
+                        :total="eventTickets.length"
+                        :items-per-page="TICKETS_PER_PAGE"
+                        :sibling-count="1"
+                        size="sm"
+                        color="neutral"
+                        variant="ghost"
+                        active-color="primary"
+                        active-variant="soft"
+                        show-edges
+                        @update:page="onTicketPageChange"
+                      />
+                    </div>
+                  </div>
                 </template>
 
                 <template v-else-if="activeTab === 'orders'">
