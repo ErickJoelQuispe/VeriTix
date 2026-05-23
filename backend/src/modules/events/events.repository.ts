@@ -471,7 +471,7 @@ export class EventsRepository {
       };
     });
 
-    return mapped.sort((a, b) => b.ticketsSold - a.ticketsSold).slice(0, limit);
+    return mapped.sort((a, b) => b.revenue - a.revenue).slice(0, limit);
   }
 
   findMetricsById(id: string): Promise<EventMetricsRaw | null> {
