@@ -37,6 +37,7 @@ COPY --from=builder --chown=nestjs:nestjs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nestjs /app/prisma ./prisma
 COPY --from=builder --chown=nestjs:nestjs /app/src/generated ./src/generated
 COPY --from=builder --chown=nestjs:nestjs /app/package.json ./package.json
+COPY --from=builder --chown=nestjs:nestjs /app/tsconfig.json ./tsconfig.json
 # Config de Prisma sin dotenv — lee DATABASE_URL directo del environment
 COPY --chown=nestjs:nestjs prisma.config.prod.ts ./prisma.config.ts
 
@@ -47,4 +48,4 @@ USER nestjs
 EXPOSE 3001
 
 # Corre migraciones pendientes y luego arranca en modo producción (sin watch)
-CMD ["sh", "-c", "bunx prisma migrate deploy && node dist/main.js"]
+CMD ["sh", "-c", "bunx prisma migrate deploy && node -r tsconfig-paths/register dist/src/main.js"]
