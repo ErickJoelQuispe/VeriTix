@@ -145,7 +145,7 @@ onMounted(() => {
 
               <UiEmptyState
                 v-else-if="orders.length === 0"
-                icon="i-lucide-shopping-bag"
+                icon="i-lucide-receipt"
                 title="Todavía no tenés órdenes"
                 description="Cuando comprés una entrada aparecerá acá con su estado de pago."
                 action-label="Ver eventos"
@@ -164,7 +164,7 @@ onMounted(() => {
                   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex min-w-0 items-start gap-4">
                       <div class="vtx-order-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
-                        <BaseIcon name="i-lucide-shopping-bag" class="size-5 text-primary" />
+                        <BaseIcon name="i-lucide-receipt" class="size-5 text-primary" />
                       </div>
 
                       <div class="min-w-0 space-y-1">

@@ -130,7 +130,7 @@ onMounted(() => {
       <div class="flex flex-col gap-4 px-4 py-4 sm:px-5">
         <div class="flex items-start gap-4">
           <div class="vtx-order-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
-            <BaseIcon name="i-lucide-shopping-bag" class="size-5 text-primary" />
+            <BaseIcon name="i-lucide-receipt" class="size-5 text-primary" />
           </div>
 
           <div class="min-w-0 flex-1 space-y-1">
@@ -259,7 +259,7 @@ onMounted(() => {
       <summary class="flex cursor-pointer list-none flex-col gap-4 px-4 py-4 sm:px-5 sm:focus-visible:outline-none">
         <div class="flex items-start gap-4">
           <div class="vtx-order-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
-            <BaseIcon name="i-lucide-shopping-bag" class="size-5 text-primary" />
+            <BaseIcon name="i-lucide-receipt" class="size-5 text-primary" />
           </div>
 
           <div class="min-w-0 flex-1 space-y-1">

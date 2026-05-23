@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { Review, UserTicket } from '~~/shared/types'
+import type { PaginatedResponse } from '~~/shared/api/types'
+import type { Review, UserOrder, UserTicket } from '~~/shared/types'
 import { useTicketsRepository } from '@/repositories/ticketsRepository'
+import { useOrdersRepository } from '@/repositories/ordersRepository'
 
 definePageMeta({
   middleware: 'auth',
@@ -13,34 +15,46 @@ const eventId = route.params.id as string
 
 const { events, fetchMyEvents } = useMyEvents()
 const { tickets, isLoading: isLoadingTickets } = useMyTickets()
-const { orders, isLoading: isLoadingOrders, fetchMyOrders } = useMyOrders()
+const { orders, isLoading: isLoadingOrders } = useMyOrders()
 const { myReview, fetchMyReview } = useReview(eventId)
 const { listMyTickets } = useTicketsRepository()
+const { listMyOrders } = useOrdersRepository()
 const hasLoaded = ref(false)
 
-// Fetch all data in parallel on mount
+async function fetchAllPages<T>(
+  fetcher: (page: number, limit: number) => Promise<PaginatedResponse<T>>,
+): Promise<T[]> {
+  const all: T[] = []
+  let page = 1
+  let hasMore = true
+
+  while (hasMore) {
+    const response = await fetcher(page, 100)
+    all.push(...response.data)
+    hasMore = response.meta.hasNext ?? false
+    page++
+  }
+
+  return all
+}
+
 onMounted(async () => {
   hasLoaded.value = false
 
   try {
-    // Fetch all ticket pages (the user has 1494+ tickets, need multiple pages)
-    const allTickets: UserTicket[] = []
-    let page = 1
-    let hasMore = true
-
-    while (hasMore) {
-      const response = await listMyTickets(page, 100)
-      allTickets.push(...response.data)
-      hasMore = response.meta.hasNext ?? false
-      page++
-    }
+    const [allTickets, allOrders] = await Promise.all([
+      fetchAllPages(listMyTickets),
+      fetchAllPages(listMyOrders),
+    ])
 
     tickets.value = allTickets
     isLoadingTickets.value = false
 
+    orders.value = allOrders
+    isLoadingOrders.value = false
+
     await Promise.all([
       fetchMyEvents({ page: 1, limit: 100 }),
-      fetchMyOrders(1, 100),
       fetchMyReview(),
     ])
   }
@@ -97,6 +111,22 @@ const paginatedTickets = computed(() => {
 
 function onTicketPageChange(newPage: number) {
   ticketPage.value = newPage
+}
+
+// ── Orders pagination ──────────────────────────────────────────────────────────
+
+const ORDERS_PER_PAGE = 20
+const orderPage = ref(1)
+const totalOrderPages = computed(() =>
+  Math.max(1, Math.ceil(eventOrders.value.length / ORDERS_PER_PAGE)),
+)
+const paginatedOrders = computed(() => {
+  const start = (orderPage.value - 1) * ORDERS_PER_PAGE
+  return eventOrders.value.slice(start, start + ORDERS_PER_PAGE)
+})
+
+function onOrderPageChange(newPage: number) {
+  orderPage.value = newPage
 }
 
 // ── Ticket modal ───────────────────────────────────────────────────────────────
@@ -190,10 +220,28 @@ useSeoMeta({
                 </template>
 
                 <template v-else-if="activeTab === 'orders'">
-                  <OrderList
-                    :orders="eventOrders"
-                    :is-loading="isLoadingOrders"
-                  />
+                  <div class="space-y-6">
+                    <OrderList
+                      :orders="paginatedOrders"
+                      :is-loading="isLoadingOrders"
+                    />
+
+                    <div v-if="totalOrderPages > 1" class="flex justify-center">
+                      <BasePagination
+                        :page="orderPage"
+                        :total="eventOrders.length"
+                        :items-per-page="ORDERS_PER_PAGE"
+                        :sibling-count="1"
+                        size="sm"
+                        color="neutral"
+                        variant="ghost"
+                        active-color="primary"
+                        active-variant="soft"
+                        show-edges
+                        @update:page="onOrderPageChange"
+                      />
+                    </div>
+                  </div>
                 </template>
 
                 <template v-else-if="activeTab === 'review'">
