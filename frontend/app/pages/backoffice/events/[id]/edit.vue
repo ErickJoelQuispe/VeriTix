@@ -28,6 +28,7 @@ const venues = ref<VenueOption[]>([])
 const genres = ref<GenreOption[]>([])
 const formats = ref<BackofficeOption[]>([])
 const loading = ref(true)
+const optionsLoaded = ref(false)
 const submitting = ref(false)
 const isFormDirty = ref(false)
 const artistCount = ref(0)
@@ -82,6 +83,7 @@ async function loadOptions() {
   venues.value = options.venues
   genres.value = options.genres
   formats.value = options.formats
+  optionsLoaded.value = true
 }
 
 async function loadEvent() {
@@ -195,7 +197,7 @@ onMounted(() => {
           </template>
 
           <PagesBackofficeEventForm
-            v-else-if="event"
+            v-else-if="event && optionsLoaded"
             v-model:dirty="isFormDirty"
             :initial-value="event"
             :venues="venues"

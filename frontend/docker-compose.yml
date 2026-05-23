@@ -16,3 +16,5 @@ services:
       NODE_ENV: production
     profiles:
       - prod
+    mem_limit: 3g
+    cpus: 4.0

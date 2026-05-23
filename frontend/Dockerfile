@@ -9,6 +9,8 @@ FROM deps AS builder
 COPY . .
 ARG NUXT_APP_BASE_URL=/
 ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
+ENV NODE_OPTIONS="--max-old-space-size=3072"
+ENV VITE_CPU_COUNT=2
 RUN rm -rf node_modules/.cache/nuxt
 RUN bun run build
 
@@ -23,8 +25,7 @@ RUN addgroup --system --gid 1001 nuxt && \
     adduser --system --uid 1001 nuxt
 
 COPY --from=builder /app/.output ./.output
-RUN cd .output/server && rm -rf node_modules && bun install && \
-    chown -R nuxt:nuxt /app/.output
+RUN chown -R nuxt:nuxt /app/.output
 
 USER nuxt
 
