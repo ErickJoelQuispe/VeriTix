@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
       args:
         NUXT_APP_BASE_URL: /verifront/
     container_name: veritix_frontend
@@ -16,5 +15,5 @@ services:
       NODE_ENV: production
     profiles:
       - prod
-    mem_limit: 3g
-    cpus: 4.0
+    mem_limit: 512m
+    cpus: 2.0

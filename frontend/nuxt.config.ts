@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
@@ -18,7 +18,12 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/fonts', '@nuxt/test-utils/module'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/image',
+    '@nuxt/fonts',
+    ...(process.env.NODE_ENV !== 'production' ? ['@nuxt/test-utils/module'] : []),
+  ],
 
   image: {
     domains: ['images.unsplash.com', 'picsum.photos'],
@@ -44,7 +49,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
-      include: ['@vue/devtools-core', '@vue/devtools-kit', 'zod'],
+      include: ['zod'],
       exclude: ['@zxing/browser'],
     },
     server: {
