@@ -180,12 +180,6 @@ export class TicketPdfService {
       doc.moveDown(0.3);
       doc.y += qrSize;
 
-      doc
-        .fontSize(7)
-        .font('Helvetica')
-        .fillColor('#9ca3af')
-        .text(ticket.ticketId, { align: 'center' });
-
       doc.end();
     });
   }
