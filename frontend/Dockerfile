@@ -10,7 +10,7 @@ COPY . .
 ARG NUXT_APP_BASE_URL=/
 ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
 ENV NODE_OPTIONS="--max-old-space-size=3072"
-ENV VITE_CPU_COUNT=2
+ENV VITE_CPU_COUNT=4
 RUN rm -rf node_modules/.cache/nuxt
 RUN bun run build
 
