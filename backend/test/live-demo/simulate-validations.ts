@@ -61,27 +61,33 @@ async function simulate() {
 
   const API_URL = process.env.API_URL || 'http://localhost:3001/api/v1';
 
-  // 1500 tickets en 5 minutos con batches de 3 concurrentes
-  // 1500 / 3 = 500 batches en 300 seg → 1 batch cada 600ms
-  const TOTAL_TICKETS  = tickets.length;   // 1500
-  const CONCURRENCY    = 3;                // validaciones simultáneas
-  const DURATION_MS    = 5 * 60 * 1000;   // 5 minutos
-  const TOTAL_BATCHES  = Math.ceil(TOTAL_TICKETS / CONCURRENCY); // 500
-  const intervalMs     = Math.floor(DURATION_MS / TOTAL_BATCHES); // 600ms entre batches
+  const TOTAL_TICKETS   = tickets.length;  // 1500
+  const DURATION_MS     = 5 * 60 * 1000;  // 5 minutos
+  const BATCH_INTERVAL  = 600;             // 600ms entre lotes
+  const WAVE_CYCLE      = 100;             // ~60s por ola (100 lotes × 600ms)
+
+  // Ola de batches: mínimo 2 tickets por lote para que nunca se vea vacío
+  // La ola oscila entre 2 (valle, aún activo) y 4 (cresta, pico visible)
+  function waveBatchSize(batchIndex: number): number {
+    const phase = (batchIndex % WAVE_CYCLE) / WAVE_CYCLE;   // 0 → 1
+    const wave = Math.sin(phase * 2 * Math.PI);              // -1 → 1
+    return Math.round(3 + 1 * wave);                         // 2, 3 o 4
+  }
 
   console.log(`Configuración de la simulación:`);
   console.log(`  Total tickets : ${TOTAL_TICKETS}`);
   console.log(`  Duración      : 5 minutos`);
-  console.log(`  Concurrencia  : ${CONCURRENCY} simultáneas`);
-  console.log(`  Intervalo     : ${intervalMs}ms entre batches`);
-  console.log(`  Throughput    : ~${(CONCURRENCY * 1000 / intervalMs).toFixed(1)} tickets/seg`);
+  console.log(`  Lotes         : cada 600ms (tamaño 2-4)`);
+  console.log(`  Throughput    : ~5 tickets/seg promedio`);
+  console.log(`  Olas          : ~5 crestas en 5 min (pico cada ~60s)`);
   console.log(`  API           : ${API_URL}\n`);
 
   let successCount = 0;
   let errorCount   = 0;
+  let batchIndex   = 0;
   const startTime  = Date.now();
 
-  async function validateTicket(ticket: typeof tickets[0], index: number): Promise<void> {
+  async function validateTicket(ticket: typeof tickets[0]): Promise<void> {
     try {
       const response = await fetch(`${API_URL}/tickets/validate`, {
         method: 'POST',
@@ -106,23 +112,26 @@ async function simulate() {
     }
   }
 
-  // Procesar en batches de CONCURRENCY tickets simultáneos
-  for (let i = 0; i < tickets.length; i += CONCURRENCY) {
-    const batch = tickets.slice(i, i + CONCURRENCY);
+  // Procesar en lotes de tamaño variable (ola sinusoidal)
+  for (let i = 0; i < tickets.length;) {
+    const size = Math.min(waveBatchSize(batchIndex), tickets.length - i);
+    const batch = tickets.slice(i, i + size);
 
-    // Lanzar el batch en paralelo
-    await Promise.all(batch.map((ticket, j) => validateTicket(ticket, i + j)));
+    // Lanzar el lote en paralelo
+    await Promise.all(batch.map(ticket => validateTicket(ticket)));
 
-    // Progreso cada 150 tickets (50 batches)
-    const processed = Math.min(i + CONCURRENCY, TOTAL_TICKETS);
-    if (processed % 150 === 0) {
+    i += size;
+    batchIndex++;
+
+    // Progreso cada ~150 tickets
+    if (i > 0 && (Math.floor((i - 1) / 150) < Math.floor(i / 150))) {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-      console.log(`\n  [${processed}/${TOTAL_TICKETS}] ${successCount} válidos — ${elapsed}s transcurridos`);
+      console.log(`\n  [${Math.min(i, TOTAL_TICKETS)}/${TOTAL_TICKETS}] ${successCount} válidos — ${elapsed}s transcurridos`);
     }
 
-    // Esperar entre batches (excepto el último)
-    if (i + CONCURRENCY < tickets.length) {
-      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    // Esperar hasta el próximo lote
+    if (i < tickets.length) {
+      await new Promise(resolve => setTimeout(resolve, BATCH_INTERVAL));
     }
   }
 

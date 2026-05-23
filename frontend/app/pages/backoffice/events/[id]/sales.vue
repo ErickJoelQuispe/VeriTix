@@ -148,118 +148,110 @@ function truncateId(id: string): string {
           </div>
         </div>
 
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-5">
-          <template v-if="metricsLoading">
-            <UiPanel v-for="i in 5" :key="i" variant="glass" radius="md" padding="md">
-              <BaseSpinner class="mb-4 size-10 rounded-lg" />
-              <BaseSpinner class="mb-2 h-8 w-16" />
-              <BaseSpinner class="h-4 w-24" />
-            </UiPanel>
-          </template>
+        <!-- KPI Cards (ClientOnly evita el SSR problemático) -->
+        <ClientOnly>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+            <template v-if="metricsLoading">
+              <UiPanel v-for="i in 2" :key="'s' + i" class="sm:col-span-3" variant="glass" radius="md" padding="md">
+                <BaseSpinner class="mb-4 size-10 rounded-lg" />
+                <BaseSpinner class="mb-2 h-8 w-16" />
+                <BaseSpinner class="h-4 w-24" />
+              </UiPanel>
+              <UiPanel v-for="i in 3" :key="'t' + i" class="sm:col-span-2" variant="glass" radius="md" padding="md">
+                <BaseSpinner class="mb-4 size-10 rounded-lg" />
+                <BaseSpinner class="mb-2 h-8 w-16" />
+                <BaseSpinner class="h-4 w-24" />
+              </UiPanel>
+            </template>
 
-          <template v-else>
-            <!-- 1. Total orders -->
-            <UiPanel variant="glass" radius="md" padding="md">
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-3">
-                  <UiMetaLabel>Total órdenes</UiMetaLabel>
-                  <div class="space-y-1">
-                    <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
-                      {{ totalOrders }}
-                    </p>
-                    <p class="text-sm text-toned">
-                      en este evento
-                    </p>
+            <template v-else>
+              <UiPanel class="sm:col-span-3" variant="glass" radius="md" padding="md">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="space-y-3">
+                    <UiMetaLabel>Total órdenes</UiMetaLabel>
+                    <div class="space-y-1">
+                      <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
+                        {{ totalOrders }}
+                      </p>
+                      <p class="text-sm text-toned">en este evento</p>
+                    </div>
+                  </div>
+                  <div :class="statCardIconBoxClass('primary')">
+                    <BaseIcon name="i-lucide-receipt" class="size-5" />
                   </div>
                 </div>
-                <div :class="statCardIconBoxClass('primary')">
-                  <BaseIcon name="i-lucide-receipt" class="size-5" />
-                </div>
-              </div>
-            </UiPanel>
+              </UiPanel>
 
-            <!-- 2. Revenue confirmed -->
-            <UiPanel variant="glass" radius="md" padding="md">
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-3">
-                  <UiMetaLabel>Ingresos confirmados</UiMetaLabel>
-                  <div class="space-y-1">
-                    <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
-                      {{ formatAmount(completedRevenue) }}
-                    </p>
-                    <p class="text-sm text-toned">
-                      órdenes completadas
-                    </p>
+              <UiPanel class="sm:col-span-3" variant="glass" radius="md" padding="md">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="space-y-3">
+                    <UiMetaLabel>Ingresos confirmados</UiMetaLabel>
+                    <div class="space-y-1">
+                      <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
+                        {{ formatAmount(completedRevenue) }}
+                      </p>
+                      <p class="text-sm text-toned">órdenes completadas</p>
+                    </div>
+                  </div>
+                  <div :class="statCardIconBoxClass('success')">
+                    <BaseIcon name="i-lucide-banknote" class="size-5" />
                   </div>
                 </div>
-                <div :class="statCardIconBoxClass('success')">
-                  <BaseIcon name="i-lucide-banknote" class="size-5" />
-                </div>
-              </div>
-            </UiPanel>
+              </UiPanel>
 
-            <!-- 3. Pending -->
-            <UiPanel variant="glass" radius="md" padding="md">
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-3">
-                  <UiMetaLabel>Pendientes de pago</UiMetaLabel>
-                  <div class="space-y-1">
-                    <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
-                      {{ pendingCount }}
-                    </p>
-                    <p class="text-sm text-toned">
-                      sin confirmar
-                    </p>
+              <UiPanel class="sm:col-span-2" variant="glass" radius="md" padding="md">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="space-y-3">
+                    <UiMetaLabel>Pendientes de pago</UiMetaLabel>
+                    <div class="space-y-1">
+                      <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
+                        {{ pendingCount }}
+                      </p>
+                      <p class="text-sm text-toned">sin confirmar</p>
+                    </div>
+                  </div>
+                  <div :class="statCardIconBoxClass('warning')">
+                    <BaseIcon name="i-lucide-clock" class="size-5" />
                   </div>
                 </div>
-                <div :class="statCardIconBoxClass('warning')">
-                  <BaseIcon name="i-lucide-clock" class="size-5" />
-                </div>
-              </div>
-            </UiPanel>
+              </UiPanel>
 
-            <!-- 4. Cancelled -->
-            <UiPanel variant="glass" radius="md" padding="md">
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-3">
-                  <UiMetaLabel>Canceladas</UiMetaLabel>
-                  <div class="space-y-1">
-                    <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
-                      {{ cancelledCount }}
-                    </p>
-                    <p class="text-sm text-toned">
-                      no procesadas
-                    </p>
+              <UiPanel class="sm:col-span-2" variant="glass" radius="md" padding="md">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="space-y-3">
+                    <UiMetaLabel>Canceladas</UiMetaLabel>
+                    <div class="space-y-1">
+                      <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
+                        {{ cancelledCount }}
+                      </p>
+                      <p class="text-sm text-toned">no procesadas</p>
+                    </div>
+                  </div>
+                  <div :class="statCardIconBoxClass('error')">
+                    <BaseIcon name="i-lucide-ban" class="size-5" />
                   </div>
                 </div>
-                <div :class="statCardIconBoxClass('error')">
-                  <BaseIcon name="i-lucide-ban" class="size-5" />
-                </div>
-              </div>
-            </UiPanel>
+              </UiPanel>
 
-            <!-- 5. Avg. Ticket (new) -->
-            <UiPanel variant="glass" radius="md" padding="md">
-              <div class="flex items-start justify-between gap-3">
-                <div class="space-y-3">
-                  <UiMetaLabel>Ticket Promedio</UiMetaLabel>
-                  <div class="space-y-1">
-                    <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
-                      {{ formatAmount(avgTicketPrice) }}
-                    </p>
-                    <p class="text-sm text-toned">
-                      por orden completada
-                    </p>
+              <UiPanel class="sm:col-span-2" variant="glass" radius="md" padding="md">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="space-y-3">
+                    <UiMetaLabel>Ticket Promedio</UiMetaLabel>
+                    <div class="space-y-1">
+                      <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
+                        {{ formatAmount(avgTicketPrice) }}
+                      </p>
+                      <p class="text-sm text-toned">por orden completada</p>
+                    </div>
+                  </div>
+                  <div :class="statCardIconBoxClass('primary')">
+                    <BaseIcon name="i-lucide-ticket" class="size-5" />
                   </div>
                 </div>
-                <div :class="statCardIconBoxClass('primary')">
-                  <BaseIcon name="i-lucide-ticket" class="size-5" />
-                </div>
-              </div>
-            </UiPanel>
-          </template>
-        </div>
+              </UiPanel>
+            </template>
+          </div>
+        </ClientOnly>
 
         <!-- Segmented Order Status Bar -->
         <UiPanel v-if="!metricsLoading && metrics" variant="glass" radius="md" padding="md">
