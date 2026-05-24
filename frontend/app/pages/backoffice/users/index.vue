@@ -470,7 +470,7 @@ onMounted(() => {
                       </div>
                       <div>
                         <p class="text-xs text-toned/50">
-                          Email
+                          Correo electrónico
                         </p>
                         <span
                           class="inline-block rounded-md px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-widest"

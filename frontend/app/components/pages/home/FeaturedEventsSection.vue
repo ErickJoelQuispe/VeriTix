@@ -13,8 +13,8 @@ const featuredEvents = computed(() => {
   >
     <BaseContainer>
       <UiSectionHeading
-        eyebrow="Curated access"
-        title="Curated Transmissions"
+        eyebrow="Selección curada"
+        title="Transmisiones destacadas"
         action-label="Ver eventos"
         action-to="/events"
       />

@@ -265,8 +265,8 @@ onMounted(() => {
       <div class="space-y-8" data-testid="backoffice-events-page">
         <UiPageHeading
           eyebrow="Backoffice"
-          title="Manage events"
-          description="Search, filter, and update event records with a compact overview."
+          title="Gestionar eventos"
+          description="Buscá, filtrá y actualizá registros de eventos con una vista compacta."
           action-label="Nuevo evento"
           action-to="/backoffice/events/new"
         />

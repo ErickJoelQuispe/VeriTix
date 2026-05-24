@@ -13,8 +13,8 @@ definePageMeta({
 })
 
 useSeoMeta({
-  title: 'Dashboard | Backoffice VeriTix',
-  description: 'Dashboard operativo del backoffice con métricas, revenue, actividad y seguimiento.',
+  title: 'Panel | Backoffice VeriTix',
+  description: 'Panel operativo del backoffice con métricas, ingresos, actividad y seguimiento.',
 })
 
 const repo = useBackofficeEventsRepository()
@@ -92,7 +92,7 @@ const metrics = computed(() => {
       variant: 'warning' as const,
     },
     {
-      label: 'Revenue',
+      label: 'Ingresos',
       value: formatCurrency(publishedRevenue.value),
       hint: 'ingresos estimados',
       icon: 'i-lucide-dollar-sign',
@@ -248,10 +248,10 @@ onMounted(() => {
                 Backoffice
               </UiMetaLabel>
               <h1 class="font-display text-3xl leading-none tracking-tight text-highlighted sm:text-4xl lg:text-6xl">
-                Dashboard
+                Panel
               </h1>
               <p class="max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-                Resumen operativo del backoffice con métricas, revenue, actividad y seguimiento rápido.
+                Resumen operativo del backoffice con métricas, ingresos, actividad y seguimiento rápido.
               </p>
             </div>
             <div class="flex shrink-0 flex-wrap gap-3 lg:ml-auto">
@@ -319,7 +319,7 @@ onMounted(() => {
         <!-- Two-column: Top Events + Attention -->
         <div class="grid gap-6 lg:grid-cols-2">
           <!-- Top Events -->
-          <PagesBackofficeOverviewPanel title="Top eventos" description="Mayor revenue estimado." variant="glass">
+          <PagesBackofficeOverviewPanel title="Top eventos" description="Mayores ingresos estimados." variant="glass">
             <div v-if="pendingTop" class="space-y-3">
               <div class="flex min-h-36 items-center justify-center">
                 <BaseSpinner class="size-8" spinner-class="size-8" />
@@ -329,7 +329,7 @@ onMounted(() => {
             <UiEmptyState
               v-else-if="publishedTopEvents.length === 0"
               icon="i-lucide-trending-up"
-              title="Sin datos de revenue aún"
+              title="Sin datos de ingresos aún"
               description="A medida que se vendan tickets, los eventos publicados con mayor recaudación aparecerán acá."
             />
 
