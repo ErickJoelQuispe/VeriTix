@@ -141,49 +141,55 @@ const connectionBadge = computed(() => {
 
         <!-- ── KPI grid + occupancy ring ─────────────────────────────────── -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_220px]">
-          <!-- KPI cards 2x2 -->
-          <div class="grid grid-cols-2 gap-4">
-            <PagesBackofficeAccessStatCard
-              label="Validados"
-              :value="validated"
-              :hint="`${percentage}% del total`"
-              icon="i-lucide-circle-check-big"
-              tone="success"
-              :loading="isLoading"
-            />
-            <PagesBackofficeAccessStatCard
-              label="Pendientes"
-              :value="pending"
-              hint="sin escanear aún"
-              icon="i-lucide-clock"
-              tone="warning"
-              :loading="isLoading"
-            />
-            <PagesBackofficeAccessStatCard
-              label="Denegados"
-              :value="denied"
-              hint="cancelados / reembolsados"
-              icon="i-lucide-ban"
-              tone="error"
-              :loading="isLoading"
-            />
-            <PagesBackofficeAccessStatCard
-              label="Tickets totales"
-              :value="total"
-              hint="emitidos para este evento"
-              icon="i-lucide-ticket"
-              tone="primary"
-              :loading="isLoading"
-            />
-          </div>
+          <template v-if="isLoading">
+            <UiPanel variant="glass" radius="md" padding="md" class="lg:col-span-2">
+              <div class="flex min-h-40 items-center justify-center">
+                <BaseSpinner class="size-10" spinner-class="size-10" />
+              </div>
+            </UiPanel>
+          </template>
 
-          <!-- Occupancy ring -->
-          <PagesBackofficeAccessOccupancyRing
-            :validated="validated"
-            :capacity="capacity"
-            :occupancy="occupancy"
-            :loading="isLoading || capacity === 0"
-          />
+          <template v-else>
+            <!-- KPI cards 2x2 -->
+            <div class="grid grid-cols-2 gap-4">
+              <PagesBackofficeAccessStatCard
+                label="Validados"
+                :value="validated"
+                :hint="`${percentage}% del total`"
+                icon="i-lucide-circle-check-big"
+                tone="success"
+              />
+              <PagesBackofficeAccessStatCard
+                label="Pendientes"
+                :value="pending"
+                hint="sin escanear aún"
+                icon="i-lucide-clock"
+                tone="warning"
+              />
+              <PagesBackofficeAccessStatCard
+                label="Denegados"
+                :value="denied"
+                hint="cancelados / reembolsados"
+                icon="i-lucide-ban"
+                tone="error"
+              />
+              <PagesBackofficeAccessStatCard
+                label="Tickets totales"
+                :value="total"
+                hint="emitidos para este evento"
+                icon="i-lucide-ticket"
+                tone="primary"
+              />
+            </div>
+
+            <!-- Occupancy ring -->
+            <PagesBackofficeAccessOccupancyRing
+              :validated="validated"
+              :capacity="capacity"
+              :occupancy="occupancy"
+              :loading="capacity === 0"
+            />
+          </template>
         </div>
 
         <!-- ── Validation progress bar ───────────────────────────────────── -->
@@ -227,9 +233,15 @@ const connectionBadge = computed(() => {
         </UiPanel>
 
         <!-- ── Sparkline ─────────────────────────────────────────────────── -->
+        <UiPanel v-if="isLoading" variant="glass" radius="md" padding="md">
+          <div class="flex min-h-32 items-center justify-center">
+            <BaseSpinner class="size-8" spinner-class="size-8" />
+          </div>
+        </UiPanel>
+
         <PagesBackofficeAccessSparkline
+          v-else
           :history="history"
-          :loading="isLoading"
         />
 
         <!-- ── Error state ───────────────────────────────────────────────── -->
