@@ -278,10 +278,10 @@ onMounted(() => {
         <!-- KPI Cards -->
         <div class="grid gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           <template v-if="anyPending">
-            <UiPanel v-for="i in 5" :key="i" variant="glass" radius="md" padding="md">
-              <BaseSpinner class="mb-4 size-10 rounded-lg" />
-              <BaseSpinner class="mb-2 h-8 w-16" />
-              <BaseSpinner class="h-4 w-24" />
+            <UiPanel v-for="i in 2" :key="i" variant="glass" radius="md" padding="md" class="col-span-1 md:col-span-1 xl:col-span-2">
+              <div class="flex min-h-28 items-center justify-center">
+                <BaseSpinner class="size-10" spinner-class="size-10" />
+              </div>
             </UiPanel>
           </template>
 
@@ -321,7 +321,9 @@ onMounted(() => {
           <!-- Top Events -->
           <PagesBackofficeOverviewPanel title="Top eventos" description="Mayor revenue estimado." variant="glass">
             <div v-if="pendingTop" class="space-y-3">
-              <BaseSpinner v-for="i in 4" :key="i" class="h-16 rounded-xl" />
+              <div class="flex min-h-36 items-center justify-center">
+                <BaseSpinner class="size-8" spinner-class="size-8" />
+              </div>
             </div>
 
             <UiEmptyState
@@ -384,7 +386,9 @@ onMounted(() => {
           <!-- Requires Attention -->
           <PagesBackofficeOverviewPanel title="Requiere atención" description="Incidencias operativas detectadas." variant="glass">
             <div v-if="pendingAttention" class="space-y-3">
-              <BaseSpinner v-for="i in 4" :key="i" class="h-20 rounded-xl" />
+              <div class="flex min-h-36 items-center justify-center">
+                <BaseSpinner class="size-8" spinner-class="size-8" />
+              </div>
             </div>
 
             <UiEmptyState
@@ -445,7 +449,9 @@ onMounted(() => {
         <!-- Upcoming Events -->
         <PagesBackofficeOverviewPanel title="Próximos eventos" description="Agenda con ocupación en tiempo real." variant="glass">
           <div v-if="pendingUpcoming" class="space-y-3">
-            <BaseSpinner v-for="i in 5" :key="i" class="h-16 rounded-xl" />
+            <div class="flex min-h-36 items-center justify-center">
+              <BaseSpinner class="size-8" spinner-class="size-8" />
+            </div>
           </div>
 
           <UiEmptyState
