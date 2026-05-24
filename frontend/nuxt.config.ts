@@ -49,6 +49,12 @@ export default defineNuxtConfig({
       include: ['zod'],
       exclude: ['@zxing/browser'],
     },
+    build: {
+      rollupOptions: {
+        // Limit parallel I/O ops to avoid saturating VPS resources during build
+        maxParallelFileOps: 2,
+      },
+    },
     server: {
       allowedHosts: ['cwtg.xyz', 'localhost'],
     },
