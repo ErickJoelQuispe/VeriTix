@@ -189,7 +189,7 @@ useSeoMeta({
               />
 
               <!-- Tab content -->
-              <div class="min-h-[200px]">
+              <div class="min-h-50">
                 <template v-if="activeTab === 'tickets'">
                   <div class="space-y-6">
                     <TicketList

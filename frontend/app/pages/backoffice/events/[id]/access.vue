@@ -63,7 +63,7 @@ const connectionBadge = computed(() => {
         <div class="relative overflow-hidden rounded-2xl">
           <div v-if="event?.imageUrl" class="absolute inset-0">
             <img :src="event.imageUrl" class="size-full object-cover" alt="">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+            <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/20" />
           </div>
           <div class="relative px-6 py-8 sm:px-8 sm:py-10">
             <UiPageHeading
