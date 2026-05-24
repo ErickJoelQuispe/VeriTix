@@ -9,7 +9,7 @@ export function useMyTickets() {
 
   const tickets = ref<UserTicket[]>([])
   const total = ref(0)
-  const isLoading = ref(false)
+  const isLoading = ref(true)
   const error = ref<string | null>(null)
 
   async function fetchMyTickets(page = 1, limit = 12): Promise<PaginatedResponse<UserTicket>> {

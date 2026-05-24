@@ -20,15 +20,17 @@ function handleCancelled(orderId: string) {
 
 <template>
   <div class="space-y-3">
-    <!-- Loading skeletons -->
+    <!-- Loading indicators -->
     <template v-if="isLoading">
-      <BaseSkeleton v-for="i in 3" :key="i" class="h-16 rounded-xl" />
+      <div class="flex min-h-24 items-center justify-center">
+        <BaseSpinner class="size-10" spinner-class="size-10" />
+      </div>
     </template>
 
     <!-- Empty state -->
     <template v-else-if="localOrders.length === 0">
       <UiEmptyState
-        icon="i-lucide-receipt-x"
+        icon="i-lucide-receipt-text"
         title="Sin órdenes para este evento"
         description="No tenés órdenes registradas para este evento."
       />

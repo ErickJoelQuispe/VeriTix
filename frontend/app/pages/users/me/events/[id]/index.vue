@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { PaginatedResponse } from '~~/shared/api/types'
 import type { Review, UserTicket } from '~~/shared/types'
+import { useOrdersRepository } from '@/repositories/ordersRepository'
+import { useTicketsRepository } from '@/repositories/ticketsRepository'
 
 definePageMeta({
   middleware: 'auth',
@@ -11,18 +14,53 @@ const eventId = route.params.id as string
 // ── Data fetching ─────────────────────────────────────────────────────────────
 
 const { events, fetchMyEvents } = useMyEvents()
-const { tickets, isLoading: isLoadingTickets, fetchMyTickets } = useMyTickets()
-const { orders, isLoading: isLoadingOrders, fetchMyOrders } = useMyOrders()
+const { tickets, isLoading: isLoadingTickets } = useMyTickets()
+const { orders, isLoading: isLoadingOrders } = useMyOrders()
 const { myReview, fetchMyReview } = useReview(eventId)
+const { listMyTickets } = useTicketsRepository()
+const { listMyOrders } = useOrdersRepository()
+const hasLoaded = ref(false)
 
-// Fetch all data in parallel on mount
+async function fetchAllPages<T>(
+  fetcher: (page: number, limit: number) => Promise<PaginatedResponse<T>>,
+): Promise<T[]> {
+  const all: T[] = []
+  let page = 1
+  let hasMore = true
+
+  while (hasMore) {
+    const response = await fetcher(page, 100)
+    all.push(...response.data)
+    hasMore = response.meta.hasNext ?? false
+    page++
+  }
+
+  return all
+}
+
 onMounted(async () => {
-  await Promise.all([
-    fetchMyEvents({ page: 1, limit: 100 }),
-    fetchMyTickets(1, 100),
-    fetchMyOrders(1, 100),
-    fetchMyReview(),
-  ])
+  hasLoaded.value = false
+
+  try {
+    const [allTickets, allOrders] = await Promise.all([
+      fetchAllPages(listMyTickets),
+      fetchAllPages(listMyOrders),
+    ])
+
+    tickets.value = allTickets
+    isLoadingTickets.value = false
+
+    orders.value = allOrders
+    isLoadingOrders.value = false
+
+    await Promise.all([
+      fetchMyEvents({ page: 1, limit: 100 }),
+      fetchMyReview(),
+    ])
+  }
+  finally {
+    hasLoaded.value = true
+  }
 })
 
 // ── Derived state ─────────────────────────────────────────────────────────────
@@ -59,6 +97,40 @@ function onReviewDeleted() {
 
 // ── Ticket modal ──────────────────────────────────────────────────────────────
 
+// ── Tickets pagination ─────────────────────────────────────────────────────────
+
+const TICKETS_PER_PAGE = 5
+const ticketPage = ref(1)
+const totalTicketPages = computed(() =>
+  Math.max(1, Math.ceil(eventTickets.value.length / TICKETS_PER_PAGE)),
+)
+const paginatedTickets = computed(() => {
+  const start = (ticketPage.value - 1) * TICKETS_PER_PAGE
+  return eventTickets.value.slice(start, start + TICKETS_PER_PAGE)
+})
+
+function onTicketPageChange(newPage: number) {
+  ticketPage.value = newPage
+}
+
+// ── Orders pagination ──────────────────────────────────────────────────────────
+
+const ORDERS_PER_PAGE = 5
+const orderPage = ref(1)
+const totalOrderPages = computed(() =>
+  Math.max(1, Math.ceil(eventOrders.value.length / ORDERS_PER_PAGE)),
+)
+const paginatedOrders = computed(() => {
+  const start = (orderPage.value - 1) * ORDERS_PER_PAGE
+  return eventOrders.value.slice(start, start + ORDERS_PER_PAGE)
+})
+
+function onOrderPageChange(newPage: number) {
+  orderPage.value = newPage
+}
+
+// ── Ticket modal ───────────────────────────────────────────────────────────────
+
 const selectedTicket = ref<UserTicket | null>(null)
 const isModalOpen = ref(false)
 
@@ -81,9 +153,16 @@ useSeoMeta({
 <template>
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer>
-      <div class="mx-auto max-w-4xl space-y-6 sm:space-y-8">
+      <div class="mx-auto max-w-6xl space-y-8 sm:space-y-10">
+        <!-- Loading state -->
+        <template v-if="!hasLoaded">
+          <div class="flex min-h-[40vh] items-center justify-center py-20">
+            <BaseSpinner class="size-10" spinner-class="size-10" />
+          </div>
+        </template>
+
         <!-- Event not found -->
-        <template v-if="!currentEventItem">
+        <template v-else-if="!currentEventItem">
           <UiEmptyState
             icon="i-lucide-calendar-x"
             title="Evento no encontrado"
@@ -95,44 +174,86 @@ useSeoMeta({
 
         <!-- Event found -->
         <template v-else>
-          <!-- Header -->
-          <UsersEventHeader :event="currentEventItem.event" />
+          <NuxtLink to="/users/me/events" class="inline-flex items-center gap-2 text-sm text-toned transition-colors hover:text-highlighted">
+            <BaseIcon name="i-lucide-arrow-left" class="size-4" />
+            Volver a eventos
+          </NuxtLink>
 
-          <!-- Tabs -->
-          <UsersEventTabs
-            v-model:active-tab="activeTab"
-          />
-
-          <!-- Tab content -->
-          <div class="min-h-[200px]">
-            <template v-if="activeTab === 'tickets'">
-              <TicketList
-                :tickets="eventTickets"
-                :is-loading="isLoadingTickets"
-                @open-ticket="openModal"
+          <UsersEventHeader :event="currentEventItem.event">
+            <div class="space-y-6">
+              <!-- Tabs -->
+              <UsersEventTabs
+                v-model:active-tab="activeTab"
               />
-            </template>
 
-            <template v-else-if="activeTab === 'orders'">
-              <OrderList
-                :orders="eventOrders"
-                :is-loading="isLoadingOrders"
-              />
-            </template>
+              <!-- Tab content -->
+              <div class="min-h-50">
+                <template v-if="activeTab === 'tickets'">
+                  <div class="space-y-6">
+                    <TicketList
+                      :tickets="paginatedTickets"
+                      :is-loading="isLoadingTickets"
+                      @open-ticket="openModal"
+                    />
 
-            <template v-else-if="activeTab === 'review'">
-              <div class="space-y-8">
-                <ReviewForm
-                  :event-id="eventId"
-                  :existing-review="myReview"
-                  :has-used-ticket="hasUsedTicket"
-                  @submitted="onReviewSubmitted"
-                  @deleted="onReviewDeleted"
-                />
-                <ReviewList :event-id="eventId" />
+                    <div v-if="totalTicketPages > 1" class="flex justify-center">
+                      <BasePagination
+                        :page="ticketPage"
+                        :total="eventTickets.length"
+                        :items-per-page="TICKETS_PER_PAGE"
+                        :sibling-count="1"
+                        size="sm"
+                        color="neutral"
+                        variant="ghost"
+                        active-color="primary"
+                        active-variant="soft"
+                        show-edges
+                        @update:page="onTicketPageChange"
+                      />
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else-if="activeTab === 'orders'">
+                  <div class="space-y-6">
+                    <OrderList
+                      :orders="paginatedOrders"
+                      :is-loading="isLoadingOrders"
+                    />
+
+                    <div v-if="totalOrderPages > 1" class="flex justify-center">
+                      <BasePagination
+                        :page="orderPage"
+                        :total="eventOrders.length"
+                        :items-per-page="ORDERS_PER_PAGE"
+                        :sibling-count="1"
+                        size="sm"
+                        color="neutral"
+                        variant="ghost"
+                        active-color="primary"
+                        active-variant="soft"
+                        show-edges
+                        @update:page="onOrderPageChange"
+                      />
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else-if="activeTab === 'review'">
+                  <div class="space-y-8">
+                    <ReviewForm
+                      :event-id="eventId"
+                      :existing-review="myReview"
+                      :has-used-ticket="hasUsedTicket"
+                      @submitted="onReviewSubmitted"
+                      @deleted="onReviewDeleted"
+                    />
+                    <ReviewList :event-id="eventId" />
+                  </div>
+                </template>
               </div>
-            </template>
-          </div>
+            </div>
+          </UsersEventHeader>
         </template>
 
         <!-- Ticket Modal -->

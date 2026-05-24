@@ -13,8 +13,8 @@ definePageMeta({
 })
 
 useSeoMeta({
-  title: 'Dashboard | Backoffice VeriTix',
-  description: 'Dashboard operativo del backoffice con métricas, revenue, actividad y seguimiento.',
+  title: 'Panel | Backoffice VeriTix',
+  description: 'Panel operativo del backoffice con métricas, ingresos, actividad y seguimiento.',
 })
 
 const repo = useBackofficeEventsRepository()
@@ -92,7 +92,7 @@ const metrics = computed(() => {
       variant: 'warning' as const,
     },
     {
-      label: 'Revenue',
+      label: 'Ingresos',
       value: formatCurrency(publishedRevenue.value),
       hint: 'ingresos estimados',
       icon: 'i-lucide-dollar-sign',
@@ -248,10 +248,10 @@ onMounted(() => {
                 Backoffice
               </UiMetaLabel>
               <h1 class="font-display text-3xl leading-none tracking-tight text-highlighted sm:text-4xl lg:text-6xl">
-                Dashboard
+                Panel
               </h1>
               <p class="max-w-3xl text-sm leading-relaxed text-toned sm:text-base">
-                Resumen operativo del backoffice con métricas, revenue, actividad y seguimiento rápido.
+                Resumen operativo del backoffice con métricas, ingresos, actividad y seguimiento rápido.
               </p>
             </div>
             <div class="flex shrink-0 flex-wrap gap-3 lg:ml-auto">
@@ -278,10 +278,10 @@ onMounted(() => {
         <!-- KPI Cards -->
         <div class="grid gap-4 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           <template v-if="anyPending">
-            <UiPanel v-for="i in 5" :key="i" variant="glass" radius="md" padding="md">
-              <BaseSkeleton class="mb-4 size-10 rounded-lg" />
-              <BaseSkeleton class="mb-2 h-8 w-16" />
-              <BaseSkeleton class="h-4 w-24" />
+            <UiPanel v-for="i in 2" :key="i" variant="glass" radius="md" padding="md" class="col-span-1 md:col-span-1 xl:col-span-2">
+              <div class="flex min-h-28 items-center justify-center">
+                <BaseSpinner class="size-10" spinner-class="size-10" />
+              </div>
             </UiPanel>
           </template>
 
@@ -319,15 +319,17 @@ onMounted(() => {
         <!-- Two-column: Top Events + Attention -->
         <div class="grid gap-6 lg:grid-cols-2">
           <!-- Top Events -->
-          <PagesBackofficeOverviewPanel title="Top eventos" description="Mayor revenue estimado." variant="glass">
+          <PagesBackofficeOverviewPanel title="Top eventos" description="Mayores ingresos estimados." variant="glass">
             <div v-if="pendingTop" class="space-y-3">
-              <BaseSkeleton v-for="i in 4" :key="i" class="h-16 rounded-xl" />
+              <div class="flex min-h-36 items-center justify-center">
+                <BaseSpinner class="size-8" spinner-class="size-8" />
+              </div>
             </div>
 
             <UiEmptyState
               v-else-if="publishedTopEvents.length === 0"
               icon="i-lucide-trending-up"
-              title="Sin datos de revenue aún"
+              title="Sin datos de ingresos aún"
               description="A medida que se vendan tickets, los eventos publicados con mayor recaudación aparecerán acá."
             />
 
@@ -384,7 +386,9 @@ onMounted(() => {
           <!-- Requires Attention -->
           <PagesBackofficeOverviewPanel title="Requiere atención" description="Incidencias operativas detectadas." variant="glass">
             <div v-if="pendingAttention" class="space-y-3">
-              <BaseSkeleton v-for="i in 4" :key="i" class="h-20 rounded-xl" />
+              <div class="flex min-h-36 items-center justify-center">
+                <BaseSpinner class="size-8" spinner-class="size-8" />
+              </div>
             </div>
 
             <UiEmptyState
@@ -445,7 +449,9 @@ onMounted(() => {
         <!-- Upcoming Events -->
         <PagesBackofficeOverviewPanel title="Próximos eventos" description="Agenda con ocupación en tiempo real." variant="glass">
           <div v-if="pendingUpcoming" class="space-y-3">
-            <BaseSkeleton v-for="i in 5" :key="i" class="h-16 rounded-xl" />
+            <div class="flex min-h-36 items-center justify-center">
+              <BaseSpinner class="size-8" spinner-class="size-8" />
+            </div>
           </div>
 
           <UiEmptyState

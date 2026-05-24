@@ -3,11 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  CACHE_KEYS,
-  CACHE_TTL_LONG,
-  CacheService,
-} from '../../cache';
+import { CACHE_KEYS, CACHE_TTL_LONG, CacheService } from '../../cache';
+import { generateSlug, uniqueSlug } from '../../common';
 import { CreateGenreDto, GenreResponseDto, UpdateGenreDto } from './dto';
 import { GenresRepository } from './genres.repository';
 
@@ -19,17 +16,18 @@ export class GenresService {
   ) {}
 
   async create(dto: CreateGenreDto): Promise<GenreResponseDto> {
-    const existingSlug = await this.genresRepository.findBySlug(dto.slug);
-    if (existingSlug) {
-      throw new ConflictException('El slug ya está en uso por otro género');
-    }
-
     const existingName = await this.genresRepository.findByName(dto.name);
     if (existingName) {
       throw new ConflictException('El nombre ya está en uso por otro género');
     }
 
-    const created = await this.genresRepository.create(dto);
+    const baseSlug = dto.slug ?? generateSlug(dto.name);
+    const slug = await uniqueSlug(
+      baseSlug,
+      (s: string) => this.genresRepository.findBySlug(s).then(Boolean),
+    );
+
+    const created = await this.genresRepository.create({ ...dto, slug });
     await this.cache.del(CACHE_KEYS.GENRES_LIST);
     return created as GenreResponseDto;
   }

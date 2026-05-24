@@ -14,24 +14,19 @@ import * as crypto from 'crypto';
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
-/** Genera un hash SHA-256 corto para el ticket (hex, 32 chars) */
 function makeHash(): string {
   return crypto.randomBytes(16).toString('hex');
 }
 
-/**
- * Genera un qrPayload cifrado simulado (AES-256-GCM).
- * En producción esto lo hace QrEncryptionService; aquí simulamos
- * el formato: iv:authTag:ciphertext en base64 separados por ':'
- */
-function makeQrPayload(ticketId: string): string {
-  const key = crypto.randomBytes(32);
+function makeQrPayload(hash: string): string {
+  // Mismo formato que tickets.generator.ts: iv:authTag:ciphertext en hex
+  const secret = process.env.AES_SECRET_KEY!;
+  const key = Buffer.from(secret, 'utf8'); // 32 bytes = AES-256
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-  const payload = JSON.stringify({ ticketId, ts: Date.now() });
-  const encrypted = Buffer.concat([cipher.update(payload, 'utf8'), cipher.final()]);
+  const encrypted = Buffer.concat([cipher.update(hash, 'utf8'), cipher.final()]);
   const authTag = cipher.getAuthTag();
-  return [iv.toString('base64'), authTag.toString('base64'), encrypted.toString('base64')].join(':');
+  return [iv.toString('hex'), authTag.toString('hex'), encrypted.toString('hex')].join(':');
 }
 
 const prisma = new PrismaClient({
@@ -41,1712 +36,655 @@ const prisma = new PrismaClient({
 // ─── CATÁLOGOS ────────────────────────────────────────────────────────────────
 
 const concertFormats = [
-  {
-    name: 'Concierto',
-    slug: 'concierto',
-    icon: '🎤',
-    description: 'Show de uno o dos artistas, noche única',
-  },
-  {
-    name: 'Festival',
-    slug: 'festival',
-    icon: '🎪',
-    description: 'Múltiples artistas, puede ser multi-día',
-  },
-  {
-    name: 'Tour',
-    slug: 'tour',
-    icon: '🚌',
-    description: 'Fecha de una gira nacional o internacional',
-  },
-  {
-    name: 'Tributo',
-    slug: 'tributo',
-    icon: '🎸',
-    description: 'Banda tributo a un artista icónico',
-  },
-  {
-    name: 'Acústico',
-    slug: 'acustico',
-    icon: '🪕',
-    description: 'Formato íntimo sin amplificación electrónica',
-  },
-  {
-    name: 'Club Night',
-    slug: 'club-night',
-    icon: '🎧',
-    description: 'Show de DJ o música electrónica en club',
-  },
-  {
-    name: 'Ciclo Flamenco',
-    slug: 'ciclo-flamenco',
-    icon: '💃',
-    description: 'Serie de presentaciones de flamenco tradicional y fusión',
-  },
+  { name: 'Concierto', slug: 'concierto', icon: '🎤', description: 'Show de uno o dos artistas, noche única' },
+  { name: 'Festival', slug: 'festival', icon: '🎪', description: 'Múltiples artistas, puede ser multi-día' },
+  { name: 'Tour', slug: 'tour', icon: '🚌', description: 'Fecha de una gira internacional' },
+  { name: 'Acústico', slug: 'acustico', icon: '🪕', description: 'Formato íntimo' },
+  { name: 'Arena Show', slug: 'arena-show', icon: '🏟️', description: 'Show masivo en estadio o arena' },
 ];
 
 const genres = [
-  // Rock y derivados
-  { name: 'Rock', slug: 'rock' },
-  { name: 'Rock Alternativo', slug: 'rock-alternativo' },
-  { name: 'Indie', slug: 'indie' },
-  { name: 'Metal', slug: 'metal' },
-  { name: 'Punk', slug: 'punk' },
-  // Pop
-  { name: 'Pop', slug: 'pop' },
-  { name: 'Pop Latino', slug: 'pop-latino' },
-  { name: 'K-Pop', slug: 'k-pop' },
-  // Electrónica
-  { name: 'Electrónica', slug: 'electronica' },
-  { name: 'House', slug: 'house' },
-  { name: 'Techno', slug: 'techno' },
-  // Urban
-  { name: 'Hip-Hop', slug: 'hip-hop' },
-  { name: 'Trap', slug: 'trap' },
-  { name: 'R&B', slug: 'r-and-b' },
-  { name: 'Reggaeton', slug: 'reggaeton' },
-  // Regional
-  { name: 'Regional Mexicano', slug: 'regional-mexicano' },
-  { name: 'Cumbia', slug: 'cumbia' },
-  { name: 'Banda', slug: 'banda' },
-  { name: 'Norteño', slug: 'norteno' },
-  // Otros
-  { name: 'Jazz', slug: 'jazz' },
-  { name: 'Blues', slug: 'blues' },
-  { name: 'Soul', slug: 'soul' },
-  { name: 'Clásica', slug: 'clasica' },
-  { name: 'Reggae', slug: 'reggae' },
-  { name: 'Folk', slug: 'folk' },
-  { name: 'Flamenco', slug: 'flamenco' },
-  { name: 'Urbano Espanol', slug: 'urbano-espanol' },
+  { name: 'Progressive Rock', slug: 'progressive-rock' },
+  { name: 'Classic Rock', slug: 'classic-rock' },
+  { name: 'Avant-Garde', slug: 'avant-garde' },
+  { name: 'Psychedelic Rock', slug: 'psychedelic-rock' },
+  { name: 'Funk Rock', slug: 'funk-rock' },
+  { name: 'Global Pop', slug: 'global-pop' },
+  { name: 'Synth Pop', slug: 'synth-pop' },
+  { name: 'Arena Rock', slug: 'arena-rock' },
+  { name: 'Jazz Fusion', slug: 'jazz-fusion' },
+  { name: 'Krautrock', slug: 'krautrock' },
 ];
 
 const venues = [
-  // Granada
-  {
-    name: 'Palacio de Congresos de Granada',
-    slug: 'palacio-congresos-granada',
-    address: 'Paseo del Violon s/n',
-    city: 'Granada',
-    state: 'Andalucia',
-    country: 'ES',
-    capacity: 2000,
-    type: 'AUDITORIO' as const,
-  },
-  {
-    name: 'Plaza de Toros de Granada',
-    slug: 'plaza-toros-granada',
-    address: 'Avenida del Doctor Oloriz 25',
-    city: 'Granada',
-    state: 'Andalucia',
-    country: 'ES',
-    capacity: 12000,
-    type: 'AL_AIRE_LIBRE' as const,
-  },
-  {
-    name: 'Industrial Copera',
-    slug: 'industrial-copera',
-    address: 'Calle Paris 18',
-    city: 'Granada',
-    state: 'Andalucia',
-    country: 'ES',
-    capacity: 4500,
-    type: 'CLUB' as const,
-  },
-  {
-    name: 'Teatro Isabel la Catolica',
-    slug: 'teatro-isabel-la-catolica',
-    address: 'Acera del Casino s/n',
-    city: 'Granada',
-    state: 'Andalucia',
-    country: 'ES',
-    capacity: 662,
-    type: VenueType.TEATRO,
-  },
-  // Madrid
-  {
-    name: 'WiZink Center',
-    slug: 'wizink-center',
-    address: 'Avenida Felipe II s/n',
-    city: 'Madrid',
-    state: 'Comunidad de Madrid',
-    country: 'ES',
-    capacity: 17000,
-    type: VenueType.ARENA,
-  },
-  // Barcelona
-  {
-    name: 'Palau Sant Jordi',
-    slug: 'palau-sant-jordi',
-    address: 'Passeig Olimpic 5-7',
-    city: 'Barcelona',
-    state: 'Cataluna',
-    country: 'ES',
-    capacity: 18000,
-    type: VenueType.ARENA,
-  },
-  // Sevilla — nuevo
-  {
-    name: 'FIBES Palacio de Congresos y Exposiciones de Sevilla',
-    slug: 'fibes-sevilla',
-    address: 'Avenida de Adolfo Suarez s/n',
-    city: 'Sevilla',
-    state: 'Andalucia',
-    country: 'ES',
-    capacity: 5000,
-    type: VenueType.AUDITORIO,
-  },
-  // Bilbao — nuevo
-  {
-    name: 'BEC Bilbao Exhibition Centre',
-    slug: 'bec-bilbao',
-    address: 'Ronda de Azkue 1',
-    city: 'Bilbao',
-    state: 'Pais Vasco',
-    country: 'ES',
-    capacity: 14000,
-    type: VenueType.ARENA,
-  },
+  { name: 'Wembley Stadium', slug: 'wembley-stadium', address: 'London', city: 'London', state: 'England', country: 'UK', capacity: 90000, type: VenueType.ARENA, imageUrl: 'https://images.unsplash.com/photo-1543165365-07232ed12fad?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Madison Square Garden', slug: 'madison-square-garden', address: 'New York', city: 'New York', state: 'NY', country: 'US', capacity: 19500, type: VenueType.ARENA, imageUrl: 'https://images.unsplash.com/photo-1628189689886-f81d113f36a5?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Royal Albert Hall', slug: 'royal-albert-hall', address: 'Kensington Gore', city: 'London', state: 'England', country: 'UK', capacity: 5200, type: VenueType.TEATRO, imageUrl: 'https://images.unsplash.com/photo-1509824227185-9c5a01ceba0d?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'The O2 Arena', slug: 'o2-arena', address: 'Peninsula Square', city: 'London', state: 'England', country: 'UK', capacity: 20000, type: VenueType.ARENA, imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1974&auto=format&fit=crop' },
+  { name: 'Red Rocks Amphitheatre', slug: 'red-rocks', address: 'Morrison', city: 'Denver', state: 'CO', country: 'US', capacity: 9500, type: VenueType.AL_AIRE_LIBRE, imageUrl: 'https://images.unsplash.com/photo-1520626337972-ebfdd6370e72?q=80&w=2069&auto=format&fit=crop' },
+  { name: 'Estadio River Plate', slug: 'estadio-river-plate', address: 'Figueroa Alcorta', city: 'Buenos Aires', state: 'CABA', country: 'AR', capacity: 85000, type: VenueType.AL_AIRE_LIBRE, imageUrl: 'https://images.unsplash.com/photo-1540066019607-e5f6f4820293?q=80&w=2056&auto=format&fit=crop' },
+  { name: 'Tokyo Dome', slug: 'tokyo-dome', address: 'Bunkyo', city: 'Tokyo', state: 'Tokyo', country: 'JP', capacity: 55000, type: VenueType.ARENA, imageUrl: 'https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?q=80&w=1974&auto=format&fit=crop' },
+  { name: 'Sydney SuperDome', slug: 'sydney-dome', address: 'Olympic Blvd', city: 'Sydney', state: 'NSW', country: 'AU', capacity: 21000, type: VenueType.ARENA, imageUrl: 'https://images.unsplash.com/photo-1525926671046-9d660eec49e4?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Palacio de los Deportes', slug: 'palacio-deportes-mx', address: 'Granjas México', city: 'Ciudad de México', state: 'CDMX', country: 'MX', capacity: 22000, type: VenueType.ARENA, imageUrl: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Ziggo Dome', slug: 'ziggo-dome', address: 'Zuidoostlaan 4', city: 'Amsterdam', state: 'Noord-Holland', country: 'NL', capacity: 17000, type: VenueType.ARENA, imageUrl: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop' },
 ];
 
-// 5 artistas originales + 10 nuevos = 15 total
 const artists = [
-  // ── Originales ──
-  {
-    name: 'Lori Meyers',
-    slug: 'lori-meyers',
-    country: 'ES',
-    bio: 'Banda indie rock granadina.',
-    genres: ['indie', 'rock-alternativo'],
-  },
-  {
-    name: 'Los Planetas',
-    slug: 'los-planetas',
-    country: 'ES',
-    bio: 'Referente del indie rock en Espana, originarios de Granada.',
-    genres: ['indie', 'rock'],
-  },
-  {
-    name: 'Dellafuente',
-    slug: 'dellafuente',
-    country: 'ES',
-    bio: 'Artista urbano granadino que fusiona trap, flamenco y hip-hop.',
-    genres: ['trap', 'hip-hop'],
-  },
-  {
-    name: 'Vetusta Morla',
-    slug: 'vetusta-morla',
-    country: 'ES',
-    bio: 'Banda madrilena de rock alternativo.',
-    genres: ['rock-alternativo', 'indie'],
-  },
-  {
-    name: 'Rosalia',
-    slug: 'rosalia',
-    country: 'ES',
-    bio: 'Artista espanola que fusiona flamenco, pop y urbano.',
-    genres: ['flamenco', 'pop', 'urbano-espanol'],
-  },
-  // ── Nuevos ──
-  {
-    name: 'C. Tangana',
-    slug: 'c-tangana',
-    country: 'ES',
-    bio: 'Artista madrileno que mezcla urbano, flamenco, copla y bolero.',
-    genres: ['urbano-espanol', 'pop', 'flamenco'],
-  },
-  {
-    name: 'Bad Gyal',
-    slug: 'bad-gyal',
-    country: 'ES',
-    bio: 'Artista barcelonesa de reggaeton y dancehall con influencias del R&B.',
-    genres: ['reggaeton', 'r-and-b'],
-  },
-  {
-    name: 'Izal',
-    slug: 'izal',
-    country: 'ES',
-    bio: 'Banda de rock alternativo madrilena con marcado estilo poetico.',
-    genres: ['rock-alternativo', 'indie'],
-  },
-  {
-    name: 'Anni B Sweet',
-    slug: 'anni-b-sweet',
-    country: 'ES',
-    bio: 'Cantautora indie pop espanola con influencias del folk y el jazz.',
-    genres: ['indie', 'folk', 'pop'],
-  },
-  {
-    name: 'El Kanka',
-    slug: 'el-kanka',
-    country: 'ES',
-    bio: 'Cantautor malageno de folk y pop con letras ironica y cotidianas.',
-    genres: ['folk', 'pop'],
-  },
-  {
-    name: 'Morat',
-    slug: 'morat',
-    country: 'CO',
-    bio: 'Banda colombiana de pop alternativo con gran popularidad en Espana.',
-    genres: ['pop', 'pop-latino'],
-  },
-  {
-    name: 'Nathy Peluso',
-    slug: 'nathy-peluso',
-    country: 'AR',
-    bio: 'Artista argentino-espanola que fusiona jazz, funk, hip-hop y urbano.',
-    genres: ['hip-hop', 'r-and-b', 'soul'],
-  },
-  {
-    name: 'Stromae',
-    slug: 'stromae',
-    country: 'BE',
-    bio: 'Artista belga que mezcla electropop, dance y chanson con letras profundas.',
-    genres: ['electronica', 'pop'],
-  },
-  {
-    name: 'Ojete Calor',
-    slug: 'ojete-calor',
-    country: 'ES',
-    bio: 'Duo humoristico-musical espanol de pop kitsch y electronica festiva.',
-    genres: ['pop', 'electronica'],
-  },
-  {
-    name: 'Fito y Fitipaldis',
-    slug: 'fito-y-fitipaldis',
-    country: 'ES',
-    bio: 'Banda vasca de rock con influencias del blues y el pop.',
-    genres: ['rock', 'blues'],
-  },
+  // Prog Rock — Core
+  { name: 'Yes', slug: 'yes', country: 'UK', bio: 'Pioneers of progressive rock known for complex arrangements.', genres: ['progressive-rock', 'classic-rock'], imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Camel', slug: 'camel', country: 'UK', bio: 'Melodic and symphonic progressive rock legends.', genres: ['progressive-rock'], imageUrl: 'https://images.unsplash.com/photo-1493225457124-a1a2a5f5f401?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Pink Floyd', slug: 'pink-floyd', country: 'UK', bio: 'Psychedelic and progressive rock icons.', genres: ['progressive-rock', 'psychedelic-rock', 'classic-rock'], imageUrl: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Gentle Giant', slug: 'gentle-giant', country: 'UK', bio: 'Highly experimental and complex progressive rock band.', genres: ['progressive-rock', 'avant-garde'], imageUrl: 'https://images.unsplash.com/photo-1510915361894-faa8b2d744b8?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Frank Zappa', slug: 'frank-zappa', country: 'US', bio: 'Virtuoso musician bridging rock, jazz, and classical.', genres: ['avant-garde', 'progressive-rock', 'jazz-fusion'], imageUrl: 'https://images.unsplash.com/photo-1508215885820-4585e56108b9?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Captain Beefheart', slug: 'captain-beefheart', country: 'US', bio: 'Blues-rock and avant-garde innovator.', genres: ['avant-garde', 'psychedelic-rock'], imageUrl: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Genesis', slug: 'genesis', country: 'UK', bio: 'Theatrical progressive rock pioneers.', genres: ['progressive-rock', 'classic-rock'], imageUrl: 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'King Crimson', slug: 'king-crimson', country: 'UK', bio: 'The foundation of technical progressive rock.', genres: ['progressive-rock', 'avant-garde'], imageUrl: 'https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?q=80&w=2053&auto=format&fit=crop' },
+  { name: 'Caravan', slug: 'caravan', country: 'UK', bio: 'Canterbury scene progressive rock.', genres: ['progressive-rock', 'psychedelic-rock'], imageUrl: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Van Der Graaf Generator', slug: 'van-der-graaf-generator', country: 'UK', bio: 'Dark and intense progressive rock.', genres: ['progressive-rock', 'avant-garde'], imageUrl: 'https://images.unsplash.com/photo-1533174000273-e18e82d7331d?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Steve Hillage', slug: 'steve-hillage', country: 'UK', bio: 'Space rock and progressive guitar virtuoso.', genres: ['progressive-rock', 'psychedelic-rock'], imageUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Led Zeppelin', slug: 'led-zeppelin', country: 'UK', bio: 'The ultimate classic hard rock band.', genres: ['classic-rock', 'arena-rock'], imageUrl: 'https://images.unsplash.com/photo-1516280440502-a2fe6cb7c166?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Funkadelic', slug: 'funkadelic', country: 'US', bio: 'Psychedelic funk rock visionaries.', genres: ['funk-rock', 'psychedelic-rock'], imageUrl: 'https://images.unsplash.com/photo-1469502900010-845610118be9?q=80&w=2072&auto=format&fit=crop' },
+
+  // Prog Rock — Extended
+  { name: 'ELP', slug: 'elp', country: 'UK', bio: 'Emerson, Lake & Palmer — keyboard-driven symphonic rock power trio.', genres: ['progressive-rock', 'classic-rock'], imageUrl: 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Jethro Tull', slug: 'jethro-tull', country: 'UK', bio: 'Flute-fronted progressive folk rock legends.', genres: ['progressive-rock', 'classic-rock'], imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Rush', slug: 'rush', country: 'CA', bio: 'Canadian prog rock power trio with virtuosic musicianship.', genres: ['progressive-rock', 'arena-rock'], imageUrl: 'https://images.unsplash.com/photo-1471478331149-c72f17e33c73?q=80&w=2069&auto=format&fit=crop' },
+  { name: 'Tangerine Dream', slug: 'tangerine-dream', country: 'DE', bio: 'Electronic krautrock and ambient synthesizer pioneers.', genres: ['krautrock', 'psychedelic-rock'], imageUrl: 'https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Can', slug: 'can', country: 'DE', bio: 'Experimental krautrock collective that redefined rhythm.', genres: ['krautrock', 'avant-garde'], imageUrl: 'https://images.unsplash.com/photo-1504898770365-14faca6a7320?q=80&w=2067&auto=format&fit=crop' },
+  { name: 'Magma', slug: 'magma', country: 'FR', bio: 'French prog innovators who invented the Zeuhl genre.', genres: ['progressive-rock', 'avant-garde'], imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Return to Forever', slug: 'return-to-forever', country: 'US', bio: "Chick Corea's jazz fusion powerhouse.", genres: ['jazz-fusion', 'progressive-rock'], imageUrl: 'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Weather Report', slug: 'weather-report', country: 'US', bio: 'Landmark jazz fusion group led by Joe Zawinul and Wayne Shorter.', genres: ['jazz-fusion', 'avant-garde'], imageUrl: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Soft Machine', slug: 'soft-machine', country: 'UK', bio: 'Canterbury psychedelic and jazz-influenced avant-garde.', genres: ['progressive-rock', 'jazz-fusion', 'avant-garde'], imageUrl: 'https://images.unsplash.com/photo-1495778964792-17fa1b1c2eff?q=80&w=2013&auto=format&fit=crop' },
+
+  // Global Pop
+  { name: 'Taylor Swift', slug: 'taylor-swift', country: 'US', bio: 'Global pop superstar dominating stadiums worldwide.', genres: ['global-pop'], imageUrl: 'https://images.unsplash.com/photo-1483821838626-d62157d620ce?q=80&w=1969&auto=format&fit=crop' },
+  { name: 'Coldplay', slug: 'coldplay', country: 'UK', bio: 'Global pop and arena rock sensations.', genres: ['global-pop', 'arena-rock'], imageUrl: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'The Weeknd', slug: 'the-weeknd', country: 'CA', bio: 'Synth pop and R&B global star.', genres: ['global-pop', 'synth-pop'], imageUrl: 'https://images.unsplash.com/photo-1549834125-82d3c48159a3?q=80&w=2070&auto=format&fit=crop' },
+  { name: 'Dua Lipa', slug: 'dua-lipa', country: 'UK', bio: 'Dance-pop and synth-pop icon.', genres: ['global-pop', 'synth-pop'], imageUrl: 'https://images.unsplash.com/photo-1500642700345-0d23588be2db?q=80&w=1999&auto=format&fit=crop' },
 ];
 
-type TicketTypeSeed = {
-  name: string;
-  description: string;
-  price: string;
-  totalQuantity: number;
-  maxPerUser: number;
-  availableQuantity?: number;
-  saleStartDate?: Date;
-  saleEndDate?: Date;
-};
+const seedEvents = [
+  // ── LIVE DEMO ──────────────────────────────────────────────────────────────
+  {
+    name: 'Tech Live Demo Expo 2026',
+    description: 'Evento especial para demostración en vivo de la plataforma VeriTix.',
+    // 25 May 2026 18:00 hs España (CEST, UTC+2) = 16:00 UTC
+    eventDate: new Date('2026-05-25T16:00:00.000Z'),
+    doorsOpenTime: new Date('2026-05-25T14:00:00.000Z'),
+    startSale: new Date('2026-01-01T10:00:00.000Z'),
+    endSale: new Date('2026-05-25T15:00:00.000Z'),
+    maxCapacity: 2000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'tech-live-demo-expo-2026',
+    venueSlug: 'wembley-stadium',
+    formatSlug: 'arena-show',
+    genres: ['global-pop', 'arena-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'coldplay' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'taylor-swift' }
+    ],
+    tickets: [
+      { name: 'General', description: 'Entrada General', price: '50.00', qty: 1500, max: 10 },
+      { name: 'VIP', description: 'Acceso VIP', price: '100.00', qty: 500, max: 10 }
+    ]
+  },
 
-type PublishedEventSeed = {
-  name: string;
-  description: string;
-  eventDate: Date;
-  doorsOpenTime: Date;
-  startSale: Date;
-  endSale: Date;
-  maxCapacity: number;
-  imageSeed: string;
-  creatorId: string;
-  venueId: string;
-  formatId: string;
-  genreIds: string[];
-  artists: Array<{
-    role: ArtistRole;
-    performanceOrder: number;
-    artistId: string;
-  }>;
-  ticketTypes: TicketTypeSeed[];
-};
+  // ── PUBLISHED ──────────────────────────────────────────────────────────────
+  {
+    name: 'Ether Trip Masters 2026',
+    description: 'Una noche épica de rock progresivo con los pioneros del género.',
+    eventDate: new Date('2026-08-15T20:00:00.000Z'),
+    doorsOpenTime: new Date('2026-08-15T18:30:00.000Z'),
+    startSale: new Date('2026-03-01T10:00:00.000Z'),
+    endSale: new Date('2026-08-15T19:00:00.000Z'),
+    maxCapacity: 5200,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'prog-rock-masters-2026',
+    venueSlug: 'royal-albert-hall',
+    formatSlug: 'concierto',
+    genres: ['progressive-rock', 'classic-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'pink-floyd' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'king-crimson' },
+      { role: ArtistRole.OPENER, slug: 'camel' }
+    ],
+    tickets: [
+      { name: 'Platea', description: 'Asientos numerados', price: '85.00', qty: 4000, max: 6 },
+      { name: 'Palco VIP', description: 'Palco exclusivo', price: '150.00', qty: 1200, max: 4 }
+    ]
+  },
+  {
+    name: 'Global Pop Fest 2026',
+    description: 'El festival pop más grande del mundo, juntando a las estrellas del momento.',
+    eventDate: new Date('2026-07-20T19:00:00.000Z'),
+    doorsOpenTime: new Date('2026-07-20T17:00:00.000Z'),
+    startSale: new Date('2026-02-10T10:00:00.000Z'),
+    endSale: new Date('2026-07-20T18:00:00.000Z'),
+    maxCapacity: 85000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'global-pop-fest-2026',
+    venueSlug: 'estadio-river-plate',
+    formatSlug: 'festival',
+    genres: ['global-pop', 'synth-pop'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'taylor-swift' },
+      { role: ArtistRole.HEADLINER, slug: 'the-weeknd' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'dua-lipa' }
+    ],
+    tickets: [
+      { name: 'Campo General', description: 'Campo de pie', price: '90.00', qty: 50000, max: 6 },
+      { name: 'Platea Alta', description: 'Grada superior', price: '120.00', qty: 25000, max: 4 },
+      { name: 'Campo VIP', description: 'Cercano al escenario', price: '250.00', qty: 10000, max: 4 }
+    ]
+  },
+  {
+    name: 'Avant-Garde & Complexity',
+    description: 'Una noche de jazz fusión, rock y ritmos imposibles.',
+    eventDate: new Date('2026-09-10T21:00:00.000Z'),
+    doorsOpenTime: new Date('2026-09-10T19:00:00.000Z'),
+    startSale: new Date('2026-04-01T10:00:00.000Z'),
+    endSale: new Date('2026-09-10T20:00:00.000Z'),
+    maxCapacity: 20000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'avant-garde-tour',
+    venueSlug: 'o2-arena',
+    formatSlug: 'tour',
+    genres: ['avant-garde', 'progressive-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'frank-zappa' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'gentle-giant' },
+      { role: ArtistRole.OPENER, slug: 'captain-beefheart' }
+    ],
+    tickets: [
+      { name: 'General Admission', description: 'Standing area', price: '75.00', qty: 15000, max: 6 },
+      { name: 'Seated Premium', description: 'Best views', price: '130.00', qty: 5000, max: 4 }
+    ]
+  },
+  {
+    name: 'Classic Legends Revival',
+    description: 'Reviviendo los himnos del rock clásico.',
+    eventDate: new Date('2026-10-05T20:30:00.000Z'),
+    doorsOpenTime: new Date('2026-10-05T18:30:00.000Z'),
+    startSale: new Date('2026-05-15T10:00:00.000Z'),
+    endSale: new Date('2026-10-05T19:30:00.000Z'),
+    maxCapacity: 19500,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'classic-legends-revival',
+    venueSlug: 'madison-square-garden',
+    formatSlug: 'arena-show',
+    genres: ['classic-rock', 'arena-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'led-zeppelin' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'yes' }
+    ],
+    tickets: [
+      { name: 'Floor', description: 'Floor standing', price: '150.00', qty: 10000, max: 4 },
+      { name: 'Lower Bowl', description: 'Lower tier seats', price: '200.00', qty: 9500, max: 4 }
+    ]
+  },
+  {
+    name: 'Symphonic Rock Night',
+    description: 'El rock se encuentra con la orquesta sinfónica.',
+    eventDate: new Date('2026-11-12T20:00:00.000Z'),
+    doorsOpenTime: new Date('2026-11-12T19:00:00.000Z'),
+    startSale: new Date('2026-06-01T10:00:00.000Z'),
+    endSale: new Date('2026-11-12T19:30:00.000Z'),
+    maxCapacity: 55000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'symphonic-rock-night',
+    venueSlug: 'tokyo-dome',
+    formatSlug: 'concierto',
+    genres: ['progressive-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'genesis' },
+      { role: ArtistRole.OPENER, slug: 'caravan' }
+    ],
+    tickets: [
+      { name: 'Arena Standing', description: 'Pista central', price: '100.00', qty: 30000, max: 6 },
+      { name: 'Reserved Seating', description: 'Asientos en grada', price: '140.00', qty: 25000, max: 4 }
+    ]
+  },
+  {
+    name: 'Psychedelic Funk Experience',
+    description: 'Viaje espacial a los reinos del P-Funk.',
+    eventDate: new Date('2026-08-25T21:00:00.000Z'),
+    doorsOpenTime: new Date('2026-08-25T19:00:00.000Z'),
+    startSale: new Date('2026-03-10T10:00:00.000Z'),
+    endSale: new Date('2026-08-25T20:00:00.000Z'),
+    maxCapacity: 21000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'funkadelic-arena',
+    venueSlug: 'sydney-dome',
+    formatSlug: 'arena-show',
+    genres: ['funk-rock', 'psychedelic-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'funkadelic' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'steve-hillage' }
+    ],
+    tickets: [
+      { name: 'Mosh Pit', description: 'Pista libre', price: '110.00', qty: 15000, max: 6 },
+      { name: 'Upper Tier', description: 'Grada superior', price: '85.00', qty: 6000, max: 6 }
+    ]
+  },
+  {
+    name: 'Intimate Prog Evening',
+    description: 'Rock progresivo en estado puro bajo el cielo abierto.',
+    eventDate: new Date('2026-09-18T20:00:00.000Z'),
+    doorsOpenTime: new Date('2026-09-18T18:30:00.000Z'),
+    startSale: new Date('2026-01-20T10:00:00.000Z'),
+    endSale: new Date('2026-09-18T19:30:00.000Z'),
+    maxCapacity: 9500,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'intimate-prog-evening',
+    venueSlug: 'red-rocks',
+    formatSlug: 'acustico',
+    genres: ['progressive-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'van-der-graaf-generator' },
+      { role: ArtistRole.OPENER, slug: 'soft-machine' }
+    ],
+    tickets: [
+      { name: 'General Admission', description: 'Gradas al aire libre', price: '70.00', qty: 9500, max: 6 }
+    ]
+  },
+  {
+    name: 'ELP — Brain Salute Tour',
+    description: 'La potencia de teclados y percusión de Emerson, Lake & Palmer en vivo.',
+    eventDate: new Date('2026-10-22T20:30:00.000Z'),
+    doorsOpenTime: new Date('2026-10-22T19:00:00.000Z'),
+    startSale: new Date('2026-05-01T10:00:00.000Z'),
+    endSale: new Date('2026-10-22T19:30:00.000Z'),
+    maxCapacity: 17000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'elp-brain-salute-tour',
+    venueSlug: 'ziggo-dome',
+    formatSlug: 'tour',
+    genres: ['progressive-rock', 'classic-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'elp' },
+      { role: ArtistRole.OPENER, slug: 'jethro-tull' }
+    ],
+    tickets: [
+      { name: 'General', description: 'Acceso general', price: '95.00', qty: 12000, max: 6 },
+      { name: 'Premium', description: 'Zona premium con mejor vista', price: '160.00', qty: 5000, max: 4 }
+    ]
+  },
+  {
+    name: 'Rush — A Farewell to Kings Redux',
+    description: 'La legendaria trilogía de Rush interpretada en su totalidad.',
+    eventDate: new Date('2026-11-05T20:00:00.000Z'),
+    doorsOpenTime: new Date('2026-11-05T18:30:00.000Z'),
+    startSale: new Date('2026-06-15T10:00:00.000Z'),
+    endSale: new Date('2026-11-05T19:00:00.000Z'),
+    maxCapacity: 19500,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'rush-farewell-kings',
+    venueSlug: 'madison-square-garden',
+    formatSlug: 'arena-show',
+    genres: ['progressive-rock', 'arena-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'rush' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'yes' }
+    ],
+    tickets: [
+      { name: 'Floor', description: 'Floor general', price: '130.00', qty: 10000, max: 4 },
+      { name: 'Tier 1', description: 'Primer anillo', price: '180.00', qty: 9500, max: 4 }
+    ]
+  },
+  {
+    name: 'Krautrock Cosmos',
+    description: 'Can y Tangerine Dream juntos en una noche de exploración electrónica y ritmo.',
+    eventDate: new Date('2026-12-03T21:00:00.000Z'),
+    doorsOpenTime: new Date('2026-12-03T19:30:00.000Z'),
+    startSale: new Date('2026-07-01T10:00:00.000Z'),
+    endSale: new Date('2026-12-03T20:30:00.000Z'),
+    maxCapacity: 5200,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'krautrock-cosmos',
+    venueSlug: 'royal-albert-hall',
+    formatSlug: 'concierto',
+    genres: ['krautrock', 'avant-garde', 'psychedelic-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'tangerine-dream' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'can' }
+    ],
+    tickets: [
+      { name: 'Platea', description: 'Asiento numerado', price: '80.00', qty: 4000, max: 6 },
+      { name: 'Balcón VIP', description: 'Vista panorámica exclusiva', price: '140.00', qty: 1200, max: 4 }
+    ]
+  },
+  {
+    name: 'Jazz Fusion Summit',
+    description: 'Return to Forever y Weather Report, la cumbre del jazz-rock fusión.',
+    eventDate: new Date('2026-09-27T20:00:00.000Z'),
+    doorsOpenTime: new Date('2026-09-27T18:30:00.000Z'),
+    startSale: new Date('2026-04-15T10:00:00.000Z'),
+    endSale: new Date('2026-09-27T19:00:00.000Z'),
+    maxCapacity: 22000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'jazz-fusion-summit',
+    venueSlug: 'palacio-deportes-mx',
+    formatSlug: 'festival',
+    genres: ['jazz-fusion', 'progressive-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'return-to-forever' },
+      { role: ArtistRole.HEADLINER, slug: 'weather-report' },
+      { role: ArtistRole.OPENER, slug: 'soft-machine' }
+    ],
+    tickets: [
+      { name: 'General', description: 'Acceso general', price: '70.00', qty: 16000, max: 6 },
+      { name: 'VIP Pit', description: 'Zona delantera exclusiva', price: '150.00', qty: 6000, max: 4 }
+    ]
+  },
+  {
+    name: 'Magma — Köhntarkösz Live',
+    description: 'Magma interpreta Köhntarkösz íntegramente — una experiencia de otro mundo.',
+    eventDate: new Date('2026-10-15T21:00:00.000Z'),
+    doorsOpenTime: new Date('2026-10-15T19:30:00.000Z'),
+    startSale: new Date('2026-05-20T10:00:00.000Z'),
+    endSale: new Date('2026-10-15T20:30:00.000Z'),
+    maxCapacity: 9500,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'magma-kohntarkoesz',
+    venueSlug: 'red-rocks',
+    formatSlug: 'concierto',
+    genres: ['progressive-rock', 'avant-garde'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'magma' },
+      { role: ArtistRole.OPENER, slug: 'gentle-giant' }
+    ],
+    tickets: [
+      { name: 'Open Air General', description: 'Gradas descubiertas', price: '65.00', qty: 9500, max: 6 }
+    ]
+  },
+  {
+    name: 'Jethro Tull — Thick as a Brick Tour',
+    description: 'Ian Anderson y su flauta lideran la interpretación completa de Thick as a Brick.',
+    eventDate: new Date('2026-11-28T19:30:00.000Z'),
+    doorsOpenTime: new Date('2026-11-28T18:00:00.000Z'),
+    startSale: new Date('2026-07-01T10:00:00.000Z'),
+    endSale: new Date('2026-11-28T18:30:00.000Z'),
+    maxCapacity: 20000,
+    status: EventStatus.PUBLISHED,
+    imageSeed: 'jethro-tull-thick-brick',
+    venueSlug: 'o2-arena',
+    formatSlug: 'tour',
+    genres: ['progressive-rock', 'classic-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'jethro-tull' },
+      { role: ArtistRole.SPECIAL_GUEST, slug: 'camel' }
+    ],
+    tickets: [
+      { name: 'Standing', description: 'Zona de pie', price: '90.00', qty: 14000, max: 6 },
+      { name: 'Seated', description: 'Asientos numerados', price: '120.00', qty: 6000, max: 4 }
+    ]
+  },
 
-async function createPublishedEvent(seed: PublishedEventSeed) {
-  const event = await prisma.event.create({
-    data: {
-      name: seed.name,
-      description: seed.description,
-      eventDate: seed.eventDate,
-      doorsOpenTime: seed.doorsOpenTime,
-      startSale: seed.startSale,
-      endSale: seed.endSale,
-      maxCapacity: seed.maxCapacity,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: `https://picsum.photos/seed/${seed.imageSeed}/800/450`,
-      creatorId: seed.creatorId,
-      venueId: seed.venueId,
-      formatId: seed.formatId,
-      genres: { connect: seed.genreIds.map((id) => ({ id })) },
-      artists: { create: seed.artists },
-    },
-  });
+  // ── FINISHED ───────────────────────────────────────────────────────────────
+  {
+    name: 'Led Zeppelin Return 2025',
+    description: 'El espectacular regreso de la banda más grande del mundo.',
+    eventDate: new Date('2025-05-10T21:00:00.000Z'),
+    doorsOpenTime: new Date('2025-05-10T18:00:00.000Z'),
+    startSale: new Date('2024-12-01T10:00:00.000Z'),
+    endSale: new Date('2025-05-10T20:00:00.000Z'),
+    maxCapacity: 85000,
+    status: EventStatus.FINISHED,
+    imageSeed: 'led-zeppelin-2025',
+    venueSlug: 'estadio-river-plate',
+    formatSlug: 'arena-show',
+    genres: ['classic-rock', 'arena-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'led-zeppelin' }
+    ],
+    tickets: [
+      { name: 'Campo', description: 'General', price: '80.00', qty: 85000, max: 6 }
+    ]
+  },
+  {
+    name: 'Pink Floyd MSG 2025',
+    description: 'La histórica presentación de Pink Floyd.',
+    eventDate: new Date('2025-10-20T20:00:00.000Z'),
+    doorsOpenTime: new Date('2025-10-20T18:30:00.000Z'),
+    startSale: new Date('2025-05-01T10:00:00.000Z'),
+    endSale: new Date('2025-10-20T19:00:00.000Z'),
+    maxCapacity: 19500,
+    status: EventStatus.FINISHED,
+    imageSeed: 'pink-floyd-msg',
+    venueSlug: 'madison-square-garden',
+    formatSlug: 'tour',
+    genres: ['progressive-rock', 'classic-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'pink-floyd' }
+    ],
+    tickets: [
+      { name: 'General', description: 'General', price: '120.00', qty: 19500, max: 4 }
+    ]
+  },
+  {
+    name: 'King Crimson — Court of the Crimson King 2025',
+    description: 'King Crimson interpreta su álbum debut íntegramente.',
+    eventDate: new Date('2025-07-12T20:00:00.000Z'),
+    doorsOpenTime: new Date('2025-07-12T18:30:00.000Z'),
+    startSale: new Date('2025-02-01T10:00:00.000Z'),
+    endSale: new Date('2025-07-12T19:00:00.000Z'),
+    maxCapacity: 5200,
+    status: EventStatus.FINISHED,
+    imageSeed: 'king-crimson-court-2025',
+    venueSlug: 'royal-albert-hall',
+    formatSlug: 'concierto',
+    genres: ['progressive-rock', 'avant-garde'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'king-crimson' },
+      { role: ArtistRole.OPENER, slug: 'van-der-graaf-generator' }
+    ],
+    tickets: [
+      { name: 'Platea', description: 'Asiento numerado', price: '100.00', qty: 5200, max: 4 }
+    ]
+  },
 
-  await prisma.ticketType.createMany({
-    data: seed.ticketTypes.map((ticketType) => ({
-      name: ticketType.name,
-      description: ticketType.description,
-      price: ticketType.price,
-      totalQuantity: ticketType.totalQuantity,
-      availableQuantity: ticketType.availableQuantity ?? ticketType.totalQuantity,
-      maxPerUser: ticketType.maxPerUser,
-      eventId: event.id,
-      saleStartDate: ticketType.saleStartDate ?? seed.startSale,
-      saleEndDate: ticketType.saleEndDate ?? seed.endSale,
-    })),
-  });
+  // ── DRAFT ──────────────────────────────────────────────────────────────────
+  {
+    name: 'Pop Superstars Draft',
+    description: 'Borrador de un evento pop masivo.',
+    eventDate: new Date('2026-12-01T20:00:00.000Z'),
+    doorsOpenTime: new Date('2026-12-01T18:00:00.000Z'),
+    startSale: new Date('2026-08-01T10:00:00.000Z'),
+    endSale: new Date('2026-12-01T19:00:00.000Z'),
+    maxCapacity: 90000,
+    status: EventStatus.DRAFT,
+    imageSeed: '',
+    venueSlug: 'wembley-stadium',
+    formatSlug: 'arena-show',
+    genres: ['global-pop'],
+    artists: [],
+    tickets: []
+  },
+  {
+    name: 'Experimental Rock Draft',
+    description: 'Evento de rock experimental sin entradas configuradas.',
+    eventDate: new Date('2027-02-15T21:00:00.000Z'),
+    doorsOpenTime: new Date('2027-02-15T19:00:00.000Z'),
+    startSale: new Date('2026-10-01T10:00:00.000Z'),
+    endSale: new Date('2027-02-15T20:00:00.000Z'),
+    maxCapacity: 5200,
+    status: EventStatus.DRAFT,
+    imageSeed: 'experimental-rock',
+    venueSlug: 'royal-albert-hall',
+    formatSlug: 'concierto',
+    genres: ['avant-garde', 'progressive-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'frank-zappa' }
+    ],
+    tickets: []
+  },
 
-  return event;
-}
+  // ── CANCELLED ──────────────────────────────────────────────────────────────
+  {
+    name: 'The Wall Tribute (Cancelled)',
+    description: 'Tributo cancelado por problemas de logística.',
+    eventDate: new Date('2026-04-10T20:00:00.000Z'),
+    doorsOpenTime: new Date('2026-04-10T18:00:00.000Z'),
+    startSale: new Date('2025-11-01T10:00:00.000Z'),
+    endSale: new Date('2026-04-10T19:00:00.000Z'),
+    maxCapacity: 20000,
+    status: EventStatus.CANCELLED,
+    imageSeed: 'wall-tribute',
+    venueSlug: 'o2-arena',
+    formatSlug: 'concierto',
+    genres: ['progressive-rock', 'classic-rock'],
+    artists: [
+      { role: ArtistRole.HEADLINER, slug: 'pink-floyd' }
+    ],
+    tickets: [
+      { name: 'General', description: 'General', price: '70.00', qty: 20000, max: 6 }
+    ]
+  }
+];
 
-// ─── SEED ─────────────────────────────────────────────────────────────────────
+// ─── SEED MAIN ────────────────────────────────────────────────────────────────
 
 async function main() {
+  // Limpiar BD idempotencia
+  await prisma.payment.deleteMany({});
+  await prisma.ticket.deleteMany({});
+  await prisma.orderItem.deleteMany({});
+  await prisma.order.deleteMany({});
+  await prisma.event.deleteMany({});
+
   // ── Usuarios ──────────────────────────────────────────────────────────────
-  const adminPassword = await bcrypt.hash(`${process.env.ADMIN_PASSWORD}`, 12);
-  const userPassword = await bcrypt.hash(`${process.env.USER_PASSWORD}`, 12);
+  const adminPassword = await bcrypt.hash(`${process.env.ADMIN_PASSWORD || 'Admin1234!'}`, 12);
+  const userPassword = await bcrypt.hash(`${process.env.USER_PASSWORD || 'User1234!'}`, 12);
   const defaultBuyerPassword = await bcrypt.hash('Buyer1234!', 12);
 
-  await prisma.user.upsert({
+  const adminUser = await prisma.user.upsert({
     where: { email: 'admin@veritix.app' },
     update: {},
-    create: {
-      email: 'admin@veritix.app',
-      phone: '+34958000001',
-      name: 'Admin',
-      lastName: 'VeriTix',
-      password: adminPassword,
-      role: Role.ADMIN,
-      isActive: true,
-      emailVerified: true,
-    },
+    create: { email: 'admin@veritix.app', phone: '+34958000001', name: 'Admin', lastName: 'VeriTix', password: adminPassword, role: Role.ADMIN, isActive: true, emailVerified: true },
   });
+  void adminUser;
 
-  await prisma.user.upsert({
+  const buyerUser = await prisma.user.upsert({
     where: { email: 'user@veritix.app' },
     update: {},
-    create: {
-      email: 'user@veritix.app',
-      phone: '+34958000002',
-      name: 'User',
-      lastName: 'VeriTix',
-      password: userPassword,
-      role: Role.BUYER,
-      isActive: true,
-      emailVerified: true,
-    },
+    create: { email: 'user@veritix.app', phone: '+34958000002', name: 'User', lastName: 'VeriTix', password: userPassword, role: Role.BUYER, isActive: true, emailVerified: true },
   });
 
-  // Creator de prueba — nuevo
-  await prisma.user.upsert({
+  const creatorUser = await prisma.user.upsert({
     where: { email: 'creator@veritix.app' },
     update: {},
-    create: {
-      email: 'creator@veritix.app',
-      phone: '+34958000003',
-      name: 'Creator',
-      lastName: 'Demo',
-      password: userPassword,
-      role: Role.CREATOR,
-      isActive: true,
-      emailVerified: true,
-    },
+    create: { email: 'creator@veritix.app', phone: '+34958000003', name: 'Creator', lastName: 'Demo', password: userPassword, role: Role.CREATOR, isActive: true, emailVerified: true },
   });
 
-  // Validator de prueba — para RF-20 SSE y escaneo de QR
-  await prisma.user.upsert({
+  const validatorUser = await prisma.user.upsert({
     where: { email: 'validator@veritix.app' },
     update: {},
-    create: {
-      email: 'validator@veritix.app',
-      phone: '+34958000004',
-      name: 'Validator',
-      lastName: 'Demo',
-      password: userPassword,
-      role: Role.VALIDATOR,
-      isActive: true,
-      emailVerified: true,
-    },
+    create: { email: 'validator@veritix.app', phone: '+34958000004', name: 'Validator', lastName: 'Demo', password: userPassword, role: Role.VALIDATOR, isActive: true, emailVerified: true },
   });
 
-  // Buyers adicionales para poblar órdenes de eventos FINISHED
   const extraBuyers = [
-    {
-      email: 'buyer1@veritix.app',
-      phone: '+34958000010',
-      name: 'Ana',
-      lastName: 'García',
-    },
-    {
-      email: 'buyer2@veritix.app',
-      phone: '+34958000011',
-      name: 'Carlos',
-      lastName: 'Martínez',
-    },
-    {
-      email: 'buyer3@veritix.app',
-      phone: '+34958000012',
-      name: 'Sofía',
-      lastName: 'López',
-    },
-    {
-      email: 'buyer4@veritix.app',
-      phone: '+34958000013',
-      name: 'Miguel',
-      lastName: 'Fernández',
-    },
+    { email: 'buyer1@veritix.app', phone: '+34958000010', name: 'Ana', lastName: 'García' },
+    { email: 'buyer2@veritix.app', phone: '+34958000011', name: 'Carlos', lastName: 'Martínez' },
+    { email: 'buyer3@veritix.app', phone: '+34958000012', name: 'Sofía', lastName: 'López' },
+    { email: 'buyer4@veritix.app', phone: '+34958000013', name: 'Miguel', lastName: 'Fernández' },
   ];
 
+  const createdExtraBuyers = [];
   for (const buyer of extraBuyers) {
-    await prisma.user.upsert({
+    createdExtraBuyers.push(await prisma.user.upsert({
       where: { email: buyer.email },
       update: {},
-      create: {
-        ...buyer,
-        password: defaultBuyerPassword,
-        role: Role.BUYER,
-        isActive: true,
-        emailVerified: true,
-      },
-    });
+      create: { ...buyer, password: defaultBuyerPassword, role: Role.BUYER, isActive: true, emailVerified: true },
+    }));
   }
+  const allBuyers = [buyerUser, ...createdExtraBuyers];
 
   // ── Catálogos ─────────────────────────────────────────────────────────────
   for (const format of concertFormats) {
-    await prisma.concertFormat.upsert({
-      where: { slug: format.slug },
-      update: {},
-      create: format,
-    });
+    await prisma.concertFormat.upsert({ where: { slug: format.slug }, update: {}, create: format });
   }
 
   for (const genre of genres) {
-    await prisma.genre.upsert({
-      where: { slug: genre.slug },
-      update: {},
-      create: genre,
-    });
+    await prisma.genre.upsert({ where: { slug: genre.slug }, update: {}, create: genre });
   }
 
   for (const venue of venues) {
     await prisma.venue.upsert({
       where: { slug: venue.slug },
-      update: {},
-      create: venue,
+      update: {
+        name: venue.name,
+        address: venue.address,
+        city: venue.city,
+        state: venue.state,
+        country: venue.country,
+        capacity: venue.capacity,
+        type: venue.type,
+        imageUrl: venue.imageUrl
+      },
+      create: venue
     });
   }
 
   for (const artist of artists) {
     await prisma.artist.upsert({
       where: { slug: artist.slug },
-      update: {
-        name: artist.name,
-        country: artist.country,
-        bio: artist.bio,
-        genres: {
-          set: [],
-          connect: artist.genres.map((slug) => ({ slug })),
-        },
-      },
-      create: {
-        name: artist.name,
-        slug: artist.slug,
-        country: artist.country,
-        bio: artist.bio,
-        genres: {
-          connect: artist.genres.map((slug) => ({ slug })),
-        },
-      },
+      update: { name: artist.name, country: artist.country, bio: artist.bio, imageUrl: artist.imageUrl, genres: { set: [], connect: artist.genres.map(slug => ({ slug })) } },
+      create: { name: artist.name, slug: artist.slug, country: artist.country, bio: artist.bio, imageUrl: artist.imageUrl, genres: { connect: artist.genres.map(slug => ({ slug })) } },
     });
   }
 
-  // ── Resolver referencias ──────────────────────────────────────────────────
-  const adminUser = await prisma.user.findUniqueOrThrow({
-    where: { email: 'admin@veritix.app' },
-  });
-  const creatorUser = await prisma.user.findUniqueOrThrow({
-    where: { email: 'creator@veritix.app' },
-  });
-  const validatorUser = await prisma.user.findUniqueOrThrow({
-    where: { email: 'validator@veritix.app' },
-  });
-  const buyerUser = await prisma.user.findUniqueOrThrow({
-    where: { email: 'user@veritix.app' },
-  });
-  const buyer1 = await prisma.user.findUniqueOrThrow({
-    where: { email: 'buyer1@veritix.app' },
-  });
-  const buyer2 = await prisma.user.findUniqueOrThrow({
-    where: { email: 'buyer2@veritix.app' },
-  });
-  const buyer3 = await prisma.user.findUniqueOrThrow({
-    where: { email: 'buyer3@veritix.app' },
-  });
-  const buyer4 = await prisma.user.findUniqueOrThrow({
-    where: { email: 'buyer4@veritix.app' },
-  });
+  // ── Resolver IDs ─────────────────────────────────────────────────────────
+  const venuesMap = new Map((await prisma.venue.findMany()).map(v => [v.slug, v.id]));
+  const formatsMap = new Map((await prisma.concertFormat.findMany()).map(f => [f.slug, f.id]));
+  const genresMap = new Map((await prisma.genre.findMany()).map(g => [g.slug, g.id]));
+  const artistsMap = new Map((await prisma.artist.findMany()).map(a => [a.slug, a.id]));
 
-  // Formats
-  const fmtConcierto = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'concierto' } });
-  const fmtFestival = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'festival' } });
-  const fmtTour = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'tour' } });
-  const fmtAcustico = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'acustico' } });
-  const fmtClubNight = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'club-night' } });
-  const fmtTributo = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'tributo' } });
-  const fmtCicloFlamenco = await prisma.concertFormat.findUniqueOrThrow({ where: { slug: 'ciclo-flamenco' } });
-
-  // Venues
-  const palacioCongresos = await prisma.venue.findUniqueOrThrow({ where: { slug: 'palacio-congresos-granada' } });
-  const plazaToros = await prisma.venue.findUniqueOrThrow({ where: { slug: 'plaza-toros-granada' } });
-  const copera = await prisma.venue.findUniqueOrThrow({ where: { slug: 'industrial-copera' } });
-  const teatroIsabel = await prisma.venue.findUniqueOrThrow({ where: { slug: 'teatro-isabel-la-catolica' } });
-  const wizink = await prisma.venue.findUniqueOrThrow({ where: { slug: 'wizink-center' } });
-  const palauSantJordi = await prisma.venue.findUniqueOrThrow({ where: { slug: 'palau-sant-jordi' } });
-  const fibesSevilla = await prisma.venue.findUniqueOrThrow({ where: { slug: 'fibes-sevilla' } });
-  const becBilbao = await prisma.venue.findUniqueOrThrow({ where: { slug: 'bec-bilbao' } });
-
-  // Artists
-  const losPlanetas = await prisma.artist.findUniqueOrThrow({ where: { slug: 'los-planetas' } });
-  const loriMeyers = await prisma.artist.findUniqueOrThrow({ where: { slug: 'lori-meyers' } });
-  const dellafuente = await prisma.artist.findUniqueOrThrow({ where: { slug: 'dellafuente' } });
-  const vetustaMorla = await prisma.artist.findUniqueOrThrow({ where: { slug: 'vetusta-morla' } });
-  const rosalia = await prisma.artist.findUniqueOrThrow({ where: { slug: 'rosalia' } });
-  const cTangana = await prisma.artist.findUniqueOrThrow({ where: { slug: 'c-tangana' } });
-  const badGyal = await prisma.artist.findUniqueOrThrow({ where: { slug: 'bad-gyal' } });
-  const ojeteCalor = await prisma.artist.findUniqueOrThrow({ where: { slug: 'ojete-calor' } });
-  const izal = await prisma.artist.findUniqueOrThrow({ where: { slug: 'izal' } });
-  const anniBSweet = await prisma.artist.findUniqueOrThrow({ where: { slug: 'anni-b-sweet' } });
-  const elKanka = await prisma.artist.findUniqueOrThrow({ where: { slug: 'el-kanka' } });
-  const morat = await prisma.artist.findUniqueOrThrow({ where: { slug: 'morat' } });
-  const nathyPeluso = await prisma.artist.findUniqueOrThrow({ where: { slug: 'nathy-peluso' } });
-  const stromae = await prisma.artist.findUniqueOrThrow({ where: { slug: 'stromae' } });
-  const fitoYFitipaldis = await prisma.artist.findUniqueOrThrow({ where: { slug: 'fito-y-fitipaldis' } });
-
-  // Genres
-  const gIndie = await prisma.genre.findUniqueOrThrow({ where: { slug: 'indie' } });
-  const gRock = await prisma.genre.findUniqueOrThrow({ where: { slug: 'rock' } });
-  const gRockAlt = await prisma.genre.findUniqueOrThrow({ where: { slug: 'rock-alternativo' } });
-  const gPop = await prisma.genre.findUniqueOrThrow({ where: { slug: 'pop' } });
-  const gPopLatino = await prisma.genre.findUniqueOrThrow({ where: { slug: 'pop-latino' } });
-  const gElectronica = await prisma.genre.findUniqueOrThrow({ where: { slug: 'electronica' } });
-  const gTrap = await prisma.genre.findUniqueOrThrow({ where: { slug: 'trap' } });
-  const gHipHop = await prisma.genre.findUniqueOrThrow({ where: { slug: 'hip-hop' } });
-  const gFlamenco = await prisma.genre.findUniqueOrThrow({ where: { slug: 'flamenco' } });
-  const gReggaeton = await prisma.genre.findUniqueOrThrow({ where: { slug: 'reggaeton' } });
-  const gFolk = await prisma.genre.findUniqueOrThrow({ where: { slug: 'folk' } });
-  const gJazz = await prisma.genre.findUniqueOrThrow({ where: { slug: 'jazz' } });
-  const gSoul = await prisma.genre.findUniqueOrThrow({ where: { slug: 'soul' } });
-  const gBlues = await prisma.genre.findUniqueOrThrow({ where: { slug: 'blues' } });
-  const gHouse = await prisma.genre.findUniqueOrThrow({ where: { slug: 'house' } });
-  const gTechno = await prisma.genre.findUniqueOrThrow({ where: { slug: 'techno' } });
-  const gUrbanoEs = await prisma.genre.findUniqueOrThrow({ where: { slug: 'urbano-espanol' } });
-
-  // ── Cleanup idempotente ───────────────────────────────────────────────────
-  const publishedDemoEventNames = [
-    'Granada Indie Night 2026',
-    'Granada Urban Sessions 2026',
-    'Madrid Pop Arena 2026',
-    'Barcelona Electronica Nights 2026',
-    'Bilbao Rock Fest 2026',
-    'Sevilla Flamenco Fusion 2026',
-    'Granada Acustico Sessions 2026',
-    'Madrid Urban Tour 2026',
-    'Barcelona Pop Night 2026',
-    'Bilbao Club Night Edition 2026',
-    'Sevilla Folk & Soul 2026',
-    'Granada Festival de Verano 2027',
-    'Madrid Jazz Club 2027',
-    'Barcelona Tributo a los 90s 2026',
-    'Madrid Reggaeton Arena 2026',
-    'Sevilla Indie Pop Weekend 2026',
-    'Bilbao Blues & Soul Night 2026',
-    'Granada House Sessions 2026',
-    'Madrid Flamenco Club 2026',
-    'Barcelona R&B Rooftop 2027',
-    'Sevilla Latin Fiesta 2026',
-    'Granada Folk Under the Stars 2026',
-    'Bilbao Pop Alternativo 2026',
-    'Madrid Rock Revival 2026',
-    'Barcelona Electronica Sunrise 2027',
-  ];
-
-  const draftDemoEventNames = [
-    'Granada Draft Rock Night',
-    'Madrid Draft Pop Showcase',
-    'Bilbao Draft Electronic Session',
-    'Sevilla Draft Flamenco Night',
-  ];
-
-  const finishedDemoEventNames = ['Granada Indie Night 2025', 'Madrid Rock Fest 2025'];
-
-  const cancelledDemoEventNames = ['Valencia Pop Fest 2026 (Cancelado)', 'Barcelona Metal Night 2026 (Cancelado)'];
-
-  const demoEventNames = [
-    ...publishedDemoEventNames,
-    ...draftDemoEventNames,
-    ...finishedDemoEventNames,
-    ...cancelledDemoEventNames,
-  ];
-
-  const existingDemoEvents = await prisma.event.findMany({
-    where: { name: { in: demoEventNames } },
-    select: { id: true },
-  });
-
-  const existingEventIds = existingDemoEvents.map((e) => e.id);
-
-  if (existingEventIds.length > 0) {
-    const existingOrders = await prisma.order.findMany({
-      where: { eventId: { in: existingEventIds } },
-      select: { id: true },
+  // ── Crear Eventos ────────────────────────────────────────────────────────
+  for (const seed of seedEvents) {
+    const event = await prisma.event.create({
+      data: {
+        name: seed.name,
+        description: seed.description,
+        eventDate: seed.eventDate,
+        doorsOpenTime: seed.doorsOpenTime,
+        startSale: seed.startSale,
+        endSale: seed.endSale,
+        maxCapacity: seed.maxCapacity,
+        status: seed.status,
+        currency: 'EUR',
+        imageUrl: seed.imageSeed ? `https://picsum.photos/seed/${seed.imageSeed}/800/450` : null,
+        creatorId: creatorUser.id,
+        venueId: venuesMap.get(seed.venueSlug)!,
+        formatId: formatsMap.get(seed.formatSlug)!,
+        genres: { connect: seed.genres.map(g => ({ id: genresMap.get(g)! })) },
+        artists: {
+          create: seed.artists.map((a, i) => ({
+            role: a.role,
+            performanceOrder: i + 1,
+            artistId: artistsMap.get(a.slug)!
+          }))
+        }
+      }
     });
-    const existingOrderIds = existingOrders.map((o) => o.id);
 
-    if (existingOrderIds.length > 0) {
-      await prisma.payment.deleteMany({ where: { orderId: { in: existingOrderIds } } });
-      await prisma.ticket.deleteMany({ where: { orderId: { in: existingOrderIds } } });
-      await prisma.orderItem.deleteMany({ where: { orderId: { in: existingOrderIds } } });
-      await prisma.order.deleteMany({ where: { id: { in: existingOrderIds } } });
+    if (seed.tickets.length > 0) {
+      await prisma.ticketType.createMany({
+        data: seed.tickets.map(t => ({
+          name: t.name,
+          description: t.description,
+          price: t.price,
+          totalQuantity: t.qty,
+          availableQuantity: seed.status === EventStatus.FINISHED ? 0 : t.qty,
+          maxPerUser: t.max,
+          eventId: event.id,
+          saleStartDate: seed.startSale,
+          saleEndDate: seed.endSale,
+        }))
+      });
     }
-
-    await prisma.event.deleteMany({ where: { id: { in: existingEventIds } } });
   }
 
-  // ── EVENTOS PUBLISHED (25) ────────────────────────────────────────────────
-
-  // 1 — Granada Indie Night 2026 (original, admin)
-  const indieNight = await prisma.event.create({
-    data: {
-      name: 'Granada Indie Night 2026',
-      description: 'Noche indie con artistas emblematicos de Granada.',
-      eventDate: new Date('2026-09-19T21:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-09-19T19:30:00.000+02:00'),
-      startSale: new Date('2026-05-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-09-19T18:00:00.000+02:00'),
-      maxCapacity: 2000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/granada-indie-night-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: palacioCongresos.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gIndie.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: losPlanetas.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: loriMeyers.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'General', description: 'Acceso general', price: '38.00', totalQuantity: 1200, availableQuantity: 1200, maxPerUser: 6, eventId: indieNight.id, saleStartDate: new Date('2026-05-01T10:00:00.000+02:00'), saleEndDate: new Date('2026-09-19T18:00:00.000+02:00') },
-      { name: 'Preferente', description: 'Zona preferente frente al escenario', price: '65.00', totalQuantity: 500, availableQuantity: 500, maxPerUser: 4, eventId: indieNight.id, saleStartDate: new Date('2026-05-01T10:00:00.000+02:00'), saleEndDate: new Date('2026-09-19T18:00:00.000+02:00') },
-    ],
-  });
-
-  // 2 — Granada Urban Sessions 2026 (original, admin)
-  const urbanFest = await prisma.event.create({
-    data: {
-      name: 'Granada Urban Sessions 2026',
-      description: 'Encuentro urbano en formato al aire libre.',
-      eventDate: new Date('2026-10-03T22:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-10-03T20:00:00.000+02:00'),
-      startSale: new Date('2026-06-10T10:00:00.000+02:00'),
-      endSale: new Date('2026-10-03T20:30:00.000+02:00'),
-      maxCapacity: 12000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/granada-urban-sessions-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: plazaToros.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gTrap.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: dellafuente.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'Pista', description: 'Acceso pista general', price: '45.00', totalQuantity: 7000, availableQuantity: 7000, maxPerUser: 6, eventId: urbanFest.id, saleStartDate: new Date('2026-06-10T10:00:00.000+02:00'), saleEndDate: new Date('2026-10-03T20:30:00.000+02:00') },
-      { name: 'Front Stage', description: 'Zona premium cercana al escenario', price: '85.00', totalQuantity: 1500, availableQuantity: 1500, maxPerUser: 4, eventId: urbanFest.id, saleStartDate: new Date('2026-06-10T10:00:00.000+02:00'), saleEndDate: new Date('2026-10-03T20:30:00.000+02:00') },
-    ],
-  });
-
-  // 3 — Madrid Pop Arena 2026 (original, admin)
-  const madridPop = await prisma.event.create({
-    data: {
-      name: 'Madrid Pop Arena 2026',
-      description: 'Show pop con produccion audiovisual a gran escala.',
-      eventDate: new Date('2026-11-14T21:30:00.000+01:00'),
-      doorsOpenTime: new Date('2026-11-14T19:30:00.000+01:00'),
-      startSale: new Date('2026-06-20T10:00:00.000+02:00'),
-      endSale: new Date('2026-11-14T20:30:00.000+01:00'),
-      maxCapacity: 17000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/madrid-pop-arena-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: wizink.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gPop.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: rosalia.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: vetustaMorla.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'General', description: 'Acceso general grada', price: '55.00', totalQuantity: 9000, availableQuantity: 9000, maxPerUser: 6, eventId: madridPop.id, saleStartDate: new Date('2026-06-20T10:00:00.000+02:00'), saleEndDate: new Date('2026-11-14T20:30:00.000+01:00') },
-      { name: 'Premium', description: 'Zona premium con visibilidad preferente', price: '120.00', totalQuantity: 2200, availableQuantity: 2200, maxPerUser: 4, eventId: madridPop.id, saleStartDate: new Date('2026-06-20T10:00:00.000+02:00'), saleEndDate: new Date('2026-11-14T20:30:00.000+01:00') },
-    ],
-  });
-
-  // 4 — Barcelona Electronica Nights 2026 (original, admin)
-  const barcelonaElectronic = await prisma.event.create({
-    data: {
-      name: 'Barcelona Electronica Nights 2026',
-      description: 'Noche de musica electronica con visuales inmersivos.',
-      eventDate: new Date('2026-12-05T22:30:00.000+01:00'),
-      doorsOpenTime: new Date('2026-12-05T20:30:00.000+01:00'),
-      startSale: new Date('2026-07-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-12-05T21:30:00.000+01:00'),
-      maxCapacity: 18000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/barcelona-electronica-nights-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: palauSantJordi.id,
-      formatId: fmtClubNight.id,
-      genres: { connect: [{ id: gElectronica.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: stromae.id },
-          { role: ArtistRole.OPENER, performanceOrder: 2, artistId: dellafuente.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'Pista', description: 'Pista general', price: '60.00', totalQuantity: 10000, availableQuantity: 10000, maxPerUser: 6, eventId: barcelonaElectronic.id, saleStartDate: new Date('2026-07-01T10:00:00.000+02:00'), saleEndDate: new Date('2026-12-05T21:30:00.000+01:00') },
-      { name: 'VIP Experience', description: 'Acceso VIP con beneficios exclusivos', price: '140.00', totalQuantity: 1800, availableQuantity: 1800, maxPerUser: 4, eventId: barcelonaElectronic.id, saleStartDate: new Date('2026-07-01T10:00:00.000+02:00'), saleEndDate: new Date('2026-12-05T21:30:00.000+01:00') },
-    ],
-  });
-
-  // 5 — Bilbao Rock Fest 2026 (creator)
-  const bilbaoRock = await prisma.event.create({
-    data: {
-      name: 'Bilbao Rock Fest 2026',
-      description: 'Festival de rock con las mejores bandas nacionales en el BEC.',
-      eventDate: new Date('2026-08-22T19:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-08-22T17:00:00.000+02:00'),
-      startSale: new Date('2026-04-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-08-22T17:00:00.000+02:00'),
-      maxCapacity: 14000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/bilbao-rock-fest-2026/800/450',
-      creatorId: creatorUser.id,
-      venueId: becBilbao.id,
-      formatId: fmtFestival.id,
-      genres: { connect: [{ id: gRock.id }, { id: gRockAlt.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: izal.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: vetustaMorla.id },
-          { role: ArtistRole.OPENER, performanceOrder: 3, artistId: fitoYFitipaldis.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'Acceso General', description: 'Pista general todo el festival', price: '49.00', totalQuantity: 8000, availableQuantity: 8000, maxPerUser: 6, eventId: bilbaoRock.id },
-      { name: 'VIP', description: 'Zona VIP con barra libre y zona reservada', price: '110.00', totalQuantity: 1500, availableQuantity: 1500, maxPerUser: 4, eventId: bilbaoRock.id },
-    ],
-  });
-
-  // 6 — Sevilla Flamenco Fusion 2026 (creator)
-  const sevillaFlamenco = await prisma.event.create({
-    data: {
-      name: 'Sevilla Flamenco Fusion 2026',
-      description: 'Noche de flamenco fusion con artistas que mezclan tradicion y modernidad.',
-      eventDate: new Date('2026-07-18T21:30:00.000+02:00'),
-      doorsOpenTime: new Date('2026-07-18T20:00:00.000+02:00'),
-      startSale: new Date('2026-03-15T10:00:00.000+01:00'),
-      endSale: new Date('2026-07-18T20:00:00.000+02:00'),
-      maxCapacity: 5000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/sevilla-flamenco-fusion-2026/800/450',
-      creatorId: creatorUser.id,
-      venueId: fibesSevilla.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gFlamenco.id }, { id: gUrbanoEs.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: cTangana.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: rosalia.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'General', description: 'Acceso general', price: '42.00', totalQuantity: 3000, availableQuantity: 3000, maxPerUser: 6, eventId: sevillaFlamenco.id },
-      { name: 'Patio de Butacas', description: 'Zona de butacas numeradas', price: '75.00', totalQuantity: 800, availableQuantity: 800, maxPerUser: 4, eventId: sevillaFlamenco.id },
-    ],
-  });
-
-  // 7 — Granada Acustico Sessions 2026 (admin)
-  const granadaAcustico = await prisma.event.create({
-    data: {
-      name: 'Granada Acustico Sessions 2026',
-      description: 'Sesiones intimas con cantautores en el historico Teatro Isabel la Católica.',
-      eventDate: new Date('2026-11-28T20:00:00.000+01:00'),
-      doorsOpenTime: new Date('2026-11-28T19:00:00.000+01:00'),
-      startSale: new Date('2026-09-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-11-28T18:00:00.000+01:00'),
-      maxCapacity: 662,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/granada-acustico-sessions-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: teatroIsabel.id,
-      formatId: fmtAcustico.id,
-      genres: { connect: [{ id: gFolk.id }, { id: gIndie.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: anniBSweet.id },
-          { role: ArtistRole.OPENER, performanceOrder: 2, artistId: elKanka.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'Butaca', description: 'Butaca numerada', price: '28.00', totalQuantity: 500, availableQuantity: 500, maxPerUser: 4, eventId: granadaAcustico.id },
-      { name: 'Platea VIP', description: 'Platea preferente con visibilidad completa', price: '55.00', totalQuantity: 100, availableQuantity: 100, maxPerUser: 2, eventId: granadaAcustico.id },
-    ],
-  });
-
-  // 8 — Madrid Urban Tour 2026 (admin)
-  const madridUrban = await prisma.event.create({
-    data: {
-      name: 'Madrid Urban Tour 2026',
-      description: 'Fecha de la gira nacional con lo mejor del urbano espanol.',
-      eventDate: new Date('2026-10-24T21:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-10-24T19:30:00.000+02:00'),
-      startSale: new Date('2026-05-15T10:00:00.000+02:00'),
-      endSale: new Date('2026-10-24T20:00:00.000+02:00'),
-      maxCapacity: 17000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/madrid-urban-tour-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: wizink.id,
-      formatId: fmtTour.id,
-      genres: { connect: [{ id: gUrbanoEs.id }, { id: gTrap.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: cTangana.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: dellafuente.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'Pista', description: 'Pista general', price: '50.00', totalQuantity: 10000, availableQuantity: 10000, maxPerUser: 6, eventId: madridUrban.id },
-      { name: 'Grada Numerada', description: 'Asiento numerado en grada', price: '65.00', totalQuantity: 4000, availableQuantity: 4000, maxPerUser: 4, eventId: madridUrban.id },
-    ],
-  });
-
-  // 9 — Barcelona Pop Night 2026 (creator)
-  const barcelonaPop = await prisma.event.create({
-    data: {
-      name: 'Barcelona Pop Night 2026',
-      description: 'Una noche de pop latino e internacional en el Palau Sant Jordi.',
-      eventDate: new Date('2026-09-05T21:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-09-05T19:30:00.000+02:00'),
-      startSale: new Date('2026-04-20T10:00:00.000+02:00'),
-      endSale: new Date('2026-09-05T20:00:00.000+02:00'),
-      maxCapacity: 18000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/barcelona-pop-night-2026/800/450',
-      creatorId: creatorUser.id,
-      venueId: palauSantJordi.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gPop.id }, { id: gPopLatino.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: morat.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: badGyal.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'General', description: 'Pista general', price: '52.00', totalQuantity: 11000, availableQuantity: 11000, maxPerUser: 6, eventId: barcelonaPop.id },
-      { name: 'Premium', description: 'Zona premium', price: '95.00', totalQuantity: 2500, availableQuantity: 2500, maxPerUser: 4, eventId: barcelonaPop.id },
-    ],
-  });
-
-  // 10 — Bilbao Club Night Edition 2026 (creator)
-  const bilbaoClub = await prisma.event.create({
-    data: {
-      name: 'Bilbao Club Night Edition 2026',
-      description: 'Noche de musica electronica y house en el BEC convertido en club.',
-      eventDate: new Date('2026-11-07T23:00:00.000+01:00'),
-      doorsOpenTime: new Date('2026-11-07T22:00:00.000+01:00'),
-      startSale: new Date('2026-07-10T10:00:00.000+02:00'),
-      endSale: new Date('2026-11-07T22:00:00.000+01:00'),
-      maxCapacity: 5000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/bilbao-club-night-2026/800/450',
-      creatorId: creatorUser.id,
-      venueId: becBilbao.id,
-      formatId: fmtClubNight.id,
-      genres: { connect: [{ id: gElectronica.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: stromae.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'Early Bird', description: 'Entrada anticipada', price: '25.00', totalQuantity: 1000, availableQuantity: 1000, maxPerUser: 4, eventId: bilbaoClub.id },
-      { name: 'General', description: 'Entrada general', price: '35.00', totalQuantity: 3000, availableQuantity: 3000, maxPerUser: 6, eventId: bilbaoClub.id },
-    ],
-  });
-
-  // 11 — Sevilla Folk & Soul 2026 (admin)
-  const sevillaFolk = await prisma.event.create({
-    data: {
-      name: 'Sevilla Folk & Soul 2026',
-      description: 'Una tarde de folk, soul y jazz en el corazon de Sevilla.',
-      eventDate: new Date('2026-10-17T19:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-10-17T18:00:00.000+02:00'),
-      startSale: new Date('2026-06-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-10-17T18:00:00.000+02:00'),
-      maxCapacity: 5000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/sevilla-folk-soul-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: fibesSevilla.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gFolk.id }, { id: gSoul.id }, { id: gJazz.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: nathyPeluso.id },
-          { role: ArtistRole.OPENER, performanceOrder: 2, artistId: elKanka.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'General', description: 'Acceso general', price: '35.00', totalQuantity: 3500, availableQuantity: 3500, maxPerUser: 6, eventId: sevillaFolk.id },
-      { name: 'Preferente', description: 'Zona preferente', price: '60.00', totalQuantity: 800, availableQuantity: 800, maxPerUser: 4, eventId: sevillaFolk.id },
-    ],
-  });
-
-  // 12 — Granada Festival de Verano 2027 (creator)
-  const granadaFestival = await prisma.event.create({
-    data: {
-      name: 'Granada Festival de Verano 2027',
-      description: 'El festival de verano mas esperado de Granada vuelve mas grande que nunca.',
-      eventDate: new Date('2027-07-10T18:00:00.000+02:00'),
-      doorsOpenTime: new Date('2027-07-10T16:00:00.000+02:00'),
-      startSale: new Date('2026-12-01T10:00:00.000+01:00'),
-      endSale: new Date('2027-07-10T16:00:00.000+02:00'),
-      maxCapacity: 12000,
-      status: EventStatus.PUBLISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/granada-festival-verano-2027/800/450',
-      creatorId: creatorUser.id,
-      venueId: plazaToros.id,
-      formatId: fmtFestival.id,
-      genres: { connect: [{ id: gIndie.id }, { id: gRockAlt.id }, { id: gPop.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: vetustaMorla.id },
-          { role: ArtistRole.HEADLINER, performanceOrder: 2, artistId: izal.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 3, artistId: anniBSweet.id },
-          { role: ArtistRole.OPENER, performanceOrder: 4, artistId: loriMeyers.id },
-        ],
-      },
-    },
-  });
-  await prisma.ticketType.createMany({
-    data: [
-      { name: 'Abono General', description: 'Acceso a todos los escenarios', price: '70.00', totalQuantity: 8000, availableQuantity: 8000, maxPerUser: 6, eventId: granadaFestival.id },
-      { name: 'Abono VIP', description: 'Zona VIP con servicios exclusivos', price: '150.00', totalQuantity: 1200, availableQuantity: 1200, maxPerUser: 4, eventId: granadaFestival.id },
-    ],
-  });
-
-  const additionalPublishedEvents: PublishedEventSeed[] = [
-    {
-      name: 'Granada Jazz Club 2027',
-      description: 'Sesión íntima de jazz y soul con banda completa en Granada.',
-      eventDate: new Date('2027-03-20T20:30:00.000+01:00'),
-      doorsOpenTime: new Date('2027-03-20T19:00:00.000+01:00'),
-      startSale: new Date('2026-11-15T10:00:00.000+01:00'),
-      endSale: new Date('2027-03-20T18:30:00.000+01:00'),
-      maxCapacity: 662,
-      imageSeed: 'granada-jazz-club-2027',
-      creatorId: adminUser.id,
-      venueId: teatroIsabel.id,
-      formatId: fmtClubNight.id,
-      genreIds: [gJazz.id, gSoul.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: nathyPeluso.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: elKanka.id },
-      ],
-      ticketTypes: [
-        { name: 'General', description: 'Acceso general', price: '42.00', totalQuantity: 500, maxPerUser: 4 },
-        { name: 'VIP Lounge', description: 'Zona reservada con mejores vistas', price: '82.00', totalQuantity: 120, maxPerUser: 2 },
-      ],
-    },
-    {
-      name: 'Barcelona Tributo a los 90s 2026',
-      description: 'Repaso a los himnos de los 90 con una puesta en escena de gran formato.',
-      eventDate: new Date('2026-09-26T21:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-09-26T19:30:00.000+02:00'),
-      startSale: new Date('2026-05-10T10:00:00.000+02:00'),
-      endSale: new Date('2026-09-26T20:00:00.000+02:00'),
-      maxCapacity: 18000,
-      imageSeed: 'barcelona-tributo-a-los-90s-2026',
-      creatorId: creatorUser.id,
-      venueId: palauSantJordi.id,
-      formatId: fmtTributo.id,
-      genreIds: [gRock.id, gPop.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: fitoYFitipaldis.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: loriMeyers.id },
-      ],
-      ticketTypes: [
-        { name: 'General', description: 'Entrada general', price: '48.00', totalQuantity: 11000, maxPerUser: 6 },
-        { name: 'Tribuna Preferente', description: 'Visibilidad preferente en grada', price: '95.00', totalQuantity: 2200, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Madrid Reggaeton Arena 2026',
-      description: 'Noche urbana con reggaeton y trap en formato arena.',
-      eventDate: new Date('2026-11-21T22:00:00.000+01:00'),
-      doorsOpenTime: new Date('2026-11-21T20:00:00.000+01:00'),
-      startSale: new Date('2026-07-15T10:00:00.000+02:00'),
-      endSale: new Date('2026-11-21T21:00:00.000+01:00'),
-      maxCapacity: 17000,
-      imageSeed: 'madrid-reggaeton-arena-2026',
-      creatorId: adminUser.id,
-      venueId: wizink.id,
-      formatId: fmtConcierto.id,
-      genreIds: [gReggaeton.id, gTrap.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: badGyal.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: dellafuente.id },
-      ],
-      ticketTypes: [
-        { name: 'Pista', description: 'Acceso a pista general', price: '58.00', totalQuantity: 9000, maxPerUser: 6 },
-        { name: 'Front Stage', description: 'Zona cercana al escenario', price: '110.00', totalQuantity: 2000, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Sevilla Indie Pop Weekend 2026',
-      description: 'Fin de semana de indie pop con dos noches consecutivas de programación.',
-      eventDate: new Date('2026-10-10T19:30:00.000+02:00'),
-      doorsOpenTime: new Date('2026-10-10T18:00:00.000+02:00'),
-      startSale: new Date('2026-06-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-10-10T18:30:00.000+02:00'),
-      maxCapacity: 5000,
-      imageSeed: 'sevilla-indie-pop-weekend-2026',
-      creatorId: creatorUser.id,
-      venueId: fibesSevilla.id,
-      formatId: fmtFestival.id,
-      genreIds: [gIndie.id, gPop.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: morat.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: anniBSweet.id },
-      ],
-      ticketTypes: [
-        { name: 'Abono General', description: 'Acceso a las dos jornadas', price: '65.00', totalQuantity: 3000, maxPerUser: 6 },
-        { name: 'Abono VIP', description: 'Abono con zona preferente', price: '140.00', totalQuantity: 600, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Bilbao Blues & Soul Night 2026',
-      description: 'Noche de blues y soul con guitarras al frente y una voz principal potente.',
-      eventDate: new Date('2026-09-12T20:30:00.000+02:00'),
-      doorsOpenTime: new Date('2026-09-12T19:00:00.000+02:00'),
-      startSale: new Date('2026-05-20T10:00:00.000+02:00'),
-      endSale: new Date('2026-09-12T19:30:00.000+02:00'),
-      maxCapacity: 14000,
-      imageSeed: 'bilbao-blues-soul-night-2026',
-      creatorId: creatorUser.id,
-      venueId: becBilbao.id,
-      formatId: fmtConcierto.id,
-      genreIds: [gBlues.id, gSoul.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: fitoYFitipaldis.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: nathyPeluso.id },
-      ],
-      ticketTypes: [
-        { name: 'General', description: 'Entrada general', price: '39.00', totalQuantity: 7000, maxPerUser: 6 },
-        { name: 'Butaca Preferente', description: 'Asiento con mejor visibilidad', price: '72.00', totalQuantity: 900, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Granada House Sessions 2026',
-      description: 'Sesión nocturna de house y electrónica en formato club.',
-      eventDate: new Date('2026-12-12T23:00:00.000+01:00'),
-      doorsOpenTime: new Date('2026-12-12T22:00:00.000+01:00'),
-      startSale: new Date('2026-08-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-12-12T22:00:00.000+01:00'),
-      maxCapacity: 4500,
-      imageSeed: 'granada-house-sessions-2026',
-      creatorId: adminUser.id,
-      venueId: copera.id,
-      formatId: fmtClubNight.id,
-      genreIds: [gElectronica.id, gHouse.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: stromae.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: ojeteCalor.id },
-      ],
-      ticketTypes: [
-        { name: 'Early Access', description: 'Entrada anticipada', price: '28.00', totalQuantity: 1200, maxPerUser: 4 },
-        { name: 'General', description: 'Entrada general', price: '38.00', totalQuantity: 2500, maxPerUser: 6 },
-      ],
-    },
-    {
-      name: 'Madrid Flamenco Club 2026',
-      description: 'Noche de flamenco urbano con cruces entre tradición y vanguardia.',
-      eventDate: new Date('2026-10-31T21:30:00.000+01:00'),
-      doorsOpenTime: new Date('2026-10-31T20:00:00.000+01:00'),
-      startSale: new Date('2026-06-15T10:00:00.000+02:00'),
-      endSale: new Date('2026-10-31T20:30:00.000+01:00'),
-      maxCapacity: 17000,
-      imageSeed: 'madrid-flamenco-club-2026',
-      creatorId: adminUser.id,
-      venueId: wizink.id,
-      formatId: fmtCicloFlamenco.id,
-      genreIds: [gFlamenco.id, gUrbanoEs.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: cTangana.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: rosalia.id },
-      ],
-      ticketTypes: [
-        { name: 'Pista', description: 'Acceso general a pista', price: '50.00', totalQuantity: 8500, maxPerUser: 6 },
-        { name: 'VIP Tablao', description: 'Zona VIP con mejor visibilidad', price: '125.00', totalQuantity: 1800, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Barcelona R&B Rooftop 2027',
-      description: 'Noche de R&B y soul con una puesta en escena elegante.',
-      eventDate: new Date('2027-05-15T21:00:00.000+02:00'),
-      doorsOpenTime: new Date('2027-05-15T19:30:00.000+02:00'),
-      startSale: new Date('2026-12-10T10:00:00.000+01:00'),
-      endSale: new Date('2027-05-15T20:00:00.000+02:00'),
-      maxCapacity: 18000,
-      imageSeed: 'barcelona-rb-rooftop-2027',
-      creatorId: creatorUser.id,
-      venueId: palauSantJordi.id,
-      formatId: fmtConcierto.id,
-      genreIds: [gBlues.id, gSoul.id, gPop.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: nathyPeluso.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: badGyal.id },
-      ],
-      ticketTypes: [
-        { name: 'General', description: 'Acceso general', price: '54.00', totalQuantity: 9000, maxPerUser: 6 },
-        { name: 'Premium', description: 'Zona premium con visibilidad preferente', price: '105.00', totalQuantity: 2000, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Sevilla Latin Fiesta 2026',
-      description: 'Celebración latina con pop, reggaeton y un cierre de alto voltaje.',
-      eventDate: new Date('2026-09-19T20:30:00.000+02:00'),
-      doorsOpenTime: new Date('2026-09-19T19:00:00.000+02:00'),
-      startSale: new Date('2026-05-25T10:00:00.000+02:00'),
-      endSale: new Date('2026-09-19T19:30:00.000+02:00'),
-      maxCapacity: 5000,
-      imageSeed: 'sevilla-latin-fiesta-2026',
-      creatorId: adminUser.id,
-      venueId: fibesSevilla.id,
-      formatId: fmtFestival.id,
-      genreIds: [gPopLatino.id, gReggaeton.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: morat.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: badGyal.id },
-      ],
-      ticketTypes: [
-        { name: 'General', description: 'Acceso general', price: '46.00', totalQuantity: 3500, maxPerUser: 6 },
-        { name: 'VIP', description: 'Zona VIP con acceso rápido', price: '88.00', totalQuantity: 700, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Granada Folk Under the Stars 2026',
-      description: 'Concierto acústico de folk e indie bajo un formato cercano.',
-      eventDate: new Date('2026-11-07T20:00:00.000+01:00'),
-      doorsOpenTime: new Date('2026-11-07T19:00:00.000+01:00'),
-      startSale: new Date('2026-07-01T10:00:00.000+02:00'),
-      endSale: new Date('2026-11-07T18:30:00.000+01:00'),
-      maxCapacity: 662,
-      imageSeed: 'granada-folk-under-the-stars-2026',
-      creatorId: adminUser.id,
-      venueId: teatroIsabel.id,
-      formatId: fmtAcustico.id,
-      genreIds: [gFolk.id, gIndie.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: elKanka.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: anniBSweet.id },
-      ],
-      ticketTypes: [
-        { name: 'Butaca', description: 'Butaca numerada', price: '30.00', totalQuantity: 500, maxPerUser: 4 },
-        { name: 'Patio VIP', description: 'Zona preferente de butaca', price: '58.00', totalQuantity: 120, maxPerUser: 2 },
-      ],
-    },
-    {
-      name: 'Bilbao Pop Alternativo 2026',
-      description: 'Noche de pop alternativo con una producción de gran formato.',
-      eventDate: new Date('2026-10-03T21:00:00.000+02:00'),
-      doorsOpenTime: new Date('2026-10-03T19:30:00.000+02:00'),
-      startSale: new Date('2026-05-12T10:00:00.000+02:00'),
-      endSale: new Date('2026-10-03T20:00:00.000+02:00'),
-      maxCapacity: 14000,
-      imageSeed: 'bilbao-pop-alternativo-2026',
-      creatorId: creatorUser.id,
-      venueId: becBilbao.id,
-      formatId: fmtConcierto.id,
-      genreIds: [gRockAlt.id, gIndie.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: izal.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: vetustaMorla.id },
-      ],
-      ticketTypes: [
-        { name: 'General', description: 'Entrada general', price: '47.00', totalQuantity: 7000, maxPerUser: 6 },
-        { name: 'Golden Circle', description: 'Círculo dorado frente al escenario', price: '90.00', totalQuantity: 1200, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Madrid Rock Revival 2026',
-      description: 'Festival de rock con clásicos modernos y un cartel nacional sólido.',
-      eventDate: new Date('2026-12-19T19:00:00.000+01:00'),
-      doorsOpenTime: new Date('2026-12-19T17:30:00.000+01:00'),
-      startSale: new Date('2026-08-20T10:00:00.000+02:00'),
-      endSale: new Date('2026-12-19T17:00:00.000+01:00'),
-      maxCapacity: 17000,
-      imageSeed: 'madrid-rock-revival-2026',
-      creatorId: adminUser.id,
-      venueId: wizink.id,
-      formatId: fmtFestival.id,
-      genreIds: [gRock.id, gRockAlt.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: losPlanetas.id },
-        { role: ArtistRole.HEADLINER, performanceOrder: 2, artistId: loriMeyers.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 3, artistId: fitoYFitipaldis.id },
-      ],
-      ticketTypes: [
-        { name: 'General', description: 'Pista general', price: '55.00', totalQuantity: 9000, maxPerUser: 6 },
-        { name: 'Premium', description: 'Zona premium con mejor acústica', price: '120.00', totalQuantity: 2200, maxPerUser: 4 },
-      ],
-    },
-    {
-      name: 'Barcelona Electronica Sunrise 2027',
-      description: 'Club night con electrónica y una puesta visual nocturna.',
-      eventDate: new Date('2027-02-20T23:30:00.000+01:00'),
-      doorsOpenTime: new Date('2027-02-20T22:00:00.000+01:00'),
-      startSale: new Date('2026-10-01T10:00:00.000+02:00'),
-      endSale: new Date('2027-02-20T22:30:00.000+01:00'),
-      maxCapacity: 18000,
-      imageSeed: 'barcelona-electronica-sunrise-2027',
-      creatorId: creatorUser.id,
-      venueId: palauSantJordi.id,
-      formatId: fmtClubNight.id,
-      genreIds: [gElectronica.id, gTechno.id],
-      artists: [
-        { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: stromae.id },
-        { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: ojeteCalor.id },
-      ],
-      ticketTypes: [
-        { name: 'Pista', description: 'Pista general', price: '45.00', totalQuantity: 10000, maxPerUser: 6 },
-        { name: 'After Hours', description: 'Acceso a zona nocturna extendida', price: '85.00', totalQuantity: 1500, maxPerUser: 4 },
-      ],
-    },
-  ];
-
-  for (const eventSeed of additionalPublishedEvents) {
-    await createPublishedEvent(eventSeed);
-  }
-
-  // ── EVENTOS DRAFT (4) — alimentan requires-attention ─────────────────────
-
-  // DRAFT 1 — Sin imagen, sin artistas (admin)
-  await prisma.event.create({
-    data: {
-      name: 'Granada Draft Rock Night',
-      description: 'Concierto de rock en preparacion.',
-      eventDate: new Date('2026-12-20T21:00:00.000+01:00'),
-      maxCapacity: 2000,
-      status: EventStatus.DRAFT,
-      currency: 'EUR',
-      // Sin imageUrl — issue: Sin imagen
-      // Sin artistas — issue: Sin artistas
-      creatorId: adminUser.id,
-      venueId: palacioCongresos.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gRock.id }] },
-    },
-  });
-
-  // DRAFT 2 — Sin ticket types (creator)
-  const draftMadrid = await prisma.event.create({
-    data: {
-      name: 'Madrid Draft Pop Showcase',
-      description: 'Showcase de pop en Madrid, pendiente de confirmar entradas.',
-      eventDate: new Date('2027-02-14T20:00:00.000+01:00'),
-      maxCapacity: 4000,
-      status: EventStatus.DRAFT,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/madrid-draft-pop/800/450',
-      // Sin ticket types — issue: Sin tipos de entrada
-      creatorId: creatorUser.id,
-      venueId: copera.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gPop.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: morat.id },
-        ],
-      },
-    },
-  });
-  void draftMadrid; // sin ticketTypes
-
-  // DRAFT 3 — Sin formato, sin imagen (creator)
-  await prisma.event.create({
-    data: {
-      name: 'Bilbao Draft Electronic Session',
-      description: 'Sesion electronica en Bilbao, pendiente de definir formato.',
-      eventDate: new Date('2027-03-08T23:00:00.000+01:00'),
-      maxCapacity: 3000,
-      status: EventStatus.DRAFT,
-      currency: 'EUR',
-      // Sin imageUrl — issue: Sin imagen
-      // Sin formatId — issue: Sin formato
-      creatorId: creatorUser.id,
-      venueId: becBilbao.id,
-      genres: { connect: [{ id: gElectronica.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: stromae.id },
-        ],
-      },
-    },
-  });
-
-  // DRAFT 4 — Sin artistas, sin ticket types, sin imagen (admin)
-  await prisma.event.create({
-    data: {
-      name: 'Sevilla Draft Flamenco Night',
-      description: 'Noche de flamenco en Sevilla, en proceso de produccion.',
-      eventDate: new Date('2027-04-05T21:00:00.000+02:00'),
-      maxCapacity: 1500,
-      status: EventStatus.DRAFT,
-      currency: 'EUR',
-      // Sin imageUrl, sin artistas, sin ticket types — 3 issues
-      creatorId: adminUser.id,
-      venueId: fibesSevilla.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gFlamenco.id }] },
-    },
-  });
-
-  // ── EVENTOS FINISHED (2) — con órdenes y pagos para analytics ────────────
-
-  // FINISHED 1 — Granada Indie Night 2025 (evento pasado más vendido)
-  const finishedIndie = await prisma.event.create({
-    data: {
-      name: 'Granada Indie Night 2025',
-      description: 'La edicion 2025 de la noche indie de Granada, un exito rotundo.',
-      eventDate: new Date('2025-09-20T21:00:00.000+02:00'),
-      doorsOpenTime: new Date('2025-09-20T19:30:00.000+02:00'),
-      startSale: new Date('2025-05-01T10:00:00.000+02:00'),
-      endSale: new Date('2025-09-20T18:00:00.000+02:00'),
-      maxCapacity: 2000,
-      status: EventStatus.FINISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/granada-indie-night-2025/800/450',
-      creatorId: adminUser.id,
-      venueId: palacioCongresos.id,
-      formatId: fmtConcierto.id,
-      genres: { connect: [{ id: gIndie.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: losPlanetas.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 2, artistId: loriMeyers.id },
-        ],
-      },
-    },
-  });
-  const fi1General = await prisma.ticketType.create({
-    data: { name: 'General', description: 'Acceso general', price: '35.00', totalQuantity: 1200, availableQuantity: 0, maxPerUser: 6, eventId: finishedIndie.id },
-  });
-  const fi1Preferente = await prisma.ticketType.create({
-    data: { name: 'Preferente', description: 'Zona preferente', price: '60.00', totalQuantity: 500, availableQuantity: 0, maxPerUser: 4, eventId: finishedIndie.id },
-  });
-
-  // FINISHED 2 — Madrid Rock Fest 2025
-  const finishedRock = await prisma.event.create({
-    data: {
-      name: 'Madrid Rock Fest 2025',
-      description: 'Festival de rock que congrego a miles de fans en el WiZink Center.',
-      eventDate: new Date('2025-11-15T20:00:00.000+01:00'),
-      doorsOpenTime: new Date('2025-11-15T18:00:00.000+01:00'),
-      startSale: new Date('2025-06-01T10:00:00.000+02:00'),
-      endSale: new Date('2025-11-15T19:00:00.000+01:00'),
-      maxCapacity: 17000,
-      status: EventStatus.FINISHED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/madrid-rock-fest-2025/800/450',
-      creatorId: creatorUser.id,
-      venueId: wizink.id,
-      formatId: fmtFestival.id,
-      genres: { connect: [{ id: gRock.id }, { id: gRockAlt.id }] },
-      artists: {
-        create: [
-          { role: ArtistRole.HEADLINER, performanceOrder: 1, artistId: izal.id },
-          { role: ArtistRole.HEADLINER, performanceOrder: 2, artistId: fitoYFitipaldis.id },
-          { role: ArtistRole.SPECIAL_GUEST, performanceOrder: 3, artistId: vetustaMorla.id },
-        ],
-      },
-    },
-  });
-  const fr1General = await prisma.ticketType.create({
-    data: { name: 'General', description: 'Pista general', price: '55.00', totalQuantity: 10000, availableQuantity: 0, maxPerUser: 6, eventId: finishedRock.id },
-  });
-  const fr1Premium = await prisma.ticketType.create({
-    data: { name: 'Premium', description: 'Zona premium', price: '110.00', totalQuantity: 3000, availableQuantity: 0, maxPerUser: 4, eventId: finishedRock.id },
-  });
-
-  // ── EVENTOS CANCELLED (2) ─────────────────────────────────────────────────
-
-  await prisma.event.create({
-    data: {
-      name: 'Valencia Pop Fest 2026 (Cancelado)',
-      description: 'Festival cancelado por problemas de produccion.',
-      eventDate: new Date('2026-08-15T18:00:00.000+02:00'),
-      maxCapacity: 8000,
-      status: EventStatus.CANCELLED,
-      currency: 'EUR',
-      imageUrl: 'https://picsum.photos/seed/valencia-pop-fest-2026/800/450',
-      creatorId: adminUser.id,
-      venueId: wizink.id,
-      formatId: fmtFestival.id,
-      genres: { connect: [{ id: gPop.id }] },
-    },
-  });
-
-  await prisma.event.create({
-    data: {
-      name: 'Barcelona Metal Night 2026 (Cancelado)',
-      description: 'Concierto cancelado por baja venta de entradas.',
-      eventDate: new Date('2026-06-20T21:00:00.000+02:00'),
-      maxCapacity: 3000,
-      status: EventStatus.CANCELLED,
-      currency: 'EUR',
-      creatorId: creatorUser.id,
-      venueId: palauSantJordi.id,
-      genres: { connect: [{ id: gRock.id }] },
-    },
-  });
-
-  // ── ÓRDENES Y PAGOS para eventos FINISHED ────────────────────────────────
-  // Buyers disponibles: buyerUser, buyer1, buyer2, buyer3, buyer4
-
-  const allBuyers = [buyerUser, buyer1, buyer2, buyer3, buyer4];
-
-  // --- Granada Indie Night 2025 → 10 órdenes COMPLETED ---
-  const indieOrders = [
-    { buyer: buyerUser,  ttId: fi1General.id,    ttPrice: 35, qty: 4, tt2Id: fi1Preferente.id, tt2Price: 60, qty2: 2 },
-    { buyer: buyer1,     ttId: fi1General.id,    ttPrice: 35, qty: 2, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-    { buyer: buyer2,     ttId: fi1Preferente.id, ttPrice: 60, qty: 4, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-    { buyer: buyer3,     ttId: fi1General.id,    ttPrice: 35, qty: 3, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-    { buyer: buyer4,     ttId: fi1General.id,    ttPrice: 35, qty: 2, tt2Id: fi1Preferente.id, tt2Price: 60, qty2: 1 },
-    { buyer: buyer1,     ttId: fi1Preferente.id, ttPrice: 60, qty: 2, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-    { buyer: buyer2,     ttId: fi1General.id,    ttPrice: 35, qty: 4, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-    { buyer: buyer3,     ttId: fi1Preferente.id, ttPrice: 60, qty: 3, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-    { buyer: buyer4,     ttId: fi1General.id,    ttPrice: 35, qty: 2, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-    { buyer: buyerUser,  ttId: fi1General.id,    ttPrice: 35, qty: 3, tt2Id: null,              tt2Price: 0,  qty2: 0 },
-  ];
-
-  for (let i = 0; i < indieOrders.length; i++) {
-    const o = indieOrders[i];
-    const items: any[] = [
-      { ticketTypeId: o.ttId, quantity: o.qty, unitPrice: String(o.ttPrice), subtotal: String(o.ttPrice * o.qty) },
-    ];
-    if (o.tt2Id) {
-      items.push({ ticketTypeId: o.tt2Id, quantity: o.qty2, unitPrice: String(o.tt2Price), subtotal: String(o.tt2Price * o.qty2) });
-    }
-    const total = items.reduce((acc, it) => acc + parseFloat(it.subtotal), 0);
-
-    const order = await prisma.order.create({
-      data: {
-        totalAmount: String(total.toFixed(2)),
-        status: OrderStatus.COMPLETED,
-        buyerId: o.buyer.id,
-        eventId: finishedIndie.id,
-        items: { create: items },
-      },
-    });
-
-    await prisma.payment.create({
-      data: {
-        amount: String(total.toFixed(2)),
-        currency: 'EUR',
-        status: PaymentStatus.COMPLETED,
-        provider: 'stripe',
-        providerPaymentId: `pi_fi_${i + 1}_${order.id.slice(0, 8)}`,
-        providerSessionId: `sess_fi_${i + 1}_${order.id.slice(0, 8)}`,
-        paidAt: new Date('2025-08-10T14:00:00.000Z'),
-        orderId: order.id,
-      },
-    });
-  }
-
-  // --- Madrid Rock Fest 2025 → 12 órdenes COMPLETED ---
-  const rockOrders = [
-    { buyer: buyerUser,  ttId: fr1General.id, ttPrice: 55, qty: 4, tt2Id: fr1Premium.id,  tt2Price: 110, qty2: 2 },
-    { buyer: buyer1,     ttId: fr1General.id, ttPrice: 55, qty: 6, tt2Id: null,            tt2Price: 0,   qty2: 0 },
-    { buyer: buyer2,     ttId: fr1Premium.id, ttPrice: 110, qty: 4, tt2Id: null,           tt2Price: 0,   qty2: 0 },
-    { buyer: buyer3,     ttId: fr1General.id, ttPrice: 55, qty: 4, tt2Id: null,            tt2Price: 0,   qty2: 0 },
-    { buyer: buyer4,     ttId: fr1General.id, ttPrice: 55, qty: 3, tt2Id: fr1Premium.id,  tt2Price: 110, qty2: 2 },
-    { buyer: buyer1,     ttId: fr1Premium.id, ttPrice: 110, qty: 3, tt2Id: null,           tt2Price: 0,   qty2: 0 },
-    { buyer: buyer2,     ttId: fr1General.id, ttPrice: 55, qty: 5, tt2Id: null,            tt2Price: 0,   qty2: 0 },
-    { buyer: buyer3,     ttId: fr1Premium.id, ttPrice: 110, qty: 4, tt2Id: null,           tt2Price: 0,   qty2: 0 },
-    { buyer: buyer4,     ttId: fr1General.id, ttPrice: 55, qty: 4, tt2Id: null,            tt2Price: 0,   qty2: 0 },
-    { buyer: buyerUser,  ttId: fr1General.id, ttPrice: 55, qty: 2, tt2Id: null,            tt2Price: 0,   qty2: 0 },
-    { buyer: buyer1,     ttId: fr1General.id, ttPrice: 55, qty: 6, tt2Id: fr1Premium.id,  tt2Price: 110, qty2: 1 },
-    { buyer: buyer2,     ttId: fr1Premium.id, ttPrice: 110, qty: 2, tt2Id: null,           tt2Price: 0,   qty2: 0 },
-  ];
-
-  for (let i = 0; i < rockOrders.length; i++) {
-    const o = rockOrders[i];
-    const items: any[] = [
-      { ticketTypeId: o.ttId, quantity: o.qty, unitPrice: String(o.ttPrice), subtotal: String(o.ttPrice * o.qty) },
-    ];
-    if (o.tt2Id) {
-      items.push({ ticketTypeId: o.tt2Id, quantity: o.qty2, unitPrice: String(o.tt2Price), subtotal: String(o.tt2Price * o.qty2) });
-    }
-    const total = items.reduce((acc, it) => acc + parseFloat(it.subtotal), 0);
-
-    const order = await prisma.order.create({
-      data: {
-        totalAmount: String(total.toFixed(2)),
-        status: OrderStatus.COMPLETED,
-        buyerId: o.buyer.id,
-        eventId: finishedRock.id,
-        items: { create: items },
-      },
-    });
-
-    await prisma.payment.create({
-      data: {
-        amount: String(total.toFixed(2)),
-        currency: 'EUR',
-        status: PaymentStatus.COMPLETED,
-        provider: 'stripe',
-        providerPaymentId: `pi_fr_${i + 1}_${order.id.slice(0, 8)}`,
-        providerSessionId: `sess_fr_${i + 1}_${order.id.slice(0, 8)}`,
-        paidAt: new Date('2025-10-01T16:00:00.000Z'),
-        orderId: order.id,
-      },
-    });
-  }
-
-  // ── Orden PENDING original del seed (conservada para pruebas de flow) ─────
-  const urbanPista = await prisma.ticketType.findFirstOrThrow({
-    where: { eventId: urbanFest.id, name: 'Pista' },
-  });
-  const pendingOrder = await prisma.order.create({
-    data: {
-      totalAmount: '90.00',
-      status: OrderStatus.PENDING,
-      buyerId: buyerUser.id,
-      eventId: urbanFest.id,
-      items: {
-        create: [{ quantity: 2, unitPrice: urbanPista.price, subtotal: '90.00', ticketTypeId: urbanPista.id }],
-      },
-    },
-  });
-  await prisma.payment.create({
-    data: {
-      amount: '90.00',
-      currency: 'EUR',
-      status: PaymentStatus.PENDING,
-      provider: 'stripe',
-      providerSessionId: `sess_pending_${pendingOrder.id}`,
-      orderId: pendingOrder.id,
-    },
-  });
-
-  // ── Orden COMPLETED original del seed (conservada para pruebas de flow) ───
-  const indieNightGeneral = await prisma.ticketType.findFirstOrThrow({
-    where: { eventId: indieNight.id, name: 'General' },
-  });
-  const indieNightPreferente = await prisma.ticketType.findFirstOrThrow({
-    where: { eventId: indieNight.id, name: 'Preferente' },
-  });
-  const completedOrder = await prisma.order.create({
-    data: {
-      totalAmount: '206.00',
-      status: OrderStatus.COMPLETED,
-      buyerId: buyerUser.id,
-      eventId: indieNight.id,
-      items: {
-        create: [
-          { quantity: 2, unitPrice: indieNightGeneral.price, subtotal: '76.00', ticketTypeId: indieNightGeneral.id },
-          { quantity: 2, unitPrice: indieNightPreferente.price, subtotal: '130.00', ticketTypeId: indieNightPreferente.id },
-        ],
-      },
-    },
-  });
-  await prisma.payment.createMany({
-    data: [
-      {
-        amount: '206.00',
-        currency: 'EUR',
-        status: PaymentStatus.FAILED,
-        provider: 'stripe',
-        providerSessionId: `sess_fail_${completedOrder.id}`,
-        failureReason: 'authentication_required',
-        orderId: completedOrder.id,
-      },
-      {
-        amount: '206.00',
-        currency: 'EUR',
-        status: PaymentStatus.COMPLETED,
-        provider: 'stripe',
-        providerPaymentId: `pi_ok_${completedOrder.id}`,
-        providerSessionId: `sess_ok_${completedOrder.id}`,
-        paidAt: new Date(),
-        orderId: completedOrder.id,
-      },
-    ],
-  });
-
-  void allBuyers;
-
-  // ── TICKETS para órdenes COMPLETED ────────────────────────────────────────
-  // Genera tickets reales con hash + qrPayload para poder probar:
-  //   RF-14 (QR cifrado), RF-15 (PDF download), RF-20 (SSE stats)
-
-  // Helper: crea tickets para todos los OrderItems de una orden
+  // ── Helper Generar Tickets de Orden (createMany batch) ───────────────────
   async function createTicketsForOrder(
     orderId: string,
     eventId: string,
@@ -1755,75 +693,232 @@ async function main() {
     forceStatus?: TicketStatus,
   ) {
     const items = await prisma.orderItem.findMany({ where: { orderId } });
-    for (const item of items) {
-      for (let i = 0; i < item.quantity; i++) {
+    const isUsed = forceStatus === TicketStatus.USED;
+    const now = new Date();
+
+    const ticketData = items.flatMap(item =>
+      Array.from({ length: item.quantity }, () => {
         const ticketId = crypto.randomUUID();
-        const isUsed = forceStatus === TicketStatus.USED;
-        await prisma.ticket.create({
+        const hash = makeHash();
+        return {
+          id: ticketId,
+          hash,
+          qrPayload: makeQrPayload(hash),
+          status: forceStatus ?? TicketStatus.ACTIVE,
+          purchaseDate: now,
+          validatedAt: isUsed ? now : null,
+          eventId,
+          buyerId,
+          ticketTypeId: item.ticketTypeId,
+          orderId,
+          orderItemId: item.id,
+          validatedById: isUsed ? (validatedById ?? null) : null,
+        };
+      })
+    );
+
+    await prisma.ticket.createMany({ data: ticketData });
+  }
+
+  // ── Órdenes de Demo Expo ─────────────────────────────────────────────────
+  // 100 órdenes × 20 tickets = 2000 tickets ACTIVE
+  // Primeras 25 → VIP (500 tickets), últimas 75 → General (1500 tickets)
+  const demoEvent = await prisma.event.findFirst({ where: { name: 'Tech Live Demo Expo 2026' }, include: { ticketTypes: true } });
+  if (demoEvent) {
+    console.log('Generando 2000 tickets para el evento Tech Live Demo Expo 2026...');
+    const ttGeneral = demoEvent.ticketTypes.find(t => t.name === 'General')!;
+    const ttVip     = demoEvent.ticketTypes.find(t => t.name === 'VIP')!;
+    const now       = new Date();
+
+    const demoOrders: { tt: typeof ttGeneral; i: number }[] = [
+      ...Array.from({ length: 25 }, (_, i) => ({ tt: ttVip,     i })),
+      ...Array.from({ length: 75 }, (_, i) => ({ tt: ttGeneral, i: i + 25 })),
+    ];
+
+    // Distribuir paidAt en las últimas 8 semanas antes del evento
+    const demoEventDate = demoEvent.eventDate.getTime();
+    const demoSaleStart = demoEvent.startSale?.getTime() ?? (demoEventDate - 8 * 7 * 86400000);
+
+    for (const { tt, i } of demoOrders) {
+      const unitPrice = parseFloat(tt.price.toString());
+      const subtotal  = (unitPrice * 20).toFixed(2);
+
+      // Distribuir uniformemente en el tiempo de venta
+      const paidAt = new Date(demoSaleStart + (i / demoOrders.length) * (demoEventDate - demoSaleStart));
+
+      const order = await prisma.order.create({
+        data: {
+          totalAmount: subtotal,
+          status: OrderStatus.COMPLETED,
+          buyerId: buyerUser.id,
+          eventId: demoEvent.id,
+          items: {
+            create: [{ ticketTypeId: tt.id, quantity: 20, unitPrice: String(tt.price), subtotal }],
+          },
+        },
+      });
+
+      await prisma.payment.create({
+        data: {
+          amount: subtotal,
+          currency: 'EUR',
+          status: PaymentStatus.COMPLETED,
+          provider: 'stripe',
+          providerPaymentId: `pi_demo_${i}_${order.id.slice(0, 8)}`,
+          providerSessionId: `sess_demo_${i}_${order.id.slice(0, 8)}`,
+          paidAt,
+          orderId: order.id,
+        },
+      });
+
+      await createTicketsForOrder(order.id, demoEvent.id, buyerUser.id, undefined, TicketStatus.ACTIVE);
+    }
+    console.log('✅ 2000 tickets generados con éxito para la demo.');
+  }
+
+  // ── Órdenes de Eventos PUBLISHED ────────────────────────────────────────
+  // Popularidad por evento: % de tickets vendidos de cada ticket type
+  const publishedSalesConfig: Record<string, number> = {
+    'Ether Trip Masters 2026':              0.72,  // sold out casi
+    'Global Pop Fest 2026':                 0.65,
+    'Avant-Garde & Complexity':             0.40,
+    'Classic Legends Revival':              0.78,
+    'Symphonic Rock Night':                 0.55,
+    'Psychedelic Funk Experience':          0.48,
+    'Intimate Prog Evening':                0.22,
+    'ELP — Brain Salute Tour':              0.45,
+    'Rush — A Farewell to Kings Redux':     0.80,
+    'Krautrock Cosmos':                     0.18,
+    'Jazz Fusion Summit':                   0.35,
+    'Magma — Köhntarkösz Live':             0.15,
+    'Jethro Tull — Thick as a Brick Tour':  0.52,
+  };
+
+  const publishedEvents = await prisma.event.findMany({
+    where: { status: EventStatus.PUBLISHED, name: { not: 'Tech Live Demo Expo 2026' } },
+    include: { ticketTypes: true },
+  });
+
+  for (const ev of publishedEvents) {
+    const pct = publishedSalesConfig[ev.name] ?? 0.30;
+    console.log(`Generando ventas para: ${ev.name} (${Math.round(pct * 100)}% vendido)...`);
+
+    for (const tt of ev.ticketTypes) {
+      // Cap: máximo 150 órdenes por ticket type para no explotar en eventos masivos
+      // El % de popularidad igual se refleja en availableQuantity
+      const idealToSell = Math.floor(tt.totalQuantity * pct);
+      const MAX_ORDERS  = 150;
+      const qtyPerOrder = [1, 2, 2, 3, 4];
+      const avgQty      = qtyPerOrder.reduce((a, b) => a + b, 0) / qtyPerOrder.length;
+      const maxViaCap   = Math.floor(MAX_ORDERS * avgQty);
+      const totalToSell = Math.min(idealToSell, maxViaCap);
+
+      let sold = 0;
+      let orderIndex = 0;
+
+      while (sold < totalToSell) {
+        const buyer = allBuyers[orderIndex % allBuyers.length];
+        const qty = Math.min(
+          qtyPerOrder[orderIndex % qtyPerOrder.length],
+          totalToSell - sold,
+          tt.maxPerUser,
+        );
+
+        const unitPrice = parseFloat(tt.price.toString());
+        const subtotal  = (unitPrice * qty).toFixed(2);
+
+        // Fecha de compra aleatoria entre apertura de venta y 2 días antes del evento
+        const saleStart  = tt.saleStartDate?.getTime() ?? ev.eventDate.getTime() - 90 * 86400000;
+        const saleEnd    = ev.eventDate.getTime() - 2 * 86400000;
+        const purchasedAt = new Date(saleStart + Math.random() * (saleEnd - saleStart));
+
+        const order = await prisma.order.create({
           data: {
-            id: ticketId,
-            hash: makeHash(),
-            qrPayload: makeQrPayload(ticketId),
-            status: forceStatus ?? TicketStatus.ACTIVE,
-            purchaseDate: new Date(),
-            validatedAt: isUsed ? new Date('2025-09-20T21:30:00.000+02:00') : undefined,
-            eventId,
-            buyerId,
-            ticketTypeId: item.ticketTypeId,
-            orderId,
-            orderItemId: item.id,
-            validatedById: isUsed ? validatedById : undefined,
+            totalAmount: subtotal,
+            status: OrderStatus.COMPLETED,
+            buyerId: buyer.id,
+            eventId: ev.id,
+            items: {
+              create: [{
+                ticketTypeId: tt.id,
+                quantity: qty,
+                unitPrice: String(tt.price),
+                subtotal,
+              }],
+            },
           },
         });
+
+        await prisma.payment.create({
+          data: {
+            amount: subtotal,
+            currency: 'EUR',
+            status: PaymentStatus.COMPLETED,
+            provider: 'stripe',
+            providerPaymentId: `pi_pub_${order.id.slice(0, 16)}`,
+            providerSessionId: `sess_pub_${order.id.slice(0, 16)}`,
+            paidAt: purchasedAt,
+            orderId: order.id,
+          },
+        });
+
+        await createTicketsForOrder(order.id, ev.id, buyer.id, undefined, TicketStatus.ACTIVE);
+
+        sold += qty;
+        orderIndex++;
       }
+
+      // Descontar del availableQuantity
+      await prisma.ticketType.update({
+        where: { id: tt.id },
+        data: { availableQuantity: tt.totalQuantity - sold },
+      });
     }
   }
 
-  // Órdenes COMPLETED del buyerUser principal en eventos FINISHED
-  // (los loops de indieOrders/rockOrders solo crean órdenes sin tickets)
-  // Buscamos las órdenes del buyerUser en los eventos finished para crear sus tickets
-  const buyerFinishedOrders = await prisma.order.findMany({
-    where: {
-      buyerId: buyerUser.id,
-      status: OrderStatus.COMPLETED,
-      eventId: { in: [finishedIndie.id, finishedRock.id] },
-    },
-  });
+  // ── Órdenes de Eventos Finalizados ────────────────────────────────────────
+  const finishedEvents = await prisma.event.findMany({ where: { status: EventStatus.FINISHED }, include: { ticketTypes: true } });
+  for (const ev of finishedEvents) {
+    console.log(`Generando órdenes para evento finalizado: ${ev.name}...`);
+    for (let i = 0; i < 15; i++) {
+      const tt = ev.ticketTypes[0];
+      const buyer = allBuyers[i % allBuyers.length];
 
-  for (const ord of buyerFinishedOrders) {
-    await createTicketsForOrder(ord.id, ord.eventId, buyerUser.id, undefined, TicketStatus.USED);
+      const order = await prisma.order.create({
+        data: {
+          totalAmount: String((parseFloat(tt.price.toString()) * 2).toFixed(2)),
+          status: OrderStatus.COMPLETED,
+          buyerId: buyer.id,
+          eventId: ev.id,
+          items: {
+            create: [{
+              ticketTypeId: tt.id,
+              quantity: 2,
+              unitPrice: String(tt.price),
+              subtotal: String((parseFloat(tt.price.toString()) * 2).toFixed(2))
+            }]
+          }
+        }
+      });
+
+      await prisma.payment.create({
+        data: {
+          amount: order.totalAmount,
+          currency: 'EUR',
+          status: PaymentStatus.COMPLETED,
+          provider: 'stripe',
+          providerPaymentId: `pi_fin_${i}_${order.id.slice(0, 8)}`,
+          providerSessionId: `sess_fin_${i}_${order.id.slice(0, 8)}`,
+          paidAt: new Date(ev.eventDate.getTime() - 86400000),
+          orderId: order.id
+        }
+      });
+
+      await createTicketsForOrder(order.id, ev.id, buyer.id, validatorUser.id, TicketStatus.USED);
+    }
   }
 
-  // También tickets para los otros buyers en finishedIndie (algunos USED, mayoría ACTIVE→USED ya que el evento terminó)
-  const otherBuyerFinishedOrders = await prisma.order.findMany({
-    where: {
-      buyerId: { in: [buyer1.id, buyer2.id, buyer3.id, buyer4.id] },
-      status: OrderStatus.COMPLETED,
-      eventId: { in: [finishedIndie.id, finishedRock.id] },
-    },
-  });
-
-  for (const ord of otherBuyerFinishedOrders) {
-    const buyer = [buyer1, buyer2, buyer3, buyer4].find((b) => b.id === ord.buyerId)!;
-    await createTicketsForOrder(ord.id, ord.eventId, buyer.id, validatorUser.id, TicketStatus.USED);
-  }
-
-  // Orden COMPLETED del buyerUser en evento PUBLISHED (indieNight) — tickets ACTIVE
-  // para poder probar RF-15 (PDF download) con un evento futuro
-  await createTicketsForOrder(
-    completedOrder.id,
-    indieNight.id,
-    buyerUser.id,
-    undefined,
-    TicketStatus.ACTIVE,
-  );
-
-  console.log('✅ Seed completado:');
-  console.log('   - 8 usuarios (admin, creator, validator, user, 4 buyers)');
-  console.log('   - 15 artistas, 8 venues, 7 formatos, 27 géneros');
-  console.log('   - 33 eventos (25 PUBLISHED, 4 DRAFT, 2 FINISHED, 2 CANCELLED)');
-  console.log('   - 22 órdenes con pagos para analytics (10 indie 2025 + 12 rock 2025)');
-  console.log('   - Tickets reales: USED en eventos FINISHED, ACTIVE en evento PUBLISHED');
+  console.log('✅ Seed completado con éxito — Progressive Rock Universe + Pop Global.');
 }
 
 main()

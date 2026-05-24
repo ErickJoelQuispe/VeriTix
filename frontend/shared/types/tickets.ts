@@ -13,7 +13,6 @@ export interface UserTicketType {
 
 export interface UserTicket {
   id: string
-  hash: string
   status: TicketStatus
   purchaseDate: string
   ticketType: UserTicketType

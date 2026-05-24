@@ -14,6 +14,7 @@ describe('mapEventListItem', () => {
     name: 'Festival Test',
     eventDate: '2026-07-18T19:30:00.000Z',
     imageUrl: null,
+    status: 'PUBLISHED',
     currency: 'EUR',
     venue: { id: 'v-1', name: 'Venue', city: 'City' },
     format: null,
@@ -40,6 +41,7 @@ describe('mapEventDetail', () => {
     endSale: null,
     maxCapacity: 5000,
     imageUrl: null,
+    status: 'PUBLISHED',
     currency: 'ARS',
     creatorId: 'user-2',
     venue: {
@@ -71,7 +73,7 @@ describe('mapEventDetail', () => {
 
     expect(result.id).toBe('evt-200')
     expect(result.maxCapacity).toBe(5000)
-    expect(result.currency).toBe('EUR') // ARS cae a EUR
+    expect(result.currency).toBe('ARS')
     expect(result.imageUrl).toContain('picsum.photos/seed/veritix-event-evt-200')
     expect(result.venue.name).toBe('Teatro')
     expect(result.format?.name).toBe('Presencial')

@@ -6,18 +6,37 @@ const props = defineProps<{
   event: EventCatalogItem
 }>()
 
-const eventDate = computed(() => {
-  return formatEventDate(props.event.dateISO)
+const eventDate = computed(() => formatEventDate(props.event.dateISO))
+
+const eventTime = computed(() => {
+  return new Intl.DateTimeFormat('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(props.event.dateISO))
 })
+
+const statusLabels: Record<string, string> = {
+  PUBLISHED: 'Disponible',
+  FINISHED: 'Finalizado',
+  CANCELLED: 'Cancelado',
+  DRAFT: 'Borrador',
+}
+
+const statusTone: Record<string, 'success' | 'neutral' | 'error' | 'warning'> = {
+  PUBLISHED: 'success',
+  FINISHED: 'neutral',
+  CANCELLED: 'error',
+  DRAFT: 'warning',
+}
 </script>
 
 <template>
-  <UiPanel as="article" interactive radius="md" padding="none" class="group flex h-full flex-col overflow-hidden">
+  <UiPanel as="article" interactive radius="xl" padding="none" class="group flex h-full flex-col overflow-hidden">
     <div data-test="event-card-media" class="relative w-full overflow-hidden border-b border-white/10 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35">
       <NuxtImg
         :src="event.imageUrl ?? undefined"
         :alt="`Imagen de ${event.name}`"
-        class="h-60 w-full object-cover transition duration-500 sm:h-64"
+        class="h-56 w-full object-cover transition duration-500 sm:h-64"
         loading="lazy"
         width="900"
         height="1200"
@@ -25,10 +44,19 @@ const eventDate = computed(() => {
         placeholder
       />
 
-      <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/65 via-black/10 to-transparent transition-opacity duration-300 group-hover:opacity-90 group-focus-within:opacity-90" />
+      <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 via-black/15 to-transparent transition-opacity duration-300 group-hover:opacity-90 group-focus-within:opacity-90" />
+
+      <div class="absolute left-4 top-4 flex flex-wrap gap-2">
+        <BaseBadge kind="status" size="xs" :color="statusTone[event.status] ?? 'neutral'">
+          {{ statusLabels[event.status] ?? event.status }}
+        </BaseBadge>
+        <BaseBadge kind="price" size="xs" color="primary">
+          {{ event.currency }}
+        </BaseBadge>
+      </div>
     </div>
 
-    <div data-test="event-card-content" class="flex flex-1 flex-col gap-4 px-4 py-4 sm:px-5 sm:py-5">
+    <div data-test="event-card-content" class="flex flex-1 flex-col gap-4 px-5 py-5 sm:px-6 sm:py-6">
       <div class="flex flex-wrap gap-2">
         <span class="inline-flex items-center gap-1.5 rounded-full border border-default/60 bg-default/40 px-2 py-1 text-xs font-medium text-toned transition-colors duration-200 group-hover:border-default/80 group-hover:bg-default/60 group-focus-within:border-default/80 group-focus-within:bg-default/60">
           <BaseIcon name="i-lucide-map-pin" class="size-3.5 text-primary/70" />
@@ -45,9 +73,21 @@ const eventDate = computed(() => {
         {{ event.name }}
       </h3>
 
-      <div data-test="event-card-footer" class="mt-auto flex flex-col gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 sm:flex-row sm:items-end sm:justify-between">
+      <div class="space-y-2 text-sm text-toned">
+        <p class="flex items-center gap-2">
+          <BaseIcon name="i-lucide-calendar-clock" class="size-4 text-lavender/75" />
+          <span class="font-medium text-highlighted">{{ eventDate }}</span>
+          <span class="text-toned">· {{ eventTime }}</span>
+        </p>
+        <p class="flex items-center gap-2">
+          <BaseIcon name="i-lucide-music-2" class="size-4 text-lavender/75" />
+          <span class="truncate">{{ event.venue.name }}</span>
+        </p>
+      </div>
+
+      <div data-test="event-card-footer" class="mt-auto flex flex-col gap-3 border-t border-white/10 pt-4 transition-colors duration-200 group-hover:border-lavender/35 group-focus-within:border-lavender/35 sm:flex-row sm:items-center sm:justify-between">
         <div class="min-w-0">
-          <span class="block text-xs tracking-widest text-muted uppercase">{{ eventDate }}</span>
+          <span class="block text-xs tracking-widest text-muted uppercase">{{ event.venue.city }}</span>
         </div>
 
         <div class="shrink-0 sm:ml-auto">
@@ -57,7 +97,7 @@ const eventDate = computed(() => {
             size="sm"
             class="w-full px-3.5 sm:w-auto"
           >
-            Reservar
+            Ver detalle
           </BaseButton>
         </div>
       </div>

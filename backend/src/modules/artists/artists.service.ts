@@ -4,11 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PaginatedResponse } from '@common/dto';
-import {
-  CACHE_KEYS,
-  CACHE_TTL_LONG,
-  CacheService,
-} from '../../cache';
+import { CACHE_KEYS, CACHE_TTL_LONG, CacheService } from '../../cache';
+import { generateSlug, uniqueSlug } from '../../common';
 import {
   ArtistQueryDto,
   ArtistResponseDto,
@@ -25,14 +22,13 @@ export class ArtistsService {
   ) {}
 
   async create(dto: CreateArtistDto): Promise<ArtistResponseDto> {
-    const existingSlug = await this.artistsRepository.findBySlug(dto.slug);
-    if (existingSlug) {
-      throw new ConflictException('El slug ya está en uso por otro artista');
-    }
+    const baseSlug = dto.slug ?? generateSlug(dto.name);
+    const slug = await uniqueSlug(
+      baseSlug,
+      (s: string) => this.artistsRepository.findBySlug(s).then(Boolean),
+    );
 
-    const created = await this.artistsRepository.create(dto);
-    // No invalidamos el list — TTL de 1h es aceptable para un nuevo artista
-    // que aún no aparece en ninguna página cacheada
+    const created = await this.artistsRepository.create({ ...dto, slug });
     return created as ArtistResponseDto;
   }
 

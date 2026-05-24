@@ -265,8 +265,8 @@ onMounted(() => {
       <div class="space-y-8" data-testid="backoffice-events-page">
         <UiPageHeading
           eyebrow="Backoffice"
-          title="Manage events"
-          description="Search, filter, and update event records with a compact overview."
+          title="Gestionar eventos"
+          description="Buscá, filtrá y actualizá registros de eventos con una vista compacta."
           action-label="Nuevo evento"
           action-to="/backoffice/events/new"
         />
@@ -468,7 +468,9 @@ onMounted(() => {
 
             <div class="space-y-4">
               <template v-if="catalogMode === 'published' && catalogPending">
-                <BaseSkeleton v-for="i in 4" :key="`catalog-${i}`" class="h-32 rounded-2xl" />
+                <div class="flex min-h-80 items-center justify-center rounded-2xl border border-default/50 bg-elevated/15">
+                  <BaseSpinner class="size-10" spinner-class="size-10" />
+                </div>
               </template>
 
               <UiEmptyState
@@ -596,6 +598,30 @@ onMounted(() => {
                               </BaseButton>
 
                               <BaseButton
+                                variant="secondary"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :to="`/backoffice/events/${event.id}/sales`"
+                                @click="actionMenuOpen[event.id] = false"
+                              >
+                                <BaseIcon name="i-lucide-bar-chart-3" class="size-4" aria-hidden="true" />
+                                Ver ventas
+                              </BaseButton>
+
+                              <BaseButton
+                                variant="secondary"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :to="`/backoffice/events/${event.id}/access`"
+                                @click="actionMenuOpen[event.id] = false"
+                              >
+                                <BaseIcon name="i-lucide-scan-line" class="size-4" aria-hidden="true" />
+                                Ver accesos
+                              </BaseButton>
+
+                              <BaseButton
                                 v-if="!event.isReview"
                                 variant="danger"
                                 size="md"
@@ -629,6 +655,14 @@ onMounted(() => {
                         :to="`/backoffice/events/${event.id}/sales`"
                       >
                         Ventas
+                      </BaseButton>
+                      <BaseButton
+                        variant="outlined"
+                        size="sm"
+                        class="sm:w-28"
+                        :to="`/backoffice/events/${event.id}/access`"
+                      >
+                        Accesos
                       </BaseButton>
                       <BaseButton
                         v-if="!event.isReview"

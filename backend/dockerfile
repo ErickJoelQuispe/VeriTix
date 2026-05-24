@@ -1,18 +1,12 @@
-# Stage 1: Instalación de dependencias de desarrollo
-
 FROM oven/bun:1-alpine AS deps
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
-# Stage 2: Instalación de dependencias de producción
-
 FROM oven/bun:1-alpine AS prod-deps
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
-
-# Stage 3: Construcción de la aplicación
 
 FROM oven/bun:1-alpine AS builder
 WORKDIR /app
@@ -24,24 +18,27 @@ COPY prisma.config.ts ./
 COPY nest-cli.json tsconfig*.json ./
 COPY src ./src
 
+# Genera el cliente de Prisma
 RUN bunx prisma generate --schema=./prisma/schema.prisma
 
+# Limita el heap durante el build de TypeScript
+ENV NODE_OPTIONS="--max-old-space-size=1024"
+# nest build + tsc-alias resuelve los path aliases (@common, @modules) en el JS compilado
 RUN bun run build
 
-# Stage 4: Ejecución de la aplicación
-
-FROM oven/bun:1-alpine AS runner
+FROM oven/bun:1-alpine AS production
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 nestjs && \
-    adduser --system --uid 1001 nestjs
+RUN addgroup --system --gid 1001 nestjs \
+ && adduser --system --uid 1001 nestjs
 
 COPY --from=prod-deps --chown=nestjs:nestjs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nestjs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nestjs /app/prisma ./prisma
-COPY --from=builder --chown=nestjs:nestjs /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder --chown=nestjs:nestjs /app/src/generated ./src/generated
 COPY --from=builder --chown=nestjs:nestjs /app/package.json ./package.json
+# Config de Prisma sin dotenv — lee DATABASE_URL directo del environment
+COPY --chown=nestjs:nestjs prisma.config.prod.ts ./prisma.config.ts
 
 ENV NODE_ENV=production
 
@@ -49,4 +46,4 @@ USER nestjs
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "bunx prisma migrate deploy && bun dist/main.js"]
+CMD ["sh", "-c", "bunx prisma migrate deploy && node dist/src/main.js"]

@@ -44,6 +44,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [makeTicketType({ name: 'Pista General', price: 75 })],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -57,6 +58,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [makeTicketType({ availableQuantity: 0 })],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -72,6 +74,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [makeTicketType({ isActive: false })],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -84,6 +87,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [makeTicketType({ maxPerUser: 2, availableQuantity: 10 })],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -108,6 +112,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [makeTicketType({ maxPerUser: 2, availableQuantity: 10 })],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -129,6 +134,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [makeTicketType({ maxPerUser: 5, availableQuantity: 1 })],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -150,6 +156,7 @@ describe('ticketTypeSelector', () => {
           makeTicketType({ id: 'tt-2', name: 'VIP', price: 200 }),
         ],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -171,6 +178,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [makeTicketType({ price: 75, maxPerUser: 3, availableQuantity: 5 })],
         loading: false,
+        currency: 'EUR',
       },
     })
     await flushPromises()
@@ -189,6 +197,7 @@ describe('ticketTypeSelector', () => {
       props: {
         ticketTypes: [],
         loading: true,
+        currency: 'EUR',
       },
     })
     await flushPromises()

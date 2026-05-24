@@ -1,8 +1,11 @@
+import type { EventStatus } from '~~/shared/types/domain'
+
 export interface PublicEventListApiItem {
   id: string
   name: string
   eventDate: string | Date
   imageUrl: string | null
+  status: EventStatus
   currency: string
   venue: {
     id: string
@@ -25,6 +28,7 @@ export interface PublicEventDetailApiItem {
   endSale: string | Date | null
   maxCapacity: number
   imageUrl: string | null
+  status: EventStatus
   currency: string
   creatorId: string
   venue: {

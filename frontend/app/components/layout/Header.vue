@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MAIN_NAV_ITEMS, MY_EVENTS_NAV_ITEM } from '~/utils/navigation/ia'
+import { MAIN_NAV_ITEMS, MY_EVENTS_NAV_ITEM, MY_ORDERS_NAV_ITEM } from '~/utils/navigation/ia'
 
 const { user, isAuthenticated, sessionStatus } = useAuth()
 const route = useRoute()
@@ -25,6 +25,12 @@ const accountMenuLinks = computed(() => {
       description: 'Consultá tus reservas y tickets',
       to: MY_EVENTS_NAV_ITEM.to,
       icon: 'i-lucide-calendar-range',
+    },
+    {
+      label: MY_ORDERS_NAV_ITEM.label,
+      description: 'Revisá el historial de tus compras',
+      to: MY_ORDERS_NAV_ITEM.to,
+      icon: 'i-lucide-receipt-text',
     },
     ...accountMenuItems.value,
   ]

@@ -19,9 +19,9 @@ function readQueryPage(value: unknown): number {
 }
 
 useSeoMeta({
-  title: 'Venues | VeriTix',
+  title: 'Recintos | VeriTix',
   description:
-    'Explorá venues por nombre, dirección, ciudad y tipo para encontrar el recinto ideal.',
+    'Explorá recintos por nombre, dirección, ciudad y tipo para encontrar el lugar ideal.',
 })
 
 const searchDraft = ref(readQueryValue(route.query.search))
@@ -92,7 +92,7 @@ const venuesErrorMessage = computed(() => {
 
   return getApiErrorMessage(
     error.value,
-    'No pudimos cargar los venues en este momento.',
+    'No pudimos cargar los recintos en este momento.',
   )
 })
 
@@ -152,7 +152,7 @@ async function handlePageChange(page: number) {
         <div class="space-y-8">
           <UiPageHeading
             eyebrow="Descubrimiento"
-            title="Venues"
+            title="Recintos"
             description="Explorá recintos por nombre, dirección, ciudad y tipo para afinar la búsqueda."
           />
 
@@ -229,7 +229,7 @@ async function handlePageChange(page: number) {
                   v-model="searchDraft"
                   label="Nombre o dirección"
                   name="search"
-                  placeholder="Buscá por venue o dirección"
+                  placeholder="Buscá por recinto o dirección"
                   icon="i-lucide-search"
                   size="md"
                   :disabled="isPending"
@@ -332,7 +332,7 @@ async function handlePageChange(page: number) {
           </div>
 
           <div v-if="isPending" class="grid gap-6 md:grid-cols-2 2xl:grid-cols-3">
-            <BaseSkeleton v-for="index in 6" :key="index" class="h-96 rounded-2xl" />
+            <BaseSpinner v-for="index in 6" :key="index" class="h-96 rounded-2xl" />
           </div>
 
           <div

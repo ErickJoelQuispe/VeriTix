@@ -10,7 +10,7 @@ export function useMyOrders() {
 
   const orders = ref<UserOrder[]>([])
   const total = ref(0)
-  const isLoading = ref(false)
+  const isLoading = ref(true)
   const error = ref<string | null>(null)
 
   async function fetchMyOrders(page = 1, limit = 12): Promise<PaginatedResponse<UserOrder>> {

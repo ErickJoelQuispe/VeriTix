@@ -5,7 +5,7 @@ import { VENUE_TYPE_LABELS } from '~~/shared/types'
 import { useBackofficeVenuesRepository } from '@/repositories/backofficeVenuesRepository'
 
 definePageMeta({ layout: 'backoffice', middleware: 'backoffice' })
-useSeoMeta({ title: 'Venues | Backoffice VeriTix' })
+useSeoMeta({ title: 'Recintos | Backoffice VeriTix' })
 
 const { deleteVenue, listVenues } = useBackofficeVenuesRepository()
 const { notifyApiError, notifySuccess } = useAppNotifications()
@@ -78,7 +78,7 @@ async function loadVenues(targetPage = page.value) {
       return
     }
 
-    notifyApiError(error, 'No pudimos cargar los venues.', { id: 'admin-venues-load-error' })
+    notifyApiError(error, 'No pudimos cargar los recintos.', { id: 'admin-venues-load-error' })
   }
   finally {
     pending.value = false
@@ -143,7 +143,7 @@ onMounted(() => {
       <div class="space-y-8" data-testid="backoffice-venues-page">
         <UiPageHeading
           eyebrow="Backoffice"
-          title="Venues"
+          title="Recintos"
           description="Buscá recintos por nombre, ciudad y estado operativo."
           action-label="Nuevo recinto"
           action-to="/backoffice/venues/new"
@@ -151,7 +151,7 @@ onMounted(() => {
 
         <PagesBackofficeOverviewPanel
           eyebrow="Filtros"
-          title="Lista de venues"
+          title="Lista de recintos"
           variant="glass"
         >
           <template #actions>
@@ -255,7 +255,7 @@ onMounted(() => {
             </div>
 
             <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              <BaseSkeleton v-for="index in 6" :key="index" class="h-56 rounded-2xl" />
+              <BaseSpinner v-for="index in 6" :key="index" class="h-56 rounded-2xl" />
             </div>
 
             <UiEmptyState

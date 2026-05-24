@@ -1,9 +1,13 @@
 import type {
   BackofficeArtistPayload,
   BackofficeArtistRecord,
+  BackofficeConcertFormatPayload,
   BackofficeCreateUserPayload,
   BackofficeEventDetail,
   BackofficeEventPayload,
+  BackofficeFormatRecord,
+  BackofficeGenrePayload,
+  BackofficeGenreRecord,
   BackofficeUpdateUserPayload,
   BackofficeUserRecord,
   BackofficeVenuePayload,
@@ -74,7 +78,7 @@ export function hasEventSemanticChanges(event: BackofficeEventDetail, payload: B
 export function normalizeArtistPayload(payload: BackofficeArtistPayload): BackofficeArtistPayload {
   return {
     name: normalizeRequiredString(payload.name),
-    slug: normalizeRequiredString(payload.slug),
+    ...(payload.slug !== undefined && { slug: normalizeOptionalString(payload.slug) }),
     bio: normalizeOptionalString(payload.bio),
     imageUrl: normalizeOptionalString(payload.imageUrl),
     country: normalizeOptionalString(payload.country),
@@ -87,7 +91,6 @@ export function normalizeArtistPayload(payload: BackofficeArtistPayload): Backof
 function toArtistComparablePayload(artist: BackofficeArtistRecord): BackofficeArtistPayload {
   return normalizeArtistPayload({
     name: artist.name,
-    slug: artist.slug,
     bio: artist.bio ?? undefined,
     imageUrl: artist.imageUrl ?? undefined,
     country: artist.country ?? undefined,
@@ -102,7 +105,6 @@ export function hasArtistSemanticChanges(artist: BackofficeArtistRecord, payload
 
   return (
     payload.name !== comparableArtist.name
-    || payload.slug !== comparableArtist.slug
     || payload.bio !== comparableArtist.bio
     || payload.imageUrl !== comparableArtist.imageUrl
     || payload.country !== comparableArtist.country
@@ -110,6 +112,53 @@ export function hasArtistSemanticChanges(artist: BackofficeArtistRecord, payload
     || payload.isActive !== comparableArtist.isActive
     || !areStringArraysEqual(payload.genreIds, comparableArtist.genreIds)
   )
+}
+
+export function normalizeGenrePayload(payload: BackofficeGenrePayload): BackofficeGenrePayload {
+  return {
+    name: normalizeRequiredString(payload.name),
+    ...(payload.slug !== undefined && { slug: normalizeOptionalString(payload.slug) }),
+    description: normalizeOptionalString(payload.description),
+  }
+}
+
+function toGenreComparablePayload(genre: BackofficeGenreRecord): BackofficeGenrePayload {
+  return normalizeGenrePayload({
+    name: genre.name,
+    description: genre.description ?? undefined,
+  })
+}
+
+export function hasGenreSemanticChanges(genre: BackofficeGenreRecord, payload: BackofficeGenrePayload): boolean {
+  const comparableGenre = toGenreComparablePayload(genre)
+
+  return payload.name !== comparableGenre.name
+    || payload.description !== comparableGenre.description
+}
+
+export function normalizeConcertFormatPayload(payload: BackofficeConcertFormatPayload): BackofficeConcertFormatPayload {
+  return {
+    name: normalizeRequiredString(payload.name),
+    ...(payload.slug !== undefined && { slug: normalizeOptionalString(payload.slug) }),
+    description: normalizeOptionalString(payload.description),
+    icon: normalizeOptionalString(payload.icon),
+  }
+}
+
+function toConcertFormatComparablePayload(format: BackofficeFormatRecord): BackofficeConcertFormatPayload {
+  return normalizeConcertFormatPayload({
+    name: format.name,
+    description: format.description ?? undefined,
+    icon: format.icon ?? undefined,
+  })
+}
+
+export function hasConcertFormatSemanticChanges(format: BackofficeFormatRecord, payload: BackofficeConcertFormatPayload): boolean {
+  const comparableFormat = toConcertFormatComparablePayload(format)
+
+  return payload.name !== comparableFormat.name
+    || payload.description !== comparableFormat.description
+    || payload.icon !== comparableFormat.icon
 }
 
 export function normalizeCreateUserPayload(payload: BackofficeCreateUserPayload): BackofficeCreateUserPayload {
@@ -167,7 +216,7 @@ export function hasUserSemanticChanges(user: BackofficeUserRecord, payload: Back
 export function normalizeVenuePayload(payload: BackofficeVenuePayload): BackofficeVenuePayload {
   return {
     name: normalizeRequiredString(payload.name),
-    slug: normalizeRequiredString(payload.slug),
+    ...(payload.slug !== undefined && { slug: normalizeOptionalString(payload.slug) }),
     address: normalizeRequiredString(payload.address),
     city: normalizeRequiredString(payload.city),
     state: payload.state === '' ? null : (payload.state ?? undefined),
@@ -183,7 +232,6 @@ export function normalizeVenuePayload(payload: BackofficeVenuePayload): Backoffi
 function toVenueComparablePayload(venue: BackofficeVenueRecord): BackofficeVenuePayload {
   return normalizeVenuePayload({
     name: venue.name,
-    slug: venue.slug,
     address: venue.address,
     city: venue.city,
     state: venue.state,
@@ -201,7 +249,6 @@ export function hasVenueSemanticChanges(venue: BackofficeVenueRecord, payload: B
 
   return (
     payload.name !== comparableVenue.name
-    || payload.slug !== comparableVenue.slug
     || payload.address !== comparableVenue.address
     || payload.city !== comparableVenue.city
     || payload.state !== comparableVenue.state

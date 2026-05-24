@@ -54,7 +54,7 @@ async function onSubmit() {
         description="Retomá tus reservas, tickets y eventos guardados en un solo lugar."
       >
         <FormRoot ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
-          <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" :disabled="pending" required />
+          <FormField v-model="state.email" name="email" label="Correo electrónico" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" :disabled="pending" required />
           <FormPassword v-model="state.password" name="password" label="Contraseña" placeholder="Ingresá tu contraseña" icon="i-lucide-lock" :disabled="pending" required />
           <div class="grid gap-4 pt-6">
             <BaseButton variant="primary" type="submit" size="lg" block :loading="pending">

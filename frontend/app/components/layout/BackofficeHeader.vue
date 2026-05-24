@@ -22,6 +22,12 @@ const backofficeMenuItems = computed<AccountMenuItem[]>(() => {
       icon: 'i-lucide-calendar-range',
     },
     {
+      label: 'Mis ordenes',
+      description: 'Revisá el historial de tus compras',
+      to: '/users/me/orders',
+      icon: 'i-lucide-receipt-text',
+    },
+    {
       label: 'Panel Validador',
       description: 'Escanear y validar tickets en puerta',
       to: '/validator',
@@ -90,6 +96,12 @@ const mobileAccountLinks = computed(() => {
       icon: 'i-lucide-calendar-range',
     },
     {
+      label: 'Mis ordenes',
+      description: 'Revisá el historial de tus compras',
+      to: '/users/me/orders',
+      icon: 'i-lucide-receipt-text',
+    },
+    {
       label: 'Panel Validador',
       description: 'Escanear y validar tickets en puerta',
       to: '/validator',
@@ -121,10 +133,7 @@ watch(
   <header :class="headerClass">
     <BaseContainer class="py-3.5 sm:py-4">
       <div class="flex items-center justify-between gap-4 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:gap-8">
-        <NuxtLink
-          to="/backoffice"
-          class="flex min-w-0 cursor-pointer items-center gap-2 rounded-2xl px-2 py-1.5 outline-none transition-transform duration-200 hover:-translate-y-px focus-visible:ring-2 focus-visible:ring-primary/35"
-        >
+        <div class="flex min-w-0 items-center gap-2 rounded-2xl px-2 py-1.5">
           <div class="flex items-center gap-3">
             <p class="truncate font-display text-3xl leading-none tracking-wide text-highlighted sm:text-4xl">
               VeriTix
@@ -133,7 +142,7 @@ watch(
               Backoffice
             </span>
           </div>
-        </NuxtLink>
+        </div>
 
         <div class="flex items-center lg:hidden">
           <ClientOnly>

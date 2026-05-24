@@ -5,12 +5,6 @@ export class TicketListResponseDto {
   @ApiProperty({ example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' })
   id: string;
 
-  @ApiProperty({
-    example: 'a3f8e1d2b4c7...',
-    description: 'Hash SHA256 único del ticket.',
-  })
-  hash: string;
-
   @ApiProperty({ enum: TicketStatus, example: TicketStatus.ACTIVE })
   status: TicketStatus;
 

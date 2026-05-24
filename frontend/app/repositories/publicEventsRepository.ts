@@ -34,11 +34,8 @@ export function buildEventFallbackImage(eventId: string): string {
 }
 
 export function normalizeCurrencyCode(value: string): CurrencyCode {
-  if (value === 'USD' || value === 'EUR' || value === 'COP') {
-    return value
-  }
-
-  return 'EUR'
+  const normalized = value.trim().toUpperCase()
+  return normalized || 'EUR'
 }
 
 export function mapEventListItem(
@@ -49,6 +46,7 @@ export function mapEventListItem(
     name: item.name,
     dateISO: toIsoString(item.eventDate) ?? new Date().toISOString(),
     imageUrl: item.imageUrl ?? buildEventFallbackImage(item.id),
+    status: item.status,
     currency: normalizeCurrencyCode(item.currency),
     venue: item.venue,
     format: item.format,
@@ -68,6 +66,7 @@ export function mapEventDetail(
     endSaleISO: toIsoString(item.endSale),
     maxCapacity: item.maxCapacity,
     imageUrl: item.imageUrl ?? buildEventFallbackImage(item.id),
+    status: item.status,
     currency: normalizeCurrencyCode(item.currency),
     creatorId: item.creatorId,
     venue: item.venue,

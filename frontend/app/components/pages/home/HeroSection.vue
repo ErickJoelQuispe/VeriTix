@@ -42,15 +42,15 @@ function onSearch() {
                 <path d="M16 24 24 35 17 46 12 39Z" fill="color-mix(in oklch, var(--color-lavender) 20%, transparent)" opacity="0.36" />
                 <path d="M39 24 32 24 24 35 34 45Z" fill="rgb(255 255 255 / 0.08)" opacity="0.3" />
               </svg>
-              <span class="relative">Veritix</span>
+              <span class="relative">VeriTix</span>
             </span>
             <span class="vtx-prismatic-text block text-4xl md:text-5xl lg:text-6xl">
-              The Pure Experience
+              La experiencia auténtica
             </span>
           </h1>
 
           <p class="max-w-2xl text-base leading-relaxed text-toned md:text-lg">
-            The pristine way to discover, filter, and book live events.
+            La forma más clara de descubrir, filtrar y reservar eventos en vivo.
           </p>
 
           <form class="space-y-4" @submit.prevent="onSearch">

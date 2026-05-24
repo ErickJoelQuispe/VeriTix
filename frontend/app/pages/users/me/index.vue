@@ -218,17 +218,15 @@ onMounted(() => {
           class="vtx-settings-heading-divider"
         />
 
-        <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
-          <div class="order-last min-w-0 space-y-6 xl:order-first">
-            <div v-if="!initialized" class="space-y-4">
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-              <BaseSkeleton class="h-11 rounded-2xl" />
-            </div>
+        <template v-if="!initialized">
+          <div class="flex min-h-[45vh] items-center justify-center px-6 py-16">
+            <BaseSpinner class="size-10" spinner-class="size-10" />
+          </div>
+        </template>
 
-            <template v-else>
+        <template v-else>
+          <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
+            <div class="order-last min-w-0 space-y-6 xl:order-first">
               <UiPanel as="article" variant="glass" padding="xl" radius="xl" class="space-y-0">
                 <div class="space-y-2 vtx-settings-divider pb-5">
                   <UiMetaLabel>
@@ -280,10 +278,10 @@ onMounted(() => {
                         />
                       </div>
 
-                      <FormField
-                        v-model="profileState.avatarUrl"
-                        name="avatarUrl"
-                        label="Avatar URL"
+                        <FormField
+                          v-model="profileState.avatarUrl"
+                          name="avatarUrl"
+                          label="URL del avatar"
                         help="Opcional"
                         type="url"
                         placeholder="https://..."
@@ -305,7 +303,7 @@ onMounted(() => {
                         <FormField
                           v-model="profileState.email"
                           name="email"
-                          label="Email"
+                          label="Correo electrónico"
                           type="email"
                           placeholder="tu@email.com"
                           icon="i-lucide-mail"
@@ -416,107 +414,99 @@ onMounted(() => {
                   </div>
                 </FormRoot>
               </UiPanel>
-            </template>
-          </div>
+            </div>
 
-          <aside class="order-first space-y-8 xl:order-last">
-            <ClientOnly>
-              <div class="space-y-8">
-                <section class="space-y-5 pb-8">
-                  <div class="flex items-center gap-4">
-                    <BaseAvatar
-                      :src="profileState.avatarUrl.trim() || user?.avatarUrl || undefined"
-                      :text="profileInitials"
-                      size="xl"
-                      class="size-16!"
-                    />
+            <aside class="order-first space-y-8 xl:order-last">
+              <ClientOnly>
+                <div class="space-y-8">
+                  <section class="space-y-5 pb-8">
+                    <div class="flex items-center gap-4">
+                      <BaseAvatar
+                        :src="profileState.avatarUrl.trim() || user?.avatarUrl || undefined"
+                        :text="profileInitials"
+                        size="xl"
+                        class="size-16!"
+                      />
 
-                    <div class="space-y-1">
-                      <UiMetaLabel>
-                        Identidad visible
-                      </UiMetaLabel>
-                      <p class="text-lg font-semibold text-highlighted">
-                        {{ `${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim() }}
-                      </p>
-                      <p class="text-sm text-toned">
-                        {{ user?.email ?? 'Sin email' }}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <div class="space-y-1">
-                      <UiMetaLabel>
-                        Avatar
-                      </UiMetaLabel>
-                      <p class="text-sm font-semibold text-highlighted">
-                        {{ profileState.avatarUrl.trim() ? 'Configurado' : 'Sin personalizar' }}
-                      </p>
+                      <div class="space-y-1">
+                        <UiMetaLabel>
+                          Identidad visible
+                        </UiMetaLabel>
+                        <p class="text-lg font-semibold text-highlighted">
+                          {{ `${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim() }}
+                        </p>
+                        <p class="text-sm text-toned">
+                          {{ user?.email ?? 'Sin email' }}
+                        </p>
+                      </div>
                     </div>
 
-                    <div class="space-y-1">
-                      <UiMetaLabel>
-                        Teléfono
+                    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                      <div class="space-y-1">
+                        <UiMetaLabel>
+                          Avatar
+                        </UiMetaLabel>
+                        <p class="text-sm font-semibold text-highlighted">
+                          {{ profileState.avatarUrl.trim() ? 'Configurado' : 'Sin personalizar' }}
+                        </p>
+                      </div>
+
+                      <div class="space-y-1">
+                        <UiMetaLabel>
+                          Teléfono
+                        </UiMetaLabel>
+                        <p class="text-sm font-semibold text-highlighted">
+                          {{ profileState.phone || 'Pendiente' }}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section v-if="roleView" class="space-y-4 pb-8">
+                    <div class="space-y-1.5">
+                      <UiMetaLabel tone="accent">
+                        {{ roleView.title }}
                       </UiMetaLabel>
-                      <p class="text-sm font-semibold text-highlighted">
-                        {{ profileState.phone || 'Pendiente' }}
+
+                      <p class="text-sm leading-relaxed text-toned">
+                        {{ isAdminRole ? 'Acceso ampliado para soporte y gestión.' : 'Capacidades específicas de tu cuenta.' }}
                       </p>
                     </div>
-                  </div>
-                </section>
 
-                <section v-if="roleView" class="space-y-4 pb-8">
-                  <div class="space-y-1.5">
-                    <UiMetaLabel tone="accent">
-                      {{ roleView.title }}
+                    <ul class="space-y-2.5">
+                      <li
+                        v-for="capability in roleView.capabilities"
+                        :key="capability"
+                        class="flex items-start gap-2.5 text-sm leading-relaxed text-toned"
+                      >
+                        <span class="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary">
+                          <BaseIcon name="i-lucide-check" class="size-2.5" />
+                        </span>
+                        <span>{{ capability }}</span>
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section class="space-y-3">
+                    <UiMetaLabel>
+                      Atajos
                     </UiMetaLabel>
 
-                    <p class="text-sm leading-relaxed text-toned">
-                      {{ isAdminRole ? 'Acceso ampliado para soporte y gestión.' : 'Capacidades específicas de tu cuenta.' }}
-                    </p>
-                  </div>
+                    <div class="flex flex-col gap-3">
+                      <BaseButton to="/users/me/orders" variant="secondary" size="md">
+                        Mis órdenes
+                      </BaseButton>
 
-                  <ul class="space-y-2.5">
-                    <li
-                      v-for="capability in roleView.capabilities"
-                      :key="capability"
-                      class="flex items-start gap-2.5 text-sm leading-relaxed text-toned"
-                    >
-                      <span class="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary">
-                        <BaseIcon name="i-lucide-check" class="size-2.5" />
-                      </span>
-                      <span>{{ capability }}</span>
-                    </li>
-                  </ul>
-                </section>
-
-                <section class="space-y-3">
-                  <UiMetaLabel>
-                    Atajos
-                  </UiMetaLabel>
-
-                  <div class="flex flex-col gap-3">
-                    <BaseButton to="/users/me/orders" variant="secondary" size="md">
-                      Mis órdenes
-                    </BaseButton>
-
-                    <BaseButton to="/users/me/logout" variant="reversed" size="md">
-                      Cerrar sesión
-                    </BaseButton>
-                  </div>
-                </section>
-              </div>
-
-              <template #fallback>
-                <UiPanel variant="glass" padding="xl" radius="xl" class="space-y-0" aria-hidden="true">
-                  <BaseSkeleton class="h-16 w-16 rounded-2xl" />
-                  <BaseSkeleton class="mt-4 h-5 w-36 rounded" />
-                  <BaseSkeleton class="mt-2 h-4 w-44 rounded" />
-                </UiPanel>
-              </template>
-            </ClientOnly>
-          </aside>
-        </div>
+                      <BaseButton to="/users/me/logout" variant="reversed" size="md">
+                        Cerrar sesión
+                      </BaseButton>
+                    </div>
+                  </section>
+                </div>
+              </ClientOnly>
+            </aside>
+          </div>
+        </template>
       </div>
     </BaseContainer>
   </section>

@@ -1,4 +1,3 @@
-import type { PaginatedResponse as ApiPaginatedResponse } from '~~/shared/api/types'
 import type { BackofficeUserRecord } from '~~/shared/types'
 import { createError } from 'h3'
 import { readOptionalStringQuery } from '~~/server/utils/admin/request'
@@ -11,15 +10,8 @@ export default defineEventHandler(async (event): Promise<BackofficeUserRecord | 
     throw createError({ statusCode: 400, statusMessage: 'Falta el correo electrónico.' })
   }
 
-  const normalizedEmail = email.trim().toLowerCase()
-  const response = await proxyBackendRequest<ApiPaginatedResponse<BackofficeUserRecord>>(event, '/users', {
+  return proxyBackendRequest<BackofficeUserRecord | null>(event, '/users/by-email', {
     method: 'GET',
-    query: {
-      page: 1,
-      limit: 100,
-      search: normalizedEmail,
-    },
+    query: { email: email.trim().toLowerCase() },
   })
-
-  return response.data.find(user => user.email.trim().toLowerCase() === normalizedEmail) ?? null
 })

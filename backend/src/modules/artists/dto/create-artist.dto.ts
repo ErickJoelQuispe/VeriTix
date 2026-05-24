@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
   IsNotEmpty,
@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 
 export class CreateArtistDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Los Planetas',
     description: 'Nombre del artista.',
   })
@@ -17,18 +17,22 @@ export class CreateArtistDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   name: string;
 
-  @ApiProperty({
+  /**
+   * Optional — if omitted the backend auto-generates it from `name`.
+   */
+  @ApiPropertyOptional({
     example: 'los-planetas',
     description:
-      'Slug único del artista. Solo minúsculas, números y guiones. Ej: los-planetas.',
+      'Slug único del artista. Si se omite se genera automáticamente desde el nombre.',
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'El slug es obligatorio' })
+  @IsNotEmpty({ message: 'El slug no puede estar vacío si se proporciona' })
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message:
       'El slug solo puede contener minúsculas, números y guiones (ej: los-planetas)',
   })
-  slug: string;
+  slug?: string;
 
   @ApiPropertyOptional({
     example: 'Banda indie rock originaria de Granada.',

@@ -82,8 +82,8 @@ function formatCreatedAt(value: string | Date): string {
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer>
       <div v-if="status === 'pending'" class="space-y-6">
-        <BaseSkeleton class="h-16 rounded-2xl" />
-        <BaseSkeleton class="h-120 rounded-3xl" />
+        <BaseSpinner class="h-16 rounded-2xl" />
+        <BaseSpinner class="h-120 rounded-3xl" />
       </div>
 
       <div v-else-if="venue" class="mx-auto max-w-7xl space-y-10">
@@ -201,7 +201,7 @@ function formatCreatedAt(value: string | Date): string {
             </div>
 
             <div v-if="upcomingStatus === 'pending'" class="space-y-3">
-              <BaseSkeleton v-for="index in 2" :key="index" class="h-24 rounded-2xl" />
+              <BaseSpinner v-for="index in 2" :key="index" class="h-24 rounded-2xl" />
             </div>
 
             <div v-else-if="upcomingErrorMessage" class="rounded-2xl border border-warning/30 bg-warning/8 px-4 py-4 text-sm leading-relaxed text-toned">
@@ -251,7 +251,7 @@ function formatCreatedAt(value: string | Date): string {
               <UiMetaLabel>Eventos pasados</UiMetaLabel>
 
               <div v-if="pastStatus === 'pending'" class="space-y-3">
-                <BaseSkeleton v-for="index in 2" :key="index" class="h-24 rounded-2xl" />
+                <BaseSpinner v-for="index in 2" :key="index" class="h-24 rounded-2xl" />
               </div>
 
               <div v-else-if="pastErrorMessage" class="rounded-2xl border border-warning/30 bg-warning/8 px-4 py-4 text-sm leading-relaxed text-toned">

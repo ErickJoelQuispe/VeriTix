@@ -1,8 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
 
 export class CreateConcertFormatDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Concierto',
     description: 'Nombre del formato de concierto.',
   })
@@ -10,18 +10,22 @@ export class CreateConcertFormatDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   name: string;
 
-  @ApiProperty({
+  /**
+   * Optional — if omitted the backend auto-generates it from `name`.
+   */
+  @ApiPropertyOptional({
     example: 'concierto',
     description:
-      'Slug único del formato. Solo minúsculas, números y guiones. Ej: concierto, festival, club-night.',
+      'Slug único del formato. Si se omite se genera automáticamente desde el nombre.',
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'El slug es obligatorio' })
+  @IsNotEmpty({ message: 'El slug no puede estar vacío si se proporciona' })
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message:
       'El slug solo puede contener minúsculas, números y guiones (ej: club-night)',
   })
-  slug: string;
+  slug?: string;
 
   @ApiPropertyOptional({
     example: 'Evento musical en vivo con uno o varios artistas.',

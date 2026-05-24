@@ -1,0 +1,129 @@
+name: veritix
+
+services:
+  # ── Infrastructure ────────────────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: veritix_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/18/docker
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    networks:
+      - veritix_network
+
+  redis:
+    image: redis:8-alpine
+    container_name: veritix_redis
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', '--no-auth-warning', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+    networks:
+      - veritix_network
+
+  # ── Backend ───────────────────────────────────────────────────────────────────
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: veritix_backend
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: 'postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public'
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3001/api/v1/artists?limit=1 || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+    networks:
+      - veritix_network
+
+  # ── Frontend ──────────────────────────────────────────────────────────────────
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        NUXT_APP_BASE_URL: ${NUXT_APP_BASE_URL:-/}
+    container_name: veritix_frontend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: production
+      NUXT_APP_BASE_URL: ${NUXT_APP_BASE_URL:-/}
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://localhost:3001/api/v1}
+      NUXT_BACKEND_API_BASE: ${NUXT_BACKEND_API_BASE:-http://backend:3001/api/v1}
+    depends_on:
+      backend:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+    networks:
+      - veritix_network
+
+volumes:
+  postgres_data:
+    name: veritix_postgres_data
+  redis_data:
+    name: veritix_redis_data
+
+networks:
+  veritix_network:
+    driver: bridge

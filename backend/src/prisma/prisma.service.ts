@@ -21,6 +21,9 @@ export class PrismaService
   constructor() {
     const adapter = new PrismaPg({
       connectionString: process.env.DATABASE_URL,
+      max: Number(process.env.DB_POOL_SIZE ?? 20),
+      idleTimeoutMillis: Number(process.env.DB_POOL_IDLE_TIMEOUT_MS ?? 30_000),
+      connectionTimeoutMillis: Number(process.env.DB_POOL_CONNECTION_TIMEOUT_MS ?? 10_000),
     });
 
     super({

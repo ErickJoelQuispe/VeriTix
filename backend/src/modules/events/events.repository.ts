@@ -471,7 +471,7 @@ export class EventsRepository {
       };
     });
 
-    return mapped.sort((a, b) => b.ticketsSold - a.ticketsSold).slice(0, limit);
+    return mapped.sort((a, b) => b.revenue - a.revenue).slice(0, limit);
   }
 
   findMetricsById(id: string): Promise<EventMetricsRaw | null> {
@@ -506,13 +506,20 @@ export class EventsRepository {
   async findRevenueByDate(eventId: string): Promise<RevenueByDateRow[]> {
     const rows = await this.prisma.$queryRaw<{ date: Date; revenue: bigint | number }[]>(
       Prisma.sql`
-        SELECT
-          DATE_TRUNC('day', created_at) AS date,
-          SUM(total_amount)::float       AS revenue
-        FROM orders
-        WHERE event_id = ${eventId}
-          AND status = 'COMPLETED'
-        GROUP BY DATE_TRUNC('day', created_at)
+        SELECT date, revenue FROM (
+          SELECT
+            DATE_TRUNC('week', p.paid_at) AS date,
+            SUM(o.total_amount)::float     AS revenue
+          FROM orders o
+          JOIN payments p ON p.order_id = o.id
+          WHERE o.event_id = ${eventId}
+            AND o.status   = 'COMPLETED'
+            AND p.status   = 'COMPLETED'
+            AND p.paid_at IS NOT NULL
+          GROUP BY DATE_TRUNC('week', p.paid_at)
+          ORDER BY date DESC
+          LIMIT 8
+        ) sub
         ORDER BY date ASC
       `,
     );

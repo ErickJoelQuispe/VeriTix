@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
   IsInt,
@@ -12,7 +12,7 @@ import {
 import { VenueType } from '../../../generated/prisma/enums';
 
 export class CreateVenueDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Palacio de Congresos de Granada',
     description: 'Nombre del recinto.',
   })
@@ -20,20 +20,24 @@ export class CreateVenueDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   name: string;
 
-  @ApiProperty({
+  /**
+   * Optional — if omitted the backend auto-generates it from `name`.
+   */
+  @ApiPropertyOptional({
     example: 'palacio-congresos-granada',
     description:
-      'Slug único del recinto. Solo minúsculas, números y guiones. Ej: palacio-congresos-granada, plaza-toros-granada.',
+      'Slug único del recinto. Si se omite se genera automáticamente desde el nombre.',
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'El slug es obligatorio' })
+  @IsNotEmpty({ message: 'El slug no puede estar vacío si se proporciona' })
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message:
       'El slug solo puede contener minúsculas, números y guiones (ej: palacio-congresos-granada)',
   })
-  slug: string;
+  slug?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Paseo del Violon s/n',
     description: 'Dirección del recinto.',
   })
@@ -41,7 +45,7 @@ export class CreateVenueDto {
   @IsNotEmpty({ message: 'La dirección es obligatoria' })
   address: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Granada',
     description: 'Ciudad donde se ubica el recinto.',
   })

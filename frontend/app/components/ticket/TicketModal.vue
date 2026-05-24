@@ -11,6 +11,8 @@ const emit = defineEmits<{
   'transferInitiated': []
 }>()
 
+const DASHES_REGEX = /-/g
+
 const isOpen = computed({
   get: () => props.open,
   set: value => emit('update:open', value),
@@ -66,9 +68,11 @@ onMounted(async () => {
   }
 })
 
-const truncatedHash = computed(() =>
-  props.ticket ? `${props.ticket.hash.slice(0, 4)}-${props.ticket.hash.slice(4, 8)}` : '',
-)
+const truncatedHash = computed(() => {
+  if (!props.ticket) { return '' }
+  const clean = props.ticket.id.replace(DASHES_REGEX, '')
+  return `${clean.slice(0, 4)}-${clean.slice(4, 8)}`.toUpperCase()
+})
 
 const statusBadgeColor = computed(() => {
   if (!props.ticket) { return 'neutral' as const }
@@ -158,10 +162,10 @@ function handleTransferSuccess() {
                   width="200"
                   height="200"
                 >
-                <BaseSkeleton v-else class="size-50 rounded-xl" />
+                <BaseSpinner v-else class="size-50 rounded-xl" />
               </div>
               <template #fallback>
-                <BaseSkeleton class="size-50 rounded-xl" />
+                <BaseSpinner class="size-50 rounded-xl" />
               </template>
             </ClientOnly>
 
@@ -175,9 +179,9 @@ function handleTransferSuccess() {
               </span>
             </div>
 
-            <!-- Hash -->
+            <!-- Ticket ref -->
             <p class="font-mono text-sm text-muted">
-              Hash: {{ truncatedHash }}
+              Ticket #{{ truncatedHash }}
             </p>
 
             <!-- Validated info (USED only) -->

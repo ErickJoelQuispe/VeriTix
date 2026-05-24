@@ -1,19 +1,21 @@
 /**
  * Stress Test — Encontrar el breaking point
  *
- * Escala VUs agresivamente hasta que el servidor empieza a fallar.
- * Objetivo: saber cuánto aguanta antes de degradarse, y cómo se recupera.
+ * Escala VUs progresivamente hasta 1000 con stages más largos
+ * para detectar exactamente en qué tramo empieza la degradación.
  *
  * Stages:
- *   0 → 50 VUs  en 1m   (carga normal)
- *   50 → 100 VUs en 1m  (carga alta)
- *   100 → 200 VUs en 1m (carga extrema)
- *   200 → 300 VUs en 1m (breaking point)
- *   300 → 0 en 1m       (¿se recupera?)
+ *   0 → 100 VUs  en 2m   (carga normal — baseline)
+ *   100 → 300 VUs en 2m  (carga alta — zona conocida)
+ *   300 → 500 VUs en 2m  (carga fuerte)
+ *   500 → 750 VUs en 2m  (carga extrema)
+ *   750 → 1000 VUs en 2m (breaking point)
+ *   1000 → 0 en 2m       (¿se recupera? ¿cuánto tarda?)
  *
  * Métricas clave a observar:
- *   - A partir de qué VU count sube el error rate
- *   - Cuánto tarda en recuperarse al volver a 0
+ *   - En qué stage el p(95) cruza 500ms
+ *   - En qué stage aparecen los primeros errores
+ *   - Si la latencia vuelve a baseline en el ramp-down
  *
  * Correr: k6 run test/stress/stress.js
  */
@@ -29,17 +31,18 @@ const responseDuration = new Trend('response_duration', true);
 
 export const options = {
   stages: [
-    { duration: '1m', target: 50  },
-    { duration: '1m', target: 100 },
-    { duration: '1m', target: 200 },
-    { duration: '1m', target: 300 },
-    { duration: '1m', target: 0   },
+    { duration: '2m', target: 100  },
+    { duration: '2m', target: 300  },
+    { duration: '2m', target: 500  },
+    { duration: '2m', target: 750  },
+    { duration: '2m', target: 1000 },
+    { duration: '2m', target: 0    },
   ],
   thresholds: {
-    // En stress test los umbrales son más permisivos — solo queremos ver cuándo rompe
-    http_req_failed:   ['rate<0.10'],  // aceptamos hasta 10% de errores
-    http_req_duration: ['p(95)<2000'], // p95 < 2s
-    errors:            ['rate<0.10'],
+    // Umbrales informativos — queremos ver cuándo y cómo rompe, no detener el test
+    http_req_failed:   ['rate<0.20'],  // toleramos hasta 20% antes de abortar
+    http_req_duration: ['p(95)<5000'], // p95 < 5s — solo para no abortar prematuramente
+    errors:            ['rate<0.20'],
   },
 };
 

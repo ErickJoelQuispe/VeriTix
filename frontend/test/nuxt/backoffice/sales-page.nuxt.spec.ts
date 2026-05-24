@@ -19,7 +19,7 @@ const EVENT_DETAIL_FIXTURE = {
   endSale: null,
   maxCapacity: 1000,
   status: 'PUBLISHED',
-  imageUrl: 'https://example.com/rock-fest.jpg',
+  imageUrl: 'https://example.com/rock-fest.jpg' as string | null,
   currency: 'ARS',
   creatorId: 'user-1',
   createdAt: '2026-01-01T00:00:00Z',

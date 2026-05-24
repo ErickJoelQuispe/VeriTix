@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && tsc-alias -p tsconfig.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -29,11 +29,13 @@
     "db:seed": "bunx prisma db seed",
     "db:studio": "bunx prisma studio",
     "db:generate": "bunx prisma generate",
-    "prisma:reset": "bunx prisma migrate reset",
-    "backend:reset": "bun run prisma:reset && bun run migrate:deploy && bun run db:generate && bun run db:seed"
+    "prisma:reset": "bunx prisma migrate reset --force",
+    "backend:reset": "bun run prisma:reset && bun run migrate:deploy && bun run db:generate && bun run db:seed",
+    "test:live": "bun run test/live-demo/simulate-validations.ts"
   },
   "dependencies": {
     "@keyv/redis": "^5.1.6",
+    "tsconfig-paths": "^4.2.0",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.1.17",
@@ -97,7 +99,7 @@
     "ts-jest": "^29.2.5",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
+    "tsc-alias": "^1.8.17",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.20.0"
   },

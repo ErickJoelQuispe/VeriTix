@@ -8,7 +8,7 @@ import { VenuesService } from './venues.service';
 
 const mockCacheService = {
   getOrSet: jest.fn((_k: string, fn: () => any) => fn()),
-  get: jest.fn(),
+  get: jest.fn().mockResolvedValue(undefined),
   set: jest.fn(),
   del: jest.fn(),
 };
@@ -82,6 +82,12 @@ describe('VenuesService', () => {
       expect(repo.findBySlug).toHaveBeenCalledWith('foro-sol');
       expect(repo.create).toHaveBeenCalledWith(dto);
       expect(result).toEqual(mockVenueSafe);
+      expect(mockCacheService.del).toHaveBeenCalledWith('venues:list');
+      expect(mockCacheService.set).toHaveBeenCalledWith(
+        'venues:list:version',
+        expect.any(Number),
+        expect.any(Number),
+      );
     });
 
     it('should throw ConflictException when slug already exists', async () => {
@@ -148,6 +154,23 @@ describe('VenuesService', () => {
         search: 'Foro',
       });
     });
+
+    it('should use different cache keys for different query params', async () => {
+      repo.findAll.mockResolvedValue({
+        data: [mockVenueSafe],
+        meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+      } as any);
+
+      await service.findAll({ page: 1, limit: 10, city: 'CDMX' });
+      await service.findAll({ page: 2, limit: 10, city: 'CDMX' });
+
+      expect(mockCacheService.getOrSet).toHaveBeenCalledTimes(2);
+
+      const firstKey = mockCacheService.getOrSet.mock.calls[0][0];
+      const secondKey = mockCacheService.getOrSet.mock.calls[1][0];
+
+      expect(firstKey).not.toEqual(secondKey);
+    });
   });
 
   // ── findOne() ─────────────────────────────────────────────────────────────
@@ -185,6 +208,13 @@ describe('VenuesService', () => {
       expect(result).toEqual(updated);
       expect(repo.update).toHaveBeenCalledWith('uuid-venue-1', dto);
       expect(repo.findBySlug).not.toHaveBeenCalled();
+      expect(mockCacheService.del).toHaveBeenCalledWith('venues:list');
+      expect(mockCacheService.del).toHaveBeenCalledWith('venues:uuid-venue-1');
+      expect(mockCacheService.set).toHaveBeenCalledWith(
+        'venues:list:version',
+        expect.any(Number),
+        expect.any(Number),
+      );
     });
 
     it('should throw NotFoundException when venue does not exist', async () => {
@@ -254,6 +284,13 @@ describe('VenuesService', () => {
       await service.remove('uuid-venue-1');
 
       expect(repo.softDelete).toHaveBeenCalledWith('uuid-venue-1');
+      expect(mockCacheService.del).toHaveBeenCalledWith('venues:list');
+      expect(mockCacheService.del).toHaveBeenCalledWith('venues:uuid-venue-1');
+      expect(mockCacheService.set).toHaveBeenCalledWith(
+        'venues:list:version',
+        expect.any(Number),
+        expect.any(Number),
+      );
     });
   });
 });

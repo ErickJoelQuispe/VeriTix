@@ -74,6 +74,16 @@ function orderStatusLabel(status: OrderStatus): string {
   return map[status]
 }
 
+function orderStatusIcon(status: OrderStatus): string {
+  const map: Record<OrderStatus, string> = {
+    PENDING: 'i-lucide-clock',
+    PAID: 'i-lucide-circle-check',
+    CANCELLED: 'i-lucide-circle-x',
+    REFUNDED: 'i-lucide-circle-arrow-left',
+  }
+  return map[status]
+}
+
 function paymentStatusColor(status: PaymentStatus): 'success' | 'neutral' | 'error' | 'warning' {
   const map: Record<PaymentStatus, 'success' | 'neutral' | 'error' | 'warning'> = {
     PENDING: 'warning',
@@ -115,24 +125,32 @@ onMounted(() => {
 </script>
 
 <template>
-  <UiPanel variant="glass" radius="xl" padding="none" class="overflow-hidden">
+  <UiPanel variant="glass" radius="lg" padding="none" class="overflow-hidden border-default/65 transition-all duration-200 hover:border-primary/35 hover:bg-elevated/30">
     <template v-if="shouldRenderStatic">
-      <div class="flex items-center gap-3 px-4 py-3 sm:px-5">
-        <BaseBadge kind="status" size="sm" :color="orderStatusColor(order.status)">
-          {{ orderStatusLabel(order.status) }}
-        </BaseBadge>
+      <div class="flex flex-col gap-4 px-4 py-4 sm:px-5">
+        <div class="flex items-start gap-4">
+          <div class="vtx-order-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
+            <BaseIcon name="i-lucide-receipt" class="size-5 text-primary" />
+          </div>
 
-        <span class="min-w-0 flex-1 font-mono text-sm text-toned">
-          Orden #{{ truncatedId }}
-        </span>
+          <div class="min-w-0 flex-1 space-y-1">
+            <p class="text-base font-semibold text-highlighted">
+              Orden #{{ truncatedId.toUpperCase() }}
+            </p>
+            <p class="text-sm text-toned">
+              {{ formattedDate }}
+            </p>
+          </div>
 
-        <span class="shrink-0 text-sm font-semibold text-highlighted">
-          {{ formattedAmount }}
-        </span>
-
-        <span class="shrink-0 text-xs text-muted">
-          {{ formattedDate }}
-        </span>
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <BaseBadge kind="status" size="sm" leading :icon="orderStatusIcon(order.status)" :color="orderStatusColor(order.status)">
+              {{ orderStatusLabel(order.status) }}
+            </BaseBadge>
+            <BaseBadge kind="price" size="sm">
+              {{ formattedAmount }}
+            </BaseBadge>
+          </div>
+        </div>
       </div>
 
       <div class="border-t border-default/65 px-4 py-4 sm:px-5">
@@ -166,8 +184,8 @@ onMounted(() => {
         </p>
 
         <template v-if="isLoadingDetail">
-          <BaseSkeleton class="mb-3 h-24 rounded-lg" />
-          <BaseSkeleton class="h-16 rounded-lg" />
+          <BaseSpinner class="mb-3 h-24 rounded-lg" />
+          <BaseSpinner class="h-16 rounded-lg" />
         </template>
 
         <template v-else-if="detail">
@@ -238,24 +256,31 @@ onMounted(() => {
     </template>
 
     <details v-else @toggle="(e) => handleExpand((e.target as HTMLDetailsElement).open ? order.id : null)">
-      <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3 sm:px-5">
-        <BaseBadge kind="status" size="sm" :color="orderStatusColor(order.status)">
-          {{ orderStatusLabel(order.status) }}
-        </BaseBadge>
+      <summary class="flex cursor-pointer list-none flex-col gap-4 px-4 py-4 sm:px-5 sm:focus-visible:outline-none">
+        <div class="flex items-start gap-4">
+          <div class="vtx-order-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
+            <BaseIcon name="i-lucide-receipt" class="size-5 text-primary" />
+          </div>
 
-        <span class="min-w-0 flex-1 font-mono text-sm text-toned">
-          Orden #{{ truncatedId }}
-        </span>
+          <div class="min-w-0 flex-1 space-y-1">
+            <p class="text-base font-semibold text-highlighted">
+              Orden #{{ truncatedId.toUpperCase() }}
+            </p>
+            <p class="text-sm text-toned">
+              {{ formattedDate }}
+            </p>
+          </div>
 
-        <span class="shrink-0 text-sm font-semibold text-highlighted">
-          {{ formattedAmount }}
-        </span>
-
-        <span class="shrink-0 text-xs text-muted">
-          {{ formattedDate }}
-        </span>
-
-        <BaseIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted transition-transform duration-200 in-[[open]]:rotate-180" />
+          <div class="flex items-center gap-2">
+            <BaseBadge kind="status" size="sm" leading :icon="orderStatusIcon(order.status)" :color="orderStatusColor(order.status)">
+              {{ orderStatusLabel(order.status) }}
+            </BaseBadge>
+            <BaseBadge kind="price" size="sm">
+              {{ formattedAmount }}
+            </BaseBadge>
+            <BaseIcon name="i-lucide-chevron-down" class="size-4 shrink-0 text-muted transition-transform duration-200 in-[[open]]:rotate-180" />
+          </div>
+        </div>
       </summary>
 
       <div class="border-t border-default/65 px-4 py-4 sm:px-5">
@@ -290,8 +315,8 @@ onMounted(() => {
         </p>
 
         <template v-if="isLoadingDetail">
-          <BaseSkeleton class="mb-3 h-24 rounded-lg" />
-          <BaseSkeleton class="h-16 rounded-lg" />
+          <BaseSpinner class="mb-3 h-24 rounded-lg" />
+          <BaseSpinner class="h-16 rounded-lg" />
         </template>
 
         <template v-else-if="detail">
@@ -362,3 +387,12 @@ onMounted(() => {
     </details>
   </UiPanel>
 </template>
+
+<style scoped>
+@reference "@/assets/css/main.css";
+
+.vtx-order-icon {
+  border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+</style>

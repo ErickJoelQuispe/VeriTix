@@ -90,22 +90,22 @@ onMounted(() => {
   <section class="relative py-10 sm:py-14 lg:py-16">
     <BaseContainer class="relative">
       <div class="mx-auto max-w-7xl space-y-8 sm:space-y-9">
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <UiPageHeading
-            eyebrow="Mi cuenta"
-            title="Órdenes"
-            description="Consultá tus órdenes de compra, su estado de pago y completá las que estén pendientes."
-          />
-
-          <BaseButton to="/users/me" variant="secondary" size="sm" leading-icon="i-lucide-user">
-            Ajustes de cuenta
-          </BaseButton>
-        </div>
+        <UiPageHeading
+          eyebrow="Mi cuenta"
+          title="Órdenes"
+          description="Consultá tus órdenes de compra, su estado de pago y completá las que estén pendientes."
+        >
+          <template #actions>
+            <BaseButton to="/users/me" variant="secondary" size="sm" leading-icon="i-lucide-user">
+              Ajustes de cuenta
+            </BaseButton>
+          </template>
+        </UiPageHeading>
 
         <div class="grid gap-8 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.55fr)] xl:gap-10">
-          <section class="space-y-6">
-            <div v-if="!initialized" class="space-y-4">
-              <BaseSkeleton v-for="index in 4" :key="index" class="h-28 rounded-2xl" />
+          <section aria-live="polite" class="space-y-6">
+            <div v-if="!initialized" class="flex min-h-72 items-center justify-center" role="status" aria-label="Cargando órdenes">
+              <BaseSpinner class="size-10" spinner-class="size-10" />
             </div>
 
             <template v-else>
@@ -126,9 +126,14 @@ onMounted(() => {
                 />
               </div>
 
-              <div
+              <UiPanel
                 v-if="errorMessage"
-                class="rounded-2xl border border-error/30 bg-error/8 px-6 py-14 text-center"
+                as="section"
+                variant="glass"
+                radius="lg"
+                padding="lg"
+                role="alert"
+                class="border-error/30 bg-error/8 py-14 text-center"
               >
                 <div class="mx-auto flex max-w-md flex-col items-center gap-4">
                   <BaseIcon name="i-lucide-cloud-off" class="size-8 text-error" />
@@ -141,11 +146,11 @@ onMounted(() => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </UiPanel>
 
               <UiEmptyState
                 v-else-if="orders.length === 0"
-                icon="i-lucide-shopping-bag"
+                icon="i-lucide-receipt"
                 title="Todavía no tenés órdenes"
                 description="Cuando comprés una entrada aparecerá acá con su estado de pago."
                 action-label="Ver eventos"
@@ -156,6 +161,7 @@ onMounted(() => {
                 <UiPanel
                   v-for="order in orders"
                   :key="order.id"
+                  as="article"
                   variant="glass"
                   radius="lg"
                   padding="md"
@@ -164,7 +170,7 @@ onMounted(() => {
                   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex min-w-0 items-start gap-4">
                       <div class="vtx-order-icon flex size-11 shrink-0 items-center justify-center rounded-xl">
-                        <BaseIcon name="i-lucide-shopping-bag" class="size-5 text-primary" />
+                        <BaseIcon name="i-lucide-receipt" class="size-5 text-primary" />
                       </div>
 
                       <div class="min-w-0 space-y-1">
@@ -234,34 +240,40 @@ onMounted(() => {
 
           <aside class="space-y-6">
             <ClientOnly>
-              <UiPanel variant="glass" radius="lg" padding="md" class="space-y-4">
+              <UiPanel as="section" variant="glass" radius="lg" padding="md" class="space-y-4">
                 <UiMetaLabel>Resumen</UiMetaLabel>
 
-                <div class="space-y-3">
+                <dl class="space-y-3">
                   <div class="vtx-stat-row">
-                    <span class="text-sm text-toned">Total de órdenes</span>
-                    <span class="text-sm font-semibold text-highlighted">
+                    <dt class="text-sm text-toned">
+                      Total de órdenes
+                    </dt>
+                    <dd class="text-sm font-semibold text-highlighted">
                       {{ initialized ? meta.total : '—' }}
-                    </span>
+                    </dd>
                   </div>
 
                   <div class="vtx-stat-row">
-                    <span class="text-sm text-toned">Pendientes</span>
-                    <span class="text-sm font-semibold text-warning">
+                    <dt class="text-sm text-toned">
+                      Pendientes
+                    </dt>
+                    <dd class="text-sm font-semibold text-warning">
                       {{ initialized ? pendingCount : '—' }}
-                    </span>
+                    </dd>
                   </div>
 
                   <div class="vtx-stat-row">
-                    <span class="text-sm text-toned">Pagadas</span>
-                    <span class="text-sm font-semibold text-success">
+                    <dt class="text-sm text-toned">
+                      Pagadas
+                    </dt>
+                    <dd class="text-sm font-semibold text-success">
                       {{ initialized ? paidCount : '—' }}
-                    </span>
+                    </dd>
                   </div>
-                </div>
+                </dl>
               </UiPanel>
 
-              <UiPanel variant="glass" radius="lg" padding="md" class="space-y-3">
+              <UiPanel as="section" variant="glass" radius="lg" padding="md" class="space-y-3">
                 <UiMetaLabel>¿Necesitás ayuda?</UiMetaLabel>
                 <p class="text-sm leading-relaxed text-toned">
                   Si tenés problemas con una orden, contactá al organizador del evento o al soporte de VeriTix.
@@ -269,9 +281,8 @@ onMounted(() => {
               </UiPanel>
 
               <template #fallback>
-                <div class="space-y-4" aria-hidden="true">
-                  <BaseSkeleton class="h-40 rounded-2xl" />
-                  <BaseSkeleton class="h-24 rounded-2xl" />
+                <div class="flex min-h-64 items-center justify-center" aria-hidden="true">
+                  <BaseSpinner class="size-10" spinner-class="size-10" />
                 </div>
               </template>
             </ClientOnly>

@@ -62,23 +62,31 @@ export class AccessStatsService {
 
   static buildSnapshotPure(
     eventId: string,
+    capacity: number,
     total: number,
     validated: number,
+    denied: number,
   ): AccessStatsSnapshotDto {
-    const pending = total - validated;
+    const pending = total - validated - denied;
     const percentage = total > 0 ? Math.round((validated / total) * 1000) / 10 : 0;
-    return { eventId, total, validated, pending, percentage, lastUpdated: new Date() };
+    const occupancy = capacity > 0 ? Math.round((validated / capacity) * 1000) / 10 : 0;
+    return { eventId, capacity, total, validated, pending, denied, percentage, occupancy, lastUpdated: new Date() };
   }
 
   private async buildSnapshot(
     eventId: string,
     prisma: PrismaService,
   ): Promise<AccessStatsSnapshotDto> {
-    const [total, validated] = await Promise.all([
+    const [event, total, validated, denied] = await Promise.all([
+      prisma.event.findUnique({ where: { id: eventId }, select: { maxCapacity: true } }),
       prisma.ticket.count({ where: { eventId } }),
       prisma.ticket.count({ where: { eventId, status: TicketStatus.USED } }),
+      prisma.ticket.count({
+        where: { eventId, status: { in: [TicketStatus.CANCELLED, TicketStatus.REFUNDED] } },
+      }),
     ]);
 
-    return AccessStatsService.buildSnapshotPure(eventId, total, validated);
+    const capacity = event?.maxCapacity ?? 0;
+    return AccessStatsService.buildSnapshotPure(eventId, capacity, total, validated, denied);
   }
 }

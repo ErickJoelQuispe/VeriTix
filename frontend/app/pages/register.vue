@@ -74,7 +74,7 @@ async function onSubmit() {
         <FormRoot v-if="!submitted" ref="form" :state="state" :schema="schema" :validate-on="[]" class="space-y-5 sm:space-y-6" @submit="onSubmit">
           <FormField v-model="state.name" name="name" label="Nombre" placeholder="Tu nombre" icon="i-lucide-user" required />
           <FormField v-model="state.lastName" name="lastName" label="Apellido" placeholder="Tu apellido" icon="i-lucide-user-round" required />
-          <FormField v-model="state.email" name="email" label="Email" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" required />
+          <FormField v-model="state.email" name="email" label="Correo electrónico" type="email" placeholder="nombre@dominio.com" icon="i-lucide-mail" required />
           <FormField v-model="state.phone" name="phone" label="Teléfono" placeholder="+34958123456" icon="i-lucide-phone" required />
           <FormPassword v-model="state.password" name="password" label="Contraseña" placeholder="Creá una contraseña" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />
           <FormPassword v-model="state.confirmPassword" name="confirmPassword" label="Confirmar contraseña" placeholder="Repetí la contraseña" icon="i-lucide-lock" :show="showPassword" required @update:show="showPassword = $event" />

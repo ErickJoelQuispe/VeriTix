@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL || '/',
@@ -14,10 +14,21 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || `${process.env.NUXT_APP_BASE_URL || '/'}api`,
       apiTimeoutMs: Number(process.env.NUXT_PUBLIC_API_TIMEOUT_MS || 8000),
+      backendApiBase: process.env.NUXT_BACKEND_API_BASE || 'http://localhost:3001/api/v1',
     },
   },
 
-  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/fonts', '@nuxt/test-utils/module'],
+  modules: [
+    '@nuxt/eslint',
+    '@nuxt/image',
+    '@nuxt/fonts',
+    ...(process.env.NODE_ENV !== 'production' ? ['@nuxt/test-utils/module'] : []),
+  ],
+
+  image: {
+    domains: ['images.unsplash.com', 'picsum.photos'],
+    provider: 'ipx',
+  },
 
   imports: {
     dirs: ['~/composables', '~/composables/**'],
@@ -35,7 +46,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
-      include: ['@vue/devtools-core', '@vue/devtools-kit', 'zod'],
+      include: ['zod'],
       exclude: ['@zxing/browser'],
     },
     server: {

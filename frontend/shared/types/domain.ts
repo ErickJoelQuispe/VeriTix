@@ -1,4 +1,6 @@
-export type CurrencyCode = 'USD' | 'EUR' | 'COP'
+export type CurrencyCode = string
+
+export type EventStatus = 'DRAFT' | 'PUBLISHED' | 'FINISHED' | 'CANCELLED'
 
 export interface EventVenueSummary {
   id: string
@@ -16,6 +18,7 @@ export interface EventCatalogItem {
   name: string
   dateISO: string
   imageUrl: string | null
+  status: EventStatus
   currency: CurrencyCode
   venue: EventVenueSummary
   format: EventFormatSummary | null
@@ -53,6 +56,7 @@ export interface EventCatalogDetail {
   endSaleISO: string | null
   maxCapacity: number
   imageUrl: string | null
+  status: EventStatus
   currency: CurrencyCode
   creatorId: string
   venue: EventVenueDetail

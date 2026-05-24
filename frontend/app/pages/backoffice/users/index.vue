@@ -332,7 +332,7 @@ onMounted(() => {
             </div>
 
             <div v-if="pending" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              <BaseSkeleton v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
+              <BaseSpinner v-for="index in 6" :key="index" class="h-80 rounded-2xl" />
             </div>
 
             <UiEmptyState
@@ -470,7 +470,7 @@ onMounted(() => {
                       </div>
                       <div>
                         <p class="text-xs text-toned/50">
-                          Email
+                          Correo electrónico
                         </p>
                         <span
                           class="inline-block rounded-md px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-widest"

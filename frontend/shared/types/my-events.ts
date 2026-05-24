@@ -19,6 +19,12 @@ export interface MyEventItem {
   dominantStatus: TicketStatus
 }
 
+export interface FavoriteItem {
+  id: string
+  event: EnrichedEvent
+  createdAt: string
+}
+
 export interface MyEventsResponse {
   data: MyEventItem[]
   total: number
