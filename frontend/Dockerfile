@@ -12,10 +12,18 @@ COPY . .
 
 ARG NUXT_APP_BASE_URL=/
 ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
-# Limita el heap de V8 a 2.5GB — si se pasa, muere el proceso, no el VPS
-ENV NODE_OPTIONS="--max-old-space-size=2560"
+
+# Limita el heap de V8 — si se pasa, muere el proceso, no el VPS
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
 # Deshabilita devtools en el build (no sirven en producción)
 ENV NUXT_DEVTOOLS_ENABLED=false
+
+# Fuerza a Rollup a usar el hilo principal — evita saturar cores del VPS
+ENV ROLLUP_NATIVE_WORKERS=0
+
+# Usa fuentes locales si ya están cacheadas — evita descargas en build time
+ENV NUXT_FONTS_PREFER_LOCAL=true
 
 # nuxt build setea NODE_ENV=production solo — no hay que forzarlo antes
 RUN bun run build
