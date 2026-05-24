@@ -598,6 +598,30 @@ onMounted(() => {
                               </BaseButton>
 
                               <BaseButton
+                                variant="secondary"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :to="`/backoffice/events/${event.id}/sales`"
+                                @click="actionMenuOpen[event.id] = false"
+                              >
+                                <BaseIcon name="i-lucide-bar-chart-3" class="size-4" aria-hidden="true" />
+                                Ver ventas
+                              </BaseButton>
+
+                              <BaseButton
+                                variant="secondary"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :to="`/backoffice/events/${event.id}/access`"
+                                @click="actionMenuOpen[event.id] = false"
+                              >
+                                <BaseIcon name="i-lucide-scan-line" class="size-4" aria-hidden="true" />
+                                Ver accesos
+                              </BaseButton>
+
+                              <BaseButton
                                 v-if="!event.isReview"
                                 variant="danger"
                                 size="md"

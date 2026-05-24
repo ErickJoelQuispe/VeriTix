@@ -130,19 +130,19 @@ const manifesto = [
 }
 
 .vtx-orbit {
-  @apply relative mx-auto aspect-square w-full max-w-[420px] rounded-full border border-default/60 bg-elevated/45;
+  @apply relative mx-auto aspect-square w-full max-w-105 rounded-full border border-default/60 bg-elevated/45;
 }
 
 .vtx-orbit-core {
-  @apply absolute top-1/2 left-1/2 z-20 inline-flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-lavender/40 bg-lavender/15 shadow-[0_0_40px_rgb(167_139_250_/_0.35)];
+  @apply absolute top-1/2 left-1/2 z-20 inline-flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-lavender/40 bg-lavender/15 shadow-[0_0_40px_rgb(167_139_250/0.35)];
 }
 
 .vtx-orbit-node {
-  @apply absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-default/60 bg-default/65 px-3 py-2 shadow-[0_8px_20px_rgb(0_0_0_/_0.14)] backdrop-blur-sm transition-all duration-300;
+  @apply absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-default/60 bg-default/65 px-3 py-2 shadow-[0_8px_20px_rgb(0_0_0/0.14)] backdrop-blur-sm transition-all duration-300;
 }
 
 .vtx-orbit-node:hover {
-  @apply -translate-y-[54%] border-lavender/45 bg-elevated/80;
+  @apply translate-y-[54%] border-lavender/45 bg-elevated/80;
 }
 
 .vtx-orbit-step {
