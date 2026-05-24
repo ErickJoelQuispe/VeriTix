@@ -35,7 +35,7 @@ beforeEach(() => {
 
 describe('myOrdersPage — /users/me/orders', () => {
   it('shows a single loading spinner while the list loads', async () => {
-    const deferred = createDeferred<{ data: unknown[]; meta: unknown }>()
+    const deferred = createDeferred<{ data: unknown[], meta: unknown }>()
     fetchMyOrdersMock.mockReturnValueOnce(deferred.promise)
 
     const wrapper = await mountSuspended(MyOrdersPage)

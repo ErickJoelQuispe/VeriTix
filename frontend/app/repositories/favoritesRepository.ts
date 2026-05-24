@@ -1,5 +1,5 @@
-import type { FavoriteItem, FavoriteStatus } from '~~/shared/types'
 import type { PaginatedResponse } from '~~/shared/api/types'
+import type { FavoriteItem, FavoriteStatus } from '~~/shared/types'
 import { compactQuery } from '~~/shared/query'
 
 export function useFavoritesRepository() {

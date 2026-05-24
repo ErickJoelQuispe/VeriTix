@@ -6,11 +6,13 @@ const appDir = join(process.cwd(), 'app')
 const utilsDir = join(process.cwd(), 'app')
 
 describe('backofficeHeader account menu', () => {
-  it('includes Mis eventos and Panel Validador links', async () => {
+  it('includes Mis eventos, Mis ordenes and Panel Validador links', async () => {
     const content = await readFile(join(appDir, 'components/layout/BackofficeHeader.vue'), 'utf-8')
     expect(content).toContain('Mis eventos')
+    expect(content).toContain('Mis ordenes')
     expect(content).toContain('Panel Validador')
     expect(content).toContain('/users/me/events')
+    expect(content).toContain('/users/me/orders')
     expect(content).toContain('/validator')
   })
 

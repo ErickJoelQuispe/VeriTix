@@ -417,94 +417,93 @@ onMounted(() => {
             </div>
 
             <aside class="order-first space-y-8 xl:order-last">
-            <ClientOnly>
-              <div class="space-y-8">
-                <section class="space-y-5 pb-8">
-                  <div class="flex items-center gap-4">
-                    <BaseAvatar
-                      :src="profileState.avatarUrl.trim() || user?.avatarUrl || undefined"
-                      :text="profileInitials"
-                      size="xl"
-                      class="size-16!"
-                    />
+              <ClientOnly>
+                <div class="space-y-8">
+                  <section class="space-y-5 pb-8">
+                    <div class="flex items-center gap-4">
+                      <BaseAvatar
+                        :src="profileState.avatarUrl.trim() || user?.avatarUrl || undefined"
+                        :text="profileInitials"
+                        size="xl"
+                        class="size-16!"
+                      />
 
-                    <div class="space-y-1">
-                      <UiMetaLabel>
-                        Identidad visible
-                      </UiMetaLabel>
-                      <p class="text-lg font-semibold text-highlighted">
-                        {{ `${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim() }}
-                      </p>
-                      <p class="text-sm text-toned">
-                        {{ user?.email ?? 'Sin email' }}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <div class="space-y-1">
-                      <UiMetaLabel>
-                        Avatar
-                      </UiMetaLabel>
-                      <p class="text-sm font-semibold text-highlighted">
-                        {{ profileState.avatarUrl.trim() ? 'Configurado' : 'Sin personalizar' }}
-                      </p>
+                      <div class="space-y-1">
+                        <UiMetaLabel>
+                          Identidad visible
+                        </UiMetaLabel>
+                        <p class="text-lg font-semibold text-highlighted">
+                          {{ `${profileState.name || user?.name || ''} ${profileState.lastName || user?.lastName || ''}`.trim() }}
+                        </p>
+                        <p class="text-sm text-toned">
+                          {{ user?.email ?? 'Sin email' }}
+                        </p>
+                      </div>
                     </div>
 
-                    <div class="space-y-1">
-                      <UiMetaLabel>
-                        Teléfono
+                    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                      <div class="space-y-1">
+                        <UiMetaLabel>
+                          Avatar
+                        </UiMetaLabel>
+                        <p class="text-sm font-semibold text-highlighted">
+                          {{ profileState.avatarUrl.trim() ? 'Configurado' : 'Sin personalizar' }}
+                        </p>
+                      </div>
+
+                      <div class="space-y-1">
+                        <UiMetaLabel>
+                          Teléfono
+                        </UiMetaLabel>
+                        <p class="text-sm font-semibold text-highlighted">
+                          {{ profileState.phone || 'Pendiente' }}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section v-if="roleView" class="space-y-4 pb-8">
+                    <div class="space-y-1.5">
+                      <UiMetaLabel tone="accent">
+                        {{ roleView.title }}
                       </UiMetaLabel>
-                      <p class="text-sm font-semibold text-highlighted">
-                        {{ profileState.phone || 'Pendiente' }}
+
+                      <p class="text-sm leading-relaxed text-toned">
+                        {{ isAdminRole ? 'Acceso ampliado para soporte y gestión.' : 'Capacidades específicas de tu cuenta.' }}
                       </p>
                     </div>
-                  </div>
-                </section>
 
-                <section v-if="roleView" class="space-y-4 pb-8">
-                  <div class="space-y-1.5">
-                    <UiMetaLabel tone="accent">
-                      {{ roleView.title }}
+                    <ul class="space-y-2.5">
+                      <li
+                        v-for="capability in roleView.capabilities"
+                        :key="capability"
+                        class="flex items-start gap-2.5 text-sm leading-relaxed text-toned"
+                      >
+                        <span class="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary">
+                          <BaseIcon name="i-lucide-check" class="size-2.5" />
+                        </span>
+                        <span>{{ capability }}</span>
+                      </li>
+                    </ul>
+                  </section>
+
+                  <section class="space-y-3">
+                    <UiMetaLabel>
+                      Atajos
                     </UiMetaLabel>
 
-                    <p class="text-sm leading-relaxed text-toned">
-                      {{ isAdminRole ? 'Acceso ampliado para soporte y gestión.' : 'Capacidades específicas de tu cuenta.' }}
-                    </p>
-                  </div>
+                    <div class="flex flex-col gap-3">
+                      <BaseButton to="/users/me/orders" variant="secondary" size="md">
+                        Mis órdenes
+                      </BaseButton>
 
-                  <ul class="space-y-2.5">
-                    <li
-                      v-for="capability in roleView.capabilities"
-                      :key="capability"
-                      class="flex items-start gap-2.5 text-sm leading-relaxed text-toned"
-                    >
-                      <span class="mt-1 inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-primary/12 text-primary">
-                        <BaseIcon name="i-lucide-check" class="size-2.5" />
-                      </span>
-                      <span>{{ capability }}</span>
-                    </li>
-                  </ul>
-                </section>
-
-                <section class="space-y-3">
-                  <UiMetaLabel>
-                    Atajos
-                  </UiMetaLabel>
-
-                  <div class="flex flex-col gap-3">
-                    <BaseButton to="/users/me/orders" variant="secondary" size="md">
-                      Mis órdenes
-                    </BaseButton>
-
-                    <BaseButton to="/users/me/logout" variant="reversed" size="md">
-                      Cerrar sesión
-                    </BaseButton>
-                  </div>
-                </section>
-              </div>
-
-            </ClientOnly>
+                      <BaseButton to="/users/me/logout" variant="reversed" size="md">
+                        Cerrar sesión
+                      </BaseButton>
+                    </div>
+                  </section>
+                </div>
+              </ClientOnly>
             </aside>
           </div>
         </template>

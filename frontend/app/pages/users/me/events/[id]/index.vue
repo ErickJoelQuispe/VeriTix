@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { PaginatedResponse } from '~~/shared/api/types'
-import type { Review, UserOrder, UserTicket } from '~~/shared/types'
-import { useTicketsRepository } from '@/repositories/ticketsRepository'
+import type { Review, UserTicket } from '~~/shared/types'
 import { useOrdersRepository } from '@/repositories/ordersRepository'
+import { useTicketsRepository } from '@/repositories/ticketsRepository'
 
 definePageMeta({
   middleware: 'auth',
@@ -99,7 +99,7 @@ function onReviewDeleted() {
 
 // ── Tickets pagination ─────────────────────────────────────────────────────────
 
-const TICKETS_PER_PAGE = 20
+const TICKETS_PER_PAGE = 5
 const ticketPage = ref(1)
 const totalTicketPages = computed(() =>
   Math.max(1, Math.ceil(eventTickets.value.length / TICKETS_PER_PAGE)),
@@ -115,7 +115,7 @@ function onTicketPageChange(newPage: number) {
 
 // ── Orders pagination ──────────────────────────────────────────────────────────
 
-const ORDERS_PER_PAGE = 20
+const ORDERS_PER_PAGE = 5
 const orderPage = ref(1)
 const totalOrderPages = computed(() =>
   Math.max(1, Math.ceil(eventOrders.value.length / ORDERS_PER_PAGE)),
@@ -157,12 +157,9 @@ useSeoMeta({
         <!-- Loading state -->
         <template v-if="!hasLoaded">
           <div class="flex min-h-[40vh] items-center justify-center py-20">
-            <div class="flex flex-col items-center gap-4 text-center">
-              <BaseIcon name="i-lucide-loader-2" class="size-8 animate-spin text-lavender" />
-              <p class="text-sm text-toned">
-                Cargando evento...
-              </p>
-            </div>
+            <p class="text-sm text-toned">
+              El evento se está cargando...
+            </p>
           </div>
         </template>
 

@@ -8,9 +8,9 @@ import {
   hasUserSemanticChanges,
   normalizeArtistPayload,
   normalizeConcertFormatPayload,
-  normalizeGenrePayload,
   normalizeCreateUserPayload,
   normalizeEventPayload,
+  normalizeGenrePayload,
   normalizeUpdateUserPayload,
 } from '@/utils/backoffice/formSafeRails'
 

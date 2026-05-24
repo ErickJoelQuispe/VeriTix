@@ -14,11 +14,11 @@ const BAR_HEIGHT = 80
 
 const bars = computed(() => {
   const items = props.history.slice(-MAX_BARS)
-  if (items.length < 2) return []
+  if (items.length < 2) { return [] }
 
   const deltas = items.map((snap, i) => {
-    if (i === 0) return { delta: 0, snap }
-    const prev = items[i - 1]
+    if (i === 0) { return { delta: 0, snap } }
+    const prev = items[i - 1]!
     return { delta: Math.max(snap.validated - prev.validated, 0), snap }
   }).slice(1) // drop first (no previous)
 
@@ -37,7 +37,7 @@ const bars = computed(() => {
 const hasData = computed(() => bars.value.length > 0)
 
 const totalRate = computed(() => {
-  if (bars.value.length === 0) return 0
+  if (bars.value.length === 0) { return 0 }
   return bars.value.reduce((acc, b) => acc + b.delta, 0)
 })
 </script>

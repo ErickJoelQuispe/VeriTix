@@ -17,7 +17,7 @@ const animatedPct = ref(0)
 let raf: number | null = null
 
 watch(() => props.occupancy, (next) => {
-  if (raf !== null) cancelAnimationFrame(raf)
+  if (raf !== null) { cancelAnimationFrame(raf) }
   const start = animatedPct.value
   const delta = next - start
   const duration = 600
@@ -28,13 +28,17 @@ watch(() => props.occupancy, (next) => {
     const progress = Math.min(elapsed / duration, 1)
     const eased = 1 - (1 - progress) ** 3
     animatedPct.value = start + delta * eased
-    if (progress < 1) raf = requestAnimationFrame(step)
+    if (progress < 1) {
+      raf = requestAnimationFrame(step)
+    }
     else { animatedPct.value = next; raf = null }
   }
   raf = requestAnimationFrame(step)
 }, { immediate: true })
 
-onUnmounted(() => { if (raf !== null) cancelAnimationFrame(raf) })
+onUnmounted(() => {
+  if (raf !== null) { cancelAnimationFrame(raf) }
+})
 
 const dashOffset = computed(() =>
   CIRCUMFERENCE - (animatedPct.value / 100) * CIRCUMFERENCE,
@@ -43,14 +47,14 @@ const dashOffset = computed(() =>
 // ── Color thresholds ─────────────────────────────────────────────────────────
 // oklch tokens from main.css
 const ringColor = computed(() => {
-  if (animatedPct.value >= 90) return 'var(--color-error)'
-  if (animatedPct.value >= 75) return 'var(--color-warning)'
+  if (animatedPct.value >= 90) { return 'var(--color-error)' }
+  if (animatedPct.value >= 75) { return 'var(--color-warning)' }
   return 'var(--color-success)'
 })
 
 const labelColor = computed(() => {
-  if (animatedPct.value >= 90) return 'text-error'
-  if (animatedPct.value >= 75) return 'text-warning'
+  if (animatedPct.value >= 90) { return 'text-error' }
+  if (animatedPct.value >= 75) { return 'text-warning' }
   return 'text-success'
 })
 </script>

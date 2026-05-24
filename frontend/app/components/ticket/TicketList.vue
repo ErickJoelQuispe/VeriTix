@@ -10,6 +10,8 @@ const emit = defineEmits<{
   openTicket: [ticket: UserTicket]
 }>()
 
+const DASHES_REGEX = /-/g
+
 function statusBadgeColor(status: TicketStatus): 'success' | 'neutral' | 'error' | 'warning' {
   const map: Record<TicketStatus, 'success' | 'neutral' | 'error' | 'warning'> = {
     ACTIVE: 'success',
@@ -40,7 +42,7 @@ function statusIcon(status: TicketStatus): string {
   return map[status]
 }
 
-const truncatedId = (id: string) => id.replace(/-/g, '').slice(0, 8)
+const truncatedId = (id: string) => id.replace(DASHES_REGEX, '').slice(0, 8)
 
 function formattedPrice(price: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(price)

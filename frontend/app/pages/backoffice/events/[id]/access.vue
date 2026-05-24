@@ -48,9 +48,9 @@ const pendingPct = computed(() =>
 // ── Connection badge ───────────────────────────────────────────────────────
 
 const connectionBadge = computed(() => {
-  if (isConnected.value) return { color: 'success' as const, label: 'En vivo' }
-  if (isConnecting.value) return { color: 'warning' as const, label: 'Conectando…' }
-  if (hasError.value) return { color: 'error' as const, label: 'Sin conexión' }
+  if (isConnected.value) { return { color: 'success' as const, label: 'En vivo' } }
+  if (isConnecting.value) { return { color: 'warning' as const, label: 'Conectando…' } }
+  if (hasError.value) { return { color: 'error' as const, label: 'Sin conexión' } }
   return { color: 'neutral' as const, label: 'Desconectado' }
 })
 </script>
@@ -59,7 +59,6 @@ const connectionBadge = computed(() => {
   <section class="py-10 sm:py-12 lg:py-14">
     <BaseContainer>
       <div class="space-y-8" data-testid="backoffice-access-page">
-
         <!-- ── Hero header ───────────────────────────────────────────────── -->
         <div class="relative overflow-hidden rounded-2xl">
           <div v-if="event?.imageUrl" class="absolute inset-0">
@@ -142,7 +141,6 @@ const connectionBadge = computed(() => {
 
         <!-- ── KPI grid + occupancy ring ─────────────────────────────────── -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_220px]">
-
           <!-- KPI cards 2x2 -->
           <div class="grid grid-cols-2 gap-4">
             <PagesBackofficeAccessStatCard
@@ -258,7 +256,6 @@ const connectionBadge = computed(() => {
             </BaseButton>
           </div>
         </UiPanel>
-
       </div>
     </BaseContainer>
   </section>

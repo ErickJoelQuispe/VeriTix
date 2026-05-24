@@ -8,11 +8,11 @@ describe('backofficeGenresRepository', () => {
   it('uses the admin genres endpoints for CRUD', async () => {
     const content = await readFile(join(appDir, 'repositories/backofficeGenresRepository.ts'), 'utf-8')
 
-    expect(content).toContain("'/admin/genres'")
+    expect(content).toContain('\'/admin/genres\'')
     expect(content).toMatch(/`\/admin\/genres\/\$\{genreId\}`/)
-    expect(content).toContain("method: 'GET'")
-    expect(content).toContain("method: 'POST'")
-    expect(content).toContain("method: 'PATCH'")
-    expect(content).toContain("method: 'DELETE'")
+    expect(content).toContain('method: \'GET\'')
+    expect(content).toContain('method: \'POST\'')
+    expect(content).toContain('method: \'PATCH\'')
+    expect(content).toContain('method: \'DELETE\'')
   })
 })

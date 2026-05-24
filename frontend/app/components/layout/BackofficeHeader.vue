@@ -22,6 +22,12 @@ const backofficeMenuItems = computed<AccountMenuItem[]>(() => {
       icon: 'i-lucide-calendar-range',
     },
     {
+      label: 'Mis ordenes',
+      description: 'Revisá el historial de tus compras',
+      to: '/users/me/orders',
+      icon: 'i-lucide-receipt-text',
+    },
+    {
       label: 'Panel Validador',
       description: 'Escanear y validar tickets en puerta',
       to: '/validator',
@@ -88,6 +94,12 @@ const mobileAccountLinks = computed(() => {
       description: 'Consultá tus reservas y tickets',
       to: '/users/me/events',
       icon: 'i-lucide-calendar-range',
+    },
+    {
+      label: 'Mis ordenes',
+      description: 'Revisá el historial de tus compras',
+      to: '/users/me/orders',
+      icon: 'i-lucide-receipt-text',
     },
     {
       label: 'Panel Validador',

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  lastUpdated: string | null   // ISO string from snapshot
+  lastUpdated: string | null // ISO string from snapshot
   updatesReceived: number
   isConnected: boolean
   isConnecting: boolean
@@ -17,24 +17,26 @@ function resetTimer() {
 }
 
 watch(() => props.lastUpdated, (val) => {
-  if (!val) return
+  if (!val) { return }
   resetTimer()
 })
 
 onMounted(() => {
   timer = setInterval(() => {
-    if (props.lastUpdated) secondsAgo.value++
+    if (props.lastUpdated) { secondsAgo.value++ }
   }, 1000)
 })
 
-onUnmounted(() => { if (timer) clearInterval(timer) })
+onUnmounted(() => {
+  if (timer) { clearInterval(timer) }
+})
 
 // ── Label ────────────────────────────────────────────────────────────────────
 
 const agoLabel = computed(() => {
-  if (!props.lastUpdated) return 'Sin actividad'
-  if (secondsAgo.value < 5) return 'Ahora mismo'
-  if (secondsAgo.value < 60) return `Hace ${secondsAgo.value}s`
+  if (!props.lastUpdated) { return 'Sin actividad' }
+  if (secondsAgo.value < 5) { return 'Ahora mismo' }
+  if (secondsAgo.value < 60) { return `Hace ${secondsAgo.value}s` }
   const mins = Math.floor(secondsAgo.value / 60)
   return `Hace ${mins}min`
 })
@@ -42,10 +44,10 @@ const agoLabel = computed(() => {
 // ── Status tone ──────────────────────────────────────────────────────────────
 
 const statusTone = computed(() => {
-  if (props.hasError) return 'error' as const
-  if (props.isConnecting) return 'warning' as const
-  if (!props.isConnected) return 'neutral' as const
-  if (secondsAgo.value > 30) return 'warning' as const
+  if (props.hasError) { return 'error' as const }
+  if (props.isConnecting) { return 'warning' as const }
+  if (!props.isConnected) { return 'neutral' as const }
+  if (secondsAgo.value > 30) { return 'warning' as const }
   return 'success' as const
 })
 
@@ -64,10 +66,10 @@ const pulseClass = computed(() =>
 )
 
 const statusLabel = computed(() => {
-  if (props.hasError) return 'Sin conexión'
-  if (props.isConnecting) return 'Conectando…'
-  if (!props.isConnected) return 'Desconectado'
-  if (secondsAgo.value > 30) return 'Sin actividad reciente'
+  if (props.hasError) { return 'Sin conexión' }
+  if (props.isConnecting) { return 'Conectando…' }
+  if (!props.isConnected) { return 'Desconectado' }
+  if (secondsAgo.value > 30) { return 'Sin actividad reciente' }
   return 'En vivo'
 })
 
@@ -77,15 +79,14 @@ const badgeColor = computed(() => statusTone.value === 'neutral' ? 'neutral' as 
 <template>
   <UiPanel variant="glass" radius="md" padding="md">
     <div class="flex items-center justify-between gap-4">
-
       <!-- Left: pulse dot + labels -->
       <div class="flex items-center gap-3">
         <div class="relative flex size-8 shrink-0 items-center justify-center">
           <!-- Ping ring — only when live and recent -->
           <span
             v-if="statusTone === 'success'"
-            class="absolute inline-flex size-full rounded-full opacity-60"
-            :class="[dotClass, 'animate-ping']"
+            class="absolute inline-flex size-full rounded-full opacity-60 animate-ping"
+            :class="[dotClass]"
           />
           <span
             class="relative inline-flex size-3 rounded-full"
@@ -107,7 +108,6 @@ const badgeColor = computed(() => statusTone.value === 'neutral' ? 'neutral' as 
       <BaseBadge kind="status" size="sm" :color="badgeColor">
         {{ statusLabel }}
       </BaseBadge>
-
     </div>
   </UiPanel>
 </template>

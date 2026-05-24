@@ -3,6 +3,12 @@ defineOptions({
   inheritAttrs: false,
 })
 
+const props = withDefaults(defineProps<{
+  spinnerClass?: string
+}>(), {
+  spinnerClass: 'size-4',
+})
+
 const attrs = useAttrs()
 
 const forwardedAttrs = computed(() => {
@@ -11,12 +17,6 @@ const forwardedAttrs = computed(() => {
 })
 
 const rootClass = computed(() => attrs.class)
-
-const props = withDefaults(defineProps<{
-  spinnerClass?: string
-}>(), {
-  spinnerClass: 'size-4',
-})
 </script>
 
 <template>

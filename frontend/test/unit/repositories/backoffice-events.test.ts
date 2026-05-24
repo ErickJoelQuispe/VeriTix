@@ -35,6 +35,6 @@ describe('backofficeEventsRepository', () => {
   it('uses admin-detail backend endpoint for backoffice event edit proxy', async () => {
     const content = await readFile(join(serverDir, 'api/admin/events/[id].get.ts'), 'utf-8')
 
-    expect(content).toContain('`/events/${id}/admin-detail`')
+    expect(content).toContain('`/events/' + '${' + 'id}' + '/admin-detail`')
   })
 })

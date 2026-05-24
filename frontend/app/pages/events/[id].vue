@@ -139,7 +139,6 @@ const eventLocation = computed(() => {
 const doorsOpen = computed(() => (event.value?.doorsOpenISO ? formatEventDate(event.value.doorsOpenISO) : 'Por confirmar'))
 const startSale = computed(() => (event.value?.startSaleISO ? formatEventDate(event.value.startSaleISO) : 'Por confirmar'))
 const endSale = computed(() => (event.value?.endSaleISO ? formatEventDate(event.value.endSaleISO) : 'Por confirmar'))
-const genreLabels = computed(() => event.value?.genres.map(genre => genre.name).join(' · ') ?? '')
 const eventStatusLabel = computed(() => (event.value ? (eventStatusLabels[event.value.status] ?? event.value.status) : ''))
 const eventStatusColor = computed(() => (event.value ? (eventStatusTone[event.value.status] ?? 'neutral') : 'neutral'))
 
@@ -557,7 +556,9 @@ function formatPerformanceTime(value: string | Date | null): string {
         <UiPanel as="section" variant="glass" radius="xl" padding="lg" class="space-y-6">
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="space-y-2">
-              <UiMetaLabel as="h3">Información del evento</UiMetaLabel>
+              <UiMetaLabel as="h3">
+                Información del evento
+              </UiMetaLabel>
               <p class="text-sm text-toned">
                 Una vista rápida y clara para organizar tu asistencia.
               </p>
@@ -644,11 +645,11 @@ function formatPerformanceTime(value: string | Date | null): string {
 
         <!-- Sales Report CTA (admin only, subtle) -->
         <UiPanel
+          v-if="user?.role === 'ADMIN' || user?.role === 'CREATOR'"
           as="section"
           variant="solid"
           radius="lg"
           padding="lg"
-          v-if="user?.role === 'ADMIN' || user?.role === 'CREATOR'"
           class="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left"
         >
           <div class="space-y-1">

@@ -152,12 +152,12 @@ function truncateId(id: string): string {
         <ClientOnly>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
             <template v-if="metricsLoading">
-              <UiPanel v-for="i in 2" :key="'s' + i" class="sm:col-span-3" variant="glass" radius="md" padding="md">
+              <UiPanel v-for="i in 2" :key="`s${i}`" class="sm:col-span-3" variant="glass" radius="md" padding="md">
                 <BaseSpinner class="mb-4 size-10 rounded-lg" />
                 <BaseSpinner class="mb-2 h-8 w-16" />
                 <BaseSpinner class="h-4 w-24" />
               </UiPanel>
-              <UiPanel v-for="i in 3" :key="'t' + i" class="sm:col-span-2" variant="glass" radius="md" padding="md">
+              <UiPanel v-for="i in 3" :key="`t${i}`" class="sm:col-span-2" variant="glass" radius="md" padding="md">
                 <BaseSpinner class="mb-4 size-10 rounded-lg" />
                 <BaseSpinner class="mb-2 h-8 w-16" />
                 <BaseSpinner class="h-4 w-24" />
@@ -173,7 +173,9 @@ function truncateId(id: string): string {
                       <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
                         {{ totalOrders }}
                       </p>
-                      <p class="text-sm text-toned">en este evento</p>
+                      <p class="text-sm text-toned">
+                        en este evento
+                      </p>
                     </div>
                   </div>
                   <div :class="statCardIconBoxClass('primary')">
@@ -190,7 +192,9 @@ function truncateId(id: string): string {
                       <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
                         {{ formatAmount(completedRevenue) }}
                       </p>
-                      <p class="text-sm text-toned">órdenes completadas</p>
+                      <p class="text-sm text-toned">
+                        órdenes completadas
+                      </p>
                     </div>
                   </div>
                   <div :class="statCardIconBoxClass('success')">
@@ -207,7 +211,9 @@ function truncateId(id: string): string {
                       <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
                         {{ pendingCount }}
                       </p>
-                      <p class="text-sm text-toned">sin confirmar</p>
+                      <p class="text-sm text-toned">
+                        sin confirmar
+                      </p>
                     </div>
                   </div>
                   <div :class="statCardIconBoxClass('warning')">
@@ -224,7 +230,9 @@ function truncateId(id: string): string {
                       <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
                         {{ cancelledCount }}
                       </p>
-                      <p class="text-sm text-toned">no procesadas</p>
+                      <p class="text-sm text-toned">
+                        no procesadas
+                      </p>
                     </div>
                   </div>
                   <div :class="statCardIconBoxClass('error')">
@@ -241,7 +249,9 @@ function truncateId(id: string): string {
                       <p class="text-2xl font-semibold tracking-tight text-highlighted sm:text-3xl">
                         {{ formatAmount(avgTicketPrice) }}
                       </p>
-                      <p class="text-sm text-toned">por orden completada</p>
+                      <p class="text-sm text-toned">
+                        por orden completada
+                      </p>
                     </div>
                   </div>
                   <div :class="statCardIconBoxClass('primary')">

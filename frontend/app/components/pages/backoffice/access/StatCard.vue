@@ -14,12 +14,12 @@ const props = defineProps<{
 const displayed = ref(props.value)
 let raf: number | null = null
 
-watch(() => props.value, (next, prev) => {
-  if (raf !== null) cancelAnimationFrame(raf)
+watch(() => props.value, (next) => {
+  if (raf !== null) { cancelAnimationFrame(raf) }
 
   const start = displayed.value
   const delta = next - start
-  if (delta === 0) return
+  if (delta === 0) { return }
 
   const duration = 400
   const startTime = performance.now()
@@ -42,7 +42,9 @@ watch(() => props.value, (next, prev) => {
   raf = requestAnimationFrame(step)
 }, { immediate: false })
 
-onUnmounted(() => { if (raf !== null) cancelAnimationFrame(raf) })
+onUnmounted(() => {
+  if (raf !== null) { cancelAnimationFrame(raf) }
+})
 
 // ── Icon box class ───────────────────────────────────────────────────────────
 

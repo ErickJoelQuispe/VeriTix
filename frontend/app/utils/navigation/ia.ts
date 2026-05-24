@@ -8,6 +8,7 @@ export interface BackofficeNavItem extends AppNavItem {
 }
 
 export const MY_EVENTS_NAV_ITEM: AppNavItem = { label: 'Mis eventos', to: '/users/me/events' }
+export const MY_ORDERS_NAV_ITEM: AppNavItem = { label: 'Mis ordenes', to: '/users/me/orders' }
 
 export const MAIN_NAV_ITEMS: AppNavItem[] = [
   { label: 'Inicio', to: '/' },

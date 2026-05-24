@@ -11,6 +11,8 @@ const emit = defineEmits<{
   'transferInitiated': []
 }>()
 
+const DASHES_REGEX = /-/g
+
 const isOpen = computed({
   get: () => props.open,
   set: value => emit('update:open', value),
@@ -68,7 +70,7 @@ onMounted(async () => {
 
 const truncatedHash = computed(() => {
   if (!props.ticket) { return '' }
-  const clean = props.ticket.id.replace(/-/g, '')
+  const clean = props.ticket.id.replace(DASHES_REGEX, '')
   return `${clean.slice(0, 4)}-${clean.slice(4, 8)}`.toUpperCase()
 })
 
