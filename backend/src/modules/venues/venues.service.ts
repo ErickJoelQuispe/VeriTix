@@ -21,6 +21,36 @@ export class VenuesService {
     private readonly cache: CacheService,
   ) {}
 
+  private async getVenuesListCacheVersion(): Promise<number> {
+    const version = await this.cache.get<number>(CACHE_KEYS.VENUES_LIST_VERSION);
+    return Number.isInteger(version) && (version as number) > 0
+      ? (version as number)
+      : 1;
+  }
+
+  private async bumpVenuesListCacheVersion(): Promise<void> {
+    const currentVersion = await this.getVenuesListCacheVersion();
+    await this.cache.set(
+      CACHE_KEYS.VENUES_LIST_VERSION,
+      currentVersion + 1,
+      CACHE_TTL_LONG,
+    );
+  }
+
+  private buildVenuesListCacheKey(
+    query: VenueQueryDto,
+    version: number,
+  ): string {
+    return CACHE_KEYS.VENUES_LIST_QUERY(version, {
+      page: query.page,
+      limit: query.limit,
+      city: query.city,
+      type: query.type,
+      isActive: query.isActive,
+      search: query.search,
+    });
+  }
+
   async create(dto: CreateVenueDto): Promise<VenueResponseDto> {
     const baseSlug = dto.slug ?? generateSlug(dto.name);
     const slug = await uniqueSlug(
@@ -29,15 +59,20 @@ export class VenuesService {
     );
 
     const created = await this.venuesRepository.create({ ...dto, slug });
-    await this.cache.del(CACHE_KEYS.VENUES_LIST);
+    await Promise.all([
+      this.cache.del(CACHE_KEYS.VENUES_LIST),
+      this.bumpVenuesListCacheVersion(),
+    ]);
     return created as VenueResponseDto;
   }
 
   async findAll(
     query: VenueQueryDto,
   ): Promise<PaginatedResponse<VenueResponseDto>> {
+    const version = await this.getVenuesListCacheVersion();
+
     return this.cache.getOrSet(
-      CACHE_KEYS.VENUES_LIST,
+      this.buildVenuesListCacheKey(query, version),
       () =>
         this.venuesRepository.findAll({
           page: query.page,
@@ -77,6 +112,7 @@ export class VenuesService {
     const updated = await this.venuesRepository.update(id, dto);
     await Promise.all([
       this.cache.del(CACHE_KEYS.VENUES_LIST),
+      this.bumpVenuesListCacheVersion(),
       this.cache.del(CACHE_KEYS.VENUES_DETAIL(id)),
     ]);
     return updated as VenueResponseDto;
@@ -89,6 +125,7 @@ export class VenuesService {
     await this.venuesRepository.softDelete(id);
     await Promise.all([
       this.cache.del(CACHE_KEYS.VENUES_LIST),
+      this.bumpVenuesListCacheVersion(),
       this.cache.del(CACHE_KEYS.VENUES_DETAIL(id)),
     ]);
   }
