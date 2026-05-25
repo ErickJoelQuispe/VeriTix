@@ -23,7 +23,7 @@ describe('backofficeHeader account menu', () => {
     expect(content).toContain('Formatos')
     expect(content).toContain('/backoffice/genres')
     expect(content).toContain('/backoffice/concert-formats')
-    expect(content).toContain('Dashboard')
+    expect(content).toContain('Panel')
     expect(content).toContain('/backoffice')
   })
 })

@@ -61,7 +61,7 @@ function handleCancel() {
     <FormField
       v-model="formState.recipientEmail"
       name="recipientEmail"
-      label="Email del destinatario"
+      label="Correo electrónico del destinatario"
       type="email"
       placeholder="destinatario@ejemplo.com"
       icon="i-lucide-mail"

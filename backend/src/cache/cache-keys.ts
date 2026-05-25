@@ -7,6 +7,9 @@ export const CACHE_KEYS = {
   GENRES_LIST: 'genres:list',
   FORMATS_LIST: 'formats:list',
   VENUES_LIST: 'venues:list',
+  VENUES_LIST_VERSION: 'venues:list:version',
+  VENUES_LIST_QUERY: (version: number, params: Record<string, unknown>) =>
+    `venues:list:v${version}:${JSON.stringify(params)}`,
   VENUES_DETAIL: (id: string) => `venues:${id}`,
   ARTISTS_LIST: (params: Record<string, unknown>) =>
     `artists:list:${JSON.stringify(params)}`,

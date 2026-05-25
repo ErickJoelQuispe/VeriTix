@@ -25,7 +25,7 @@ export function useEventOrders(eventId: MaybeRef<string>) {
       meta.value = response.meta
     }
     catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to load event orders'
+      const message = err instanceof Error ? err.message : 'No se pudieron cargar las órdenes del evento'
       error.value = message
     }
     finally {

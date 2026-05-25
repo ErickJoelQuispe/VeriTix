@@ -24,7 +24,7 @@ export function useEventMetrics(eventId: MaybeRefOrGetter<string>) {
     }
     catch (err: unknown) {
       metrics.value = null
-      error.value = err instanceof Error ? err.message : 'Failed to load metrics'
+      error.value = err instanceof Error ? err.message : 'No se pudieron cargar las métricas'
     }
     finally {
       isLoading.value = false

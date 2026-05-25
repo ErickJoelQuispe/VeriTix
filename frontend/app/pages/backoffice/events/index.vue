@@ -265,8 +265,8 @@ onMounted(() => {
       <div class="space-y-8" data-testid="backoffice-events-page">
         <UiPageHeading
           eyebrow="Backoffice"
-          title="Manage events"
-          description="Search, filter, and update event records with a compact overview."
+          title="Gestionar eventos"
+          description="Buscá, filtrá y actualizá registros de eventos con una vista compacta."
           action-label="Nuevo evento"
           action-to="/backoffice/events/new"
         />
@@ -595,6 +595,30 @@ onMounted(() => {
                               >
                                 <BaseIcon name="i-lucide-pencil" class="size-4" aria-hidden="true" />
                                 Editar evento
+                              </BaseButton>
+
+                              <BaseButton
+                                variant="secondary"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :to="`/backoffice/events/${event.id}/sales`"
+                                @click="actionMenuOpen[event.id] = false"
+                              >
+                                <BaseIcon name="i-lucide-bar-chart-3" class="size-4" aria-hidden="true" />
+                                Ver ventas
+                              </BaseButton>
+
+                              <BaseButton
+                                variant="secondary"
+                                size="md"
+                                block
+                                class="justify-start"
+                                :to="`/backoffice/events/${event.id}/access`"
+                                @click="actionMenuOpen[event.id] = false"
+                              >
+                                <BaseIcon name="i-lucide-scan-line" class="size-4" aria-hidden="true" />
+                                Ver accesos
                               </BaseButton>
 
                               <BaseButton

@@ -157,9 +157,7 @@ useSeoMeta({
         <!-- Loading state -->
         <template v-if="!hasLoaded">
           <div class="flex min-h-[40vh] items-center justify-center py-20">
-            <p class="text-sm text-toned">
-              El evento se está cargando...
-            </p>
+            <BaseSpinner class="size-10" spinner-class="size-10" />
           </div>
         </template>
 

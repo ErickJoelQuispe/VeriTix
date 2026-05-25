@@ -307,11 +307,6 @@ onMounted(() => {
                     </div>
                   </div>
 
-                  <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
-                    <span class="text-xs font-medium text-toned/70">
-                      {{ format.icon ? 'Ícono personalizado' : 'Ícono por defecto' }}
-                    </span>
-                  </div>
                 </div>
               </UiPanel>
             </div>

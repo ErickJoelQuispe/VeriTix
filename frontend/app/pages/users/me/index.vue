@@ -278,10 +278,10 @@ onMounted(() => {
                         />
                       </div>
 
-                      <FormField
-                        v-model="profileState.avatarUrl"
-                        name="avatarUrl"
-                        label="Avatar URL"
+                        <FormField
+                          v-model="profileState.avatarUrl"
+                          name="avatarUrl"
+                          label="URL del avatar"
                         help="Opcional"
                         type="url"
                         placeholder="https://..."
@@ -303,7 +303,7 @@ onMounted(() => {
                         <FormField
                           v-model="profileState.email"
                           name="email"
-                          label="Email"
+                          label="Correo electrónico"
                           type="email"
                           placeholder="tu@email.com"
                           icon="i-lucide-mail"
