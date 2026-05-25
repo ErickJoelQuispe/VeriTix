@@ -545,12 +545,17 @@ const seedEvents = [
 // ─── SEED MAIN ────────────────────────────────────────────────────────────────
 
 async function main() {
-  // Limpiar BD idempotencia
+  // Limpiar BD idempotencia (orden inverso de dependencias FK)
   await prisma.payment.deleteMany({});
   await prisma.ticket.deleteMany({});
   await prisma.orderItem.deleteMany({});
   await prisma.order.deleteMany({});
+  await prisma.eventArtist.deleteMany({});
   await prisma.event.deleteMany({});
+  await prisma.artist.deleteMany({});
+  await prisma.genre.deleteMany({});
+  await prisma.concertFormat.deleteMany({});
+  await prisma.venue.deleteMany({});
 
   // ── Usuarios ──────────────────────────────────────────────────────────────
   const adminPassword = await bcrypt.hash(`${process.env.ADMIN_PASSWORD || 'Admin1234!'}`, 12);
