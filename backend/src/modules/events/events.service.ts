@@ -8,6 +8,7 @@ import { PaginatedResponse, createPaginatedResponse } from '@common/dto';
 import { JwtPayload } from '@common/interfaces';
 import {
   CACHE_KEYS,
+  CACHE_TTL_LONG,
   CACHE_TTL_MEDIUM,
   CACHE_TTL_SHORT,
   CacheService,
@@ -84,8 +85,25 @@ export class EventsService {
 
   // ── Public methods ───────────────────────────────────────────────────────
 
-  private buildEventsListCacheKey(query: EventQueryDto): string {
-    return CACHE_KEYS.EVENTS_LIST(
+  private async getEventsListCacheVersion(): Promise<number> {
+    const version = await this.cache.get<number>(CACHE_KEYS.EVENTS_LIST_VERSION);
+    return Number.isInteger(version) && (version as number) > 0
+      ? (version as number)
+      : 1;
+  }
+
+  private async bumpEventsListCacheVersion(): Promise<void> {
+    const currentVersion = await this.getEventsListCacheVersion();
+    await this.cache.set(
+      CACHE_KEYS.EVENTS_LIST_VERSION,
+      currentVersion + 1,
+      CACHE_TTL_LONG,
+    );
+  }
+
+  private buildEventsListCacheKey(query: EventQueryDto, version: number): string {
+    return CACHE_KEYS.EVENTS_LIST_QUERY(
+      version,
       JSON.stringify({
         page: query.page,
         limit: query.limit,
@@ -101,8 +119,11 @@ export class EventsService {
   }
 
   private async invalidateEventCache(id: string): Promise<void> {
-    await this.cache.del(CACHE_KEYS.EVENTS_DETAIL_STATIC(id));
-    // No invalidamos listas por prefijo: usamos TTL corto para evitar complejidad.
+    await Promise.all([
+      this.cache.del(CACHE_KEYS.EVENTS_DETAIL_STATIC(id)),
+      this.cache.del(CACHE_KEYS.EVENTS_LIST),
+      this.bumpEventsListCacheVersion(),
+    ]);
   }
 
   private async getCachedEventDetailOrThrow(id: string): Promise<EventDetail> {
@@ -128,7 +149,10 @@ export class EventsService {
       creatorId,
     });
 
-    await this.invalidateEventCache(created.id);
+    await Promise.all([
+      this.cache.del(CACHE_KEYS.EVENTS_LIST),
+      this.bumpEventsListCacheVersion(),
+    ]);
 
     return created as unknown as EventDetailResponseDto;
   }
@@ -136,7 +160,8 @@ export class EventsService {
   async findAll(
     query: EventQueryDto,
   ): Promise<PaginatedResponse<EventListResponseDto>> {
-    const key = this.buildEventsListCacheKey(query);
+    const version = await this.getEventsListCacheVersion();
+    const key = this.buildEventsListCacheKey(query, version);
 
     return this.cache.getOrSet(
       key,

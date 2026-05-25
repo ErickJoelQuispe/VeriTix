@@ -86,7 +86,7 @@ const featuredGenres = computed(() => props.artist.genres.slice(0, 3))
 
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
           <BaseButton
-            :to="`/artists/${artist.id}`"
+            :to="`/artists/${artist.slug}`"
             variant="secondary"
             size="sm"
             class="w-full sm:w-auto"

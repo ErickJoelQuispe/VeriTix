@@ -457,7 +457,7 @@ function formatPerformanceTime(value: string | Date | null): string {
                   <NuxtLink
                     v-for="artistItem in group.items"
                     :key="artistItem.id"
-                    :to="`/artists/${artistItem.artist.id}`"
+                    :to="`/artists/${artistItem.artist.slug}`"
                     class="flex items-center gap-4 rounded-2xl border px-4 py-4 transition-colors hover:border-lavender/35 hover:bg-elevated/35"
                     :class="artistItem.role === 'HEADLINER'
                       ? 'border-lavender/45 bg-lavender/8'
