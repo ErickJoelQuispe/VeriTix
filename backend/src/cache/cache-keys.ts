@@ -11,8 +11,10 @@ export const CACHE_KEYS = {
   VENUES_LIST_QUERY: (version: number, params: Record<string, unknown>) =>
     `venues:list:v${version}:${JSON.stringify(params)}`,
   VENUES_DETAIL: (id: string) => `venues:${id}`,
-  ARTISTS_LIST: (params: Record<string, unknown>) =>
-    `artists:list:${JSON.stringify(params)}`,
+  ARTISTS_LIST: 'artists:list',
+  ARTISTS_LIST_VERSION: 'artists:list:version',
+  ARTISTS_LIST_QUERY: (version: number, params: Record<string, unknown>) =>
+    `artists:list:v${version}:${JSON.stringify(params)}`,
   ARTISTS_DETAIL: (id: string) => `artists:${id}`,
 
   // Eventos — TTL corto/medio

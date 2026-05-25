@@ -21,6 +21,36 @@ export class ArtistsService {
     private readonly cache: CacheService,
   ) {}
 
+  private async getArtistsListCacheVersion(): Promise<number> {
+    const version = await this.cache.get<number>(CACHE_KEYS.ARTISTS_LIST_VERSION);
+    return Number.isInteger(version) && (version as number) > 0
+      ? (version as number)
+      : 1;
+  }
+
+  private async bumpArtistsListCacheVersion(): Promise<void> {
+    const currentVersion = await this.getArtistsListCacheVersion();
+    await this.cache.set(
+      CACHE_KEYS.ARTISTS_LIST_VERSION,
+      currentVersion + 1,
+      CACHE_TTL_LONG,
+    );
+  }
+
+  private buildArtistsListCacheKey(
+    query: ArtistQueryDto,
+    version: number,
+  ): string {
+    return CACHE_KEYS.ARTISTS_LIST_QUERY(version, {
+      page: query.page,
+      limit: query.limit,
+      genreId: query.genreId,
+      country: query.country,
+      isActive: query.isActive,
+      search: query.search,
+    });
+  }
+
   async create(dto: CreateArtistDto): Promise<ArtistResponseDto> {
     const baseSlug = dto.slug ?? generateSlug(dto.name);
     const slug = await uniqueSlug(
@@ -29,15 +59,19 @@ export class ArtistsService {
     );
 
     const created = await this.artistsRepository.create({ ...dto, slug });
+    await Promise.all([
+      this.cache.del(CACHE_KEYS.ARTISTS_LIST),
+      this.bumpArtistsListCacheVersion(),
+    ]);
     return created as ArtistResponseDto;
   }
 
   async findAll(
     query: ArtistQueryDto,
   ): Promise<PaginatedResponse<ArtistResponseDto>> {
-    const key = CACHE_KEYS.ARTISTS_LIST(query as unknown as Record<string, unknown>);
+    const version = await this.getArtistsListCacheVersion();
     return this.cache.getOrSet(
-      key,
+      this.buildArtistsListCacheKey(query, version),
       () =>
         this.artistsRepository.findAll({
           page: query.page,
@@ -75,7 +109,11 @@ export class ArtistsService {
     }
 
     const updated = await this.artistsRepository.update(id, dto);
-    await this.cache.del(CACHE_KEYS.ARTISTS_DETAIL(id));
+    await Promise.all([
+      this.cache.del(CACHE_KEYS.ARTISTS_LIST),
+      this.bumpArtistsListCacheVersion(),
+      this.cache.del(CACHE_KEYS.ARTISTS_DETAIL(id)),
+    ]);
     return updated as ArtistResponseDto;
   }
 
@@ -84,6 +122,10 @@ export class ArtistsService {
     if (!artist) throw new NotFoundException('Artista no encontrado');
 
     await this.artistsRepository.softDelete(id);
-    await this.cache.del(CACHE_KEYS.ARTISTS_DETAIL(id));
+    await Promise.all([
+      this.cache.del(CACHE_KEYS.ARTISTS_LIST),
+      this.bumpArtistsListCacheVersion(),
+      this.cache.del(CACHE_KEYS.ARTISTS_DETAIL(id)),
+    ]);
   }
 }
