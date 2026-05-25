@@ -21,6 +21,8 @@ La implementación backend se organiza en dominios funcionales claramente delimi
 | Identidad y acceso         | `auth`, `users`                                     |
 | Catálogo y eventos         | `events` (incluye `ticket-types` y `event-artists`) |
 | Transacción y emisión      | `orders`, `tickets`, `webhooks`                     |
+| Comunidad y postventa      | `favorites`, `reviews`, `ticket-transfers`          |
+| Adjuntos y multimedia      | `uploads`                                            |
 | Infraestructura de dominio | `venues`, `artists`, `genres`, `concert-formats`    |
 | Soporte operativo          | `notifications`, `queues`, `cache`                  |
 
@@ -39,8 +41,12 @@ tablas compactas para mantener la legibilidad del PDF.
 | -------------------------- | --------------------- | ----------------------------------------------------- |
 | POST /api/v1/auth/register | Pública               | Alta usuario y devuelve mensaje de verificación       |
 | POST /api/v1/auth/login    | Pública               | Recibe credenciales y devuelve token + cookie refresh |
+| GET /api/v1/auth/session   | Cookie refresh válida | Devuelve sesión activa para bootstrap sin rotar cookie |
+| GET /api/v1/auth/verify-email | Pública            | Verifica cuenta mediante token de email               |
 | POST /api/v1/auth/refresh  | Cookie refresh válida | Emite nuevo access token y rota cookie                |
 | POST /api/v1/auth/logout   | JWT + cookie refresh  | Revoca refresh token y limpia cookie (204)            |
+| POST /api/v1/auth/forgot-password | Pública             | Solicita enlace de restablecimiento (respuesta neutra) |
+| POST /api/v1/auth/reset-password  | Pública             | Restablece contraseña con token válido                 |
 
 ## Eventos y catálogo
 
@@ -61,6 +67,22 @@ tablas compactas para mantener la legibilidad del PDF.
 | POST /api/v1/tickets/validate | JWT + rol ADMIN/VALIDATOR     | Valida ticket por hash y registra trazabilidad |
 | POST /api/v1/webhooks/stripe  | Firma stripe-signature válida | Procesa evento de pago/reembolso               |
 
+## Funcionalidades sociales y soporte
+
+| Endpoint                                           | Seguridad                 | Resumen funcional                                  |
+| -------------------------------------------------- | ------------------------- | -------------------------------------------------- |
+| POST /api/v1/favorites/events/:eventId             | JWT + rol BUYER           | Alterna estado favorito (alta/baja) por evento     |
+| GET /api/v1/favorites/events                       | JWT + rol BUYER           | Lista paginada de favoritos del usuario            |
+| GET /api/v1/favorites/events/:eventId              | JWT + rol BUYER           | Consulta si un evento está en favoritos            |
+| POST /api/v1/reviews                               | JWT + rol BUYER           | Crea reseña de evento                              |
+| PATCH /api/v1/reviews/:id                          | JWT + rol BUYER           | Actualiza reseña propia                            |
+| DELETE /api/v1/reviews/:id                         | JWT + rol BUYER/ADMIN     | Elimina reseña (autor o admin)                     |
+| POST /api/v1/ticket-transfers                      | JWT usuario autenticado   | Inicia transferencia de ticket                     |
+| GET /api/v1/ticket-transfers/accept?token=...      | Pública (JWT opcional)    | Acepta transferencia vía token                     |
+| POST /api/v1/ticket-transfers/:id/cancel           | JWT usuario autenticado   | Cancela transferencia iniciada                     |
+| POST /api/v1/ticket-transfers/complete-after-register | JWT + rol BUYER        | Completa transferencia tras registro del receptor  |
+| POST /api/v1/uploads/sign                          | JWT usuario autenticado   | Genera firma de subida directa a Cloudinary        |
+
 ## Modelo de datos y constraints
 
 El esquema Prisma (`backend/prisma/schema.prisma`) se organiza en dos bloques:
@@ -69,6 +91,7 @@ El esquema Prisma (`backend/prisma/schema.prisma`) se organiza en dos bloques:
 | -------------------- | ------------------------------------------------------------------------- |
 | Núcleo transaccional | User, RefreshToken, Event, TicketType, Order, OrderItem, Ticket, Payment. |
 | Catálogos y soporte  | Venue, Artist, Genre, ConcertFormat, EventArtist.                         |
+| Comunidad y postventa| Favorite, Review, TicketTransfer.                                         |
 
 ## Relaciones principales verificables
 
@@ -90,7 +113,7 @@ El esquema Prisma (`backend/prisma/schema.prisma`) se organiza en dos bloques:
 | Integridad referencial (FK) | Presente en las relaciones críticas (`event_id`, `buyer_id`, `order_id`, etc.).                                                                                     |
 | Cascadas de borrado         | `RefreshToken→User`, `EventArtist→Event`, `TicketType→Event`, `OrderItem→Order`, `Ticket→Event`.                                                                    |
 | Índices de consulta         | `events(status, eventDate)`, `orders(buyerId, createdAt)`, `orders(eventId, status)`, `tickets(buyerId, status)`, `tickets(eventId, status)`.                       |
-| Enums de dominio            | `Role`, `EventStatus`, `OrderStatus`, `TicketStatus`, `PaymentStatus`.                                                                                              |
+| Enums de dominio            | `Role`, `EventStatus`, `OrderStatus`, `TicketStatus`, `PaymentStatus`, `VenueType`, `ArtistRole`, `TransferStatus`.                                                 |
 
 ## Seguridad y control de integridad
 
@@ -186,8 +209,8 @@ services:
 - `backend/.env.example`: variables necesarias del backend (`DATABASE_URL`, secrets JWT,
   Stripe, Resend, Redis, CORS, etc.).
 - `backend/prisma/schema.prisma`: modelo de datos y restricciones.
-- `backend/docker-compose.yml` y `frontend/docker-compose.yml`: configuración de contenedores
-  por paquete. (No existe un `docker-compose.yml` único en la raíz).
+- `docker-compose.yml`: orquestación raíz del monorepo.
+- `backend/docker-compose.yml` y `frontend/docker-compose.yml`: configuración específica por paquete.
 
 ## Configuración de la API
 

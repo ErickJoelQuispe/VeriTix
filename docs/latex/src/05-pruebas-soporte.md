@@ -31,23 +31,24 @@ validación de tickets.
 
 ## Frontend
 
-Las pruebas de frontend se ejecutan con Vitest en dos proyectos:
+Las pruebas de frontend se ejecutan con Vitest en dos proyectos (`unit` y `nuxt`):
 
-- **`unit`** (44 tests): lógica pura sin dependencia de Nuxt. Transformación
+- **`unit`**: lógica pura sin dependencia de Nuxt. Transformación
   de datos de API (mappers, filtros, formateo de fechas y monedas),
   normalización de errores HTTP, validación estructural de repositorios.
-- **`nuxt`** (36 tests): comportamiento de composables con runtime Nuxt.
+- **`nuxt`**: comportamiento de composables con runtime Nuxt.
   Autenticación (login, register, refreshSession, ensureSession, logout),
   auto-retry ante 401 con renovación de token, perfil de usuario (fetch,
   update, changePassword), gestión de notificaciones (add, remove,
   auto-dismiss), middlewares de ruta (auth, guest, backoffice), páginas de
-  autenticación (login, register, forgot-password).
+  autenticación (login, register, forgot-password) y flujo de orden
+  (`orders/[id]/success`, `orders/[id]/cancel`).
 
 ---
 
 ::: {.latex-figure width="0.92\\linewidth"}
 
-![Ejecución de los 80 tests del frontend](assets/frontend-tests.png)
+![Snapshot de ejecución de tests de frontend](assets/frontend-tests.png)
 
 :::
 
@@ -57,20 +58,16 @@ Los tests se organizan por dominio reflejando la estructura del código fuente:
 
 ```bash
 test/
-├── unit/                            → 16 archivos
-│   ├── auth/                        → useApiErrorMessage, route-access
-│   ├── public/                      → normalizeFilters, mappers, currency, date
-│   ├── repositories/                → estructura y exports por repositorio
-│   └── utils/                       → formatMoney
-│
-└── nuxt/                            → 6 archivos
-    ├── auth/                        → useAuth, useApiRequest, useProfile,
-    │                                   middlewares, páginas de auth
-    └── ui/                          → useToastQueue
+├── unit/          → utilidades, mappers y contratos de repositorios
+└── nuxt/          → composables, middlewares y páginas con runtime Nuxt
 ```
 
-Cada archivo de test cubre una única fuente (un composable, un repositorio o
-una función) y su nombre indica claramente qué está testeando.
+Cada archivo de test cubre una única fuente (composable, repositorio, página o
+función) y su nombre indica claramente qué está testeando.
+
+La UI de validación está implementada en `app/pages/validator/index.vue` y
+`app/pages/validator/scan.vue`; su comportamiento funcional se cubre en backend
+con e2e de `POST /api/v1/tickets/validate` (`backend/test/tickets.e2e-spec.ts`).
 
 ### Infraestructura de tests
 

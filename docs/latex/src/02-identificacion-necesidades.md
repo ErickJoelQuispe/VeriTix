@@ -4,19 +4,18 @@
 
 ### Identificar las fases del proyecto y su contenido
 
-La planificación original se definió en ocho fases. A continuación se refleja el grado de
-cumplimiento según el estado real del repositorio (abril de 2026).
+La planificación original se definió en ocho fases.
 
-| Fase                              | Contenido planificado                                     |                                             Estado actual |
-| --------------------------------- | --------------------------------------------------------- | --------------------------------------------------------: |
-| 1. Análisis y diseño              | Requisitos, modelo de datos, contratos API, wireframes    |                                                Completada |
-| 2. Autenticación y usuarios       | Registro/login/refresh/roles                              |                      Completada (backend + frontend base) |
-| 3. Gestión de eventos y catálogos | CRUD de eventos, recintos, artistas, géneros y formatos   |                                                Completada |
-| 4. Venta de tickets               | Órdenes, Stripe Checkout, webhooks, generación de tickets |     Completada en backend; integración frontend pendiente |
-| 5. Validación de tickets          | Endpoint de validación y trazabilidad de acceso           |               Backend completado; UI de scanner pendiente |
-| 6. Panel administrativo           | Gestión y métricas para administración                    |                       Completada (área admin en frontend) |
-| 7. Testing                        | Pruebas unitarias/integración/e2e/concurrencia            | Implementadas en backend; no ejecutadas en esta auditoría |
-| 8. Despliegue y documentación     | Operación productiva y manuales finales                   |                                                   Parcial |
+| Fase                              | Contenido planificado                                   |
+| --------------------------------- | ------------------------------------------------------- |
+| 1. Análisis y diseño              | Requisitos, modelo de datos, contratos API, wireframes |
+| 2. Autenticación y usuarios       | Registro/login/refresh/roles                           |
+| 3. Gestión de eventos y catálogos | CRUD de eventos, recintos, artistas, géneros y formatos |
+| 4. Venta de tickets               | Órdenes, Stripe Checkout, webhooks, generación de tickets |
+| 5. Validación de tickets          | Endpoint de validación y trazabilidad de acceso        |
+| 6. Panel administrativo           | Gestión y métricas para administración                 |
+| 7. Testing                        | Pruebas unitarias/integración/e2e/concurrencia         |
+| 8. Despliegue y documentación     | Operación productiva y manuales finales                |
 
 ### Especificar los objetivos del proyecto
 
@@ -39,7 +38,7 @@ cumplimiento según el estado real del repositorio (abril de 2026).
 | Capa / dominio | Tecnologías y mecanismos                               |
 | -------------- | ------------------------------------------------------ |
 | Backend        | NestJS 11, Prisma 7, PostgreSQL, Redis, BullMQ.        |
-| Frontend       | Nuxt 4, Vue 3, Nuxt UI, Tailwind 4.                    |
+| Frontend       | Nuxt 4, Vue 3, Tailwind 4.                             |
 | Auth           | JWT + refresh token HTTP-only con rotación.            |
 | Pagos          | Stripe Checkout + webhook (`/api/v1/webhooks/stripe`). |
 | Notificaciones | Resend (emails) + colas BullMQ.                        |

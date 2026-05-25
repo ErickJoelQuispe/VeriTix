@@ -53,7 +53,7 @@ ofrece la experiencia de compra, administración y consulta para usuarios finale
 | Componente | Tecnología                                              |
 | ---------- | ------------------------------------------------------- |
 | Backend    | NestJS 11 + TypeScript + Prisma 7 + PostgreSQL + Redis. |
-| Frontend   | Nuxt 4 + Vue 3 + Nuxt UI + Tailwind 4.                  |
+| Frontend   | Nuxt 4 + Vue 3 + Tailwind 4.                            |
 
 La autenticación se basa en JWT (access token de corta vida y refresh token en cookie HTTP-only
 con rotación). El flujo cubre publicación de eventos, compra transaccional, emisión de tickets
