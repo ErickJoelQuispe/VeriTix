@@ -18,7 +18,10 @@ export const CACHE_KEYS = {
   ARTISTS_DETAIL: (id: string) => `artists:${id}`,
 
   // Eventos — TTL corto/medio
-  EVENTS_LIST: (params: string) => `events:list:${params}`,
+  EVENTS_LIST: 'events:list',
+  EVENTS_LIST_VERSION: 'events:list:version',
+  EVENTS_LIST_QUERY: (version: number, params: string) =>
+    `events:list:v${version}:${params}`,
   EVENTS_DETAIL_STATIC: (id: string) => `events:static:${id}`,
   EVENTS_UPCOMING: (role: string, userId: string, limit: number) =>
     `events:upcoming:${role}:${userId}:${limit}`,
