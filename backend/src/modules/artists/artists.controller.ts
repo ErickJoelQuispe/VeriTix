@@ -63,16 +63,16 @@ export class ArtistsController {
     return this.artistsService.findAll(query);
   }
 
-  @Get(':id')
+  @Get(':idOrSlug')
   @Public()
-  @ApiOperation({ summary: 'Obtener artista por ID' })
+  @ApiOperation({ summary: 'Obtener artista por ID o slug' })
   @ApiOkResponse({
     description: 'Artista encontrado.',
     type: ArtistResponseDto,
   })
   @ApiNotFoundResponse({ description: 'Artista no encontrado.' })
-  findOne(@Param('id', ParseUUIDPipe) id: string): Promise<ArtistResponseDto> {
-    return this.artistsService.findOne(id);
+  findOne(@Param('idOrSlug') idOrSlug: string): Promise<ArtistResponseDto> {
+    return this.artistsService.findOne(idOrSlug);
   }
 
   @Patch(':id')

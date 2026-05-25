@@ -85,11 +85,14 @@ export class ArtistsService {
     ) as Promise<PaginatedResponse<ArtistResponseDto>>;
   }
 
-  async findOne(id: string): Promise<ArtistResponseDto> {
+  async findOne(idOrSlug: string): Promise<ArtistResponseDto> {
     return this.cache.getOrSet(
-      CACHE_KEYS.ARTISTS_DETAIL(id),
+      CACHE_KEYS.ARTISTS_DETAIL(idOrSlug),
       async () => {
-        const artist = await this.artistsRepository.findById(id);
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
+        const artist = isUuid
+          ? await this.artistsRepository.findById(idOrSlug)
+          : await this.artistsRepository.findBySlug(idOrSlug);
         if (!artist) throw new NotFoundException('Artista no encontrado');
         return artist;
       },

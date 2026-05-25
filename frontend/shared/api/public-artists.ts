@@ -1,5 +1,6 @@
 export interface PublicArtistListApiItem {
   id: string
+  slug: string
   name: string
   bio: string | null
   imageUrl: string | null
