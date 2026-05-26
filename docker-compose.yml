@@ -98,6 +98,7 @@ services:
       target: production
       args:
         NUXT_APP_BASE_URL: ${NUXT_APP_BASE_URL:-/}
+        NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://localhost:3001/api/v1}
     container_name: veritix_frontend
     restart: unless-stopped
     ports:

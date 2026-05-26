@@ -13,6 +13,9 @@ COPY . .
 ARG NUXT_APP_BASE_URL=/
 ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
 
+ARG NUXT_PUBLIC_API_BASE
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
+
 # Limita el heap de V8 — si se pasa, muere el proceso, no el VPS
 ENV NODE_OPTIONS="--max-old-space-size=2048"
 
