@@ -29,9 +29,9 @@ export function useAccessStatsStream(eventId: MaybeRefOrGetter<string>) {
   let eventSource: EventSource | null = null
 
   function buildStreamUrl(id: string): string {
-    const base = (config.public.backendApiBase as string).replace(TRAILING_SLASH_REGEX, '')
+    const base = (config.public.apiBase as string).replace(TRAILING_SLASH_REGEX, '')
     const token = accessToken.value ?? ''
-    return `${base}/events/${id}/access-stats/stream?token=${encodeURIComponent(token)}`
+    return `${base}/admin/events/${id}/access-stats/stream?token=${encodeURIComponent(token)}`
   }
 
   function connect(): void {

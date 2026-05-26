@@ -19,7 +19,6 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || `${process.env.NUXT_APP_BASE_URL || '/'}api`,
       apiTimeoutMs: Number(process.env.NUXT_PUBLIC_API_TIMEOUT_MS || 8000),
-      backendApiBase: process.env.NUXT_BACKEND_API_BASE || 'http://localhost:3001/api/v1',
     },
   },
 
